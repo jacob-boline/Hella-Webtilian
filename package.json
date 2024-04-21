@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "create-stylelint": "^0.4.0",
+    "gsap": "^3.12.4",
+    "scrollmagic-plugin-gsap": "^1.0.4"
+  }
+}

@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="section" id="section1">
+    <div class="background">
+        <!-- Add your background image for section 1 here -->
+    </div>
+    <div class="foreground">
+        <!-- Add your text content for section 1 here -->
+    </div>
+</div>
+
+<div class="section" id="section2">
+    <div class="background">
+        <!-- Add your background image for section 2 here -->
+    </div>
+    <div class="foreground">
+        <!-- Add your text content for section 2 here -->
+    </div>
+</div>
+
+<div class="section" id="section3">
+    <div class="background">
+        <!-- Add your background image for section 3 here -->
+    </div>
+    <div class="foreground">
+        <!-- Add your text content for section 3 here -->
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'path/to/your/locomotive.js' %}"></script>
+<script src="{% static 'path/to/your/scrollmagic.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const scroll = new LocomotiveScroll({
+            el: document.querySelector('#your-scroll-container'), // Replace with your container ID
+            smooth: true,
+            direction: 'vertical',
+            tablet: { smooth: true },
+            smartphone: { smooth: true },
+        });
+
+        const controller = new ScrollMagic.Controller();
+
+        // Scene for section 1
+        new ScrollMagic.Scene({
+            triggerElement: '#section1',
+            triggerHook: 0,
+            duration: '100%', // Adjust as needed
+        })
+        .setPin('#section1')
+        .addTo(controller);
+
+        // Add similar ScrollMagic.Scene instances for section 2 and 3
+
+    });
+</script>
+{% endblock %}

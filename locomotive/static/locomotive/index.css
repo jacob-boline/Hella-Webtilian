@@ -1,0 +1,112 @@
+{% load static %}
+
+header {
+    position: sticky;
+    top: 0;
+}
+
+.wipe-section {
+    height: 100vh;
+    width: 100%;
+    transition: opacity 0.8s ease, transform 0.8s ease;
+    opacity: 0;
+    transform: translateY(10%);
+}
+    .wipe-section.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+.parallax-section {
+    position: relative;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.parallax-background {
+    /*position: absolute;*/
+    position: relative;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    background-size: cover;
+    transform: translateY(0);
+
+    width: 1920px;
+    min-height: 1080px;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.parallax-content {
+    position: relative;
+    z-index: 1;
+    overflow-y: visible;
+    height: auto;
+    width: 80%;
+    background-color: transparent;
+    color: white;
+    font-weight: bold;
+    font-size: xx-large;
+    text-align: center;
+    padding-bottom: 20px;
+}
+
+footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    text-align: center;
+}
+
+
+.banner {
+    font-size: 48pt;
+    font-family: 'Bungee Hairline', sans-serif;
+}
+
+body {
+    /*overflow-y: hidden;*/
+
+    overflow: visible;
+}
+
+
+.sticky {
+    position: fixed;
+    top: 0;
+    width: 100%;
+}
+
+.sticky,
+#content {
+    padding-top: 102px;
+}
+
+#content {
+    padding: 16px;
+    background-color: black;
+    color: black;
+}
+
+#page-header {
+    padding: 0 10vw;
+    background-color: black;
+    color: darkorange;
+    font-size: 4rem;
+    transition: all 3s ease;
+}
+
+.unstick {
+    top: -500px;
+}
+
+.wipe-img {
+    width: 1920px;
+}

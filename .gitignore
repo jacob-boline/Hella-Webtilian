@@ -1,0 +1,32 @@
+ 
+db.sqlite3
+node_modules
+.idea
+/.idea/
+/locomotive/static/bootstrap/
+/locomotive/static/locomotive/img/
+/locomotive/static/locomotive/mid/
+/locomotive/static/locomotive/img.png
+/locomotive/static/locomotive/img_1.png
+/locomotive/static/locomotive/img_2.png
+/locomotive/static/locomotive/img_3.jpg
+/locomotive/static/locomotive/pexels-aleksandar-pasaric-3342739.jpg
+/locomotive/static/locomotive/pexels-felipe-ribeiro-2271683.jpg
+/locomotive/static/locomotive/locomotive-scroll.min.js
+/locomotive/static/locomotive/locomotive-scroll.min.css
+/locomotive/static/locomotive/locomotive-scroll.js
+/locomotive/static/locomotive/locomotive-scroll.css
+/locomotive/static/locomotive/animation.gsap.min.js
+/static/
+/venv/
+# Default ignored files
+/shelf/
+/workspace.xml
+# Editor-based HTTP Client requests
+/httpRequests/
+# Datasource local storage ignored files
+/dataSources/
+/dataSources.local.xml
+# Zeppelin ignored files
+/ZeppelinRemoteNotebooks/
+

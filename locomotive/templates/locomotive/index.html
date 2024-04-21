@@ -1,0 +1,151 @@
+{% load compress %}
+{% load static %}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Parallax Template</title>
+    {% compress css %}
+        <link type="text/x-scss" href="{% static 'bootstrap/bootstrap.scss' %}" rel="stylesheet" media="screen">
+    {% endcompress %}
+    <!-- Include Locomotive Scroll CSS -->
+    <link rel="stylesheet" href="{% static 'locomotive/locomotive-scroll.min.css' %}">
+    <link rel="stylesheet" href="{% static 'locomotive/style.css'  %}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bruno+Ace+SC&family=Bungee+Hairline&family=Bungee+Inline&family=Bungee+Shade&family=Bungee+Spice&family=Cabin+Sketch:wght@400;700&family=Dosis:wght@200;300&family=Major+Mono+Display&family=Montserrat+Subrayada:wght@400;700&family=Raleway+Dots&family=Rock+Salt&family=Tilt+Neon&family=Urbanist:ital,wght@0,100;0,200;0,300;0,400;1,100;1,200;1,300;1,400&display=swap" rel="stylesheet">
+    {% compress css %}
+        <link type="text/x-scss" href="{% static 'locomotive/burn.scss' %}" rel="stylesheet" media="screen">
+    {% endcompress %}
+</head>
+
+
+<body>
+    <div data-scroll-container>
+
+        <section class="data-scroll-section" style="padding-top: 40px;padding-bottom: 40px;">
+            <div id="page-header">
+                <h2 data-scroll data-scroll-sticky data-scroll-target="#page-header" id="banner-wrapper">
+                    <span class="inline-block banner"  data-scroll data-scroll-delay="0.00" data-scroll-speed="5">H</span>
+                    <span class="inline-block banner"  data-scroll data-scroll-delay="5.15" data-scroll-speed="5">E</span>
+                    <span class="inline-block banner"  data-scroll data-scroll-delay="0.20" data-scroll-speed="5">L</span>
+                    <span class="inline-block banner"  data-scroll data-scroll-delay="0.25" data-scroll-speed="5">L</span>
+                    <span class="inline-block banner"  data-scroll data-scroll-delay="0.30" data-scroll-speed="5">A<br/></span>
+{#                    <span class="inline-block banner"  data-scroll data-scroll-delay="0.35" data-scroll-speed="5"></span>#}
+                    <span class="inline-block banner"  data-scroll data-scroll-delay="0.40" data-scroll-speed="5">R</span>
+                    <span class="inline-block banner"  data-scroll data-scroll-delay="0.45" data-scroll-speed="5">E</span>
+                    <span class="inline-block banner"  data-scroll data-scroll-delay="0.50" data-scroll-speed="5">P</span>
+                    <span class="inline-block banner"  data-scroll data-scroll-delay="0.55" data-scroll-speed="5">T</span>
+                    <span class="inline-block banner"  data-scroll data-scroll-delay="0.60" data-scroll-speed="5">I</span>
+                    <span class="inline-block banner"  data-scroll data-scroll-delay="0.65" data-scroll-speed="5">L</span>
+                    <span class="inline-block banner"  data-scroll data-scroll-delay="0.70" data-scroll-speed="5">I</span>
+                    <span class="inline-block banner"  data-scroll data-scroll-delay="0.75" data-scroll-speed="5">A</span>
+                    <span class="inline-block banner"  data-scroll data-scroll-delay="0.80" data-scroll-speed="5">N</span>
+                    <span class="inline-block banner"  data-scroll data-scroll-delay="0.85" data-scroll-speed="5">!</span>
+                </h2>
+            </div>
+
+            <div id="content">
+                <p class="mb-8">Cras lacinia sit amet justo ut maximus. Integer sapien felis, gravida a commodo et, porttitor non libero. Maecenas lacinia accumsan eros eu dapibus. Mauris dolor odio, vulputate vitae purus vitae, tincidunt egestas orci. Maecenas sollicitudin fringilla justo, id tempus metus elementum sit amet. Nullam vestibulum mauris vitae condimentum sagittis. Suspendisse sed purus vel neque ullamcorper ornare egestas vel ligula. Duis ac mattis odio. Aliquam sodales turpis nec diam maximus, nec fermentum massa mollis.</p>
+                <p>Praesent finibus egestas velit, vitae tristique leo luctus sit amet. Vivamus eu facilisis neque, a venenatis mi. Vestibulum ultricies venenatis arcu sit amet fringilla. Curabitur non tincidunt sem. Sed quis quam ut nulla tincidunt dapibus quis ac lorem. Nulla lobortis ac metus ut molestie.</p>
+                <p class="mb-8">Cras lacinia sit amet justo ut maximus. Integer sapien felis, gravida a commodo et, porttitor non libero. Maecenas lacinia accumsan eros eu dapibus. Mauris dolor odio, vulputate vitae purus vitae, tincidunt egestas orci. Maecenas sollicitudin fringilla justo, id tempus metus elementum sit amet. Nullam vestibulum mauris vitae condimentum sagittis. Suspendisse sed purus vel neque ullamcorper ornare egestas vel ligula. Duis ac mattis odio. Aliquam sodales turpis nec diam maximus, nec fermentum massa mollis.</p>
+                <p>Praesent finibus egestas velit, vitae tristique leo luctus sit amet. Vivamus eu facilisis neque, a venenatis mi. Vestibulum ultricies venenatis arcu sit amet fringilla. Curabitur non tincidunt sem. Sed quis quam ut nulla tincidunt dapibus quis ac lorem. Nulla lobortis ac metus ut molestie.</p>
+                <p class="mb-8">Cras lacinia sit amet justo ut maximus. Integer sapien felis, gravida a commodo et, porttitor non libero. Maecenas lacinia accumsan eros eu dapibus. Mauris dolor odio, vulputate vitae purus vitae, tincidunt egestas orci. Maecenas sollicitudin fringilla justo, id tempus metus elementum sit amet. Nullam vestibulum mauris vitae condimentum sagittis. Suspendisse sed purus vel neque ullamcorper ornare egestas vel ligula. Duis ac mattis odio. Aliquam sodales turpis nec diam maximus, nec fermentum massa mollis.</p>
+                <p>Praesent finibus egestas velit, vitae tristique leo luctus sit amet. Vivamus eu facilisis neque, a venenatis mi. Vestibulum ultricies venenatis arcu sit amet fringilla. Curabitur non tincidunt sem. Sed quis quam ut nulla tincidunt dapibus quis ac lorem. Nulla lobortis ac metus ut molestie.</p>
+                <p class="mb-8">Cras lacinia sit amet justo ut maximus. Integer sapien felis, gravida a commodo et, porttitor non libero. Maecenas lacinia accumsan eros eu dapibus. Mauris dolor odio, vulputate vitae purus vitae, tincidunt egestas orci. Maecenas sollicitudin fringilla justo, id tempus metus elementum sit amet. Nullam vestibulum mauris vitae condimentum sagittis. Suspendisse sed purus vel neque ullamcorper ornare egestas vel ligula. Duis ac mattis odio. Aliquam sodales turpis nec diam maximus, nec fermentum massa mollis.</p>
+                <p>Praesent finibus egestas velit, vitae tristique leo luctus sit amet. Vivamus eu facilisis neque, a venenatis mi. Vestibulum ultricies venenatis arcu sit amet fringilla. Curabitur non tincidunt sem. Sed quis quam ut nulla tincidunt dapibus quis ac lorem. Nulla lobortis ac metus ut molestie.</p>
+                <p class="mb-8">Cras lacinia sit amet justo ut maximus. Integer sapien felis, gravida a commodo et, porttitor non libero. Maecenas lacinia accumsan eros eu dapibus. Mauris dolor odio, vulputate vitae purus vitae, tincidunt egestas orci. Maecenas sollicitudin fringilla justo, id tempus metus elementum sit amet. Nullam vestibulum mauris vitae condimentum sagittis. Suspendisse sed purus vel neque ullamcorper ornare egestas vel ligula. Duis ac mattis odio. Aliquam sodales turpis nec diam maximus, nec fermentum massa mollis.</p>
+                <p>Praesent finibus egestas velit, vitae tristique leo luctus sit amet. Vivamus eu facilisis neque, a venenatis mi. Vestibulum ultricies venenatis arcu sit amet fringilla. Curabitur non tincidunt sem. Sed quis quam ut nulla tincidunt dapibus quis ac lorem. Nulla lobortis ac metus ut molestie.</p>
+                <p class="mb-8">Cras lacinia sit amet justo ut maximus. Integer sapien felis, gravida a commodo et, porttitor non libero. Maecenas lacinia accumsan eros eu dapibus. Mauris dolor odio, vulputate vitae purus vitae, tincidunt egestas orci. Maecenas sollicitudin fringilla justo, id tempus metus elementum sit amet. Nullam vestibulum mauris vitae condimentum sagittis. Suspendisse sed purus vel neque ullamcorper ornare egestas vel ligula. Duis ac mattis odio. Aliquam sodales turpis nec diam maximus, nec fermentum massa mollis.</p>
+                <p>Praesent finibus egestas velit, vitae tristique leo luctus sit amet. Vivamus eu facilisis neque, a venenatis mi. Vestibulum ultricies venenatis arcu sit amet fringilla. Curabitur non tincidunt sem. Sed quis quam ut nulla tincidunt dapibus quis ac lorem. Nulla lobortis ac metus ut molestie.</p>
+                <p class="mb-8">Cras lacinia sit amet justo ut maximus. Integer sapien felis, gravida a commodo et, porttitor non libero. Maecenas lacinia accumsan eros eu dapibus. Mauris dolor odio, vulputate vitae purus vitae, tincidunt egestas orci. Maecenas sollicitudin fringilla justo, id tempus metus elementum sit amet. Nullam vestibulum mauris vitae condimentum sagittis. Suspendisse sed purus vel neque ullamcorper ornare egestas vel ligula. Duis ac mattis odio. Aliquam sodales turpis nec diam maximus, nec fermentum massa mollis.</p>
+                <p>Praesent finibus egestas velit, vitae tristique leo luctus sit amet. Vivamus eu facilisis neque, a venenatis mi. Vestibulum ultricies venenatis arcu sit amet fringilla. Curabitur non tincidunt sem. Sed quis quam ut nulla tincidunt dapibus quis ac lorem. Nulla lobortis ac metus ut molestie.</p>
+                <p class="mb-8">Cras lacinia sit amet justo ut maximus. Integer sapien felis, gravida a commodo et, porttitor non libero. Maecenas lacinia accumsan eros eu dapibus. Mauris dolor odio, vulputate vitae purus vitae, tincidunt egestas orci. Maecenas sollicitudin fringilla justo, id tempus metus elementum sit amet. Nullam vestibulum mauris vitae condimentum sagittis. Suspendisse sed purus vel neque ullamcorper ornare egestas vel ligula. Duis ac mattis odio. Aliquam sodales turpis nec diam maximus, nec fermentum massa mollis.</p>
+                <p>Praesent finibus egestas velit, vitae tristique leo luctus sit amet. Vivamus eu facilisis neque, a venenatis mi. Vestibulum ultricies venenatis arcu sit amet fringilla. Curabitur non tincidunt sem. Sed quis quam ut nulla tincidunt dapibus quis ac lorem. Nulla lobortis ac metus ut molestie.</p>
+                <p class="mb-8">Cras lacinia sit amet justo ut maximus. Integer sapien felis, gravida a commodo et, porttitor non libero. Maecenas lacinia accumsan eros eu dapibus. Mauris dolor odio, vulputate vitae purus vitae, tincidunt egestas orci. Maecenas sollicitudin fringilla justo, id tempus metus elementum sit amet. Nullam vestibulum mauris vitae condimentum sagittis. Suspendisse sed purus vel neque ullamcorper ornare egestas vel ligula. Duis ac mattis odio. Aliquam sodales turpis nec diam maximus, nec fermentum massa mollis.</p>
+                <p>Praesent finibus egestas velit, vitae tristique leo luctus sit amet. Vivamus eu facilisis neque, a venenatis mi. Vestibulum ultricies venenatis arcu sit amet fringilla. Curabitur non tincidunt sem. Sed quis quam ut nulla tincidunt dapibus quis ac lorem. Nulla lobortis ac metus ut molestie.</p>
+                <p class="mb-8">Cras lacinia sit amet justo ut maximus. Integer sapien felis, gravida a commodo et, porttitor non libero. Maecenas lacinia accumsan eros eu dapibus. Mauris dolor odio, vulputate vitae purus vitae, tincidunt egestas orci. Maecenas sollicitudin fringilla justo, id tempus metus elementum sit amet. Nullam vestibulum mauris vitae condimentum sagittis. Suspendisse sed purus vel neque ullamcorper ornare egestas vel ligula. Duis ac mattis odio. Aliquam sodales turpis nec diam maximus, nec fermentum massa mollis.</p>
+                <p>Praesent finibus egestas velit, vitae tristique leo luctus sit amet. Vivamus eu facilisis neque, a venenatis mi. Vestibulum ultricies venenatis arcu sit amet fringilla. Curabitur non tincidunt sem. Sed quis quam ut nulla tincidunt dapibus quis ac lorem. Nulla lobortis ac metus ut molestie.</p>
+                <p class="mb-8">Cras lacinia sit amet justo ut maximus. Integer sapien felis, gravida a commodo et, porttitor non libero. Maecenas lacinia accumsan eros eu dapibus. Mauris dolor odio, vulputate vitae purus vitae, tincidunt egestas orci. Maecenas sollicitudin fringilla justo, id tempus metus elementum sit amet. Nullam vestibulum mauris vitae condimentum sagittis. Suspendisse sed purus vel neque ullamcorper ornare egestas vel ligula. Duis ac mattis odio. Aliquam sodales turpis nec diam maximus, nec fermentum massa mollis.</p>
+                <p>Praesent finibus egestas velit, vitae tristique leo luctus sit amet. Vivamus eu facilisis neque, a venenatis mi. Vestibulum ultricies venenatis arcu sit amet fringilla. Curabitur non tincidunt sem. Sed quis quam ut nulla tincidunt dapibus quis ac lorem. Nulla lobortis ac metus ut molestie.</p>
+                <p class="mb-8">Cras lacinia sit amet justo ut maximus. Integer sapien felis, gravida a commodo et, porttitor non libero. Maecenas lacinia accumsan eros eu dapibus. Mauris dolor odio, vulputate vitae purus vitae, tincidunt egestas orci. Maecenas sollicitudin fringilla justo, id tempus metus elementum sit amet. Nullam vestibulum mauris vitae condimentum sagittis. Suspendisse sed purus vel neque ullamcorper ornare egestas vel ligula. Duis ac mattis odio. Aliquam sodales turpis nec diam maximus, nec fermentum massa mollis.</p>
+                <p>Praesent finibus egestas velit, vitae tristique leo luctus sit amet. Vivamus eu facilisis neque, a venenatis mi. Vestibulum ultricies venenatis arcu sit amet fringilla. Curabitur non tincidunt sem. Sed quis quam ut nulla tincidunt dapibus quis ac lorem. Nulla lobortis ac metus ut molestie.</p>
+                <p class="mb-8">Cras lacinia sit amet justo ut maximus. Integer sapien felis, gravida a commodo et, porttitor non libero. Maecenas lacinia accumsan eros eu dapibus. Mauris dolor odio, vulputate vitae purus vitae, tincidunt egestas orci. Maecenas sollicitudin fringilla justo, id tempus metus elementum sit amet. Nullam vestibulum mauris vitae condimentum sagittis. Suspendisse sed purus vel neque ullamcorper ornare egestas vel ligula. Duis ac mattis odio. Aliquam sodales turpis nec diam maximus, nec fermentum massa mollis.</p>
+                <p>Praesent finibus egestas velit, vitae tristique leo luctus sit amet. Vivamus eu facilisis neque, a venenatis mi. Vestibulum ultricies venenatis arcu sit amet fringilla. Curabitur non tincidunt sem. Sed quis quam ut nulla tincidunt dapibus quis ac lorem. Nulla lobortis ac metus ut molestie.</p>
+                <p class="mb-8">Cras lacinia sit amet justo ut maximus. Integer sapien felis, gravida a commodo et, porttitor non libero. Maecenas lacinia accumsan eros eu dapibus. Mauris dolor odio, vulputate vitae purus vitae, tincidunt egestas orci. Maecenas sollicitudin fringilla justo, id tempus metus elementum sit amet. Nullam vestibulum mauris vitae condimentum sagittis. Suspendisse sed purus vel neque ullamcorper ornare egestas vel ligula. Duis ac mattis odio. Aliquam sodales turpis nec diam maximus, nec fermentum massa mollis.</p>
+                <p>Praesent finibus egestas velit, vitae tristique leo luctus sit amet. Vivamus eu facilisis neque, a venenatis mi. Vestibulum ultricies venenatis arcu sit amet fringilla. Curabitur non tincidunt sem. Sed quis quam ut nulla tincidunt dapibus quis ac lorem. Nulla lobortis ac metus ut molestie.</p>
+                <p class="mb-8">Cras lacinia sit amet justo ut maximus. Integer sapien felis, gravida a commodo et, porttitor non libero. Maecenas lacinia accumsan eros eu dapibus. Mauris dolor odio, vulputate vitae purus vitae, tincidunt egestas orci. Maecenas sollicitudin fringilla justo, id tempus metus elementum sit amet. Nullam vestibulum mauris vitae condimentum sagittis. Suspendisse sed purus vel neque ullamcorper ornare egestas vel ligula. Duis ac mattis odio. Aliquam sodales turpis nec diam maximus, nec fermentum massa mollis.</p>
+                <p>Praesent finibus egestas velit, vitae tristique leo luctus sit amet. Vivamus eu facilisis neque, a venenatis mi. Vestibulum ultricies venenatis arcu sit amet fringilla. Curabitur non tincidunt sem. Sed quis quam ut nulla tincidunt dapibus quis ac lorem. Nulla lobortis ac metus ut molestie.</p>
+                <p class="mb-8">Cras lacinia sit amet justo ut maximus. Integer sapien felis, gravida a commodo et, porttitor non libero. Maecenas lacinia accumsan eros eu dapibus. Mauris dolor odio, vulputate vitae purus vitae, tincidunt egestas orci. Maecenas sollicitudin fringilla justo, id tempus metus elementum sit amet. Nullam vestibulum mauris vitae condimentum sagittis. Suspendisse sed purus vel neque ullamcorper ornare egestas vel ligula. Duis ac mattis odio. Aliquam sodales turpis nec diam maximus, nec fermentum massa mollis.</p>
+                <p>Praesent finibus egestas velit, vitae tristique leo luctus sit amet. Vivamus eu facilisis neque, a venenatis mi. Vestibulum ultricies venenatis arcu sit amet fringilla. Curabitur non tincidunt sem. Sed quis quam ut nulla tincidunt dapibus quis ac lorem. Nulla lobortis ac metus ut molestie.</p>
+                <p class="mb-8">Cras lacinia sit amet justo ut maximus. Integer sapien felis, gravida a commodo et, porttitor non libero. Maecenas lacinia accumsan eros eu dapibus. Mauris dolor odio, vulputate vitae purus vitae, tincidunt egestas orci. Maecenas sollicitudin fringilla justo, id tempus metus elementum sit amet. Nullam vestibulum mauris vitae condimentum sagittis. Suspendisse sed purus vel neque ullamcorper ornare egestas vel ligula. Duis ac mattis odio. Aliquam sodales turpis nec diam maximus, nec fermentum massa mollis.</p>
+                <p>Praesent finibus egestas velit, vitae tristique leo luctus sit amet. Vivamus eu facilisis neque, a venenatis mi. Vestibulum ultricies venenatis arcu sit amet fringilla. Curabitur non tincidunt sem. Sed quis quam ut nulla tincidunt dapibus quis ac lorem. Nulla lobortis ac metus ut molestie.</p>
+                <p class="mb-8">Cras lacinia sit amet justo ut maximus. Integer sapien felis, gravida a commodo et, porttitor non libero. Maecenas lacinia accumsan eros eu dapibus. Mauris dolor odio, vulputate vitae purus vitae, tincidunt egestas orci. Maecenas sollicitudin fringilla justo, id tempus metus elementum sit amet. Nullam vestibulum mauris vitae condimentum sagittis. Suspendisse sed purus vel neque ullamcorper ornare egestas vel ligula. Duis ac mattis odio. Aliquam sodales turpis nec diam maximus, nec fermentum massa mollis.</p>
+                <p>Praesent finibus egestas velit, vitae tristique leo luctus sit amet. Vivamus eu facilisis neque, a venenatis mi. Vestibulum ultricies venenatis arcu sit amet fringilla. Curabitur non tincidunt sem. Sed quis quam ut nulla tincidunt dapibus quis ac lorem. Nulla lobortis ac metus ut molestie.</p>
+            </div>
+        </section>
+
+
+        <div class="sections">
+            <!-- First parallax section -->
+            <div class="parallax-section" data-scroll data-scroll-speed="8">
+                <div class="parallax-content" id="pc-0" style="background-image: url({% static 'locomotive/img.png' %})">
+                    <!-- Content for the first section -->
+                    {% lorem 5 p %}
+{#                    <img src="{% static 'locomotive/img.png' %}" alt="img 1" id="img-0">#}
+
+                </div>
+            </div>
+
+            <!-- Second parallax section -->
+            <div class="parallax-section" data-scroll data-scroll-speed="1">
+                <div class="parallax-content" id="pc-1">
+                    <!-- Content for the second section -->
+                    {% lorem 5 p %}
+{#                    <img src="{% static 'locomotive/img_1.png' %}" alt="" id="img-1">#}
+
+                </div>
+            </div>
+
+            <!-- Third parallax section -->
+            <div class="parallax-section" data-scroll data-scroll-speed="1">
+                <div class="parallax-content" id="pc-2">
+{#                    <img src="{% static 'locomotive/img_2.png' %}" alt="" id="img-2">#}
+                    {% lorem 5 p %}
+                </div>
+            </div>
+
+            <!-- Fourth parallax section -->
+            <div class="parallax-section" data-scroll data-scroll-speed="0.1">
+                <div class="parallax-content" id="pc-3">
+                    <!-- Content for the fourth section -->
+{#                    <img src="{% static 'locomotive/img_3.jpg' %}" alt="" id="img-3">#}
+                    {% lorem 5 p %}
+                </div>
+            </div>
+
+        </div> <!--end sections -->
+    </div>
+
+
+{#    {% include 'locomotive/scripts.html' %}#}
+    <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.13.3/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.7/ScrollMagic.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.7/plugins/debug.addIndicators.min.js"></script>
+
+    <!-- Include Locomotive Scroll JavaScript -->
+    <script defer src="{% static 'locomotive/locomotive-scroll.min.js' %}"></script>
+    <script defer>
+        // Initialize Locomotive Scroll
+        const scroll = new LocomotiveScroll({
+            el: document.querySelector('[data-scroll-container]'),
+            smooth: true,
+        });
+    </script>
+    <script defer src="{% static 'locomotive/index.js' %}"></script>
+
+</body>
+</html>

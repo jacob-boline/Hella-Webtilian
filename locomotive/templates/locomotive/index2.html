@@ -1,0 +1,96 @@
+<!-- template.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Django Template</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .section {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section img {
+            width: 100%;
+            height: auto;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        .content {
+            color: white;
+            text-align: center;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="section" id="section1">
+        <img src="{% static 'path/to/image1.jpg' %}" alt="Background Image">
+        <div class="content">
+            <h1>Section 1</h1>
+            <p>Your content here</p>
+        </div>
+    </div>
+
+    <div class="section" id="section2">
+        <img src="{% static 'path/to/image2.jpg' %}" alt="Background Image">
+        <div class="content">
+            <h1>Section 2</h1>
+            <p>Your content here</p>
+        </div>
+    </div>
+
+    <div class="section" id="section3">
+        <img src="{% static 'path/to/image3.jpg' %}" alt="Background Image">
+        <div class="content">
+            <h1>Section 3</h1>
+            <p>Your content here</p>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('scroll', function() {
+            const section1 = document.getElementById('section1');
+            const section2 = document.getElementById('section2');
+            const section3 = document.getElementById('section3');
+
+            const scrollPosition = window.scrollY;
+
+            // Sticky effect for section 1
+            if (scrollPosition < window.innerHeight) {
+                section1.style.transform = `translateY(${scrollPosition}px)`;
+            }
+
+            // Section wipe effect from 1 to 3
+            if (scrollPosition >= window.innerHeight && scrollPosition < 2 * window.innerHeight) {
+                const progress = (scrollPosition - window.innerHeight) / window.innerHeight;
+                section2.style.transform = `translateY(${progress * 100}vh)`;
+            } else {
+                section2.style.transform = `translateY(0)`;
+            }
+
+            // Sticky effect for section 3
+            if (scrollPosition >= 2 * window.innerHeight) {
+                section3.style.transform = `translateY(${scrollPosition - 2 * window.innerHeight}px)`;
+            }
+        });
+    </script>
+
+</body>
+</html>

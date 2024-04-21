@@ -1,0 +1,146 @@
+{% load static %}
+
+
+/*font-family: 'Bruno Ace SC', sans-serif;*/
+/*font-family: 'Bungee Hairline', sans-serif;*/
+/*font-family: 'Bungee Inline', sans-serif;*/
+/*font-family: 'Bungee Shade', sans-serif;*/
+/*font-family: 'Bungee Spice', sans-serif;*/
+/*font-family: 'Cabin Sketch', sans-serif;*/
+/*font-family: 'Dosis', sans-serif;*/
+/*font-family: 'Major Mono Display', monospace;*/
+/*font-family: 'Montserrat Subrayada', sans-serif;*/
+/*font-family: 'Raleway Dots', sans-serif;*/
+/*font-family: 'Rock Salt', cursive;*/
+/*font-family: 'Tilt Neon', sans-serif;*/
+/*font-family: 'Urbanist', sans-serif;*/
+
+
+/* CSS for parallax sections */
+
+/*.parallax-section {*/
+/*    position: relative;*/
+/*    width: 100%;*/
+/*    min-width: 100%;*/
+/*    !*height: auto;*!*/
+/*    !*overflow: hidden;*!*/
+/*    background-size: cover;*/
+/*    background-position: center;*/
+/*    background-attachment: fixed;*/
+/*}*/
+
+#pc-0, #pc-1, #pc-2, #pc-3 {
+    max-width: 100%;
+    min-width: 100%;
+    height: auto;
+    min-height: 1080px;
+    z-index: 1;
+    background-repeat: no-repeat;
+    background-clip: border-box;
+}
+
+.parallax-background {
+    position: relative;
+    /*width: 100%;*/
+    /*min-width: 100%;*/
+    /*height: auto;*/
+    width: auto;
+    min-height: 1080px;
+    height: 100%; /* test, and changed width from 1920px */
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    z-index: 50;
+}
+
+.parallax-foreground {
+    position: relative;
+    height: auto;
+    width: 80%;
+    z-index: 100;
+    overflow-y: visible;
+    /*padding-top: 20px;*/
+    padding-bottom: 20px;
+    background-color: transparent;
+    color: white;
+    font-weight: bold;
+    font-size: xxx-large;
+    text-align: center;
+
+}
+
+
+#img-0, #img-1, #img-2, #img-3 {
+    width: 100%;
+    /*height: auto;*/
+}
+
+
+
+.banner {
+    font-size: 48pt;
+    font-family: 'Bungee Hairline', sans-serif;
+
+    /*font-family: "Taurus Mono Outline", fantasy;*/
+}
+
+.wipe-img {
+    width: 1920px;
+}
+
+body {
+    /*overflow-y: visible;*/
+    overflow: visible;
+}
+
+
+.sticky {
+    position: fixed;
+    top: 0;
+    width: 100%;
+}
+
+.sticky,
+#content {
+    padding-top: 102px;
+}
+
+#content {
+    padding: 16px;
+    background-color: black;
+    color: black;
+}
+
+#page-header {
+    padding: 0 10vw;
+    background-color: black;
+    color: darkorange;
+    font-size: 4rem;
+    transition: all 3s ease;
+}
+
+.unstick {
+    top: -500px;
+}
+
+/*.data-scroll-section {*/
+/*    position: absolute;*/
+/*}*/
+
+.sticky-container {
+    min-height: 2000px;
+    width: 100%;
+    background-color: black;
+    text-align: center;
+    position: relative;
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
+
+.blink {
+    animation: blinker 2s ease-in-out infinite;
+}
