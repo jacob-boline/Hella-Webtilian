@@ -1,0 +1,31 @@
+{% include 'hr_site/messages.html' %}
+{% load static %}
+
+
+<section id="showsWrapper" class="my-5 py-5">
+    {% for show in upcoming %}
+        <br>
+        <div class="row my-2 text-center">
+{#            <div class="show-container">#}
+
+                <div class="col-xs-12 col-md-6 show-text">
+                    {{ show.date }} {{ show.venue.name }} {{ show.time }}
+                </div>
+{#                <div class="col-xs-12 col-md-6 show-btns">#}
+{#                   <div class="btn-wrapper">#}
+{#                     <div class="row">#}
+                         <div class="col-xs-6 col-md-2 text-right">
+                             <button class="btn btn-sm outline show-details">Details</button>
+                         </div>
+                         <div class="col-xs-6 col-md-2 text-left">
+                             <button class="btn btn-sm fill directions-link">Directions</button>
+                         </div>
+{#                       <button class="btn btn-sm outline show-details">Details</button>#}
+{#                       <button class="btn btn-sm fill directions-link">Directions</button>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+        </div>
+        <br>
+    {% endfor %}
+</section>

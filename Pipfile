@@ -5,6 +5,13 @@ name = "pypi"
 
 [packages]
 django = "*"
+django-phonenumber-field = "*"
+better_exceptions = "*"
+python-dotenv = "*"
+requests = "*"
+django-debug-toolbar = "*"
+pip-search = "*"
+datetime = "*"
 
 [dev-packages]
 
