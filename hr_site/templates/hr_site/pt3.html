@@ -1,0 +1,144 @@
+{% load compress %}
+{% load static %}
+{% load render_bundle from webpack_loader %}
+{% load django_browser_reload %}
+{% django_browser_reload_script %}
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PT3</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+{#    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2/dist/css/bootstrap.min.css"#}
+{#          rel="stylesheet"#}
+{#          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"#}
+{#          crossorigin="anonymous">#}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bruno+Ace+SC&family=Bungee+Hairline&family=Bungee+Inline&family=Bungee+Shade&family=Bungee+Spice&family=Cabin+Sketch:wght@400;700&family=Dosis:wght@200;300&family=Major+Mono+Display&family=Montserrat+Subrayada:wght@400;700&family=Raleway+Dots&family=Rock+Salt&family=Tilt+Neon&family=Urbanist:ital,wght@0,100;0,200;0,300;0,400;1,100;1,200;1,300;1,400&display=swap" rel="stylesheet">
+
+    {% include "hr_site/pt3style.html" %}
+
+</head>
+
+<body>
+
+{% if WEBPACK_DEV_SERVER %}
+    <script src="http://localhost:3000/static/dist/bundle.js"></script>
+{% else %}
+    {% render_bundle 'main' %}
+{% endif %}
+
+<section id="page-wrapper">
+
+{#    {% include "hr_site/nav.html" %}#}
+
+    <section id="banner" class="container-fluid">
+        <div class="row">
+            <div class="banner-row col-xs-12">
+                <span class="banner-letter blink">H</span>
+                <span class="banner-letter">E</span>
+                <span class="banner-letter">L</span>
+                <span class="banner-letter">L</span>
+                <span class="banner-letter">A</span>
+                <span class="banner-letter">&nbsp;</span>
+{#            </div>#}
+{#            <div class="banner-row col-xs-12">#}
+                <span class="banner-letter">R</span>
+                <span class="banner-letter">E</span>
+                <span class="banner-letter">P</span>
+                <span class="banner-letter">T</span>
+                <span class="banner-letter">I</span>
+                <span class="banner-letter">L</span>
+                <span class="banner-letter">I</span>
+                <span class="banner-letter">A</span>
+                <span class="banner-letter">N</span>
+                <span class="banner-letter">!</span>
+                <span class="ml-2"></span>
+                <span id="nav-audio">
+                    <iframe id="audio-iframe"    {# orig bgcol=333333 #}
+                            src="https://bandcamp.com/EmbeddedPlayer/album=1766078263/size=small/bgcol=000000/linkcol=4ec5ec/transparent=true/" seamless>
+                         <a href="https://hellareptilian.bandcamp.com/album/into-hella-we-ride-demo">Into Hella We Ride! [Demo] by Hella Reptilian!</a>
+                    </iframe>
+                </span>
+            </div>
+            <div class="banner-row col-xs-12">
+                <span id="banner-end"></span>
+            </div>
+        </div>
+    </section>
+
+    <section id="banner-scroller"></section>
+
+    <div class="fader"></div>
+
+    <div class="section-wipe" id="first-wipe">
+        <div class="img-wrapper">
+            <img src="{% static "hr_site/img/wipe/bryan-goff-we1ky8_ZTHg-unsplash.jpg" %}" alt="">
+        </div>
+    </div>
+
+    <div class="fader"></div>
+
+    <section id="sectionTwoWrapper" class="content-section">
+        <div class="parallax-background" data-section="2" id="pb-1">
+            <div class="parallax-foreground">
+                <h2 class="section-header">LIVE</h2>
+{#                {% lorem 15 p %}#}
+                {% include 'hr_live/upcoming_shows.html' %}
+            </div>
+        </div>
+    </section>
+
+    <div class="fader"></div>
+
+    <div class="section-wipe">
+        <div class="img-wrapper">
+            <img src="{% static "hr_site/img/wipe/file_025(1).png" %}" alt="">
+        </div>
+    </div>
+
+    <div class="fader"></div>
+
+    <section id="sectionThreeWrapper" class="content-section">
+        <div class="parallax-background" data-section="3">
+            <div class="parallax-foreground">
+                <h2 class="section-header">Section 3</h2>
+                {% lorem 15 p %}
+            </div>
+        </div>
+    </section>
+
+    <div class="fader"></div>
+
+    <div class="section-wipe">
+        <div class="img-wrapper">
+            <img src="{% static "hr_site/img/wipe/oscar-keys-AmPRUnRb6N0-unsplash.jpg" %}" alt="">
+        </div>
+    </div>
+
+    <div class="fader"></div>
+
+    <section id="sectionFourWrapper" class="content-section">
+        <div class="parallax-background" data-section="4">
+            <div class="parallax-foreground">
+                <h2 class="section-header">Section 4</h2>
+                {% lorem 15 p %}
+            </div>
+        </div>
+    </section>
+
+</section>
+
+{#<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>#}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static "hr_site/pt3/pt3.js" %}" role="text/javascript" defer></script>
+
+</body>
+
+</html>

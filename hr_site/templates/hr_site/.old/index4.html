@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parallax Scroll with Locomotive.js and ScrollMagic.js</title>
+  <link rel="stylesheet" href="path/to/locomotive-scroll.min.css">
+  <script src="path/to/gsap.min.js"></script>
+  <script src="path/to/ScrollMagic.min.js"></script>
+  <script src="path/to/animation.gsap.min.js"></script>
+  <script src="path/to/locomotive-scroll.min.js"></script>
+</head>
+<body>
+  <div class="sticky-container" data-scroll-container>
+    <div class="parallax-background" data-scroll data-scroll-speed="2">
+      <!-- Content for parallax background -->
+    </div>
+    <div class="parallax-foreground" data-scroll data-scroll-speed="4">
+      <!-- Content for parallax foreground -->
+    </div>
+  </div>
+  <!-- Add other sections of your page below -->
+</body>
+</html>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+  // Initialize Locomotive Scroll
+  const locoScroll = new LocomotiveScroll({
+    el: document.querySelector("[data-scroll-container]"),
+    smooth: true,
+    direction: "vertical",
+  });
+
+  // Initialize ScrollMagic
+  const controller = new ScrollMagic.Controller();
+
+  // Create a scene for the sticky container
+  new ScrollMagic.Scene({
+    triggerElement: ".sticky-container",
+    triggerHook: "onLeave",
+    duration: "200%", // Adjust the duration as needed
+  })
+  .setPin(".sticky-container")
+  .addTo(controller);
+
+  // Add section wipe effect when the bottom of the content reaches the middle of the viewport
+  new ScrollMagic.Scene({
+    triggerElement: ".sticky-container",
+    triggerHook: 0.5,
+    duration: "100%", // Adjust the duration as needed
+  })
+  .setTween(new TimelineMax().to(".sticky-container", 1, { opacity: 0, ease: Power0.easeNone }))
+  .addTo(controller);
+});
+
+</script>

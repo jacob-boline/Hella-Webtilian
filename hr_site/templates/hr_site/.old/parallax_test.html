@@ -1,0 +1,156 @@
+{% load compress %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <style>
+
+        body {
+            font-size: 4vh;
+            line-height: 60%;
+        }
+
+        #content-wrapper {
+            height: 100%;
+            min-height: 1080px;
+            top: 0;
+            bottom: 0;
+        }
+
+        .parallax-container {
+            position: relative;
+            height: 80%;
+            min-height: 864px;
+            overflow: hidden;
+        }
+
+        .parallax-background {
+            position: sticky;
+            top: 0;
+            height: 100%;
+            {#min-height: 3318px;#}
+            min-height: 1080px;
+            background-image: url({% static 'hr_site/pexels-felipe-ribeiro-2271683.jpg' %});
+            background-size: cover;
+            background-position: 50% 50%;
+        }
+
+        .parallax-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            font-size: 14px;
+            color: white; /* Assuming white text for better visibility */
+        }
+
+        .sticky {
+            position: fixed;
+            top: 0;
+            width: 100%;
+        }
+
+        .sticky,
+        #content {
+            padding-top: 102px;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="content-wrapper">
+
+        <div class="parallax-container"> {# .sticky-container #}
+            <div class="parallax-background"> {# .parallax-background  && pc-x #}
+                <div class="parallax-text"> {# .parallax-foreground #}
+                    <h2 class="section-header">Parallax Header</h2>
+                    <div>
+                        {% lorem 36 p %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-wipe"><img src="{% static 'hr_site/mid/blindfold_by_the_sea.jpg' %}" alt="" class="wipe-img"></div>
+
+        <div class="parallax-container"> {# .sticky-container #}
+            <div class="parallax-background"> {# .parallax-background  && pc-x #}
+                <div class="parallax-text"> {# .parallax-foreground #}
+                    <h2 class="section-header">Parallax Header</h2>
+                    <div>
+                        {% lorem 36 p %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <script defer>
+        document.addEventListener('DOMContentLoaded', function() {
+            let backgroundScrollSpeed = 0.5;
+
+            function updateParallaxBackgroundPosition() {
+                let windowYOffset = window.scrollY;
+                let backgrounds = document.querySelectorAll('.parallax-background');
+
+                backgrounds.forEach(function(background) {
+                    background.style.backgroundPosition = '50% ' + (windowYOffset * backgroundScrollSpeed) + 'px';
+                });
+            }
+
+            // Update background position on scroll
+            window.addEventListener('scroll', updateParallaxBackgroundPosition);
+
+            // Initial update
+            updateParallaxBackgroundPosition();
+        });
+    </script>
+
+
+{#    <script defer>#}
+{#        document.addEventListener('DOMContentLoaded', function() {#}
+{#            let counter = 1;#}
+{#            let backgroundScrollSpeed = 0.5;#}
+{#            let windowYOffset = window.scrollY;#}
+{##}
+{#            let backgrounds = document.querySelectorAll('.parallax-background');#}
+{##}
+{#            backgrounds.forEach(function(background) {#}
+{#                background.style.backgroundPosition = '50% ' + (windowYOffset * backgroundScrollSpeed) +'px';#}
+{#                let foreground = background.querySelector('.parallax-foreground');#}
+{#                if (foreground) {#}
+{#                    let foregroundHeight = foreground.offsetHeight;#}
+{#                    background.style.height = foregroundHeight * 1.25 + 'px';#}
+{#                    alert(`Setting Section ${counter} to ${foregroundHeight * 1.25}px`)#}
+{#                    counter += 1;#}
+{#                }#}
+{#            });#}
+{#            #}
+{#        });#}
+{#    </script>#}
+
+
+{#    <script>#}
+{#        document.addEventListener('DOMContentLoaded', function() {#}
+{#            let parallaxBackground = document.querySelector('.parallax-background');#}
+{#            let speed = 0.5;#}
+{##}
+{#            window.addEventListener('scroll', function() {#}
+{#                let windowYOffset = window.scrollY;#}
+{#                parallax.style.backgroundPosition = `50% ${(windowYOffset * speed)}px`;#}
+{#            });#}
+{##}
+{#            let parallaxText = document.querySelector(".parallax-text");#}
+{#            let contentHeight = parallaxText.offsetHeight;#}
+{#            parallaxBackground.style.height = `${(contentHeight * 1.25)}px`;#}
+{#        });#}
+{#    </script>#}
+</body>
+</html>
