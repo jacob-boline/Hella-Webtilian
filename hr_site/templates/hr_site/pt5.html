@@ -1,0 +1,66 @@
+{% load compress %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PT5</title>
+    <link rel="stylesheet" href="{% static 'hr_site/pt5/css/index.css' %}">
+{#    <script defer src="{% static 'hr_site/pt5/js/bundle.js' %}"></script>#}
+</head>
+<body>
+
+    <section id="title-section">
+
+    </section>
+
+    <section class="parallax-wrapper">
+        <div class="parallax-bg lax" data-lax-translate-y="0 800, 0 -200" data-bg="{% static "hr_site/img/background/pexels-cottonbro-studio-9668534.jpg" %}"></div>
+        <div class="text-container lax" data-lax-translate-y="0 800, 0 200" data-lax-opacity="0 600, 0 1">
+            <h2>First Parallax Section</h2>
+            {% lorem 15 p %}
+        </div>
+    </section>
+
+
+    <!-- First Section Wipe (Normal) -->
+    <section class="section-wipe lax" data-lax-translate-y="0 1000, 0 -500" data-lax-opacity="0 1000, 1 0" data-bg="{% static "hr_site/img/wipe/file_025(1).png" %}"></section>
+
+
+    <section class="parallax-wrapper">
+        <div class="parallax-bg lax" data-lax-translate-y="0 800, 0 -200" data-bg="{% static "hr_site/img/background/IMG_2720.JPG" %}"></div>
+        <div class="text-container lax" data-lax-translate-y="0 800, 0 200" data-lax-opacity="0 600, 0 1">
+            <h2>Second Parallax Section</h2>
+            {% lorem 15 p %}
+        </div>
+    </section>
+
+
+    <!-- Second Section Wipe (Flash Effect) -->
+{#    <section class="section-wipe flash-wipe lax" data-lax-translate-y="0 1000, 0 -500" data-bg="{% static 'hr_site/img/wipe/oscar-keys-AmPRUnRb6N0-unsplash.jpg' %}"></section>#}
+    <section class="section-wipe lax" data-lax-translate-y="0 1000, 0 -500" data-bg="{% static 'hr_site/img/wipe/oscar-keys-AmPRUnRb6N0-unsplash.jpg' %}"></section>
+
+
+    <section class="parallax-wrapper">
+        <div class="parallax-bg lax" data-lax-translate-y="0 800, 0 -200" data-bg="{% static "hr_site/img/background/IMG_2738.JPG" %}"></div>
+        <div class="text-container lax" data-lax-translate-y="0 800, 0 200" data-lax-opacity="0 600, 0 1">
+            <h2>Third Parallax Section</h2>
+            {% lorem 15 p %}
+        </div>
+    </section>
+
+{#<script src="https://cdn.jsdelivr.net/npm/lax.js@1.2.3/lib/lax.min.js"></script>#}
+{#<script src="https://cdn.jsdelivr.net/npm/lax.js@2.0.4"></script>#}
+{#<script src="https://cdn.jsdelivr.net/npm/lax.js@1.2.3"></script>#}
+{#<script type="module" src="{% static 'hr_site/pt5/js/hr_site/static/hr_site/pt5/js/bundle.js' %}"></script>#}
+
+{#<script type="module" src="{% static 'hr_site/pt5/js/index.js' %}"></script>#}
+{#<script defer type="module" src="{% static 'hr_site/pt5/js/index.js' %}"></script>#}
+{#<script src="http://localhost:3000/bundle.js"></script>#}
+
+    <script defer src="{% static 'hr_site/pt5/js/bundle.js' %}"></script>
+
+</body>
+</html>
