@@ -3,7 +3,9 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from datetime import datetime
 from django.contrib import messages
-import zoneinfo
+from zoneinfo import ZoneInfo  # Python 3.9+
+
+
 import json
 from django.utils import timezone
 from django.conf import settings
@@ -171,70 +173,69 @@ timezone_pacific = {
     'Wake': 'Pacific/Wake',
 }
 
-
-def set_timezone(request):
-    if request.method == 'POST':
-        request.session['django_timezone'] = request.POST['timezone-select']
-        request.session.save()
-        response = HttpResponse(status=204)
-        trigger_dict = {
-            'timezoneChanged': None,
-            'showMessage': f'Timezone Updated to {request.session["django_timezone"]}',
-            'messageChanged': None
-        }
-        response.headers['HX-Trigger'] = json.dumps(trigger_dict)
-        return response
-    else:
-        reference_date = datetime(year=2024, day=5, hour=0, minute=0, second=0)
-        server_time = timezone.localtime(timezone.now())
-        if request.session.get('django-timezone', False):
-            old_tz = request.session['django_timezone']
-            request_tz = zoneinfo.ZoneInfo(request.session['django_timezone'])
-            session_tz = timezone.activate(request_tz)
-            session_time = timezone.localtime(timezone.now())
-        else:
-            request.session['django_timeszone'] = settings.TIME_ZONE
-            request_tz = zoneinfo.ZoneInfo(request.session['django_timezone'])
-            session_tz = timezone.activate(request_tz)
-            session_time = timezone.localtime(timezone.now())
-            request.session['django_timezone'] = settings.TIME_ZONE
-            request.session.save()
-        return render(request, 'hr_site/timezones.html', {'timezones': timezone_us})
+#
+# def set_timezone(request):
+#     if request.method == 'POST':
+#         request.session['django_timezone'] = request.POST['timezone-select']
+#         request.session.save()
+#         response = HttpResponse(status=204)
+#         trigger_dict = {
+#             'timezoneChanged': None,
+#             'showMessage': f'Timezone Updated to {request.session["django_timezone"]}',
+#             'messageChanged': None
+#         }
+#         response.headers['HX-Trigger'] = json.dumps(trigger_dict)
+#         return response
+#     else:
+#         reference_date = datetime(year=2024, day=5, hour=0, minute=0, second=0)
+#         server_time = timezone.localtime(timezone.now())
+#         if request.session.get('django-timezone', False):
+#             old_tz = request.session['django_timezone']
+#             request_tz = ZoneInfo(request.session['django_timezone'])
+#             session_tz = timezone.activate(request_tz)
+#             session_time = timezone.localtime(timezone.now())
+#         else:
+#             request.session['django_timeszone'] = settings.TIME_ZONE
+#             request_tz = ZoneInfo(request.session['django_timezone'])
+#             session_tz = timezone.activate(request_tz)
+#             session_time = timezone.localtime(timezone.now())
+#             request.session['django_timezone'] = settings.TIME_ZONE
+#             request.session.save()
+#         return render(request, 'hr_site/timezones.html', {'timezones': timezone_us})
 
 
 def get_messsages(request):
     return render(request, 'hr_site/messages.html')
 
 
-def clear_messages(request):
-    return render(request, 'hr_site/messages_partial.html')
+# def clear_messages(request):
+#     return render(request, 'hr_site/messages_partial.html')
 
 
 def comment_form(request):
     if request.method == 'GET':
         return
-    else:
-        return
+    return
 
 
 def index(request):
-    return render(request, "hr_site/test.html")
+    return render(request, "hr_site/index.html")
 
 
-def test2(request):
-    return render(request, "hr_site/test2.html")
-
-
-def burn_test(request):
-    return render(request, "hr_site/burn_test.html")
-
-
-def parallax_test(request):
-    return render(request, "hr_site/parallax_test.html")
-
-
-def pt2(request):
-    return render(request, "hr_site/pt2.html")
+# def test2(request):
+#     return render(request, "hr_site/test2.html")
+#
+#
+# def burn_test(request):
+#     return render(request, "hr_site/burn_test.html")
+#
+#
+# def parallax_test(request):
+#     return render(request, "hr_site/parallax_test.html")
+#
+#
+# def pt2(request):
+#     return render(request, "hr_site/pt2.html")
 
 
 def pt3(request):

@@ -12,6 +12,7 @@ requests = "*"
 django-debug-toolbar = "*"
 pip-search = "*"
 datetime = "*"
+pylint = "*"
 
 [dev-packages]
 

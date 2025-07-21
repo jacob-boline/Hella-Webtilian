@@ -1,5 +1,5 @@
-import lax from '../../../../../node_modules/lax.js/lib/lax.js';
-
+//import lax from '../../../../../node_modules/lax.js/lib/lax.js';
+import lax from 'lax.js';
 
 const parallaxConfig = {
     textSpeed: 1.5,
@@ -20,7 +20,9 @@ function setParallaxHeights(wrapperSelector, textSelector, bgSelector) {
                 //const textHeight = text.offsetHeight;
                 const textHeight = text.getBoundingClientRect().height;
                 const parallaxHeight = textHeight * (parallaxConfig.textSpeed/parallaxConfig.bgSpeed);
-                wrapper.style.height = bg.style.height = `${parallaxHeight}px`;
+                // wrapper.style.height = bg.style.height = `${parallaxHeight}px`;
+                wrapper.style.height = `${parallaxHeight}px`;
+                bg.style.height = `${paralaxHeight}px`;
             }
         });
     };
@@ -41,7 +43,8 @@ function setParallaxHeights(wrapperSelector, textSelector, bgSelector) {
 
 document.addEventListener("DOMContentLoaded", function() {
 
-    setParallaxHeights(".parallax-wrapper", ".text-container", ".parallax-bg");
+    //setParallaxHeights(".parallax-wrapper", ".text-container", ".parallax-bg");
+    setParallaxHeights(".parallax-wrapper", ".parallax-content", ".parallax-background");
 
     try {
         lax.init();
@@ -58,13 +61,13 @@ document.addEventListener("DOMContentLoaded", function() {
     const parallaxObserver = new IntersectionObserver(
         (entries) => {
             entries.forEach((entry) => {
-                const bg = entry.target.querySelector(".parallax-bg");
-                const text = entry.target.querySelector(".text-container");
+                const bg = entry.target.querySelector(".parallax-background");
+                const text = entry.target.querySelector(".parallax-content");
                 const wipe = entry.target.querySelector('.section-wipe')
 
                 if (entry.isIntersecting && !observedElements.has(entry.target)) {
                     if (bg) {
-                        lax.addElements(entry.target.querySelector('.parallax-bg'), {
+                        lax.addElements(entry.target.querySelector('.parallax-background'), {
                             scrollY: {
                                 translateY: [
                                     ["elInY", "elOutY"],

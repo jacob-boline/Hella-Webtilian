@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vanilla JS Parallax Scroll</title>
+    <link rel="stylesheet" href="{% static "hr_site/build.css" %}">
+</head>
+
+<body class="bg-black text-white">
+<div id="parallax-wrapper">
+    <section id="banner" class="w-full px-4 z-30 fixed">
+        <div class="flex flex-wrap">
+            <div class="w-full banner-row">
+                <span class="banner-letter blink">H</span>
+                <span class="banner-letter">E</span>
+                <span class="banner-letter">L</span>
+                <span class="banner-letter">L</span>
+                <span class="banner-letter">A</span>
+                <span class="banner-letter">&nbsp;</span>
+                <span class="banner-letter">R</span>
+                <span class="banner-letter">E</span>
+                <span class="banner-letter">P</span>
+                <span class="banner-letter">T</span>
+                <span class="banner-letter">I</span>
+                <span class="banner-letter">L</span>
+                <span class="banner-letter">I</span>
+                <span class="banner-letter">A</span>
+                <span class="banner-letter">N</span>
+                <span class="banner-letter">!</span>
+                <span class="ml-2"></span>
+                <span id="nav-audio" class="z-40 fixed"></span>
+            </div>
+            <div class="w-full banner-row">
+                <span id="banner-end"></span>
+            </div>
+        </div>
+    </section>
+
+    <section id="banner-scroller"></section>
+
+    <div id="section-wipe-0"
+         class="section-wipe bg-cover bg-center z-20 absolute"
+         style="background-image: url('{% static "hr_site/img/wipe/bryan-goff-we1ky8_ZTHg-unsplash.jpg" %}');">
+    </div>
+
+    <div id="open-nav-btn-container" class="text-left">
+        <button class="rounded-lg text-sm p-1.5 top-2.5 right-2.5 inline-flex items-center z-40 fixed" id="nav-open" type="button"
+                data-drawer-target="drawer-navigation" data-drawer-show="drawer-navigation">
+            <i class="fa-regular fa-square-caret-right"></i>
+        </button>
+    </div>
+
+    <div id="drawer-navigation"
+         class="fixed top-0 left-0 transform -translate-x-full transition-transform duration-300 ease-in-out h-full z-50"
+         tabindex="-1">
+        <button type="button"
+                data-drawer-hide="drawer-navigation"
+                class="rounded-lg text-sm p-1.5 top-2.5 right-2.5 inline-flex items-center relative">
+            <i class="fa-regular fa-circle-xmark"></i>
+            <span class="sr-only">Close menu</span>
+        </button>
+
+        <iframe style="border: 0; width: 200px; height: 342px;"
+                src="https://bandcamp.com/EmbeddedPlayer/album=1766078263/size=large/bgcol=333333/linkcol=4ec5ec/tracklist=false/transparent=true/"
+                seamless>
+            <a href="https://hellareptilian.bandcamp.com/album/into-hella-we-ride-demo">Into Hella We Ride! [Demo] by Hella Reptilian!</a>
+        </iframe>
+    </div>
+
+    <section id="parallax-section-1" class="parallax-section relative flex justify-center min-h-screen">
+        <div class="parallax-background absolute inset-0 bg-cover bg-center"></div>
+        <div class="parallax-content relative isolate z-10 mx-auto max-w-6xl px-5 py-[18vh] bg-white/80 text-left dark-overlay">
+            <h1 class="text-4xl font-bold">Parallax Section 1</h1>
+            {% lorem 25 p %}
+            <h1 class="text-4xl font-bold">END SECTION</h1>
+            <h1 class="text-4xl font-bold text-center mb-8">Upcoming Shows</h1>
+            {##}
+            {#            <ul class="space-y-6">#}
+            {#                <li class="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b border-white/20 pb-4">#}
+            {#                    <div>#}
+            {#                        <p class="text-lg font-semibold">Friday, July 4th</p>#}
+            {#                        <p class="text-sm opacity-80">Palmer’s Bar @ 9:00pm</p>#}
+            {#                    </div>#}
+            {#                    <div class="flex gap-4 mt-3 sm:mt-0">#}
+            {#                        <a href="#" class="text-sm text-sky-400 hover:underline">Venue Info</a>#}
+            {#                        <a href="#" class="text-sm text-sky-400 hover:underline">Get Directions</a>#}
+            {#                    </div>#}
+            {#                </li>#}
+            {#                <li class="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b border-white/20 pb-4">#}
+            {#                    <div>#}
+            {#                        <p class="text-lg font-semibold">Saturday, July 12th</p>#}
+            {#                        <p class="text-sm opacity-80">7th Street Entry @ 8:30pm</p>#}
+            {#                    </div>#}
+            {#                    <div class="flex gap-4 mt-3 sm:mt-0">#}
+            {#                        <a href="#" class="text-sm text-sky-400 hover:underline">Venue Info</a>#}
+            {#                        <a href="#" class="text-sm text-sky-400 hover:underline">Get Directions</a>#}
+            {#                    </div>#}
+            {#                </li>#}
+            {#                <!-- Add more show <li>s here -->#}
+            {#            </ul>#}
+
+{#            <h1 class="text-5xl font-bold text-center mb-12 tracking-tight">Upcoming Shows</h1>#}
+
+            {#            <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3 justify-items-center">#}
+            {#                <!-- Show Card -->#}
+            {#                <div class="bg-white/10 backdrop-blur-sm rounded-md shadow-md p-5 w-full max-w-sm text-white hover:shadow-lg transition duration-300">#}
+            {#                    <p class="text-xl font-bold mb-1">Friday, July 4th</p>#}
+            {#                    <p class="text-base mb-2 opacity-90">Palmer’s Bar @ 9:00pm</p>#}
+            {#                    <div class="text-sm text-sky-400 space-x-4">#}
+            {#                        <a href="#" class="hover:underline hover:text-sky-300">Venue Info</a>#}
+            {#                        <a href="#" class="hover:underline hover:text-sky-300">Directions</a>#}
+            {#                    </div>#}
+            {#                </div>#}
+            {##}
+            {#                <!-- Repeat cards below -->#}
+            {#                <div class="bg-white/10 backdrop-blur-sm rounded-md shadow-md p-5 w-full max-w-sm text-white hover:shadow-lg transition duration-300">#}
+            {#                    <p class="text-xl font-bold mb-1">Saturday, July 12th</p>#}
+            {#                    <p class="text-base mb-2 opacity-90">7th Street Entry @ 8:30pm</p>#}
+            {#                    <div class="text-sm text-sky-400 space-x-4">#}
+            {#                        <a href="#" class="hover:underline hover:text-sky-300">Venue Info</a>#}
+            {#                        <a href="#" class="hover:underline hover:text-sky-300">Directions</a>#}
+            {#                    </div>#}
+            {#                </div>#}
+            {##}
+            {#                <div class="bg-white/10 backdrop-blur-sm rounded-md shadow-md p-5 w-full max-w-sm text-white hover:shadow-lg transition duration-300">#}
+            {#                    <p class="text-xl font-bold mb-1">Thursday, July 18th</p>#}
+            {#                    <p class="text-base mb-2 opacity-90">Turf Club @ 10:00pm</p>#}
+            {#                    <div class="text-sm text-sky-400 space-x-4">#}
+            {#                        <a href="#" class="hover:underline hover:text-sky-300">Venue Info</a>#}
+            {#                        <a href="#" class="hover:underline hover:text-sky-300">Directions</a>#}
+            {#                    </div>#}
+            {#                </div>#}
+            {##}
+            {#                <!-- More cards... -->#}
+            {#            </div>#}
+
+            {#            <div class="-my-6">#}
+            {#                <div class="relative pl-8 sm:pl-32 py-6 group">#}
+            {#                    <div class="text-lg text-white-50 mb-1 sm:mb-0">TOP LINE</div>#}
+            {#                    <div class="flex flex-col sm:flex-row items-start b-1 group-last:before:hidden before:absolute before:left-2 sm:before:left-0 before:h-full before:px-px before:bg-slate-300 sm:before:ml-[6.5rem] before:self-start before:-translate-x-1/2 before:translate-y-3 after:absolute after:left-2 sm:after:left-0 after:w-2 after:h-2 after:bg-white-600 after:border-4 after:box-content after:border-slate-50 after:rounded-full sm:after:ml-[6.5rem] after:-translate-x-1/2 after:translate-y-1.5">#}
+            {#                        <time class="text-base sm:absolute left-0 translate-y-0.5 inline-flex items-left justify-left text-cs font-semibold uppercase w-20 h-6 mb-3 sm:mb-0 text-emerald-600 bg-emerald-100 rounded-full">SHOW DATE</time>#}
+            {#                        <div class="text-3xl font-bold text-slate-900">MAIN LINE</div>#}
+            {#                    </div>#}
+            {#                    <div class="text-base text-slate-500">Oh look, it's additional details about the upcoming show. Wow, interesting stuffm I'll take -1293123921 tickets please.</div>#}
+            {#                </div>#}
+            {#            </div>#}
+            {#            <div class="-my-6">#}
+            {#                <div class="relative pl-8 sm:pl-32 py-6 group">#}
+            {#                    <div class="text-lg text-white-50 mb-1 sm:mb-0">TOP LINE</div>#}
+            {#                    <div class="flex flex-col sm:flex-row items-start b-1 group-last:before:hidden before:absolute before:left-2 sm:before:left-0 before:h-full before:px-px before:bg-slate-300 sm:before:ml-[6.5rem] before:self-start before:-translate-x-1/2 before:translate-y-3 after:absolute after:left-2 sm:after:left-0 after:w-2 after:h-2 after:bg-white-600 after:border-4 after:box-content after:border-slate-50 after:rounded-full sm:after:ml-[6.5rem] after:-translate-x-1/2 after:translate-y-1.5">#}
+            {#                        <time class="text-base sm:absolute left-0 translate-y-0.5 inline-flex items-left justify-left text-cs font-semibold uppercase w-20 h-6 mb-3 sm:mb-0 text-emerald-600 bg-emerald-100 rounded-full">SHOW DATE</time>#}
+            {#                        <div class="text-3xl font-bold text-slate-900">MAIN LINE</div>#}
+            {#                    </div>#}
+            {#                    <div class="text-base text-slate-500">Oh look, it's additional details about the upcoming show. Wow, interesting stuffm I'll take -1293123921 tickets please.</div>#}
+            {#                </div>#}
+            {#            </div>#}
+            {#            <div class="-my-6">#}
+            {#                <div class="relative pl-8 sm:pl-32 py-6 group">#}
+            {#                    <div class="text-lg text-white-50 mb-1 sm:mb-0">TOP LINE</div>#}
+            {#                    <div class="flex flex-col sm:flex-row items-start b-1 group-last:before:hidden before:absolute before:left-2 sm:before:left-0 before:h-full before:px-px before:bg-slate-300 sm:before:ml-[6.5rem] before:self-start before:-translate-x-1/2 before:translate-y-3 after:absolute after:left-2 sm:after:left-0 after:w-2 after:h-2 after:bg-white-600 after:border-4 after:box-content after:border-slate-50 after:rounded-full sm:after:ml-[6.5rem] after:-translate-x-1/2 after:translate-y-1.5">#}
+            {#                        <time class="text-base sm:absolute left-0 translate-y-0.5 inline-flex items-left justify-left text-cs font-semibold uppercase w-20 h-6 mb-3 sm:mb-0 text-emerald-600 bg-emerald-100 rounded-full">SHOW DATE</time>#}
+            {#                        <div class="text-3xl font-bold text-slate-900">MAIN LINE</div>#}
+            {#                    </div>#}
+            {#                    <div class="text-base text-slate-500">Oh look, it's additional details about the upcoming show. Wow, interesting stuffm I'll take -1293123921 tickets please.</div>#}
+            {#                </div>#}
+            {#            </div>#}
+{#            <div class="text-slate-900 dark:text-slate-100 border border-red-500 relative z-10">#}
+{#                <section class="relative min-h-screen flex flex-col justify-center bg-slate-50 overflow-hidden">#}
+{#                    <div class="w-full max-w-6xl mx-auto px-4 md:px-6 py-24">#}
+{#                        <div class="flex flex-col justify-center divide-y divide-slate-200 [&>*]:py-16">#}
+{##}
+{#                            <div class="w-full max-w-3xl mx-auto">#}
+{##}
+{#                                <!-- Vertical Timeline #1 -->#}
+{#                                <div class="-my-6">#}
+{##}
+{#                                    <!-- Item #1 -->#}
+{#                                    <div class="relative pl-8 sm:pl-32 py-6 group">#}
+{#                                        <!-- Purple label -->#}
+{#                                        <div class="font-medium text-indigo-500 mb-1 sm:mb-0">The origin</div>#}
+{#                                        <!-- Vertical line (::before) ~ Date ~ Title ~ Circle marker (::after) -->#}
+{#                                        <div class="flex flex-col sm:flex-row items-start mb-1 group-last:before:hidden before:absolute before:left-2 sm:before:left-0 before:h-full before:px-px before:bg-slate-300 sm:before:ml-[6.5rem] before:self-start before:-translate-x-1/2 before:translate-y-3 after:absolute after:left-2 sm:after:left-0 after:w-2 after:h-2 after:bg-indigo-600 after:border-4 after:box-content after:border-slate-50 after:rounded-full sm:after:ml-[6.5rem] after:-translate-x-1/2 after:translate-y-1.5">#}
+{#                                            <time class="sm:absolute left-0 translate-y-0.5 inline-flex items-center justify-center text-xs font-semibold uppercase w-20 h-6 mb-3 sm:mb-0 text-emerald-600 bg-emerald-100 rounded-full">May, 2020</time>#}
+{#                                            <div class="text-xl font-bold text-slate-900">Acme was founded in Milan, Italy</div>#}
+{#                                        </div>#}
+{#                                        <!-- Content -->#}
+{#                                        <div class="text-slate-500">Pretium lectus quam id leo. Urna et pharetra pharetra massa massa. Adipiscing enim eu neque aliquam vestibulum morbi blandit cursus risus.</div>#}
+{#                                    </div>#}
+{##}
+{#                                    <!-- Item #2 -->#}
+{#                                    <div class="relative pl-8 sm:pl-32 py-6 group">#}
+{#                                        <!-- Purple label -->#}
+{#                                        <div class="font-medium text-indigo-500 mb-1 sm:mb-0">The milestone</div>#}
+{#                                        <!-- Vertical line (::before) ~ Date ~ Title ~ Circle marker (::after) -->#}
+{#                                        <div class="flex flex-col sm:flex-row items-start mb-1 group-last:before:hidden before:absolute before:left-2 sm:before:left-0 before:h-full before:px-px before:bg-slate-300 sm:before:ml-[6.5rem] before:self-start before:-translate-x-1/2 before:translate-y-3 after:absolute after:left-2 sm:after:left-0 after:w-2 after:h-2 after:bg-indigo-600 after:border-4 after:box-content after:border-slate-50 after:rounded-full sm:after:ml-[6.5rem] after:-translate-x-1/2 after:translate-y-1.5">#}
+{#                                            <time class="sm:absolute left-0 translate-y-0.5 inline-flex items-center justify-center text-xs font-semibold uppercase w-20 h-6 mb-3 sm:mb-0 text-emerald-600 bg-emerald-100 rounded-full">May, 2021</time>#}
+{#                                            <div class="text-xl font-bold text-slate-900">Reached 5K customers</div>#}
+{#                                        </div>#}
+{#                                        <!-- Content -->#}
+{#                                        <div class="text-slate-500">Pretium lectus quam id leo. Urna et pharetra pharetra massa massa. Adipiscing enim eu neque aliquam vestibulum morbi blandit cursus risus.</div>#}
+{#                                    </div>#}
+{##}
+{#                                    <!-- Item #3 -->#}
+{#                                    <div class="relative pl-8 sm:pl-32 py-6 group">#}
+{#                                        <!-- Purple label -->#}
+{#                                        <div class="font-medium text-indigo-500 mb-1 sm:mb-0">The acquisitions</div>#}
+{#                                        <!-- Vertical line (::before) ~ Date ~ Title ~ Circle marker (::after) -->#}
+{#                                        <div class="flex flex-col sm:flex-row items-start mb-1 group-last:before:hidden before:absolute before:left-2 sm:before:left-0 before:h-full before:px-px before:bg-slate-300 sm:before:ml-[6.5rem] before:self-start before:-translate-x-1/2 before:translate-y-3 after:absolute after:left-2 sm:after:left-0 after:w-2 after:h-2 after:bg-indigo-600 after:border-4 after:box-content after:border-slate-50 after:rounded-full sm:after:ml-[6.5rem] after:-translate-x-1/2 after:translate-y-1.5">#}
+{#                                            <time class="sm:absolute left-0 translate-y-0.5 inline-flex items-center justify-center text-xs font-semibold uppercase w-20 h-6 mb-3 sm:mb-0 text-emerald-600 bg-emerald-100 rounded-full">May, 2022</time>#}
+{#                                            <div class="text-xl font-bold text-slate-900">Acquired various companies, inluding Technology Inc.</div>#}
+{#                                        </div>#}
+{#                                        <!-- Content -->#}
+{#                                        <div class="text-slate-500">Pretium lectus quam id leo. Urna et pharetra pharetra massa massa. Adipiscing enim eu neque aliquam vestibulum morbi blandit cursus risus.</div>#}
+{#                                    </div>#}
+{##}
+{#                                    <!-- Item #4 -->#}
+{#                                    <div class="relative pl-8 sm:pl-32 py-6 group">#}
+{#                                        <!-- Purple label -->#}
+{#                                        <div class="font-medium text-indigo-500 mb-1 sm:mb-0">The IPO</div>#}
+{#                                        <!-- Vertical line (::before) ~ Date ~ Title ~ Circle marker (::after) -->#}
+{#                                        <div class="flex flex-col sm:flex-row items-start mb-1 group-last:before:hidden before:absolute before:left-2 sm:before:left-0 before:h-full before:px-px before:bg-slate-300 sm:before:ml-[6.5rem] before:self-start before:-translate-x-1/2 before:translate-y-3 after:absolute after:left-2 sm:after:left-0 after:w-2 after:h-2 after:bg-indigo-600 after:border-4 after:box-content after:border-slate-50 after:rounded-full sm:after:ml-[6.5rem] after:-translate-x-1/2 after:translate-y-1.5">#}
+{#                                            <time class="sm:absolute left-0 translate-y-0.5 inline-flex items-center justify-center text-xs font-semibold uppercase w-20 h-6 mb-3 sm:mb-0 text-emerald-600 bg-emerald-100 rounded-full">May, 2023</time>#}
+{#                                            <div class="text-xl font-bold text-slate-900">Acme went public at the New York Stock Exchange</div>#}
+{#                                        </div>#}
+{#                                        <!-- Content -->#}
+{#                                        <div class="text-slate-500">Pretium lectus quam id leo. Urna et pharetra pharetra massa massa. Adipiscing enim eu neque aliquam vestibulum morbi blandit cursus risus.</div>#}
+{#                                    </div>#}
+{##}
+{#                                </div>#}
+{#                                <!-- End: Vertical Timeline #1 -->#}
+{##}
+{#                            </div>#}
+{##}
+{#                        </div>#}
+{#                    </div>#}
+{#                </section>#}
+{#            </div>#}
+
+        </div>
+    </section>
+
+    <div id="section-wipe-1"
+         class="section-wipe bg-cover bg-center z-20 absolute">
+    </div>
+
+    <section id="parallax-section-2" class="parallax-section relative">
+        <div class="parallax-background absolute inset-0 bg-cover bg-center"></div>
+        <div class="parallax-content relative z-10 max-w-4xl mx-auto p-5 py-[18vh] bg-white/80 text-center">
+            <h1 class="text-4xl font-bold">Parallax Section 2</h1>
+            {% lorem 25 p %}
+            <h1 class="text-4xl font-bold">END SECTION</h1>
+        </div>
+    </section>
+
+</div>
+
+<script src="https://kit.fontawesome.com/ba660226a8.js" crossorigin="anonymous"></script>
+<script src="{% static 'hr_site/index.js' %}"></script>
+</body>
+</html>

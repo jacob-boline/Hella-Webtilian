@@ -21,6 +21,12 @@ module.exports = {
             },
         ],
     },
+    resolve: {
+        modules: [
+            path.resolve(__dirname, 'hr_site/static/hr_site/pt5/js'),
+            'node_modules'
+        ]
+    }
 };
 
     // devServer: {
