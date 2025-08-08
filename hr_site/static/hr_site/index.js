@@ -14,6 +14,8 @@ document.addEventListener("DOMContentLoaded", function () {
     let ticking = false;
     let lastIndexHidden = -1;
 
+    let bannerTimeouts = {}
+
     const buffer = 2;
     const banners = document.querySelectorAll('.banner-letter');
     const step = 5;//6;//8;
@@ -23,41 +25,56 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let isBannerTransparent = false;
 
-    function showBanner(index) {
+    function showBanner (index) {
         if (0 <= index && index < banners.length) {
+            if (banners[index].classList.contains('burn')) return;
             banners[index].style.display = 'inline-block';
             banners[index].classList.add('burn');
             banners[index].style.transition = 'color 0.25s ease-in, text-shadow 0.25.s ease-in-out';
         }
     }
 
-    function hideBanner(index) {
+    function hideBanner (index) {
         if (0 <= index && index < banners.length) {
+            if (banners[index].classList.contains('hidden-once')) return;
+
+            if (bannerTimeouts[index]) {
+                clearTimeout(bannerTimeouts[index].stage1);
+                clearTimeout(bannerTimeouts[index].stage2);
+                delete bannerTimeouts[index];
+            }
+
             // Apply initial flash effect
-            banners[index].style.color =  'rgb(0, 212, 255)'; // Flash color
+            banners[index].classList.add('hidden-once');
+            banners[index].style.color = 'rgb(0, 212, 255)'; // Flash color
             banners[index].style.transition = 'color 0.3s ease-out, opacity 0.5s ease-out, text-shadow 0.25s ease-out'; // Quick flash transition
             banners[index].style.textShadow = '0 0 10px rgba(255, 255, 255, 0.9)';
 
-            // After a short time, transition to the next effect
-            setTimeout(() => {
+            bannerTimeouts[index] = {};
+            bannerTimeouts[index].stage1 = setTimeout(() => {
                 banners[index].style.color = 'rgb(255, 255, 255)';
                 banners[index].style.transition = 'color 3s ease, opacity 3s ease-out, text-shadow 3s ease-out'; // Longer smooth transition
 
-                // After another time, apply the final transition effect
-                setTimeout(() => {
+                bannerTimeouts[index].stage2 = setTimeout(() => {
                     banners[index].style.color = 'rgb(0,0,0)';
                     banners[index].style.opacity = '0';
                     banners[index].style.textShadow = '0 0 10px rgba(255, 255, 255, 0.8)';
-                }, 500); // Delay before final fade-out
-            }, 250); // Short delay before applying the second effect
+                    banners[index].style.transition = 'color 3s ease, opacity 3s ease, text-shadow 3s ease';
+
+                    delete bannerTimeouts[index];
+                }, 500);
+            }, 250);
         }
         if (index === banners.length) {
             banner.style.background = 'transparent';
-            banners.style.color = 'transparent';
+            banners.forEach(b => {
+                b.style.color = 'transparent';
+                b.classList.remove('hidden-once');
+            });
         }
     }
 
-    function recolorBanner() {
+    function recolorBanner () {
         const firstSectionWipe = document.getElementById('section-wipe-0');
         const recolorBannerObserver = new IntersectionObserver(entries => {
             entries.forEach(entry => {
@@ -65,6 +82,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     document.querySelector('#banner').style.backgroundColor = 'rgba(0,0,0,1)';
                     banners.forEach(banner => {
                         banner.style.color = "darkorange";
+                        banner.style.opacity = '1';
+                    });
+                } else {
+                    banners.forEach(banner => {
+                        banner.style.color = '';
                         banner.style.opacity = '1';
                     });
                 }
@@ -78,27 +100,42 @@ document.addEventListener("DOMContentLoaded", function () {
         const scrollPosition = Math.floor(window.scrollY);
         const vh = Math.floor(window.innerHeight / 100);
         const indexToShow = Math.floor((scrollPosition / (step * vh))) - buffer;
-        const indexResetPoint = Math.floor((banners.length * step * vh) + (buffer ** buffer * vh));
+        //const indexResetPoint = Math.floor((banners.length * step * vh) + (buffer ** buffer * vh));
+        const bannerScroller = document.querySelector('#banner-scroller');
+        const indexResetPoint = bannerScroller.offsetTop + bannerScroller.offsetHeight;
 
-        // Show the banner for the current index and all preceding indexes that haven't been shown yet
-        if (indexToShow < banners.length) {
-            for (let i = 0; i <= indexToShow; i++) {
-                if (banners[i].style.display !== 'inline-block') {
-                    showBanner(i);
-                }
-            }
-        } else {
-            for (let index = 0; index < banners.length; index++) {
-                const threshold = vh * index + ((10+index) * vh);
-                if ((scrollPosition - indexResetPoint) >= threshold && index > lastIndexHidden) {
-                    hideBanner(index);
-                    lastIndexHidden = index;
-                }
+        if (scrollPosition < indexResetPoint) {
+            lastIndexHidden = -1;
+        }
+
+        for (let i = 0; i < banners.length; i++) {
+            if (i <= indexToShow && banners[i].style.display !== 'inline-block') {
+                showBanner(i);
+            } else if (i > indexToShow && (scrollPosition - indexResetPoint) >= vh * i && i > lastIndexHidden) {
+                hideBanner(i);
+                lastIndexHidden = i;
             }
         }
+
+        // Show the banner for the current index and all preceding indexes that haven't been shown yet
+        // if (indexToShow < banners.length) {
+        //     for (let i = 0; i <= indexToShow; i++) {
+        //         if (banners[i].style.display !== 'inline-block') {
+        //             showBanner(i);
+        //         }
+        //     }
+        // } else {
+        //     for (let index = 0; index < banners.length; index++) {
+        //         const threshold = vh * index + ((10+index) * vh);
+        //         if ((scrollPosition - indexResetPoint) >= threshold && index > lastIndexHidden) {
+        //             hideBanner(index);
+        //             lastIndexHidden = index;
+        //         }
+        //     }
+        // }
     }
 
-    function initializeParallax() {
+    function initializeParallax () {
         document.querySelectorAll('.parallax-section').forEach(section => {
             let content = section.querySelector('.parallax-content');
             let background = section.querySelector('.parallax-background');
@@ -109,7 +146,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    function updateParallax(scrollTop) {
+    function updateParallax (scrollTop) {
         document.querySelectorAll('.parallax-section.in-view').forEach(section => {
             let sectionOffset = section.offsetTop;
             let background = section.querySelector('.parallax-background');
@@ -117,17 +154,17 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    function calculateWipeData() {
+    function calculateWipeData () {
         wipes.forEach(wipe => {
             let wipeHeight = wipe.getBoundingClientRect().height;
             let viewportHeight = document.documentElement.clientHeight - 30;
             let scrollSpeedRatio = (viewportHeight + wipeHeight) / viewportHeight;
             let wipeOffset = wipe.getBoundingClientRect().top + window.scrollY;
-            wipeData[wipe.id] = { scrollSpeedRatio, wipeOffset };
+            wipeData[wipe.id] = {scrollSpeedRatio, wipeOffset};
         });
     }
 
-    function positionSectionWipes() {
+    function positionSectionWipes () {
         document.querySelectorAll('.section-wipe').forEach(wipe => {
             let nextSection = wipe.nextElementSibling;
             if (nextSection && nextSection.classList.contains('parallax-section')) {
@@ -138,11 +175,11 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    function handleScroll() {
+    function handleScroll () {
         if (!activeWipe || !wipeData[activeWipe.id]) return;
 
         let scrollPosition = window.scrollY;
-        let { scrollSpeedRatio, wipeOffset } = wipeData[activeWipe.id];
+        let {scrollSpeedRatio, wipeOffset} = wipeData[activeWipe.id];
         let viewportHeight = document.documentElement.clientHeight;
         let progress = (scrollPosition - wipeOffset + viewportHeight) / viewportHeight;
         if (progress >= 0) {
@@ -151,7 +188,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    function observeWipes() {
+    function observeWipes () {
         let observer = new IntersectionObserver(entries => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -162,12 +199,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     window.removeEventListener("scroll", handleScroll);
                 }
             });
-        }, { threshold: 0 });
+        }, {threshold: 0});
 
         wipes.forEach(wipe => observer.observe(wipe));
     }
 
-    function observeElements() {
+    function observeElements () {
         let observer = new IntersectionObserver(entries => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -176,12 +213,12 @@ document.addEventListener("DOMContentLoaded", function () {
                     entry.target.classList.remove('in-view');
                 }
             });
-        }, { threshold: 0 });
+        }, {threshold: 0});
 
         document.querySelectorAll('.parallax-section').forEach(section => observer.observe(section));
     }
 
-    function onScroll() {
+    function onScroll () {
         if (!ticking) {
             ticking = true;
             requestAnimationFrame(() => {
@@ -191,7 +228,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    function debounce(func, wait = 200) {
+    function debounce (func, wait = 200) {
         let timeout;
         return function () {
             clearTimeout(timeout);
@@ -199,8 +236,8 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     }
 
-    function addSidebarListener() {
-        drawerTarget.addEventListener('click', function() {
+    function addSidebarListener () {
+        drawerTarget.addEventListener('click', function () {
             button.style.opacity = '0';
             button.style.pointerEvents = 'none';
             sidebar.classList.toggle('show');
@@ -209,8 +246,8 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    function addCloseSidebarBtnListener() {
-        sidebarCloseButton.addEventListener('click', function() {
+    function addCloseSidebarBtnListener () {
+        sidebarCloseButton.addEventListener('click', function () {
             button.style.opacity = '1';
             button.style.pointerEvents = 'auto';
             sidebar.classList.remove('show');
@@ -220,32 +257,61 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    function addBannerObserver() {
-    //const bannerRow = document.querySelector('.banner-row');
-    //const sectionWipe0 = document.getElementById('section-wipe-0');
+    function addBannerObserver () {
+        //const bannerRow = document.querySelector('.banner-row');
+        //const sectionWipe0 = document.getElementById('section-wipe-0');
 
-    // Flag to prevent multiple transitions
-    //let isBannerTransparent = false;
+        // Flag to prevent multiple transitions
+        //let isBannerTransparent = false;
 
-    const bannerObserver = new IntersectionObserver(entries => {
-        entries.forEach(entry => {
-            if (!isBannerTransparent && entry.isIntersecting) {
-                // When the top of #section-wipe-0 reaches the bottom of .banner-row
-                bannerRow.style.transition = 'opacity 0.1s ease-in-out';
-                bannerRow.style.opacity = '0';
-                banner.style.transition = 'opacity 0.1s ease=in-out';
-                banner.style.opacity = '0';
-                isBannerTransparent = true;
-            }
+        const bannerObserver = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (!isBannerTransparent && entry.isIntersecting) {
+                    // When the top of #section-wipe-0 reaches the bottom of .banner-row
+                    bannerRow.style.transition = 'opacity 0.1s ease-in-out';
+                    bannerRow.style.opacity = '0';
+                    banner.style.transition = 'opacity 0.1s ease-in-out';
+                    banner.style.opacity = '0';
+                    isBannerTransparent = true;
+                }
+            });
+        }, {
+            root: null, // Use the viewport as the root
+            threshold: 0, // Trigger when any part of #section-wipe-0 comes into view
+            rootMargin: '0px 0px -100% 0px' // Set the bottom margin to trigger when #section-wipe-0 enters after the .banner-row
         });
-    }, {
-        root: null, // Use the viewport as the root
-        threshold: 0, // Trigger when any part of #section-wipe-0 comes into view
-        rootMargin: '0px 0px -100% 0px' // Set the bottom margin to trigger when #section-wipe-0 enters after the .banner-row
-    });
 
-    bannerObserver.observe(sectionWipe0);
-}
+        bannerObserver.observe(sectionWipe0);
+    }
+
+    function applyStitchedLetters (selector) {
+        document.querySelectorAll(selector).forEach(el => {
+            const text = el.textContent.trim();
+            el.innerHTML = '';
+            for (let char of text) {
+                const span = document.createElement('span');
+                span.className = 'letter';
+                span.textContent = char === ' ' ? '\u00A0' : char;
+                el.appendChild(span);
+            }
+        })
+    }
+
+
+    function wrapDateTimeChars () {
+        document.querySelectorAll('.date, .time').forEach(el => {
+            const text = el.textContent.trim();
+            el.innerHTML = ''; // Clear existing text
+            text.split('').forEach(char => {
+                const span = document.createElement('span');
+                span.className = el.classList.contains('date') ? 'date-char' : el.classList.contains('time') ? 'time-char' : 'btn-char';
+                span.textContent = char === ' ' ? '\u00A0' : char; // Preserve spaces
+                el.appendChild(span);
+            });
+        });
+    }
+
+    wrapDateTimeChars();
 
 
     // function addBannerObserver() {
@@ -274,6 +340,7 @@ document.addEventListener("DOMContentLoaded", function () {
     addSidebarListener();
     addCloseSidebarBtnListener();
     addBannerObserver();
+    applyStitchedLetters('#parallax-section-1 .act-name');
 
     window.addEventListener('scroll', () => {
         onScroll();
@@ -283,5 +350,6 @@ document.addEventListener("DOMContentLoaded", function () {
     window.addEventListener('resize', debounce(() => {
         positionSectionWipes();
         calculateWipeData();
+        setBannerState();
     }));
 });

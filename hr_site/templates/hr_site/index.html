@@ -5,6 +5,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vanilla JS Parallax Scroll</title>
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alumni+Sans+Pinstripe:ital@0;1&family=Anaheim:wght@400..800&family=Bungee+Hairline&family=Bungee+Outline&family=Doto:wght@100..900&family=Exile&family=Geo:ital@0;1&family=Iceland&family=Jura:wght@300..700&family=Major+Mono+Display&family=Megrim&family=New+Amsterdam&family=Nova+Flat&family=Nova+Mono&family=Quantico:ital,wght@0,400;0,700;1,400;1,700&family=Sirin+Stencil&family=Syne+Mono&family=Text+Me+One&family=Tilt+Prism&family=Tourney:ital,wght@0,100..900;1,100..900&family=Zen+Loop:ital@0;1&family=Zen+Tokyo+Zoo&family=Zilla+Slab+Highlight:wght@400;700&display=swap"
+          rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bungee+Hairline&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Megrim&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Quantico:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Michroma&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Oxygen:wght@300;400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static "hr_site/build.css" %}">
 </head>
 
@@ -69,13 +82,75 @@
         </iframe>
     </div>
 
-    <section id="parallax-section-1" class="parallax-section relative flex justify-center min-h-screen">
+    <section id="parallax-section-1" class="parallax-section relative flex items-center justify-center min-h-screen">
         <div class="parallax-background absolute inset-0 bg-cover bg-center"></div>
-        <div class="parallax-content relative isolate z-10 mx-auto max-w-6xl px-5 py-[18vh] bg-white/80 text-left dark-overlay">
-            <h1 class="text-4xl font-bold">Parallax Section 1</h1>
-            {% lorem 25 p %}
-            <h1 class="text-4xl font-bold">END SECTION</h1>
+        <div class="parallax-content relative isolate z-10 mx-auto max-w-6xl px-5 py-[18vh] text-center flex flex-col items-center justify-center min-h-screen bg-transparent">
+{#            <h1 class="text-4xl font-bold">Parallax Section 1</h1>#}
+{#            {% lorem 25 p %}#}
+{#            <h1 class="text-4xl font-bold">END SECTION</h1>#}
             <h1 class="text-4xl font-bold text-center mb-8">Upcoming Shows</h1>
+            <div class="concert-card-container">
+                <div class="concert-card text-white">
+                    <div class="card-left">
+                        <div class="date-time">
+                            <div class="date">AUG 22</div>
+                            <div class="time">8:00 PM</div>
+                        </div>
+                    </div>
+                    <div class="card-center">
+                        <div class="acts">
+                            <div class="act-name">THE REACTORS</div>
+                            <div class="act-name">GRAVEBARDS</div>
+                            <div class="act-name">YUNG PHASERBLAST</div>
+                        </div>
+                    </div>
+                    <div class="card-right">
+                        <a class="card-button" href="#"><i class="fas fa-ticket-alt"></i> Tickets</a>
+                        <a class="card-button" href="#"><i class="fas fa-map-marked-alt"></i> Directions</a>
+                    </div>
+                </div>
+
+                <div class="concert-card text-white">
+                    <div class="card-left">
+                        <div class="date-time">
+                            <div class="date">AUG 22</div>
+                            <div class="time">8:00 PM</div>
+                        </div>
+                    </div>
+                    <div class="card-center">
+                        <div class="acts">
+                            <div class="act-name">THE REACTORS</div>
+                            <div class="act-name">GRAVEBARDS</div>
+                            <div class="act-name">YUNG PHASERBLAST</div>
+                        </div>
+                    </div>
+                    <div class="card-right">
+                        <a class="card-button" href="#"><i class="fas fa-ticket-alt"></i> Tickets</a>
+                        <a class="card-button" href="#"><i class="fas fa-map-marked-alt"></i> Directions</a>
+                    </div>
+                </div>
+
+                <div class="concert-card text-white">
+                    <div class="card-left">
+                        <div class="date-time">
+                            <div class="date">AUG 22</div>
+                            <div class="time">8:00 PM</div>
+                        </div>
+                    </div>
+                    <div class="card-center">
+                        <div class="acts">
+                            <div class="act-name">THE REACTORS</div>
+                            <div class="act-name">GRAVEBARDS</div>
+                            <div class="act-name">YUNG PHASERBLAST</div>
+                        </div>
+                    </div>
+                    <div class="card-right">
+                        <a class="card-button" href="#"><i class="fas fa-ticket-alt"></i> Tickets</a>
+                        <a class="card-button" href="#"><i class="fas fa-map-marked-alt"></i> Directions</a>
+                    </div>
+                </div>
+            </div>
+
             {##}
             {#            <ul class="space-y-6">#}
             {#                <li class="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b border-white/20 pb-4">#}
