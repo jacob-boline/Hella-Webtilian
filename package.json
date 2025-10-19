@@ -11,6 +11,7 @@
     "@babel/preset-env": "^7.26.7",
     "autoprefixer": "^10.4.20",
     "babel-loader": "^9.2.1",
+    "concurrently": "^9.2.1",
     "css-loader": "^7.1.2",
     "postcss": "^8.5.3",
     "postcss-loader": "^8.1.1",
@@ -22,9 +23,20 @@
     "webpack-dev-server": "^5.2.0"
   },
   "scripts": {
-    "dev": "npx tailwindcss -i ./static/hr_site/index.css -o ./static/hr_site/build.css --watch",
-    "start": "webpack serve --mode development & npx tailwindcss -i ./static/hr_site/build.css -o ./static/hr_site/css/output.css --watch",
-    "build": "webpack --mode production && npx tailwindcss -i ./static/hr_site/css/tailwind.css -o ./static/hr_site/css/output.css"
+    "tw:dev": "tailwindcss -i ./hr_site/static/hr_site/index.css -o ./hr_site/static/hr_site/build.css --watch",
+    "tw:build": "tailwindcss -i ./hr_site/static/hr_site/index.css -o ./hr_site//static/hr_site/build.css --minify",
+
+    "django:run": "bash -lc 'source .venv/bin/activate && python manage.py runserver 0.0.0.0:8000'",
+    "django:lr":  "bash -lc 'source .venv/bin/activate && python manage.py livereload'",
+
+    "dev:all": "concurrently -k -n TW,DJANGO,LR -c blue,green,magenta \"npm:tw:dev\" \"npm:django:run\" \"npm:django:lr\"",
+
+    "wp:serve": "webpack serve --mode development",
+    "wp:build": "webpack --mode production",
+
+    "dev": "npm run tw:dev",
+    "start": "concurrently \"npm:tw:dev\" \"npm:wp:serve\"",
+    "build": "npm run wp:build && npm run tw:build"
   },
   "repository": {
     "type": "git",

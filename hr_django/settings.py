@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'compressor',
     'webpack_loader',
     'django_browser_reload',
+    'livereload',
 ]
 
 MIDDLEWARE = [

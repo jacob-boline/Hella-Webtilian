@@ -1,0 +1,8 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+/* Optional layers if you use them:
+
+@layer base {}
+@layer components {}
+@layer utilities {}
+*/
