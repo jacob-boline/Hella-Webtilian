@@ -86,9 +86,9 @@
     </div>
 
     <!-- Parallax Section 1 (unchanged utilities) -->
-    <section id="parallax-section-1" class="parallax-section relative flex items-center justify-center min-h-screen">
+    <section id="parallax-section-1" class="parallax-section relative flex items-center justify-center min-h-vhfix">
         <div class="parallax-background absolute inset-0 bg-cover bg-center"></div>
-        <div class="parallax-content relative isolate z-10 mx-auto max-w-6xl px-5 py-[18vh] text-center flex flex-col items-center justify-center min-h-screen bg-transparent">
+        <div class="parallax-content relative isolate z-10 mx-auto max-w-6xl px-5 py-vh-18 text-center flex flex-col items-center justify-center min-h-vhfix bg-transparent">
             <h1>Upcoming Shows</h1>
             <div class="concert-card-container">
                 <div class="concert-card text-white">
@@ -158,9 +158,9 @@
     <div id="section-wipe-1" class="section-wipe z-20 absolute"></div>
 
     <!-- Parallax Section 2 -->
-    <section id="parallax-section-2" class="parallax-section relative flex items-center justify-center min-h-screen">
+    <section id="parallax-section-2" class="parallax-section relative flex items-center justify-center min-h-vhfix">
         <div class="parallax-background absolute inset-0 bg-cover bg-center"></div>
-        <div class="parallax-content relative isolate z-10 mx-auto max-w-6xl px-5 py-[18vh] text-center flex flex-col items-center justify-center min-h-screen bg-transparent">
+        <div class="parallax-content relative isolate z-10 mx-auto max-w-6xl px-5 py-vh-18 text-center flex flex-col items-center justify-center min-h-vhfix bg-transparent">
             <h1>Merch</h1>
 
             <!-- Gallery -->
@@ -284,10 +284,12 @@
 
     <div id="section-wipe-2" class="section-wipe z-20 absolute"></div>
 
-    <section id="parallax-section-3" class="parallax-section relative">
+    {#    <section id="parallax-section-3" class="parallax-section relative">#}
+    <section id="parallax-section-3"
+             class="parallax-section relative flex items-center justify-center min-h-vhfix">
         <div class="parallax-background absolute inset-0 bg-cover bg-center"></div>
         {#        <div class="parallax-content relative isolate z-10 mx-auto max-w-6xl px-5 text-center bg-transparent">#}
-        <div class="parallax-content relative isolate z-10 mx-auto max-w-6xl px-5 py-[18vh] text-center flex flex-col items-center justify-center min-h-screen bg-transparent">
+        <div class="parallax-content relative isolate z-10 mx-auto px-0 py-vh-18 text-center flex flex-col items-center justify-center min-h-vhfix bg-transparent">
             <h1>About</h1>
             <div class="about-card">
                 <div class="about">
@@ -304,9 +306,11 @@
 
                     <section id="about-carousel" class="about-gallery" aria-label="Band photos" tabindex="0">
                         <figure class="about-stage">
-                            <button class="about-nav prev" aria-label="Previous image">‹</button>
-                            <img class="about-stage-img" alt="">
-                            <button class="about-nav next" aria-label="Next image">›</button>
+                            <button class="about-nav prev" aria-label="Previous image"><i
+                                    data-feather="chevron-left"></i></button>
+                            <img class="about-stage-img" alt="" src="">
+                            <button class="about-nav next" aria-label="Next image"><i data-feather="chevron-right"></i>
+                            </button>
                         </figure>
 
                         <figure class="about-caption">
@@ -314,27 +318,27 @@
                         </figure>
 
                         <div class="about-thumbs-wrap">
-                            <button class="thumbs-prev" aria-label="Previous image"><</button>
+                            <button class="thumbs-prev" aria-label="Previous image"><i data-feather="chevron-left"></i>
+                            </button>
                             <ul class="about-thumbs" role="tablist"></ul>
-                            <button class="thumbs-next" aria-label="Next image">></button>
+                            <button class="thumbs-next" aria-label="Next image"><i data-feather="chevron-right"></i>
+                            </button>
                         </div>
                     </section>
 
                 </div>
             </div>
 
-            <div class="about-fade-bridge" aria-hidden="true"></div>
-
-            <div id="about-quotes" class="about-quotes" aria-live="polite">
-                <div class="about-quote-rotator">
-                    <p class="quote-text"></p>
-                    <p class="quote-source"></p>
+            <div class="about-quote-wrap">
+                <div class="about-fade-bridge" aria-hidden="true"></div>
+                <div id="about-quotes" class="about-quotes" aria-live="polite">
+                    <div class="about-quote-rotator">
+                        <p class="quote-text"></p>
+                        <p class="quote-source"></p>
+                    </div>
                 </div>
             </div>
-
-
         </div>
-
     </section>
 
     <div id="merch-modal" class="fixed inset-0 z-50 hidden">
@@ -411,6 +415,8 @@
 </script>
 
 <script src="https://kit.fontawesome.com/ba660226a8.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/feather-icons"></script>
+<script>feather.replace();</script>
 <script src="{% static 'hr_site/index.js' %}"></script>
 <script defer>
     document.addEventListener('DOMContentLoaded', () => {
@@ -469,5 +475,37 @@
         }
     });
 </script>
-</body>
+<script>
+    (() => {
+        const setVH = () => {
+            const vh = (window.visualViewport?.height ?? window.innerHeight) * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        };
+
+        // run once ASAP
+        setVH();
+
+        // update on all the usual suspects
+        window.addEventListener('resize', setVH, {passive: true});
+        window.addEventListener('orientationchange', setVH);
+        window.visualViewport?.addEventListener('resize', setVH, {passive: true});
+
+        // bfcache restore & fullscreen toggles
+        window.addEventListener('pageshow', (e) => {
+            if (e.persisted) setVH();
+        });
+        document.addEventListener('fullscreenchange', setVH);
+
+        // micro-rAF to catch chrome UI animations
+        let raf;
+        ['scroll', 'resize'].forEach(evt => {
+            window.addEventListener(evt, () => {
+                cancelAnimationFrame(raf);
+                raf = requestAnimationFrame(setVH);
+            }, {passive: true});
+        });
+    })();
+</script>
+
+</body>A
 </html>
