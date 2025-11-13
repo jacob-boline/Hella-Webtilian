@@ -13,6 +13,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Zilla+Slab+Highlight:wght@400;700&display=swap"
           rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static "hr_site/build.css" %}">
     <script src="https://unpkg.com/htmx.org@1.9.12" defer></script>
     <script src="https://js.stripe.com/v3" defer></script>
@@ -77,6 +78,16 @@
             <span class="sr-only">Close menu</span>
         </button>
 
+        <ul>
+            <li>
+                <a href="/account/orders/" hx-get="/account/orders/modal" hx-target="#modal" hx-swap="innerHTML">My Orders</a>
+            </li>
+            <li>
+                <a href="/contact/methods" hx-get="account/methods/modal" hx-target="#modal"
+                   hx-swap="innerHTML">Contact</a>
+            </li>
+        </ul>
+
         <iframe style="border: 0; width: 200px; height: 342px;"
                 src="https://bandcamp.com/EmbeddedPlayer/album=1766078263/size=large/bgcol=333333/linkcol=4ec5ec/tracklist=false/transparent=true/"
                 seamless>
@@ -90,12 +101,46 @@
         <div class="parallax-background absolute inset-0 bg-cover bg-center"></div>
         <div class="parallax-content relative isolate z-10 mx-auto max-w-6xl px-5 py-vh-18 text-center flex flex-col items-center justify-center min-h-vhfix bg-transparent">
             <h1>Upcoming Shows</h1>
+
+            <div class="concert-card">
+                <div class="card-left date-panel" aria-label="Show date, time, and venue">
+                    <div class="date-block">
+                        <div class="month" aria-label="Month">MAR</div>
+                        <div class="dowday">
+                            <span class="dow" aria-label="Day of week">WED</span>
+                            <span class="day" aria-label="Day of month">7</span>
+                        </div>
+                        <div class="time" aria-label="Show time">8:00 PM</div>
+                        <div class="venue" aria-label="Venue">Starsonic Stadium</div>
+                    </div>
+                </div>
+
+                <div class="card-center">
+                    <div class="acts">
+                        <div class="act-name">THE REACTORS</div>
+                        <div class="act-name">GRAVEBARDS</div>
+                        <div class="act-name">YONG PHASERBLAST</div>
+                    </div>
+                </div>
+
+                <div class="card-right">
+                    <a class="card-button" href="#">
+                        <i class="fas fa-map-marked-alt" aria-hidden="true"></i>
+                        <span>Directions</span>
+                    </a>
+                </div>
+            </div>
+
             <div class="concert-card-container">
                 <div class="concert-card text-white">
                     <div class="card-left">
                         <div class="date-time">
                             <div class="date">AUG 22</div>
                             <div class="time">8:00 PM</div>
+                            {#                            <div class="venue-line">#}
+                            {#                                <i class="fas fa-location-arrow"></i>#}
+                            {#                                <span class="venue-name">SUNSCAPES - MINNEAPOLIS</span>#}
+                            {#                            </div>#}
                         </div>
                     </div>
                     <div class="card-center">
@@ -341,6 +386,10 @@
         </div>
     </section>
 
+
+    <div id="modal" class="hidden" aria-hidden="true"></div>
+
+
     <div id="merch-modal" class="fixed inset-0 z-50 hidden">
         <div class="absolute inset-0 bg-black/80"
              onclick="document.getElementById('merch-modal').classList.add('hidden')"></div>
@@ -507,5 +556,5 @@
     })();
 </script>
 
-</body>A
+</body>
 </html>

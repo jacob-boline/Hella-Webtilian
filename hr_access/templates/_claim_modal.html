@@ -1,0 +1,14 @@
+<div class="backdrop"></div>
+<div class="dialog" role="dialog" aria-modal="true">
+    <button class="close" data-close-modal>&times;</button>
+    <h3>Claim a Guest Order</h3>
+    <form hx-post="/account/orders/claim/start" hx-swap="none">
+        <label>Email used at checkout
+            <input type="email" name="email" required>
+        </label>
+        <button type="submit">Email me a link</button>
+    </form>
+    <p>We’ll send a one-time link to verify you own that email.</p>
+</div>
+
+

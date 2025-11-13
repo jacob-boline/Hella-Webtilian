@@ -9,7 +9,42 @@ import urllib.parse
 import json
 import logging
 
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from .models import Order
+
+
 log = logging.getLogger(__name__)
+
+
+@login_required
+def orders(request):
+    qs = Order.objects.filter(email=request.user.email) | Order.objects.filter(user=request.user)
+    qs = qs.order_by('-created_at').distinct()
+    ctx = {"orders": qs[:20], "has_more": qs.count() > 20}
+    if wants_htmx(request):
+        return render(request, "account/_orders_modal.html", ctx)  # fragment
+    return render(request, "account/orders.html", ctx)              # full page
+
+@login_required
+def orders_page(request, n:int):
+    # pagination fragment
+    start = (n-1)*20; end = n*20
+    qs = (Order.objects.filter(email=request.user.email) | Order.objects.filter(user=request.user)).order_by('-created_at').distinct()
+    return render(request, "account/_orders_list_items.html", {"orders": qs[start:end], "has_more": qs.count() > end})
+
+@login_required
+def order_detail_modal(request, order_id):
+    order = Order.objects.get(pk=order_id, email__in=[request.user.email]) or Order.objects.get(pk=order_id, user=request.user)
+    return render(request, "account/_order_detail_modal.html", {"order": order})
+
+
+
+
+
+
+
+#========================================================================================================================================================#
 
 
 def clear_cart(request):

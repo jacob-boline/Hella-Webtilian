@@ -1,0 +1,45 @@
+<div class="backdrop"></div>
+<div class="dialog" role="dialog" aria-modal="true" aria-labelledby="ordersTitle" tabindex="-1">
+    <button class="close" data-close-modal>&times;</button>
+    <h2 id="ordersTitle">Your Orders</h2>
+    <ul id="orders-list"
+        hx-get="/account/orders/page/2/modal"
+        hx-trigger="revealed"
+        hx-target="#orders-list"
+        hx-swap="beforeend">
+        {% include "account/_orders_list_items.html" %}
+    </ul>
+    {% if has_more %}
+        <div id="orders-sentinel"
+             hx-get="/account/orders/page/2/modal"
+             hx-trigger="revealed"
+             hx-target="#orders-list"
+             hx-swap="beforeend"></div>
+    {% endif %}
+    <div class="claim">
+        <button hx-get="/account/orders/claim/modal" hx-target="#modal" hx-swap="innerHTML">Claim a guest order</button>
+    </div>
+</div>
+
+{# account/_orders_list_items.html #}
+{% for o in orders %}
+    <li>
+        <a hx-get="/account/orders/{{ o.id }}/modal" hx-target="#modal" hx-swap="innerHTML">
+            <strong>#{{ o.id }}</strong> — {{ o.created_at|date:"M j, Y" }} — ${{ o.total }}
+        </a>
+    </li>
+{% endfor %}
+
+{# account/_order_detail_modal.html #}
+<div class="backdrop"></div>
+<div class="dialog" role="dialog" aria-modal="true">
+    <button class="close" data-close-modal>&times;</button>
+    <h3>Order #{{ order.id }}</h3>
+    <p>Status: {{ order.status }}</p>
+    <p>Email: {{ order.email }}</p>
+    <ul>
+        {% for item in order.orderitem_set.all %}
+            <li>{{ item.variant.product.name }} — {{ item.variant.name }} × {{ item.qty }}</li>
+        {% endfor %}
+    </ul>
+</div>

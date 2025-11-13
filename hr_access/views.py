@@ -10,6 +10,66 @@ from hr_access.models import User
 from hr_access.forms import StaffForm
 import json
 
+#=====================================================================================================================
+
+from django.core.signing import TimestampSigner, BadSignature, SignatureExpired
+from django.core.mail import send_mail
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.shortcuts import render
+from hr_shop.models import Order
+from hr_core.utils import http
+
+
+signer = TimestampSigner()
+
+
+@login_required
+def claim_modal(request):
+    return render(request, "account/_claim_modal.html")
+
+
+@require_POST
+@login_required
+def claim_start(request):
+    email = request.POST.get('email', '').strip().lower()
+    token = signer.sign(email)  # contains email
+    # Email them a magic link; or show code on screen. Email is safer.
+    link = request.build_absolute_uri(f"/account/orders/claim/verify?token={token}")
+    send_mail("Confirm your order claim", f"Click to link orders: {link}", "no-reply@yourband.com", [email])
+    return JsonResponse({"ok": True})
+
+
+@login_required
+def claim_verify(request):
+    token = request.GET.get('token', '')
+    try:
+        email = signer.unsign(token, max_age=15 * 60)  # 15 minutes
+    except (BadSignature, SignatureExpired):
+        return render(request, "account/_claim_result_modal.html", {"ok": False})
+    # Link
+    linked = (Order.objects
+              .filter(user__isnull=True, email=email)
+              .update(user=request.user))
+    return render(request, "account/_claim_result_modal.html", {"ok": True, "count": linked})
+
+
+def orders(request):
+    qs = (Order.objects
+          .filter(user=request.user) | Order.objects.filter(email=request.user.email)
+         ).order_by('-created_at').distinct()
+    ctx = {"orders": qs[:20], "has_more": qs.count() > 20}
+
+    if http.is_htmx(request):
+        # Return ONLY the modal body (no base layout)
+        return render(request, "account/_orders_modal_body.html", ctx)
+
+    # Normal browser visit → full page (includes base layout, modal shell, nav, etc.)
+    return render(request, "account/orders_page.html", ctx)
+
+
+#==================================================================================================================
 
 class AdminLogin(LoginView):
     template_name = 'hr_access/loginview_form.html'
@@ -69,7 +129,7 @@ def user_login(request):
 
 
 def login_success(request):
-    return render(request, 'hr_access/login_success.html')
+    return render(request, 'hr_access/_login_success.html')
 
 
 def user_logout(request):

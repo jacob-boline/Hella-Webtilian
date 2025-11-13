@@ -24,16 +24,12 @@
   },
   "scripts": {
     "tw:dev": "tailwindcss -i ./hr_site/static/hr_site/index.css -o ./hr_site/static/hr_site/build.css --watch",
-    "tw:build": "tailwindcss -i ./hr_site/static/hr_site/index.css -o ./hr_site//static/hr_site/build.css --minify",
-
-    "django:run": "bash -lc 'source .venv/bin/activate && python manage.py runserver 0.0.0.0:8000'",
-    "django:lr":  "bash -lc 'source .venv/bin/activate && python manage.py livereload'",
-
+    "tw:build": "tailwindcss -i ./hr_site/static/hr_site/index.css -o ./hr_site/static/hr_site/build.css --minify",
+    "django:run": ".venv/bin/python manage.py runserver 0.0.0.0:8000",
+    "django:lr": ".venv/bin/python manage.py livereload",
     "dev:all": "concurrently -k -n TW,DJANGO,LR -c blue,green,magenta \"npm:tw:dev\" \"npm:django:run\" \"npm:django:lr\"",
-
     "wp:serve": "webpack serve --mode development",
     "wp:build": "webpack --mode production",
-
     "dev": "npm run tw:dev",
     "start": "concurrently \"npm:tw:dev\" \"npm:wp:serve\"",
     "build": "npm run wp:build && npm run tw:build"

@@ -1,0 +1,25 @@
+ Create apps + models above; run migrations
+
+ Admin: register models; create superuser
+
+ Implement fake payment gateway + mock checkout page
+
+ Webhook: accept fake payload, mark order paid, store WebhookEvent
+
+ Shows: list/detail + .ics
+
+ Bulletin: list (HTMX infinite) + detail
+
+ Accounts: login (or magic link) + auto-link orders by email
+
+ Dual-render helper + orders modal wired
+
+ Tests: the 6–8 listed
+
+ Add a couple of real-looking seed entries (2 shows, 3 posts, 2 products/variants)
+
+ Dockerize and Deploy:  ; set ALLOWED_HOSTS, SECURE_PROXY_SSL_HEADER, CSP, SECRET_KEY
+
+
+ ==========================================================================================================
+

@@ -43,6 +43,13 @@
     font-display: swap;
 }
 
+@font-face {
+    font-family:  "Syne Mono", monospace;
+    src:          url("./fonts/SyneMono-Regular.ttf") format("truetype");
+    font-display: swap;
+}
+
+
 /* ---------- Root tokens ---------- */
 :root {
     --bg-dark:                #1E1E1E;
@@ -60,6 +67,7 @@
 
     /* Viewport height shim (kept in sync by JS) */
     --vh:                     1vh;
+    --vw:                     1vw;
     --pad-inline:             clamp(1rem, 6vw, 3rem);
 
     --q-clear:                clamp(4rem, calc(var(--vh) * 8), 10rem);
@@ -68,6 +76,20 @@
     /*--q-rise:                 clamp(-1.5rem, -3vh, -3rem);*/
     /*--q-bridge-frac:          .34;*/
     /*--q-rot-frac:             .24;*/
+
+    --padding-sm:             clamp(1rem, 3%, 1.5rem);
+    --padding-md:             clamp(1.5rem, 6%, 3rem);
+    --padding-lg:             clamp(3rem, 12%, 6rem);
+
+    --card-bg-1:              #2A2A2A;
+    --card-bg-2:              #1B1B1B;
+    --panel-bg:               #F3F4F6; /* off-white */
+    --panel-hi:               #FFF;
+    --panel-lo:               #DADDE3; /* for inset look */
+    --ink-900:                #0F1115;
+    --ink-700:                #2B2F36;
+    --muted:                  #5B6472;
+    --purple:                 #9D00FF;
 }
 
 /* ---------- Base ---------- */
@@ -95,10 +117,10 @@ div#parallax-wrapper {
 
 /* ---------- Parallax sections ---------- */
 .parallax-section {
-    position: relative;
-    overflow: hidden;
-    height:   auto;
-    padding:  0;
+    position:   relative;
+    overflow:   hidden;
+    height:     auto;
+    padding:    0;
     min-height: calc(var(--vh) * 100);
 }
 
@@ -362,129 +384,349 @@ nav.navbar {
     }
 }
 
+/*.concert-card {*/
+/*    font-family:     "Megrim", cursive;*/
+/*    display:         flex;*/
+/*    flex-wrap:       wrap;*/
+/*    align-items:     center;*/
+/*    justify-content: space-between;*/
+/*    background:      linear-gradient(145deg, #2A2A2A, #1B1B1B);*/
+/*    border-radius:   .75rem;*/
+/*    color:           #F0F0F0;*/
+/*    box-shadow:      8px 8px 16px #131313, -8px -8px 16px #2F2F2F;*/
+/*    padding:         1.5rem;*/
+/*    max-width:       clamp(320px, 92vw, 1600px);*/
+/*    width:           100%;*/
+/*    margin:          0 auto;*/
+/*    gap:             1rem;*/
+/*}*/
+
 .concert-card {
-    font-family:     "Megrim", cursive;
-    display:         flex;
-    flex-wrap:       wrap;
-    align-items:     center;
-    justify-content: space-between;
-    background:      linear-gradient(145deg, #2A2A2A, #1B1B1B);
-    border-radius:   .75rem;
-    color:           #F0F0F0;
-    box-shadow:      8px 8px 16px #131313, -8px -8px 16px #2F2F2F;
-    padding:         1.5rem;
-    max-width:       clamp(320px, 92vw, 1600px);
-    width:           100%;
-    margin:          0 auto;
-    gap:             1rem;
+    font-family:           "Megrim", cursive;
+    display:               grid;
+    grid-template-columns: 1fr; /* mobile first */
+    gap:                   1rem;
+    align-items:           center;
+    background:            linear-gradient(145deg, var(--card-bg-1), var(--card-bg-2));
+    border-radius:         .75rem;
+    color:                 #F0F0F0;
+    box-shadow:            8px 8px 16px #131313, -8px -8px 16px #2F2F2F;
+    padding:               1.25rem clamp(.75rem, 2vw, 1.5rem);
+    max-width:             clamp(320px, 92vw, 1600px);
+    width:                 100%;
 }
 
+.date-panel {
+    background:    linear-gradient(145deg, var(--panel-bg), #ECEFF3);
+    border-radius: .75rem;
+    padding:       1rem 1rem 1.125rem;
+    color:         var(--ink-900);
+    box-shadow:    inset .45rem .45rem 1rem var(--panel-lo),
+                   inset -.45rem -.45rem 1rem var(--panel-hi),
+                   0 .25rem .75rem rgba(0, 0, 0, .15);
+}
+
+.date-block {
+    font-family:    "Quantico", sans-serif;
+    line-height:    1;
+    display:        flex;
+    flex-direction: column;
+    gap:            .35rem;
+}
+
+.date-panel .month {
+    font-size:      clamp(1.25rem, 2.6vw, 2.2rem);
+    font-weight:    800;
+    letter-spacing: .06em;
+}
+
+.date-panel .dowday {
+    font-size:   clamp(1rem, 2vw, 1.5rem);
+    font-weight: 700;
+    color:       var(--ink-700);
+}
+
+.date-panel .dow {
+    margin-right: .35rem;
+}
+
+.date-panel .day {
+    font-variant-numeric: tabular-nums;
+}
+
+.date-panel .time {
+    margin-top:  .35rem;
+    font-size:   clamp(.95rem, 1.8vw, 1.25rem);
+    font-weight: 700;
+    color:       var(--ink-900);
+}
+
+.date-panel .venue {
+    margin-top:     .35rem;
+    font-size:      clamp(.8rem, 1.4vw, 1rem);
+    letter-spacing: .06em;
+    color:          var(--muted);
+    text-transform: uppercase;
+}
+
+/* Center block */
 .card-center {
+    display:         flex;
+    justify-content: center;
+}
+
+.acts {
     display:        flex;
     flex-direction: column;
     align-items:    center;
-    gap:            .5rem;
+    gap:            .6rem;
 }
 
-.card-left, .card-right, .card-center {
-    flex: 1 1 280px;
+/* Keep your purple titles exactly, but add clamp for responsiveness */
+.act-name {
+    font-size:   clamp(1.25rem, 2.8vw, 2rem);
+    font-weight: 700;
+    color:       var(--purple);
+    text-shadow: 0 0 4px rgba(255, 255, 255, .4), 0 0 12px rgba(255, 255, 255, .3);
+    will-change: filter, opacity, text-shadow, transform;
+    transition:  transform .125s ease, color .125s ease, text-shadow .125s ease;
 }
 
-.card-left {
-    font-size:   1.5rem;
-    font-weight: bold;
+.act-name:hover {
+    color:       var(--purple);
+    text-shadow: 0 0 .25rem currentColor, 0 0 .5rem rgba(255, 255, 255, .8),
+                 0 0 1rem currentColor, 0 0 2rem currentColor,
+                 0 0 4rem currentColor, 0 0 8rem currentColor;
+    transform:   scale(1.05);
 }
 
-.card-left, .card-right {
+/* Right actions */
+.card-right {
     display:         flex;
-    justify-content: center;
+    justify-content: flex-end;
+}
+
+.card-button {
+    font-size:       clamp(1rem, 1.8vw, 1.25rem);
+    font-weight:     700;
+    font-family:     "Bungee Hairline", sans-serif;
+    display:         inline-flex;
     align-items:     center;
-    gap:             1.5rem;
+    gap:             .6rem;
+    padding:         .6rem 1rem;
+    border-radius:   .75rem;
+    text-decoration: none;
+    color:           #BFBFBF;
+    background:      linear-gradient(145deg, var(--card-bg-1), var(--card-bg-2));
+    box-shadow:      .25rem .25rem .5rem #131313, -.25rem -.25rem .5rem #2F2F2F;
+    transition:      transform .2s ease, box-shadow .2s ease, background .2s ease, color .2s ease;
 }
 
-.card-left * {
-    margin: 0;
+.card-button:hover {
+    transform:  translateY(-2px);
+    background: linear-gradient(145deg, #2F2F2F, #1C1C1C);
+    box-shadow: .25rem .25rem .75rem #131313, -.25rem -.25rem .75rem #2F2F2F;
+    color:      #F5F5F5;
 }
 
-.card-left .date, .card-left .time, .card-right a {
-    display:     inline-flex;
-    white-space: nowrap;
-}
-
-@media (max-width: 600px) {
-    .card-left, .card-right {
-        flex-direction: column;
-        gap:            1rem;
-    }
-}
-
-@media (min-width: 768px) {
-    .card-left {
-        font-size: 1.5rem;
-    }
-}
-
+/* Layout: large screens → left panel is 25% */
 @media (min-width: 1024px) {
-    .card-left {
-        font-size: 2rem;
-    }
-}
-
-@media (max-width: 900px) {
     .concert-card {
-        flex-direction:  column;
-        justify-content: flex-start;
-        row-gap:         1rem;
-        padding:         1rem 1rem 1.5rem;
+        grid-template-columns: 1fr 2.25fr auto; /* ~25% / ~55% / auto */
+        align-items:           stretch;
     }
 
-    .card-left, .card-right, .card-center {
-        flex:  0 1 auto;
-        width: 100%;
+    .date-panel {
+        height: 100%;
     }
 
     .card-center {
-        max-width:     24ch;
-        margin-inline: auto;
-    }
-
-    .card-right {
-        display:               grid;
-        grid-template-columns: 1fr 1fr;
-        gap:                   .75rem;
-        width:                 100%;
-        margin-top:            1rem;
-        justify-content:       stretch;
+        justify-content: center;
     }
 }
 
-@media (max-width: 600px) {
+/* Tablet: three columns but looser */
+@media (min-width: 720px) and (max-width: 1023.98px) {
     .concert-card {
-        height:     auto;
-        max-height: none;
-        padding:    1rem;
-        gap:        .5rem;
+        grid-template-columns: 1.2fr 2fr auto;
     }
+}
 
-    .card-left,
-    .card-center,
+/* Mobile: stack */
+@media (max-width: 719.98px) {
     .card-right {
-        flex:  unset;
-        width: 100%;
+        justify-content: stretch;
+    }
+
+    .card-button {
+        width:           100%;
+        justify-content: center;
     }
 }
 
-.date-time {
-    font-family:   "Quantico", sans-serif;
-    display:       inline-flex;
-    align-items:   center;
-    gap:           .75rem;
-    background:    linear-gradient(145deg, #2A2A2A, #1B1B1B);
-    padding:       .5rem 1rem;
-    border-radius: .75rem;
-    box-shadow:    .25rem .25rem .5rem #131313, -.25rem -.25rem .5rem #2F2F2F;
-    line-height:   1;
+/* Motion-respect */
+@media (prefers-reduced-motion: reduce) {
+    .act-name, .card-button {
+        transition: none;
+    }
 }
+
+
+/*.card-center {*/
+/*    display:        flex;*/
+/*    flex-direction: column;*/
+/*    align-items:    center;*/
+/*    gap:            .5rem;*/
+/*}*/
+
+/*.card-left, .card-right, .card-center {*/
+/*    flex: 1 1 280px;*/
+/*}*/
+
+/*.card-left {*/
+/*    font-size:   1.5rem;*/
+/*    font-weight: bold;*/
+/*}*/
+
+/*.card-left, .card-right {*/
+/*    display:         flex;*/
+/*    justify-content: center;*/
+/*    align-items:     center;*/
+/*    gap:             1.5rem;*/
+/*}*/
+
+/*.card-left * {*/
+/*    margin: 0;*/
+/*}*/
+
+/*.card-left .date, .card-left .time, .card-right a {*/
+/*    display:     inline-flex;*/
+/*    white-space: nowrap;*/
+/*}*/
+
+/*@media (max-width: 600px) {*/
+/*    .card-left, .card-right {*/
+/*        flex-direction: column;*/
+/*        gap:            1rem;*/
+/*    }*/
+/*}*/
+
+/*@media (min-width: 768px) {*/
+/*    .card-left {*/
+/*        font-size: 1.5rem;*/
+/*    }*/
+/*}*/
+
+/*@media (min-width: 1024px) {*/
+/*    .card-left {*/
+/*        font-size: 2rem;*/
+/*    }*/
+/*}*/
+
+/*@media (max-width: 900px) {*/
+/*    .concert-card {*/
+/*        flex-direction:  column;*/
+/*        justify-content: flex-start;*/
+/*        row-gap:         1rem;*/
+/*        padding:         1rem 1rem 1.5rem;*/
+/*    }*/
+
+/*    .card-left, .card-right, .card-center {*/
+/*        flex:  0 1 auto;*/
+/*        width: 100%;*/
+/*    }*/
+
+/*    .card-center {*/
+/*        max-width:     24ch;*/
+/*        margin-inline: auto;*/
+/*    }*/
+
+/*    .card-right {*/
+/*        display:               grid;*/
+/*        grid-template-columns: 1fr 1fr;*/
+/*        gap:                   .75rem;*/
+/*        width:                 100%;*/
+/*        margin-top:            1rem;*/
+/*        justify-content:       stretch;*/
+/*    }*/
+/*}*/
+
+/*@media (max-width: 600px) {*/
+/*    .concert-card {*/
+/*        height:     auto;*/
+/*        max-height: none;*/
+/*        padding:    1rem;*/
+/*        gap:        .5rem;*/
+/*    }*/
+
+/*    .card-left,*/
+/*    .card-center,*/
+/*    .card-right {*/
+/*        flex:  unset;*/
+/*        width: 100%;*/
+/*    }*/
+/*}*/
+
+/*.date-time {*/
+/*    font-family:   "Quantico", sans-serif;*/
+/*    display:       inline-flex;*/
+/*    align-items:   center;*/
+/*    gap:           .75rem;*/
+/*    background:    linear-gradient(145deg, #2A2A2A, #1B1B1B);*/
+/*    padding:       .5rem 1rem;*/
+/*    border-radius: .75rem;*/
+/*    box-shadow:    .25rem .25rem .5rem #131313, -.25rem -.25rem .5rem #2F2F2F;*/
+/*    line-height:   1;*/
+/*}*/
+
+/*.date-time {*/
+/*    display:        flex;*/
+/*    !*flex-direction: column;*!*/
+/*    align-items:    center;*/
+/*    gap:            0.35rem;*/
+/*    background:     linear-gradient(145deg, #2A2A2A, #1B1B1B);*/
+/*    padding:        .75rem 1rem;*/
+/*    border-radius:  .75rem;*/
+/*    box-shadow:     .25rem .25rem .5rem #131313, -.25rem -.25rem .5rem #2F2F2F;*/
+/*}*/
+
+/*!* subtle divider line to separate venue from datetime *!*/
+/*.venue-line {*/
+/*    margin-top:  .35rem;*/
+/*    padding-top: .35rem;*/
+/*    border-top:  1px solid rgba(255, 255, 255, 0.08);*/
+/*    font-family: "Quantico", sans-serif;*/
+/*    font-size:   clamp(.85rem, 1vw + .2rem, 1rem);*/
+/*    color:       #CFCFCF;*/
+/*    display:     flex;*/
+/*    align-items: center;*/
+/*    gap:         .5rem;*/
+/*    opacity:     0.9;*/
+/*    transition:  all .25s ease;*/
+/*}*/
+
+/*!* icon and text glow interaction *!*/
+/*.venue-line i {*/
+/*    font-size:  .9rem;*/
+/*    opacity:    .8;*/
+/*    color:      #9D00FF;*/
+/*    transition: color .25s ease, text-shadow .25s ease;*/
+/*}*/
+
+/*.venue-line:hover {*/
+/*    color:       #F5F5F5;*/
+/*    text-shadow: 0 0 .25rem rgba(255, 255, 255, .5), 0 0 .75rem rgba(157, 0, 255, .4);*/
+/*}*/
+
+/*.venue-line:hover i {*/
+/*    color:       #E0CFFF;*/
+/*    text-shadow: 0 0 .3rem #9D00FF, 0 0 .6rem #9D00FF;*/
+/*}*/
+
+/*.venue-name {*/
+/*    letter-spacing: .04em;*/
+/*    text-transform: uppercase;*/
+/*}*/
 
 .acts {
     display:        flex;
@@ -757,10 +999,11 @@ nav.navbar {
 }
 
 .parallax-content {
-    position: relative;
-    z-index:  10;
-    min-height: calc(var(--vh) * 100);
-    padding-top: calc(var(--vh) * 18);
+    position:       relative;
+    z-index:        10;
+    min-height:     calc(var(--vh) * 100);
+    min-width:      100vmin;
+    padding-top:    calc(var(--vh) * 18);
     padding-bottom: calc(var(--vh) * 18);
 }
 
@@ -1073,7 +1316,8 @@ nav.navbar {
     opacity:        .92;
     position:       relative;
     padding-bottom: 0;
-    font-family:    "zai AEG Mignon Typewriter 1924", sans-serif;
+    /*font-family:    "zai AEG Mignon Typewriter 1924", sans-serif;*/
+    font-family:    "Syne Mono", monospace;
     font-weight:    300;
     letter-spacing: 0.01em;
 }
@@ -1114,15 +1358,15 @@ nav.navbar {
 }
 
 .about-stage {
-    grid-area:     stage;
-    position:      relative;
-    aspect-ratio:  16 / 9;
-    overflow:      hidden;
+    grid-area:    stage;
+    position:     relative;
+    aspect-ratio: 16 / 9;
+    overflow:     hidden;
     /*border-radius: .75rem;*/
-    box-shadow:    8px 8px 24px rgba(0, 0, 0, .35);
-    background:    #0B0B0B;
-    width:         80vw;
-    height:        auto;
+    box-shadow:   8px 8px 24px rgba(0, 0, 0, .35);
+    background:   #0B0B0B;
+    width:        80vw;
+    height:       auto;
 }
 
 .about-stage-img {
@@ -1131,6 +1375,7 @@ nav.navbar {
     object-fit: cover;
     display:    block;
     transform:  translateZ(0);
+    box-shadow: inset 0 0 4vmin 3vmin rgba(0, 0, 0, 0.5);
 }
 
 .about-caption {
@@ -1334,7 +1579,7 @@ nav.navbar {
     border-top:      0;
     border-radius:   0 0 1rem 1rem;
     overflow:        visible;
-    /*margin-bottom:   calc(var(--vh) * 24);*/
+    margin-bottom:   calc(var(--vh) * 18);
     backdrop-filter: saturate(1.125) blur(8px);
     box-shadow:      var(--card-shadow, 0 1rem 2rem rgba(0, 0, 0, 0.48));
 }
@@ -1384,7 +1629,7 @@ nav.navbar {
 }
 
 .about-quotes {
-    width: 100%;
+    width:         100%;
     border-radius: 0 0 1rem 1rem;
 }
 
@@ -1399,21 +1644,21 @@ nav.navbar {
 
     padding-top:    calc(var(--q-clear) * .48 + max(0px, calc(var(--q-rise) * -1)));
     padding-bottom: clamp(1rem, calc(var(--vh) * 3), 2.5rem);
-    min-height:     calc(var(--q-clear) + 6rem);
+    min-height:     calc(var(--q-clear) + 3rem);
 
-    overflow: visible;
-    border-radius: 0 0 1rem 1rem;
+    overflow:       visible;
+    border-radius:  0 0 1rem 1rem;
     border:         0;
     box-shadow:     none;
     background:     linear-gradient(
                             180deg,
                             rgba(8, 8, 8, 0) 0%,
                             rgba(8, 8, 8, .08) 16%,
-                            rgba(8, 8, 8, .12) 32%,
+                            rgba(8, 8, 8, .16) 32%,
                             rgba(8, 8, 8, .24) 48%,
                             rgba(8, 8, 8, .48) 64%,
                             rgba(8, 8, 8, .72) 80%,
-                            rgba(8, 8, 8, 1) 100%
+                            rgba(8, 8, 8, .96) 100%
                     );
 
     /*padding-block:  clamp(1rem, 1vh, 2rem);*/
@@ -1519,7 +1764,9 @@ nav.navbar {
 
 .about-quote-rotator .quote-source {
     margin:         .25rem 0 0;
-    font-family:    "Exo 2", sans-serif;
+    /*font-family:    "Exo 2", sans-serif;*/
+    /*font-family:    "zai AEG Mignon Typewriter 1924", sans-serif;*/
+    font-family:    "Syne Mono", monospace;
     font-size:      clamp(1.25rem, 1.5vmin, 1.5rem);
     line-height:    1.25;
     opacity:        0;

@@ -1,14 +1,23 @@
+import datetime
 import urllib.parse
-# from datetime import datetime
-# from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import EmailValidator, URLValidator
 from django.db import models
-# from django.db.models import QuerySet
+from django.db.models import QuerySet, Prefetch
 from phonenumber_field.modelfields import PhoneNumberField
+from phonenumber_field.phonenumber import PhoneNumber
 from django.conf import settings
-from hr_live.managers import\
-    AddressManager, ActManager, BookerManager, MusicianManager, ShowManager, VenueManager
+from django.utils import timezone
+from hr_live.managers import AddressManager, ActManager, BookerManager, MusicianManager, ShowManager, VenueManager
+from zoneinfo import ZoneInfo
+
+
+def fmt(obj):
+    if obj is None:
+        return "N/A"
+    if isinstance(obj, str):
+        return obj.strip() or "N/A"
+    return str(obj)
 
 
 class Address(models.Model):
@@ -36,44 +45,45 @@ class Address(models.Model):
 
     def get_fields(self):
         return {
-            'Address': self.street_address,
-            'City': self.city,
+            'Address':        self.street_address,
+            'City':           self.city,
             'State/Province': self.subdivision,
-            'Zip': self.postal_code,
-            'Country': self.country,
-            'IS_ADDRESS': 'IS_ADDRESS'
+            'Zip':            self.postal_code,
+            'Country':        self.country,
+            'IS_ADDRESS':     'IS_ADDRESS'
         }
 
     @property
     def directions(self) -> str:
         destination = urllib.parse.quote_plus(f'{self.street_address} {self.city}, {self.subdivision}')
-        directions_url = f"https://www.google.com/maps/dir/?api=1&destination={destination}&basemap=satellite"
+        directions_url = f'https://www.google.com/maps/dir/?api=1&destination={destination}&basemap=satellite'
         return directions_url
 
 
 class Individual(models.Model):
     first_name = models.CharField(max_length=50, blank=False, null=False, verbose_name="First Name")
     last_name = models.CharField(max_length=50, blank=False, null=True, verbose_name="Last Name")
-    phone_number = PhoneNumberField(blank=True, null=True, verbose_name="Phone")
-    email = models.EmailField(blank=True, null=True, validators=[EmailValidator, ], verbose_name="Email")
-    # address = models.ForeignKey(Address, blank=False, null=True, verbose_name="Address", on_delete=models.PROTECT)
+    phone_number = PhoneNumberField(blank=True, null=True, unique=True, verbose_name="Phone")
+    email = models.EmailField(blank=True, null=True, unique=True, validators=[EmailValidator()], verbose_name="Email")
     note = models.TextField(max_length=255, blank=True, null=True, verbose_name="Note")
 
     class Meta:
         abstract = True
 
     def __str__(self):
-        display_name = self.first_name
-        if self.last_name:
-            display_name += f' {self.last_name}'
-        return display_name
+        return self.full_name
 
+    @property
     def full_name(self):
-        return f'{self.first_name} {self.last_name if self.last_name else ""}'
+        return f'{self.first_name} {self.last_name or ""}'.strip()
+
+    @property
+    def formatted_phone(self) -> str:
+        phone: PhoneNumber = self.phone_number
+        return phone.as_national if phone else "N/A"
 
 
 class Day(models.Model):
-
     DAY_CHOICES = (
         ('MON', 'Monday'),
         ('TUE', 'Tuesday'),
@@ -84,74 +94,17 @@ class Day(models.Model):
         ('SUN', 'Sunday')
     )
 
-    name = models.CharField(choices=DAY_CHOICES, max_length=10, blank=False, null=True, verbose_name="Day of the Week")
-
-
-class Booker(Individual):
-    first_name = models.CharField(max_length=50, blank=False, null=False, verbose_name="First Name")
-    last_name = models.CharField(max_length=50, blank=False, null=True, verbose_name="Last Name")
-    nickname = models.CharField(max_length=100, blank=True, null=True, verbose_name="Nickname")
-    phone_number = PhoneNumberField(blank=False, null=True, unique=True, verbose_name="Phone Number")
-    email = models.EmailField(blank=False, null=True, unique=True, validators=[EmailValidator, ])
-
-    objects = BookerManager()
-
-    class Meta:
-        verbose_name_plural = "bookers"
-        ordering = ['first_name', 'last_name', 'phone_number', 'email', 'nickname']
-
-    def __str__(self):
-        return f'{self.first_name} {self.last_name}'
-
-    @staticmethod
-    def get_model():
-        return Booker
-
-    @staticmethod
-    def model_name():
-        return 'Bookers'
-
-    def get_fields(self):
-        return {
-            'First Name': self.first_name,
-            'Last Name': self.last_name if self.last_name else 'N/A',
-            'Nickname': self.nickname if self.nickname else 'N/A',
-            'Phone Number': self.phone_number if self.phone_number else 'N/A',
-            'Email': self.email if self.email else 'N/A',
-            'IS_BOOKER': 'IS_BOOKER'
-        }
-
-    # def add_venue(self, venue):
-    #     self.venues.add
-
-    # def add_venue(self, venue) -> bool:
-    #     if isinstance(venue, Venue) and venue not in self.venues:
-    #         self.venues.add(venue)
-    #         self.save()
-    #         return True
-    #     return False
-    #
-    # def remove_venue(self, venue) -> bool:
-    #     if venue in self.venues:
-    #         venue.remove(self)
-    #         self.save()
-    #         return True
-    #     return False
-
-    # @property
-    # def upcoming_shows(self) -> QuerySet
-    #     # return self.shows.filter(date__gte=datetime.today())
-    #     return Show.objects.filter(date__gte=datetime.today()).filter(booker=self)
+    name = models.CharField(choices=DAY_CHOICES, max_length=10, blank=True, null=True, verbose_name="Day of the Week")
 
 
 class Venue(models.Model):
     name = models.CharField(max_length=100, blank=False, null=False, unique=True, verbose_name="Name")
-    website = models.URLField(max_length=250, blank=False, null=True, unique=True, validators=[URLValidator, ])
-    phone_number = PhoneNumberField(blank=False, null=True, unique=True, verbose_name="Phone")
-    email = models.EmailField(blank=False, null=True, unique=True, validators=[EmailValidator, ], verbose_name="Email")
-    bookers = models.ManyToManyField(Booker, related_name="venues", verbose_name="Bookers")
-    address = models.ForeignKey(Address, related_name="venue", verbose_name="Address", on_delete=models.PROTECT, null=True)
+    website = models.URLField(max_length=250, blank=False, null=True, unique=True, validators=[URLValidator()])
+    phone_number = PhoneNumberField(blank=True, null=True, unique=True, verbose_name="Phone")
+    email = models.EmailField(blank=True, null=True, unique=True, verbose_name="Email", validators=[EmailValidator()])
     note = models.TextField(max_length=5000, blank=True, null=True, verbose_name="Note")
+    bookers = models.ManyToManyField("Booker", related_name="venues", verbose_name="Bookers")
+    address = models.ForeignKey(Address, related_name="venue", verbose_name="Address", on_delete=models.PROTECT, null=True)
 
     objects = VenueManager()
 
@@ -163,16 +116,20 @@ class Venue(models.Model):
     def __str__(self):
         return self.name
 
-    def get_fields(self):
+    @property
+    def formatted_phone(self) -> str:
+        phone: PhoneNumber = self.phone_number
+        return phone.as_national if phone else "N/A"
+
+    def get_fields(self) -> dict:
         return {
-            'Venue': self.name,
-            'Address': self.address if self.address else 'N/A',
-            'Website': self.website if self.website else 'N/A',
-            'Phone Number': self.phone_number if self.phone_number else 'N/A',
-            'Email': self.email if self.email else 'N/A',
-            # 'Bookers': '. '.join(booker.full_name for booker in self.bookers if self.bookers)
-            # 'Bookers': ', '.join([f'{booker.first_name} {booker.last_name}' for booker in self.bookers.all()]),
-            'IS_VENUE': 'IS_VENUE'
+            'Venue':        self.name,
+            'Address':      fmt(self.address),
+            'Website':      fmt(self.website),
+            'Phone Number': self.formatted_phone,
+            'Email':        fmt(self.email),
+            'Bookers':      fmt(", ".join(booker.full_name for booker in self.bookers.all())),
+            'IS_VENUE':     'IS_VENUE'
         }
 
     @staticmethod
@@ -180,13 +137,13 @@ class Venue(models.Model):
         return Venue
 
     @staticmethod
-    def model_name():
+    def model_name() -> str:
         return 'Venues'
 
-    # @property
-    # def upcoming_shows(self) -> QuerySet:
-    #     return self.show_set.filter(date_gte=datetime.today())
-    #
+    @property
+    def upcoming_shows(self) -> QuerySet:
+        today = timezone.now().date()
+        return self.shows.filter(date__gte=today).prefetch_related("lineup")
 
     @staticmethod
     def validate_url(url: str) -> bool:
@@ -197,14 +154,82 @@ class Venue(models.Model):
         except ValidationError:
             return False
 
-    # def add_booker(self, booker):
-    #     self.bookers.add(booker)
-    #     self.save()
+    def add_booker(self, booker: "Booker") -> bool:
+        if not isinstance(booker, Booker):
+            return False
+
+        added = not self.bookers.filter(pk=booker.pk).exists()
+        if added:
+            self.bookers.add(booker)
+            self.save()
+
+        return added
+
+    def remove_booker(self, booker: "Booker") -> bool:
+        if not isinstance(booker, Booker):
+            return False
+
+        removed = self.bookers.filter(pk=booker.pk).exists()
+        if removed:
+            self.bookers.remove(booker)
+            self.save()
+
+        return removed
+
+
+class Booker(Individual):
+    objects = BookerManager()
+
+    class Meta:
+        verbose_name_plural = "bookers"
+        ordering = ['first_name', 'last_name', 'phone_number', 'email', 'nickname']
+
+    @staticmethod
+    def get_model():
+        return Booker
+
+    @staticmethod
+    def model_name():
+        return 'Bookers'
+
+    def get_fields(self):
+        return {
+            'First Name':   self.first_name,
+            'Last Name':    fmt(self.last_name),
+            'Phone Number': self.formatted_phone,
+            'Email':        fmt(self.email),
+            'IS_BOOKER':    'IS_BOOKER'
+        }
+
+    def add_venue(self, venue: Venue) -> bool:
+        if not isinstance(venue, Venue):
+            return False
+
+        added = not self.venues.filter(pk=venue.pk).exists()
+        if added:
+            self.venues.add(venue)
+            self.save()
+
+        return added
+
+    def remove_venue(self, venue: Venue) -> bool:
+        if not isinstance(venue, Venue):
+            return False
+
+        removed = self.venues.filter(pk=venue.pk).exists()
+        if removed:
+            self.venues.remove(venue)
+            self.save()
+
+        return removed
+
+    @property
+    def upcoming_shows(self) -> QuerySet:
+        today = timezone.now().date()
+        return self.shows.filter(date__gte=today)
 
 
 class Musician(Individual):
-    stage_name = models.CharField(max_length=50, blank=False, null=True)
-
     objects = MusicianManager()
 
     class Meta:
@@ -221,7 +246,7 @@ class Musician(Individual):
 
 class Act(models.Model):
     name = models.CharField(max_length=255, blank=False, null=False, unique=True)
-    website = models.URLField(max_length=255, blank=False, null=True, unique=True, validators=[URLValidator, ])
+    website = models.URLField(max_length=255, blank=False, null=True, unique=True, validators=[URLValidator()])
     members = models.ManyToManyField(Musician, related_name="projects", verbose_name="Members")
     contacts = models.ManyToManyField(Musician, related_name="contacts", verbose_name="Contacts")
     note = models.TextField(max_length=5000, blank=True, null=True, verbose_name="Note")
@@ -243,44 +268,61 @@ class Act(models.Model):
         return 'Acts'
 
     def get_fields(self):
+        members_qs = self.members.all()
+        contacts_qs = self.contacts.all()
+
         return {
-            'Act': self.name,
-            'Website': self.website if self.website else 'N/A',
-            'Members': ', '.join([f'{member.first_name} {member.last_name}' for member in self.objects.members_set.all()]) if self.members else 'N/A',
-            'Contacts': '. '.join([f'{contact.first_name} {contact.last_name}' for contact in self.objects.contacts_set.all()]) if self.contacts else 'N/A',
-            'IS_ACT': 'IS_ACT'
+            "Act":      self.name,
+            "Website":  fmt(self.website),
+            "Members":  fmt(", ".join(m.full_name for m in members_qs)),
+            "Contacts": fmt(". ".join(c.full_name for c in contacts_qs)),
+            "IS_ACT":   "IS_ACT",
         }
 
-    # @property
-    # def upcoming_shows(self) -> QuerySet:
-    #     return Show.objects.filter(Artist=self, date__gte=datetime.today())\
-    #         .prefetch_related(Show).only('lineup', 'date', 'time', 'venue')
+    @property
+    def upcoming_shows(self) -> QuerySet:
+        today = timezone.now().date()
+        return (
+            self.shows
+            .filter(date__gte=today)
+            .select_related("venue")
+            .prefetch_related(
+                Prefetch(
+                    "lineup",
+                    queryset=Act.objects.only("id", "name")
+                )
+            )
+            .only('id', 'date', 'time', 'venue')
+        )
 
-    # @property
-    # def all_shows(self) -> QuerySet:
-    #     return Show.objects.filter(Artist=self)
-    #
-    # @property
-    # def past_shows(self) -> QuerySet:
-    #     return Show.objects.filter(Artist=self, date__lt=datetime.today())
+    @property
+    def all_shows(self) -> QuerySet:
+        return self.shows.all()
+
+    @property
+    def past_shows(self) -> QuerySet:
+        today = timezone.now().date()
+        return self.shows.filter(date__lt=today)
 
 
 def show_image_storage(instance, filename):
-    # return f"user_{instance.created_by.pk}/{filename}"
-    return f"{filename}"
+    user_part = f"user_{instance.created_by.pk}" if instance.created_by_id else "user_unknown"
+    return f"{user_part}/{filename}"
 
 
 class Show(models.Model):
     date = models.DateField(null=True, blank=False, default=None, verbose_name="Date")
     time = models.TimeField(null=True, blank=False, default=None, verbose_name="Time")
-    # doors = models.DateTimeField(null=True, blank=False, default=None, verbose_name="Show Time")
+    # to add a list of timezones add the following: choices=[(tz, tz) for tz in zoneinfo.available_timezones()],
+    timezone = models.CharField(max_length=50, default="America/Chicago", verbose_name="Timezone")
     venue = models.ForeignKey(Venue, related_name="shows", verbose_name="Venue", on_delete=models.PROTECT)
     booker = models.ForeignKey(Booker, related_name="shows", verbose_name="Booker", on_delete=models.PROTECT, null=True)
     lineup = models.ManyToManyField(Act, related_name="shows", verbose_name="Lineup")
+    image = models.ImageField(upload_to=show_image_storage, max_length=100, null=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING, null=True, related_name="created")
+    modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING, null=True, related_name="updated")
+    # doors = models.DateTimeField(null=True, blank=False, default=None, verbose_name="Show Time")
     # note = models.TextField(max_length=5000, blank=True, null=True, verbose_name="Note")
-    image = models.ImageField(upload_to=show_image_storage, height_field=None, width_field=None, max_length=100, null=True)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING, null=True, related_name="create")
-    modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING, null=True, related_name="update")
 
     objects = ShowManager()
 
@@ -288,11 +330,28 @@ class Show(models.Model):
         verbose_name_plural = "shows"
         ordering = ["date"]
 
-    # def __str__(self):
-    #     return f"{datetime.date(self.doors).strftime('%m//%a')} -- {self.venue.name} -- {datetime.date(self.doors).strftime('%I:%M %p')}"
-    #
-    # def __str__(self):
-    #     return f"{self.date.strftime('%m//%a')} -- {self.venue.name} -- {self.time.strftime('%I:%M %p')}"
+    def __str__(self) -> str:
+        date_str = self._formatted_date_short()
+        venue_str = self.venue.name if self.venue_id else "Venue TBD"
+        time_str = self._formatted_time_short()
+
+        return f"{date_str} -- {venue_str} -- {time_str}"
+
+    # helpers
+    def _formatted_date_short(self) -> str:
+        if not self.date:
+            return "Date TBD"
+        return self.date.strftime("%b %d %Y")
+
+    def _formatted_time_short(self) -> str:
+        if not self.time:
+            return "Time TBD"
+        return self.time.strftime("%I:%M %p").lstrip("0")
+
+    def _formatted_date_long(self) -> str:
+        if not self.date:
+            return "Date TBD"
+        return self.date.strftime("%A, %B %d, %Y")
 
     @staticmethod
     def get_model():
@@ -304,40 +363,49 @@ class Show(models.Model):
 
     def get_fields(self):
         return {
-            'Date': self.date if self.date else 'N/A',
-            'Time': self.time if self.time else 'N/A',
-            'Venue': self.venue if self.venue else 'N/A',
-            'Booker': self.booker if self.booker else 'N/A',
-            # 'Lineup': ', '.join([f'{artist.name}' for artist in self.lineup.all()]),
+            'Date':    fmt(self.date),
+            'Time':    fmt(self.time),
+            'Venue':   fmt(self.venue),
+            'Booker':  fmt(self.booker),
+            'Lineup':  fmt(", ".join(act.name for act in self.lineup.all())),
             'IS_SHOW': 'IS_SHOW'
         }
 
     @property
-    def title(self):
-        return f"{self.date} @ {self.venue.name}"
+    def title(self) -> str:
+        return f"{self._formatted_date_short()} @ {self.venue.name if self.venue_id else 'Venue TBD'}"
 
     @property
-    def subtitle(self):
-        return f"Music @ {self.time} @ need a show.price attribute on model"
+    def subtitle(self) -> str:
+        return f"Music @ {self._formatted_time_short()}"
 
     @property
-    def readable_lineup(self):
-        lineup = ''
-        artists = [artist.name for artist in self.lineup.all()]
-        for artist in artists:
-            lineup += artist
-            if artist != artists[-1]:
-                lineup += ' -- '
-        return lineup
+    def readable_lineup(self) -> str:
+        return " -- ".join(act.name for act in self.lineup.all()) or "Lineup TBD"
 
     @property
-    def readable_details(self):
-        return f"{self.date if self.date else 'Date TBD'} -- {self.venue.name if self.venue else 'Venue TBD'} -- {self.time if self.time else 'Doors TBD'}"
-        # return f"{self.date.strftime('%A %B %-d')} -- {self.venue.name} -- {self.time}"
+    def readable_details(self) -> str:
+        date_str = self._formatted_date_long()
+        venue_str = self.venue.name if self.venue_id else "Venue TBD"
+        time_str = self._formatted_time_short()
+        return f"{date_str} -- {venue_str} -- {time_str}"
 
     @property
-    def details(self):
-        return f"{self.readable_lineup}"
+    def naive_datetime(self):
+        if not self.date or not self.time:
+            return None
+        return datetime.datetime.combine(self.date, self.time)
+
+    @property
+    def local_datetime(self):
+        if not self.date or not self.time:
+            return None
+        return datetime.datetime.combine(self.date, self.time, tzinfo=ZoneInfo(self.timezone))
+
+    @property
+    def as_utc(self):
+        dt = self.local_datetime
+        return dt.astimezone(ZoneInfo("UTC")) if dt else None
 
 
 class VenueBookerDay(models.Model):
