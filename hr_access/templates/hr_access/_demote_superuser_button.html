@@ -1,0 +1,10 @@
+<button
+  type="button"
+  class="btn btn-sm btn-danger"
+  hx-get="{% url 'hr_access:confirm_superuser_removal' user.id %}" <!-- should return _message_box_confirm_superuser_renivak.html -->
+  hx-target="#message-box-modal"
+  hx-swap="innerHTML"
+  hx-trigger="click"
+>
+  Demote
+</button>

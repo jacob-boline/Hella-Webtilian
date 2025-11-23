@@ -1,0 +1,55 @@
+{# hr_access/templates/add_staff_form.html #}
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-lg mx-auto py-10 px-4">
+    <h1 class="text-2xl font-bold mb-4">Add Staff Account</h1>
+    <p class="text-sm opacity-80 mb-6">
+        Create a new staff or admin user. This action is restricted to superusers.
+    </p>
+
+    {% if add_staff_form.non_field_errors %}
+        <div class="mb-4 text-red-400 text-sm">
+            {{ add_staff_form.non_field_errors }}
+        </div>
+    {% endif %}
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="space-y-4">
+            {% for field in add_staff_form %}
+                <div>
+                    <label for="{{ field.id_for_label }}" class="block text-sm mb-1">
+                        {{ field.label }}
+                        {% if field.field.required %}
+                            <span class="text-red-400">*</span>
+                        {% endif %}
+                    </label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <p class="text-xs opacity-70 mt-1">{{ field.help_text|safe }}</p>
+                    {% endif %}
+                    {% if field.errors %}
+                        <p class="text-xs text-red-400 mt-1">
+                            {{ field.errors|striptags }}
+                        </p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="mt-6 flex justify-end gap-3">
+            <button type="button"
+                    class="card-button outline"
+                    onclick="window.history.back();">
+                Cancel
+            </button>
+            <button type="submit" class="card-button">
+                Create Staff User
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

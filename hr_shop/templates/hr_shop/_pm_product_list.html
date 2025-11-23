@@ -1,0 +1,31 @@
+{# hr_shop/templates/_pm_product_list.html #}
+
+<form
+    hx-post="{% url 'hr_shop:create_product' %}"
+    hx-target="#pm-product-list"
+    hx-swap="innerHTML"
+    class="pm-product-create-form"
+>
+    {{ form.non_field_errors }}
+    <div>
+        {{ form.name.label_tag }} {{ form.name }}
+    </div>
+    <button type="submit">Add Product</button>
+</form>
+
+
+<ul class="pm-product-list">
+    {% for product in products %}
+        <li class="pm-product-list-item">
+            <button type="button"
+                    class="pm-product-button"
+                    hx-get="{% url 'hr_shop:get_product_panel_partial' pk=product.pk %}"
+                    hx-target="#pm-product-panel"
+                    hx-swap="innerHTML">
+                {{ product.name }}
+            </button>
+        </li>
+    {% empty %}
+        <li>No products yet.</li>
+    {% endfor %}
+</ul>

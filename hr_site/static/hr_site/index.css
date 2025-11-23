@@ -360,7 +360,7 @@ nav.navbar {
     background-image: url("/static/hr_site/img/section-wipe/vimal-s-1F-dLqrnn-E-unsplash.jpg");
 }
 
-#parallax-section-3 .parallax-background {
+#parallax-section-about .parallax-background {
     background-image: url("/static/hr_site/img/parallax-bg-3.png");
 }
 
@@ -940,7 +940,7 @@ nav.navbar {
 /* Section 1 title pulse */
 #parallax-section-1 h1,
 #parallax-section-2 h1,
-#parallax-section-3 h1 {
+#parallax-section-about h1 {
     font-family:    "Exo 2", sans-serif;
     font-size:      clamp(3rem, 5vmin, 4rem);
     color:          #F5F5F5;
@@ -1258,7 +1258,7 @@ nav.navbar {
                 0 0 0 8px var(--btn-focus-glow);
 }
 
-#parallax-section-3 {
+#parallax-section-about {
     display:        flex;
     flex-direction: column;
     align-items:    center;
@@ -1301,14 +1301,14 @@ nav.navbar {
     text-align:  center;
 }
 
-#parallax-section-3 .about-intro {
+#parallax-section-about .about-intro {
     margin:        0;
     text-align:    center;
     max-width:     72rem;
     margin-inline: auto;
 }
 
-#parallax-section-3 .about-intro p {
+#parallax-section-about .about-intro p {
     max-width:      min(72ch, 92%);
     margin:         1.5rem auto 3rem;
     font-size:      clamp(1.5rem, 2.5vmin, 2rem);
@@ -1322,7 +1322,7 @@ nav.navbar {
     letter-spacing: 0.01em;
 }
 
-#parallax-section-3 .about-intro p::after {
+#parallax-section-about .about-intro p::after {
     content:    "";
     position:   absolute;
     left:       50%;
@@ -1342,7 +1342,7 @@ nav.navbar {
     opacity:    .92;
 }
 
-#parallax-section-3 .about-gallery {
+#parallax-section-about .about-gallery {
     margin-top: 0;
 }
 
@@ -1567,7 +1567,7 @@ nav.navbar {
     }
 }
 
-#parallax-section-3 .about-caption {
+#parallax-section-about .about-caption {
     display: none !important;
 }
 
@@ -1684,14 +1684,14 @@ nav.navbar {
     backdrop-filter: saturate(1.125) blur(4px);
 }
 
-#parallax-section-3 .about-quotes {
+#parallax-section-about .about-quotes {
     margin-inline: auto;
     width:         80vw;
     max-width:     none;
     display:       block;
 }
 
-#parallax-section-3 .about-quote-rotator {
+#parallax-section-about .about-quote-rotator {
     position:                relative; !* anchor ::before/::after *!
     overflow:                hidden; !* keep blur/gradients inside radius *!
     display:                 flex;
@@ -1719,8 +1719,8 @@ nav.navbar {
     box-shadow:              var(--card-shadow, 0 1rem 2rem rgba(0, 0, 0, .45));
 }
 
-#parallax-section-3 .about-quote-rotator::before,
-#parallax-section-3 .about-quote-rotator::after {
+#parallax-section-about .about-quote-rotator::before,
+#parallax-section-about .about-quote-rotator::after {
     content:        "";
     position:       absolute;
     top:            0;
@@ -1730,15 +1730,15 @@ nav.navbar {
     background:     linear-gradient(180deg, transparent 0%, var(--card-border) 100%);
 }
 
-#parallax-section-3 .about-quote-rotator::before {
+#parallax-section-about .about-quote-rotator::before {
     left: 0;
 }
 
-#parallax-section-3 .about-quote-rotator::after {
+#parallax-section-about .about-quote-rotator::after {
     right: 0;
 }*/
 
-#parallax-section-3 .about-quote-rotator .quote-text {
+#parallax-section-about .about-quote-rotator .quote-text {
     margin:      0;
     line-height: 1.25;
     font-size:   clamp(2rem, 4vmin, 3rem);
@@ -1748,8 +1748,8 @@ nav.navbar {
     font-family: "Caveat", cursive;
 }
 
-#parallax-section-3 .about-quote-rotator .quote-text,
-#parallax-section-3 .about-quote-rotator .quote-source {
+#parallax-section-about .about-quote-rotator .quote-text,
+#parallax-section-about .about-quote-rotator .quote-source {
     position:    relative;
     transform:   translateY(var(--q-rise));
     text-shadow: 0 0 1rem rgba(8, 8, 8, 1.0),
@@ -1758,7 +1758,7 @@ nav.navbar {
                  0 0 3rem rgba(8, 8, 8, 0.48);
 }
 
-#parallax-section-3 .about-quote-rotator .quote-text.is-visible {
+#parallax-section-about .about-quote-rotator .quote-text.is-visible {
     opacity: 1;
 }
 
@@ -1780,7 +1780,7 @@ nav.navbar {
 }
 
 
-/*#parallax-section-3 .parallax-content {
+/*#parallax-section-about .parallax-content {
     max-width:      none;
     width:          100%;
     min-width:      0;

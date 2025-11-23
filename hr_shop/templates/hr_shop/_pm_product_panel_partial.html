@@ -1,0 +1,103 @@
+{# hr_shop/templates/_pm_product_panel_partial.html #}
+
+<div class="pm-product-header">
+
+    <form hx-post="{% url 'hr_shop:update_product' pk=product.pk %}" hx-target="#pm-product-panel" hx-swap="innerHTML" class="pm-product-edit-form">
+        {{ product_form.non_field_errors }}
+        <div>{{ product_form.name.label_tag }} {{ product_form.name }}</div>
+        <div>{{ product_form.slug.label_tag }} {{ product_form.slug }}</div>
+        <div>{{ product_form.description.label_tag }} {{ product_form.description }}</div>
+        <button type="submit">Save Product</button>
+    </form>
+
+{#    <h3>{{ product.name }}</h3>#}
+{#    <p><strong>Slug:</strong> {{ product.slug }}</p>#}
+{#    {% if product.description %}#}
+{#        <p class="pm-product-description">{{ product.description }}</p>#}
+{#    {% endif %}#}
+</div>
+
+<div class="pm-product-columns">
+    <!-- Left: option types for this product -->
+    <div class="pm-product-option-types">
+        <h4>Option Types</h4>
+
+        <ul class="pm-option-type-list">
+            {% for opt in option_types %}
+                <li>
+                    <button type="button" class="pm-option-type-button" hx-get="{% url 'hr_shop:get_manage_option_type_panel_partial' pk=opt.pk %}" hx-target="#pm-option-type-panel" hx-swap="innerHTML">
+                        {{ opt.name }} ({{ opt.code }})
+                    </button>
+                </li>
+            {% empty %}
+                <li>No option types defined for this product.</li>
+            {% endfor %}
+        </ul>
+
+        <h5>Add Option Type</h5>
+        <form hx-post="{% url 'hr_shop:create_option_type' product_pk=product.pk %}" hx-target="#pm-product-panel" hx-swap="innerHTML" class="pm-option-type-create-form">
+            {{ option_type_form.non_field_errors }}
+            <div>{{ option_type_form.name.label_tag }} {{ option_type_form.name }}</div>
+            <div>{{ option_type_form.code.label_tag }} {{ option_type_form.code }}</div>
+            <div>{{ option_type_form.position.label_tag }} {{ option_type_form.position }}</div>
+            <button type="submit">Add Option Type</button>
+        </form>
+    </div>
+
+    <!-- Right: variants for this product -->
+    <div class="pm-product-variants">
+        <h4>Variants</h4>
+
+        <table class="pm-variant-table">
+            <thead>
+            <tr>
+                <th>Primary</th>
+                <th>SKU</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Options</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for v in variants %}
+                <tr>
+                    <td>{% if v.is_primary %}★{% endif %}</td>
+                    <td>{{ v.sku }}</td>
+                    <td>{{ v.name }}</td>
+                    <td>${{ v.price }}</td>
+                    <td>
+                        {# show option values for quick scan #}
+                        {% for vo in v.variant_options.all %}
+                            <span class="pm-variant-option-chip">
+                                {{ vo.option_value.option_type.name }}:
+                                {{ vo.option_value.name }}
+                            </span>
+                        {% empty %}
+                            <span class="pm-variant-option-chip pm-empty">No options</span>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        <form hx-post="{% url 'hr_shop:delete_variant' pk=v.pk %}" hx-target="#pm-product-panel" hx-swap="innerHTML" style="display:inline;">
+                            <button type="submit" class="pm-small-button">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6">No variants yet.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <h5>Add Variant</h5>
+        <form hx-post="{% url 'hr_shop:create_variant' product_pk=product.pk %}" hx-target="#pm-product-panel" hx-swap="innerHTML" class="pm-variant-create-form">
+            {{ variant_form.non_field_errors }}
+            <div>{{ variant_form.sku.label_tag }} {{ variant_form.sku }}</div>
+            <div>{{ variant_form.name.label_tag }} {{ variant_form.name }}</div>
+            <div>{{ variant_form.price.label_tag }} {{ variant_form.price }}</div>
+            <div>{{ variant_form.is_primary.label_tag }} {{ variant_form.is_primary }}</div>
+            <button type="submit">Add Variant</button>
+        </form>
+
+    </div>
+</div>

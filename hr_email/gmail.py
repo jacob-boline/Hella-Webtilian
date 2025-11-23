@@ -1,3 +1,5 @@
+# hr_email/gmail.py
+
 import base64
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart

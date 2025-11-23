@@ -1,0 +1,7 @@
+{# hr_access/_sidebar_access #}
+
+{% if request.user.is_authenticated %}
+    {% include 'hr_access/_user_panel.html' %}
+{% else %}
+    {% include 'hr_access/_login_form.html' %}
+{% endif %}

@@ -1,0 +1,39 @@
+{# hr_shop/templates/_product_modal.html #}
+
+<div class="modal-content">
+    <h3 class="modal-title">{{ product.name }}</h3>
+
+    {% if product.image %}
+        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="modal-image">
+    {% endif %}
+
+    {% if product.description %}
+        <p class="modal-description">{{ product.description }}</p>
+    {% endif %}
+
+    {% if option_types %}
+        <form id="product-options-form">
+            {% for opt in option_types %}
+                <div class="modal-variant-group">
+                    <label for="opt-{{ opt.code }}">{{ opt.name }}</label>
+                    <select id="opt-{{ opt.code }}" name="opt_{{ opt.code }}" class="modal-select">
+                        <option value="">Select {{ opt.name }}</option>
+                        {% for val in opt.values.all %}
+                            <option value="{{ val.id }}">{{ val.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            {% endfor %}
+        </form>
+    {% endif %}
+
+    <div class="modal-buttons">
+        <button class="card-button buy-button" data-product-id="{{ product.id }}" data-role="buy-selected-variant">
+            <i class="fas fa-cart-plus"></i> Buy
+        </button>
+        <button class="card-button outline" data-modal-close>
+            Close
+        </button>
+    </div>
+
+</div>

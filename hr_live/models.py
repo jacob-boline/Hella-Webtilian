@@ -1,15 +1,20 @@
+# hr_live/models.py
+
 import datetime
-import urllib.parse
+from zoneinfo import ZoneInfo
+
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import EmailValidator, URLValidator
 from django.db import models
 from django.db.models import QuerySet, Prefetch
+from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
 from phonenumber_field.phonenumber import PhoneNumber
-from django.conf import settings
-from django.utils import timezone
-from hr_live.managers import AddressManager, ActManager, BookerManager, MusicianManager, ShowManager, VenueManager
-from zoneinfo import ZoneInfo
+
+from hr_common.models import Address
+from hr_live.managers import ActManager, BookerManager, MusicianManager, ShowManager, VenueManager
+from hr_core.utils.slug import sync_slug_from_source
 
 
 def fmt(obj):
@@ -19,45 +24,45 @@ def fmt(obj):
         return obj.strip() or "N/A"
     return str(obj)
 
-
-class Address(models.Model):
-    street_address = models.CharField(max_length=255, blank=False, null=False, unique=True, verbose_name="Address")
-    city = models.CharField(max_length=255, blank=False, null=False, verbose_name="City")
-    subdivision = models.CharField(max_length=255, blank=False, null=False, verbose_name="State/Province")
-    postal_code = models.CharField(max_length=25, blank=False, null=True, verbose_name="Zip")
-    country = models.CharField(max_length=255, blank=False, null=True, verbose_name="Country")
-
-    objects = AddressManager()
-
-    class Meta:
-        verbose_name_plural = 'Addresses'
-
-    def __str__(self):
-        return f"{self.street_address}, {self.city}, {self.subdivision} {self.country}"
-
-    @staticmethod
-    def get_model():
-        return Address
-
-    @staticmethod
-    def model_name():
-        return 'Addresses'
-
-    def get_fields(self):
-        return {
-            'Address':        self.street_address,
-            'City':           self.city,
-            'State/Province': self.subdivision,
-            'Zip':            self.postal_code,
-            'Country':        self.country,
-            'IS_ADDRESS':     'IS_ADDRESS'
-        }
-
-    @property
-    def directions(self) -> str:
-        destination = urllib.parse.quote_plus(f'{self.street_address} {self.city}, {self.subdivision}')
-        directions_url = f'https://www.google.com/maps/dir/?api=1&destination={destination}&basemap=satellite'
-        return directions_url
+#
+# class Address(models.Model):
+#     street_address = models.CharField(max_length=255, blank=False, null=False, unique=True, verbose_name="Address")
+#     city = models.CharField(max_length=255, blank=False, null=False, verbose_name="City")
+#     subdivision = models.CharField(max_length=255, blank=False, null=False, verbose_name="State/Province")
+#     postal_code = models.CharField(max_length=25, blank=False, null=True, verbose_name="Zip")
+#     country = models.CharField(max_length=255, blank=False, null=True, verbose_name="Country")
+#
+#     objects = AddressManager()
+#
+#     class Meta:
+#         verbose_name_plural = 'Addresses'
+#
+#     def __str__(self):
+#         return f"{self.street_address}, {self.city}, {self.subdivision} {self.country}"
+#
+#     @staticmethod
+#     def get_model():
+#         return Address
+#
+#     @staticmethod
+#     def model_name():
+#         return 'Addresses'
+#
+#     def get_fields(self):
+#         return {
+#             'Address':        self.street_address,
+#             'City':           self.city,
+#             'State/Province': self.subdivision,
+#             'Zip':            self.postal_code,
+#             'Country':        self.country,
+#             'IS_ADDRESS':     'IS_ADDRESS'
+#         }
+#
+#     @property
+#     def directions(self) -> str:
+#         destination = urllib.parse.quote_plus(f'{self.street_address} {self.city}, {self.subdivision}')
+#         directions_url = f'https://www.google.com/maps/dir/?api=1&destination={destination}&basemap=satellite'
+#         return directions_url
 
 
 class Individual(models.Model):
@@ -182,7 +187,7 @@ class Booker(Individual):
 
     class Meta:
         verbose_name_plural = "bookers"
-        ordering = ['first_name', 'last_name', 'phone_number', 'email', 'nickname']
+        ordering = ['first_name', 'last_name', 'phone_number', 'email']
 
     @staticmethod
     def get_model():
@@ -311,6 +316,11 @@ def show_image_storage(instance, filename):
 
 
 class Show(models.Model):
+    STATUS_CHOICES = [
+        ('draft', 'Draft'),
+        ('published', 'Published'),
+    ]
+
     date = models.DateField(null=True, blank=False, default=None, verbose_name="Date")
     time = models.TimeField(null=True, blank=False, default=None, verbose_name="Time")
     # to add a list of timezones add the following: choices=[(tz, tz) for tz in zoneinfo.available_timezones()],
@@ -321,6 +331,9 @@ class Show(models.Model):
     image = models.ImageField(upload_to=show_image_storage, max_length=100, null=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING, null=True, related_name="created")
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING, null=True, related_name="updated")
+    slug = models.SlugField(max_length=140, unique=True, blank=True, help_text="URL identifier auto-generated from date and venue.", )
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='draft')
+
     # doors = models.DateTimeField(null=True, blank=False, default=None, verbose_name="Show Time")
     # note = models.TextField(max_length=5000, blank=True, null=True, verbose_name="Note")
 
@@ -336,6 +349,15 @@ class Show(models.Model):
         time_str = self._formatted_time_short()
 
         return f"{date_str} -- {venue_str} -- {time_str}"
+
+    def save(self, *args, **kwargs):
+        if self.date and self.venue_id:
+            source = f"{self.date.isoformat()}-{self.venue.name}"
+        else:
+            source = None
+
+        sync_slug_from_source(self, self.title, max_length=140)
+        super().save(*args, **kwargs)
 
     # helpers
     def _formatted_date_short(self) -> str:

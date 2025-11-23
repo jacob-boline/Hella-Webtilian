@@ -1,0 +1,16 @@
+.about-thumb {
+    width: 80px;          /* tweak to taste */
+    height: 80px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    border-radius: 0.5rem; /* if you want rounded thumbs */
+}
+
+.about-thumb.is-active {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}

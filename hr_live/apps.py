@@ -1,3 +1,5 @@
+# hr_live/apps.py
+
 from django.apps import AppConfig
 
 

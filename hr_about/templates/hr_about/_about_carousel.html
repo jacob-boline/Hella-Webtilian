@@ -1,0 +1,45 @@
+{% load static %}
+
+<section id="about-carousel" class="about-gallery" aria-label="Band Photos" tabindex="0">
+    <figure class="about-stage">
+        <button class="about-nav prev" aria-label="Previous Image">
+            <i data-feather="chevron-left"></i>
+        </button>
+
+        {% if slides %}
+            {% with first=slides.0 %}
+                <img class="aboout-stage-img" src="{{ first.image.url }}" alt="{{ first.title }}">
+            {% endwith %}
+        {% else %}
+            <img class="about-stage-image" src="" alt="No images available">
+        {% endif %}
+
+        <button class="about-nav next" aria-label="Next image">
+            <i data-feather="chevron-right"></i>
+        </button>
+    </figure>
+
+    <div class="about-thumbs-wrap">
+        <button class="thumbs-prev" aria-label="Previous image">
+            <i data-feather="chevron-left"></i>
+        </button>
+
+        <ul class="about-thumbs" role="tablist">
+            {% for slide in slides %}
+                <li role="tab">
+                    <button
+                            class="about-thumb{% if forloop.first %} is-active{% endif %}"
+                            type="button"
+                            data-src="{{ slide.image.url }}"
+                            data-alt="{{ slide.title|escape }}"
+                            style="background-image: url('{{ slide.image_thumb.url }}');">
+                    </button>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <button class="thumbs-next" aria-label="Next image">
+            <i data-feather="chevron-right"></i>
+        </button>
+    </div>
+</section>

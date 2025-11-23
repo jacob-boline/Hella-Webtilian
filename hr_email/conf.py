@@ -1,3 +1,5 @@
+# hr_email/conf.py
+
 import os
 
 

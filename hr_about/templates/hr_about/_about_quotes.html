@@ -1,0 +1,26 @@
+{# hr_about/templates/hr_about/_about_quotes.html #}
+
+<div id="about-quotes" class="about-quotes" aria-live="polite">
+    <div class="about-quote-rotator">
+        {% if quotes %}
+            {% with first=quotes.0 %}
+                <p class="quote-text">{{ first.text }}</p>
+                <p class="quote-source">
+                    {% if first.attribution %}
+                        — {{ first.attribution }}
+                    {% endif %}
+                </p>
+            {% endwith %}
+        {% else %}
+            <p class="quote-text">More quotes coming soon.</p>
+            <p class="quote-source"></p>
+        {% endif %}
+    </div>
+
+    {# Hidden data source for JS rotation #}
+    <ul class="about-quote-data" hidden>
+        {% for quote in quotes %}
+            <li data-text="{{ quote.text|escape }}" data-source="{{ quote.attribution|default_if_none:''|escape }}"></li>
+        {% endfor %}
+    </ul>
+</div>

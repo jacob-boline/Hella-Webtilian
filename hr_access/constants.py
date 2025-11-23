@@ -1,0 +1,6 @@
+# hr_access/constants.py
+
+
+SITE_ADMIN_GROUP_NAME = 'Site Admin'
+GLOBAL_ADMIN_GROUP_NAME = 'Global Admin'
+USER_GROUPS = [SITE_ADMIN_GROUP_NAME, GLOBAL_ADMIN_GROUP_NAME]

@@ -1,0 +1,12 @@
+{# hr_bulletin/templates/list.html #}
+
+{% extends 'base.html' %}
+
+{% block content %}
+    <section class="bulletin-section">
+        <h1>Bulletin</h1>
+        <div id="bulletin-list">
+            {% include 'hr_bulletin/_list.html' %}
+        </div>
+    </section>
+{% endblock %}

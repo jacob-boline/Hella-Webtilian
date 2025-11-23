@@ -585,7 +585,7 @@ nav.navbar {
 #section-wipe-2.section-wipe {
   background-image: url("/static/hr_site/img/section-wipe/vimal-s-1F-dLqrnn-E-unsplash.jpg");
 }
-#parallax-section-3 .parallax-background {
+#parallax-section-about .parallax-background {
   background-image: url("/static/hr_site/img/parallax-bg-3.png");
 }
 .concert-card-container {
@@ -933,7 +933,7 @@ nav.navbar {
     filter: brightness(1.25);
   }
 }
-#parallax-section-1 h1, #parallax-section-2 h1, #parallax-section-3 h1 {
+#parallax-section-1 h1, #parallax-section-2 h1, #parallax-section-about h1 {
   font-family: "Exo 2", sans-serif;
   font-size: clamp(3rem, 5vmin, 4rem);
   color: #F5F5F5;
@@ -1170,7 +1170,7 @@ nav.navbar {
   outline: none;
   box-shadow: 0 0 0 4px rgba(255, 255, 255, .20), 0 0 0 8px var(--btn-focus-glow);
 }
-#parallax-section-3 {
+#parallax-section-about {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1206,13 +1206,13 @@ nav.navbar {
   text-shadow: 0 2px 2px rgba(0, 0, 0, .45);
   text-align: center;
 }
-#parallax-section-3 .about-intro {
+#parallax-section-about .about-intro {
   margin: 0;
   text-align: center;
   max-width: 72rem;
   margin-inline: auto;
 }
-#parallax-section-3 .about-intro p {
+#parallax-section-about .about-intro p {
   max-width: min(72ch, 92%);
   margin: 1.5rem auto 3rem;
   font-size: clamp(1.5rem, 2.5vmin, 2rem);
@@ -1224,7 +1224,7 @@ nav.navbar {
   font-weight: 300;
   letter-spacing: 0.01em;
 }
-#parallax-section-3 .about-intro p::after {
+#parallax-section-about .about-intro p::after {
   content: "";
   position: absolute;
   left: 50%;
@@ -1236,7 +1236,7 @@ nav.navbar {
   box-shadow: 0 2px 0 rgba(0, 0, 0, .45);
   opacity: .92;
 }
-#parallax-section-3 .about-gallery {
+#parallax-section-about .about-gallery {
   margin-top: 0;
 }
 .about-gallery {
@@ -1418,7 +1418,7 @@ nav.navbar {
     font-size: .92rem;
   }
 }
-#parallax-section-3 .about-caption {
+#parallax-section-about .about-caption {
   display: none !important;
 }
 .about-quote-wrap {
@@ -1471,7 +1471,7 @@ nav.navbar {
   box-shadow: none;
   background: linear-gradient( 180deg, rgba(8, 8, 8, 0) 0%, rgba(8, 8, 8, .08) 16%, rgba(8, 8, 8, .16) 32%, rgba(8, 8, 8, .24) 48%, rgba(8, 8, 8, .48) 64%, rgba(8, 8, 8, .72) 80%, rgba(8, 8, 8, .96) 100% );
 }
-#parallax-section-3 .about-quote-rotator .quote-text {
+#parallax-section-about .about-quote-rotator .quote-text {
   margin: 0;
   line-height: 1.25;
   font-size: clamp(2rem, 4vmin, 3rem);
@@ -1479,12 +1479,12 @@ nav.navbar {
   transition: opacity .25s ease;
   font-family: "Caveat", cursive;
 }
-#parallax-section-3 .about-quote-rotator .quote-text, #parallax-section-3 .about-quote-rotator .quote-source {
+#parallax-section-about .about-quote-rotator .quote-text, #parallax-section-about .about-quote-rotator .quote-source {
   position: relative;
   transform: translateY(var(--q-rise));
   text-shadow: 0 0 1rem rgba(8, 8, 8, 1.0), 0 0 1.5rem rgba(8, 8, 8, 0.8), 0 0 2rem rgba(8, 8, 8, 0.64), 0 0 3rem rgba(8, 8, 8, 0.48);
 }
-#parallax-section-3 .about-quote-rotator .quote-text.is-visible {
+#parallax-section-about .about-quote-rotator .quote-text.is-visible {
   opacity: 1;
 }
 .about-quote-rotator .quote-source {

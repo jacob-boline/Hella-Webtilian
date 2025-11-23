@@ -1,0 +1,36 @@
+{# hr_shop/templates/manage_products.html #}
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="product-manager-layout">
+    <!-- Left: products list -->
+    <section class="pm-column pm-products">
+        <h2>Products</h2>
+        <div id="pm-product-list"
+             hx-get="{% url 'hr_shop:get_manage_product_list_partial' %}"
+             hx-trigger="load"
+             hx-target="#pm-product-list"
+             hx-swap="innerHTML">
+            <p>Loading products…</p>
+        </div>
+    </section>
+
+    <!-- Middle: selected product -> variants + option types -->
+    <section class="pm-column pm-product-detail">
+        <h2>Product Detail</h2>
+        <div id="pm-product-panel">
+            <p>Select a product to view and edit its variants and options.</p>
+        </div>
+    </section>
+
+    <!-- Right: selected option type -> option values -->
+    <section class="pm-column pm-option-type-detail">
+        <h2>Option Type</h2>
+        <div id="pm-option-type-panel">
+            <p>Select an option type to see its values.</p>
+        </div>
+    </section>
+</div>
+{% endblock %}

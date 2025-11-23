@@ -1,0 +1,36 @@
+{# hr_live/templates/past_list.html #}
+
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <div class="live-page-wrapper">
+        <h1 class="section-title">Past Shows</h1>
+        {% if shows %}
+
+            <div class="shows-list">
+                {% for show in shows %}
+                    {% include "hr_live/_concert_card.html" %}
+                {% endfor %}
+            </div>
+
+            {% if page_obj.has_other_pages %}
+                <div class="pagination">
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                    {% endif %}
+
+                    <span class="page-number">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}">Next</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+        {% else %}
+            <p>No past shows yet.</p>
+        {% endif %}
+    </div>
+
+{% endblock %}

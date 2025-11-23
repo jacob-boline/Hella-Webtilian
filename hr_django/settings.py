@@ -36,22 +36,30 @@ INTERNAL_IPS = ['127.0.0.1', ]
 # Application definition
 
 INSTALLED_APPS = [
-    # 'grappelli',
+    'hr_about.apps.AboutConfig',
     'hr_access.apps.AccessConfig',
+    'hr_bulletin.apps.BulletinConfig',
+    'hr_common.apps.CommonConfig',
+    'hr_email.apps.EmailConfig',
     'hr_live.apps.LiveConfig',
+    'hr_shop.apps.ShopConfig',
     'hr_site.apps.SiteConfig',
+    'hr_storage.apps.StorageConfig',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'debug_toolbar',
     'phonenumber_field',
     'compressor',
     'webpack_loader',
     'django_browser_reload',
     'livereload',
+    'imagekit',
 ]
 
 MIDDLEWARE = [

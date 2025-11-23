@@ -1,0 +1,57 @@
+{# hr_access/_user_panel.html #}
+
+<div class="user-panel">
+
+    <div class="user-info">
+        <strong>{{ request.user.username }}</strong>
+        <div class="small">{{ request.user.email }}</div>
+    </div>
+
+    <hr>
+
+    <!-- Account settings (modal) -->
+    <button
+        hx-get="{% url 'hr_access:user_panel' %}"
+        hx-target="#modal-content"
+        hx-swap="innerHTML"
+        onclick="document.getElementById('modal').classList.remove('hidden')"
+        class="sidebar-btn"
+    >
+        Account Settings
+    </button>
+
+    <!-- Orders -->
+    <button
+        hx-get="{% url 'hr_access:orders' %}"
+        hx-target="#modal-content"
+        hx-swap="innerHTML"
+        onclick="document.getElementById('modal').classList.remove('hidden')"
+        class="sidebar-btn"
+    >
+        Orders
+    </button>
+
+    <!-- Password Change -->
+    <button
+        hx-get="{% url 'hr_access:password_change' %}"
+        hx-target="#modal-content"
+        hx-swap="innerHTML"
+        onclick="document.getElementById('modal').classList.remove('hidden')"
+        class="sidebar-btn"
+    >
+        Change Password
+    </button>
+
+    <hr>
+
+    <!-- Logout -->
+    <button
+        hx-post="{% url 'hr_access:logout' %}"
+        hx-target="#sidebar-access"
+        hx-swap="innerHTML"
+        class="sidebar-btn"
+    >
+        Log out
+    </button>
+
+</div>

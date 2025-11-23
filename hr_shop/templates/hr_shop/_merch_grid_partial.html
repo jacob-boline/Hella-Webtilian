@@ -1,0 +1,42 @@
+<div id="merch-grid">
+    {% for variant in variants %}
+        <article class="merch-card" data-sku="{{ variant.sku }}">
+            <button class="merch-img"
+                    aria-label="Open details for {{ variant.product.name }}{% if variant.name %} ({{ variant.name }}){% endif %}"
+                    hx-get="{% url 'hr_shop:merch_modal_partial' variant_slug=variant.slug %}"
+                    hx-target="#modal-message-box"
+                    hx-swap="innerHTML">
+                {% if variant.product.image %}
+                    <img src="{{ variant.product.image.url }}"
+                         alt="{{ variant.product.name }}{% if variant.name %} ({{ variant.name }}){% endif %}">
+                {% else %}
+                    <img src="{% static 'hr_site/img/merch/placeholder.png' %}"
+                         alt="{{ variant.product.name }}{% if variant.name %} ({{ variant.name }}){% endif %}">
+                {% endif %}
+            </button>
+
+            <div class="merch-meta">
+                <h3 class="merch-title">
+                    {{ variant.product.name }}{% if variant.name %} ({{ variant.name }}){% endif %}
+                </h3>
+                <div class="merch-price">${{ variant.price }}</div>
+            </div>
+
+            <div class="merch-actions">
+                <button class="card-button buy-button"
+                        hx-get="{% url 'hr_shop:mock_checkout_dialog' variant_slug=variant.slug %}"
+                        hx-target="#modal-message-box"
+                        hx-swap="innerHTML">
+                    <i class="fas fa-cart-plus"></i> Buy
+                </button>
+
+                <button class="card-button outline"
+                        hx-get="{% url 'hr_shop:merch_modal_partial' variant_slug=variant.slug %}"
+                        hx-target="#modal-message-box"
+                        hx-swap="innerHTML">
+                    <i class="fas fa-circle-info"></i> Details
+                </button>
+            </div>
+        </article>
+    {% endfor %}
+</div>

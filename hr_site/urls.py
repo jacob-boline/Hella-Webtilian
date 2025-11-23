@@ -1,3 +1,5 @@
+# hr_site/urls.py
+
 """top level url registration for application"""
 
 from django.urls import path, include
@@ -5,14 +7,14 @@ from . import views
 
 urlpatterns = [
     path("", views.index, name="index"),
-    # path("test", views.index, name="index"),
-    # path("test2", views.test2, name="test2"),
-    # path("burn-test", views.burn_test, name="burn-test"),
-    # path("parallax-test", views.parallax_test, name="par"),
-    # path("pt2", views.pt2, name="pt2"),
-    path("pt3", views.pt3, name="pt3"),
-    path("pt4", views.pt4, name="pt4"),
-    path("pt5", views.pt5, name="pt5"),
-    path("pt6", views.pt6, name="pt6"),
+
+    # HTMX partials
+    path("about/partial/carousel", views.about_carousel_partial, name="about_carousel_partial"),
+    path("about/partial/quotes", views.about_quotes_partial, name="about_quotes_partial"),
+
+    # JSON API
+    path("api/about/carousel", views.api_about_carousel, name="api_about_carousel"),
+    path("api/about/quotes", views.api_about_quotes, name="api_about_quotes"),
+
     path("__reload__/", include("django_browser_reload.urls")),
 ]

@@ -1,0 +1,54 @@
+{# hr_access/_message_box_confirm_superuser_removal.html #}
+
+<div id="superuser-removal-message" class="message-content">
+    <h2 class="h5 text-danger mb-2">
+        Confirm permanent removal of elevated priveleges
+    </h2>
+
+    <p class="mb-2">
+        You are about to change privileges for <strong>{{ original,username }} ({{ original.email  }})</strong>
+    </p>
+
+    {% if removing_superuser %}
+        <p class="mb-2 text-danger">
+        This will remove <strong>superuser</strong> status.
+        Make sure at least one other superuser exists, or you may lock yourself out.
+        </p>
+    {% endif %}
+
+    {% if removing_global_role %}
+        <p class="mb-2">
+            This will change their role from <strong>Global Admin</strong> to a non-admin role.
+        </p>
+    {% endif %}
+
+    <p class="mb-3">
+        Do you want to continue>
+    </p>
+
+    <div class="d-flex gap-2">
+        {# YES button: reposts the ecisting form + a confirm flag #}
+        <button
+            type="button"
+            class="btn btn-sm btn-danger"
+            hx-post="{{ action_url }}"
+            hx-include="#user-edit-form"
+            hx-vals='{"confirm_superuser_removal": "1"}'
+            hx-target="#messages"
+            hx-swap="innerHTML"
+        >
+            Yes, remove elevated privileges
+        </button>
+
+        {# CANCEL button: just clears the message box #}
+        <button
+            type="button"
+            class="btn btn-sm btn-secondary"
+            hx-get="{{ cancel_url|default:'#' }}"
+            hx-target="#messages"
+            hx-swap="innerHTML"
+        >
+            Cancel
+        </button>
+    </div>
+</div>

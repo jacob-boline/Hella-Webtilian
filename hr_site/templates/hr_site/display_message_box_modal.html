@@ -1,0 +1,54 @@
+{# hr_site/message_box_modal.html #}
+
+<div class="message-box message-box--{{ level }} border rounded p-3 mb-3 bg-neutral-900">
+  {% if title %}
+    <h2 class="text-lg font-semibold mb-2">
+      {{ title }}
+    </h2>
+  {% endif %}
+
+  {% if message %}
+    <p class="mb-4">{{ message }}</p>
+  {% endif %}
+
+  <div class="flex gap-2 justify-end">
+    {% if cancel_url %}
+      <button
+        type="button"
+        class="btn btn-sm btn-secondary"
+        hx-get="{{ cancel_url }}"
+        hx-target="#message-box-modal"
+        hx-swap="innerHTML"
+      >
+        {{ cancel_label }}
+      </button>
+    {% endif %}
+
+    {% if confirm_url %}
+      <button
+        type="button"
+        class="btn btn-sm btn-primary"
+        {% if confirm_method == "post" %}
+          hx-post="{{ confirm_url }}"
+        {% else %}
+          hx-get="{{ confirm_url }}"
+        {% endif %}
+        hx-target="#message-box-modal"
+        hx-swap="innerHTML"
+      >
+        {{ confirm_label }}
+      </button>
+    {% else %}
+      {# If no confirm_url, just give a "Close" that clears the box #}
+      <button
+        type="button"
+        class="btn btn-sm btn-primary"
+        hx-get="{% url 'site:empty_message_box' %}"
+        hx-target="#message-box-modal"
+        hx-swap="innerHTML"
+      >
+        Close
+      </button>
+    {% endif %}
+  </div>
+</div>

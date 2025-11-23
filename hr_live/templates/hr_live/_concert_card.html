@@ -1,0 +1,42 @@
+{# hr_live/templates/_concert_card.html #}
+
+
+<div class="concert-card text-white">
+    <div class="card-left">
+        <div class="date-time">
+            <div class="date">
+                {{ show.date|date:"M d" }}
+            </div>
+            <div class="time">
+                {{ show.time|time:"g:i A" }}
+            </div>
+        </div>
+    </div>
+    <div class="card-center">
+        <div class="acts">
+            {% for act in show.lineup.all %}
+                <div class="act-name">{{ act.name }}</div>
+            {% empty %}
+                <div class="act-name opacity-70 italic">
+                    Lineup TBD
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="card-right">
+        {% if show.tickets.url %}
+            <a class="card-button" href="{{ show.tickets_url }}" target="_blank" rel="noopener">
+                <i class="fas fa-ticket-alt"></i> Tickets
+            </a>
+        {% endif %}
+
+        {% if show.venue.address %}
+            {% with addr=show.venue.address %}
+                <a class="card-button" href="https://www.google.com/maps/search/?api=1&query={{ addr.street_address }} {{ addr.city }} {{ addr.subdivision }} {{ addr.postal_code }}|urlencode"
+                    target="_blank" rel="noopener">
+                    <i class="fas fa-map-marked-alt"></i> Directions
+                </a>
+            {% endwith %}
+        {% endif %}
+    </div>
+</div>

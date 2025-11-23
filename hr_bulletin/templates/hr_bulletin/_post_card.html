@@ -1,0 +1,40 @@
+{# hr_bulletin/templates/_post_card.html #}
+
+{# expects 'post' in context #}
+
+<article class="bulletin-post">
+
+    {% if post.hero %}
+        <div class="bulletin-hero">
+            <img src="{{ post.hero.url }}" alt="{{ post.title }}">
+        </div>
+    {% endif %}
+
+    <header class="bulletin-header">
+        <h3 class="bulletin-title">
+            <a href="{% url 'bulletin_detail' slug=post.slug  %}">
+                {{ post.title }}
+            </a>
+        </h3>
+        <div class="bulletin-meta">
+            {% if post.publish_at %}
+                <time datetime="{{ post.publish_at|date:'c' }}">
+                    {{ post.publish_at|date:"M j, Y" }}
+                </time>
+            {% else %}
+                <time datetime="{{ post.created_at|date:'c' }}">
+                    {{ post.created_at|date:"M j, Y" }}
+                </time>
+            {% endif %}
+
+            {% if post.tags.exists %}
+                <span class="bulletin-tags">
+                    {% for tag in post.tags.all %}
+                        <span class="bulletin-tag">#{{ tag.name }}</span>
+                    {% endfor %}
+                </span>
+            {% endif %}
+        </div>
+    </header>
+
+</article>
