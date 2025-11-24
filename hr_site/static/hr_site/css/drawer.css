@@ -1,0 +1,109 @@
+/* ===========================
+   Audio / Banner hook
+   =========================== */
+
+/* Placeholder span in the banner where audio UI gets mounted */
+#nav-audio {
+    background-color: transparent;
+    right: 1rem;
+    top: 1rem;
+    transition: all 2s ease-in-out;
+    /* position comes from the `fixed` utility class */
+}
+
+/* Optional: if you ever restore a dedicated iframe with this ID */
+#audio-iframe {
+    border: 0;
+    width: auto;
+    height: 48px;
+}
+
+/* If you re-use an audio iframe in the drawer with this ID */
+#audio-iframe {
+    width:      100%;
+    height:     200px;
+    border:     none;
+    margin-top: 1rem;
+}
+
+
+/* ===========================
+   Drawer navigation panel
+   =========================== */
+
+/*
+HTML:
+<div id="drawer-navigation"
+     class="fixed top-0 left-0 transform -translate-x-full transition-transform duration-300 ease-in-out h-full z-50">
+*/
+
+#drawer-navigation {
+    position:fixed;
+    top: 0;
+    left: 0;
+    z-index: 50;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-right:     1pt solid rgba(255, 255, 255, 0.7);
+
+    width:            216px;
+    height:           calc(var(--vh) * 100);
+    padding:          1.5rem;
+
+    display:          flex;
+    flex-direction:   column;
+    align-items:      flex-start;
+
+    color:            transparent;
+
+    /* closed state: fully off-screen to the left */
+    transform:        translateX(-100%);
+    transition:       transform 0.25s ease-in-out;
+}
+
+/* when JS adds .show, slide drawer into view */
+#drawer-navigation.show {
+    transform: translateX(0);
+}
+
+
+/* ===========================
+   Drawer / open-button controls
+   =========================== */
+
+/* Shared styling for the open button and drawer buttons */
+#drawer-navigation button,
+#nav-open {
+    background:    transparent;
+    color:         #FFF;
+    border:        none;
+
+    margin-top:    1.5rem;
+    margin-bottom: 1rem;
+    padding:       1.5rem;
+
+    font-size:     1.25rem;
+    border-radius: 50%;
+    transition:    background-color 0.25s ease, color 0.25s ease;
+}
+
+/* hover feedback for drawer buttons */
+#drawer-navigation button:hover {
+    background-color: rgba(128, 128, 128, 0.3);
+    color:            aquamarine;
+}
+
+/* icons inside drawer buttons */
+#drawer-navigation button svg {
+    fill: #FFF;
+}
+
+/* honour dark mode – keep the same hover behaviour there */
+@media (prefers-color-scheme: dark) {
+    #drawer-navigation button {
+        color: #FFF;
+    }
+
+    #drawer-navigation button:hover {
+        background-color: rgba(128, 128, 128, 0.3);
+    }
+}

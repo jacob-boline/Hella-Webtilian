@@ -1,108 +1,14 @@
-{% load livereload_tags %}
-{% livereload_script %}
+{# hr_site/templates/hr_site/index.html #}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    {% load static %}
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vanilla JS Parallax Scroll</title>
-    <link rel="icon" href="{% static 'hr_site/img/favicon/fav-icon-hr-green.png' %}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Zilla+Slab+Highlight:wght@400;700&display=swap"
-          rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Syne+Mono&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static "hr_site/build.css" %}">
-    <script src="https://unpkg.com/htmx.org@1.9.12" defer></script>
-    <script src="https://js.stripe.com/v3" defer></script>
-</head>
+{% extends "hr_site/base.html" %}
+{% load static %}
 
-<body class="bg-black text-white">
-<div id="parallax-wrapper">
-    <!-- Banner -->
-    <section id="banner" class="w-full px-4 z-30 fixed">
-        <div class="flex flex-wrap">
-            <div class="w-full banner-row">
-                <span class="banner-letter blink">H</span>
-                <span class="banner-letter">E</span>
-                <span class="banner-letter">L</span>
-                <span class="banner-letter">L</span>
-                <span class="banner-letter">A</span>
-                <span class="banner-letter">&nbsp;</span>
-                <span class="banner-letter">R</span>
-                <span class="banner-letter">E</span>
-                <span class="banner-letter">P</span>
-                <span class="banner-letter">T</span>
-                <span class="banner-letter">I</span>
-                <span class="banner-letter">L</span>
-                <span class="banner-letter">I</span>
-                <span class="banner-letter">A</span>
-                <span class="banner-letter">N</span>
-                <span class="banner-letter">!</span>
-                <span class="ml-2"></span>
-                <span id="nav-audio" class="z-40 fixed"></span>
-            </div>
-            <div class="w-full banner-row">
-                <span id="banner-end"></span>
-            </div>
-        </div>
-    </section>
+{% block title %}Hella Reptilian — Home{% endblock %}
 
-    <section id="banner-scroller"></section>
+{% block content %}
 
-    <!-- Top wipe -->
-    <div id="section-wipe-0"
-         class="section-wipe z-20 absolute"
-         style="background-image: url('{% static "hr_site/img/wipe/bryan-goff-we1ky8_ZTHg-unsplash.jpg" %}');">
-    </div>
+    <div id="section-wipe-0" class="section-wipe z-20 absolute" style="background-image: url('{% static "hr_site/img/wipe/bryan-goff-we1ky8_ZTHg-unsplash.jpg" %}');"></div>
 
-    <!-- Drawer button -->
-    <div id="open-nav-btn-container" class="text-left">
-        <button class="rounded-lg text-sm p-1.5 top-2.5 right-2.5 inline-flex items-center z-40 fixed" id="nav-open"
-                type="button"
-                data-drawer-target="drawer-navigation" data-drawer-show="drawer-navigation">
-            <i class="fa-regular fa-square-caret-right"></i>
-        </button>
-    </div>
-
-    <!-- Drawer -->
-    <div id="drawer-navigation"
-         class="fixed top-0 left-0 transform -translate-x-full transition-transform duration-300 ease-in-out h-full z-50"
-         tabindex="-1">
-        <button type="button"
-                data-drawer-hide="drawer-navigation"
-                class="rounded-lg text-sm p-1.5 top-2.5 right-2.5 inline-flex items-center relative">
-            <i class="fa-regular fa-circle-xmark"></i>
-            <span class="sr-only">Close menu</span>
-        </button>
-
-        <aside id="sidebar-access">
-            {% include 'hr_access/_sidebar_access.html' %}
-        </aside>
-
-        {% comment 'menu list' %}
-        <ul>
-            <li>
-                <a href="/account/orders/" hx-get="/account/orders/modal" hx-target="#modal" hx-swap="innerHTML">My Orders</a>
-            </li>
-            <li>
-                <a href="/contact/methods" hx-get="account/methods/modal" hx-target="#modal"
-                   hx-swap="innerHTML">Contact</a>
-            </li>
-        </ul>
-        {% endcomment %}
-
-        <iframe style="border: 0; width: 200px; height: 342px;"
-                src="https://bandcamp.com/EmbeddedPlayer/album=1766078263/size=large/bgcol=333333/linkcol=4ec5ec/tracklist=false/transparent=true/"
-                seamless>
-            <a href="https://hellareptilian.bandcamp.com/album/into-hella-we-ride-demo">Into Hella We Ride! [Demo] by
-                                                                                        Hella Reptilian!</a>
-        </iframe>
-    </div>
-
-    <!-- Parallax Section 1 (unchanged utilities) -->
     <section id="parallax-section-shows" class="parallax-section relative flex items-center justify-center min-h-vhfix">
         <div class="parallax-background absolute inset-0 bg-cover bg-center"></div>
         <div class="parallax-content relative isolate z-10 mx-auto max-w-6xl px-5 py-vh-18 text-center flex flex-col items-center justify-center min-h-vhfix bg-transparent">
@@ -141,7 +47,9 @@
                             <div class="card-right">
                                 {% if show.venue.address %}
                                     {% with addr=show.venue.address %}
-                                        <a class="card-button" href="https://www.google.com/maps/search/?api=1&query={{ addr.street_address }} {{ addr.city }} {{ addr.subdivision }} {{ addr.postal_code }}|urlencode" target="_blank" rel="noopener">
+                                        <a class="card-button"
+                                           href="https://www.google.com/maps/search/?api=1&query={{ addr.street_address }} {{ addr.city }} {{ addr.subdivision }} {{ addr.postal_code }}|urlencode"
+                                           target="_blank" rel="noopener">
                                             <i class="fas fa-map-marked-alt"></i> Directions
                                         </a>
                                     {% endwith %}
@@ -160,111 +68,8 @@
         </div>
     </section>
 
-
-{% comment "original concenrt cards" %}
-
-   <div class="concert-card">
-                <div class="card-left date-panel" aria-label="Show date, time, and venue">
-                    <div class="date-block">
-                        <div class="month" aria-label="Month">MAR</div>
-                        <div class="dowday">
-                            <span class="dow" aria-label="Day of week">WED</span>
-                            <span class="day" aria-label="Day of month">7</span>
-                        </div>
-                        <div class="time" aria-label="Show time">8:00 PM</div>
-                        <div class="venue" aria-label="Venue">Starsonic Stadium</div>
-                    </div>
-                </div>
-
-                <div class="card-center">
-                    <div class="acts">
-                        <div class="act-name">THE REACTORS</div>
-                        <div class="act-name">GRAVEBARDS</div>
-                        <div class="act-name">YONG PHASERBLAST</div>
-                    </div>
-                </div>
-
-                <div class="card-right">
-                    <a class="card-button" href="#">
-                        <i class="fas fa-map-marked-alt" aria-hidden="true"></i>
-                        <span>Directions</span>
-                    </a>
-                </div>
-            </div>
-            <div class="concert-card-container">
-                <div class="concert-card text-white">
-                    <div class="card-left">
-                        <div class="date-time">
-                            <div class="date">AUG 22</div>
-                            <div class="time">8:00 PM</div>
-                            <div class="venue-line">
-                                <i class="fas fa-location-arrow"></i>
-                                <span class="venue-name">SUNSCAPES - MINNEAPOLIS</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-center">
-                        <div class="acts">
-                            <div class="act-name">THE REACTORS</div>
-                            <div class="act-name">GRAVEBARDS</div>
-                            <div class="act-name">YUNG PHASERBLAST</div>
-                        </div>
-                    </div>
-                    <div class="card-right">
-                        <a class="card-button" href="#"><i class="fas fa-ticket-alt"></i> Tickets</a>
-                        <a class="card-button" href="#"><i class="fas fa-map-marked-alt"></i> Directions</a>
-                    </div>
-                </div>
-
-                <div class="concert-card text-white">
-                    <div class="card-left">
-                        <div class="date-time">
-                            <div class="date">AUG 22</div>
-                            <div class="time">8:00 PM</div>
-                        </div>
-                    </div>
-                    <div class="card-center">
-                        <div class="acts">
-                            <div class="act-name">THE REACTORS</div>
-                            <div class="act-name">GRAVEBARDS</div>
-                            <div class="act-name">YUNG PHASERBLAST</div>
-                        </div>
-                    </div>
-                    <div class="card-right">
-                        <a class="card-button" href="#"><i class="fas fa-ticket-alt"></i> Tickets</a>
-                        <a class="card-button" href="#"><i class="fas fa-map-marked-alt"></i> Directions</a>
-                    </div>
-                </div>
-
-                <div class="concert-card text-white">
-                    <div class="card-left">
-                        <div class="date-time">
-                            <div class="date">AUG 22</div>
-                            <div class="time">8:00 PM</div>
-                        </div>
-                    </div>
-                    <div class="card-center">
-                        <div class="acts">
-                            <div class="act-name">THE REACTORS</div>
-                            <div class="act-name">GRAVEBARDS</div>
-                            <div class="act-name">YUNG PHASERBLAST</div>
-                        </div>
-                    </div>
-                    <div class="card-right">
-                        <a class="card-button" href="#"><i class="fas fa-ticket-alt"></i> Tickets</a>
-                        <a class="card-button" href="#"><i class="fas fa-map-marked-alt"></i> Directions</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-{% endcomment %}
-
-
-    <!-- Mid-wipe -->
     <div id="section-wipe-1" class="section-wipe z-20 absolute"></div>
 
-    <!-- Parallax Section 2 -->
     <section id="parallax-section-merch" class="parallax-section relative flex items-center justify-center min-h-vhfix">
         <div class="parallax-background absolute inset-0 bg-cover bg-center"></div>
         <div class="parallax-content relative isolate z-10 mx-auto max-w-6xl px-5 py-vh-18 text-center flex flex-col items-center justify-center min-h-vhfix bg-transparent">
@@ -275,11 +80,12 @@
                     <article class="merch-card" data-product-slug="{{ product.slug }}">
                         <button class="merch-img"
                                 aria-label="Open details for {{ product.name }}"
+
                                 hx-get="{% url 'hr_shop:get_product_modal_partial' product_slug=product.slug %}"
                                 hx-target="#modal-content"
                                 hx-swap="innerHTML"
                                 hx-on::after-request="document.getElementById('modal').classList.remove('hidden');
-                                                        document.getElementById('modal').setAttribute('aria-hidden', 'false');">
+                                                      document.getElementById('modal').setAttribute('aria-hidden', 'false');">
                             {% if product.image %}
                                 <img src="{{ product.image.url }}" alt="{{ product.name }}">
                             {% else %}
@@ -289,7 +95,7 @@
 
                         <div class="merch-meta">
                             <h3 class="merch-title">{{ product.name }}</h3>
-                            <div class="march-price">
+                            <div class="merch-price">
                                 {% if product.min_variant_price %}
                                     From ${{ product.min_variant_price }}
                                 {% else %}
@@ -304,7 +110,7 @@
                                     hx-target="#modal-content"
                                     hx-swap="innerHTML"
                                     hx-on::after-request="document.getElementById('modal').classList.remove('hidden');
-                                                            document.getElementById('modal').setAttribute('aria-hidden', 'false');">
+                                                          document.getElementById('modal').setAttribute('aria-hidden', 'false');">
                                 <i class="fas fa-circle-info"></i> Details
                             </button>
                         </div>
@@ -314,138 +120,15 @@
                 {% endfor %}
             </div>
 
-{% comment 'old gallery' %}
-            <!-- Gallery -->
-{#            <div id="merch-grid" class="merch-grid">#}
-{#                <!-- Card 1 -->#}
-{#                <article class="merch-card" data-sku="tee-black">#}
-{#                    <button class="merch-img"#}
-{#                            aria-label="Open details for Hella Tee (Black)"#}
-{#                            hx-get="/merch/tee-black/modal"#}
-{#                            hx-target="#merch-modal-body"#}
-{#                            hx-swap="innerHTML">#}
-{#                        <img src="{% static 'hr_site/img/merch/t-shirt_black.png' %}"#}
-{#                             alt="Hella Tee (Black)">#}
-{#                    </button>#}
-{#                    <div class="merch-meta">#}
-{#                        <h3 class="merch-title">Hella Tee (Black)</h3>#}
-{#                        <div class="merch-price">$25.00</div>#}
-{#                    </div>#}
-{#                    <div class="merch-actions">#}
-{#                        <button class="card-button buy-button buy-cyan" data-buy data-price-id="price_12345BLACKTEE"#}
-{#                                data-qty="1">#}
-{#                            <i class="fas fa-cart-plus"></i> Buy#}
-{#                        </button>#}
-{#                        <button class="card-button outline"#}
-{#                                hx-get="/merch/tee-black/modal"#}
-{#                                hx-target="#merch-modal-body"#}
-{#                                hx-swap="innerHTML">#}
-{#                            <i class="fas fa-circle-info"></i> Details#}
-{#                        </button>#}
-{##}
-{#                    </div>#}
-{#                </article>#}
-{##}
-{#                <!-- Card 2 -->#}
-{#                <article class="merch-card" data-sku="tee-purple">#}
-{#                    <button class="merch-img"#}
-{#                            aria-label="Open details for Hella Tee (Purple)"#}
-{#                            hx-get="/merch/tee-purple/modal"#}
-{#                            hx-target="#merch-modal-body"#}
-{#                            hx-swap="innerHTML">#}
-{#                        <img src="{% static 'hr_site/img/merch/t-shirt_aqua_bg-white.png' %}"#}
-{#                             alt="Hella Tee (Purple)">#}
-{#                    </button>#}
-{#                    <div class="merch-meta">#}
-{#                        <h3 class="merch-title">Hella Tee (Purple)</h3>#}
-{#                        <div class="merch-price">$25.00</div>#}
-{#                    </div>#}
-{#                    <div class="merch-actions">#}
-{#                        <button class="card-button buy-button buy-cyan" data-buy data-price-id="price_12345PURPTEE"#}
-{#                                data-qty="1">#}
-{#                            <i class="fas fa-cart-plus"></i> Buy#}
-{#                        </button>#}
-{#                        <button class="card-button outline"#}
-{#                                hx-get="/merch/tee-black/modal"#}
-{#                                hx-target="#merch-modal-body"#}
-{#                                hx-swap="innerHTML">#}
-{#                            <i class="fas fa-circle-info"></i> Details#}
-{#                        </button>#}
-{##}
-{#                    </div>#}
-{#                </article>#}
-{##}
-{#                <!-- Card 3 -->#}
-{#                <article class="merch-card" data-sku="hoodie-black">#}
-{#                    <button class="merch-img"#}
-{#                            aria-label="Open details for Hella Hoodie"#}
-{#                            hx-get="/merch/hoodie-black/modal"#}
-{#                            hx-target="#merch-modal-body"#}
-{#                            hx-swap="innerHTML">#}
-{#                        <img src="{% static 'hr_site/img/merch/hoodie_black.png' %}" alt="Hella Hoodie">#}
-{#                    </button>#}
-{#                    <div class="merch-meta">#}
-{#                        <h3 class="merch-title">Hella Hoodie</h3>#}
-{#                        <div class="merch-price">$55.00</div>#}
-{#                    </div>#}
-{#                    <div class="merch-actions">#}
-{#                        <button class="card-button buy-button buy-cyan" data-buy data-price-id="price_12345HOODIE"#}
-{#                                data-qty="1">#}
-{#                            <i class="fas fa-cart-plus"></i> Buy#}
-{#                        </button>#}
-{#                        <button class="card-button outline"#}
-{#                                hx-get="/merch/tee-black/modal"#}
-{#                                hx-target="#merch-modal-body"#}
-{#                                hx-swap="innerHTML">#}
-{#                            <i class="fas fa-circle-info"></i> Details#}
-{#                        </button>#}
-{##}
-{#                    </div>#}
-{#                </article>#}
-{##}
-{#                <!-- Card 4 -->#}
-{#                <article class="merch-card" data-sku="sticker-pack">#}
-{#                    <button class="merch-img"#}
-{#                            aria-label="Open details for Sticker Pack"#}
-{#                            hx-get="/merch/sticker-pack/modal"#}
-{#                            hx-target="#merch-modal-body"#}
-{#                            hx-swap="innerHTML">#}
-{#                        <img src="{% static 'hr_site/img/merch/sticker_set.png' %}" alt="Sticker Pack">#}
-{#                    </button>#}
-{#                    <div class="merch-meta">#}
-{#                        <h3 class="merch-title">Sticker Pack</h3>#}
-{#                        <div class="merch-price">$8.00</div>#}
-{#                    </div>#}
-{#                    <div class="merch-actions">#}
-{#                        <button class="card-button buy-button buy-cyan" data-buy data-price-id="price_12345STICKERS"#}
-{#                                data-qty="1">#}
-{#                            <i class="fas fa-cart-plus"></i> Buy#}
-{#                        </button>#}
-{#                        <button class="card-button outline"#}
-{#                                hx-get="/merch/tee-black/modal"#}
-{#                                hx-target="#merch-modal-body"#}
-{#                                hx-swap="innerHTML">#}
-{#                            <i class="fas fa-circle-info"></i> Details#}
-{#                        </button>#}
-{##}
-{#                    </div>#}
-{#                </article>#}
-{#            </div>#}
-{% endcomment %}
-
-
         </div>
     </section>
 
     <div id="section-wipe-2" class="section-wipe z-20 absolute"></div>
 
-    {#    <section id="parallax-section-about" class="parallax-section relative">#}
-
-    <section id="parallax-section-about"
-             class="parallax-section relative flex items-center justify-center min-h-vhfix">
+    <section id="parallax-section-about" class="parallax-section relative flex items-center justify-center min-h-vhfix">
         <div class="parallax-background absolute inset-0 bg-cover bg-center"></div>
-        {#        <div class="parallax-content relative isolate z-10 mx-auto max-w-6xl px-5 text-center bg-transparent">#}
-        <div class="parallax-content relative isolate z-10 mx-auto px-0 py-vh-18 text-center flex flex-col items-center justify-center min-h-vhfix bg-transparent">
+
+        <div class="parallax-content relative isolate z-10 mx-auto max-w-6xl px-5 py-vh-18 text-center flex flex-col items-center justify-center min-h-vhfix bg-transparent">
             <h1>About</h1>
             <div class="about-card">
                 <div class="about">
@@ -461,7 +144,7 @@
                     </div>
 
                     <div id="about-carousel-container"
-                         hx-get="{% url 'hr_about:get_caroousel_container'  %}"
+                         hx-get="{% url 'hr_about:get_carousel_partial' %}"
                          hx-trigger="load"
                          hx-swap="innerHTML">
                         <div class="about-gallery loading-state">
@@ -491,232 +174,127 @@
         </div>
     </section>
 
-{% comment 'original carousel and thumbs' %}
-                    <section id="about-carousel" class="about-gallery" aria-label="Band photos" tabindex="0">
-                        <figure class="about-stage">
-                            <button class="about-nav prev" aria-label="Previous image"><i
-                                    data-feather="chevron-left"></i></button>
-                            <img class="about-stage-img" alt="" src="">
-                            <button class="about-nav next" aria-label="Next image"><i data-feather="chevron-right"></i>
-                            </button>
-                        </figure>
+    <div id="section-wipe-3" class="section-wipe z-20 absolute"></div>
 
-                        <figure class="about-caption">
-                            <figcaption class="about-quote"></figcaption>
-                        </figure>
-
-                        <div class="about-thumbs-wrap">
-                            <button class="thumbs-prev" aria-label="Previous image"><i data-feather="chevron-left"></i>
-                            </button>
-                            <ul class="about-thumbs" role="tablist"></ul>
-                            <button class="thumbs-next" aria-label="Next image"><i data-feather="chevron-right"></i>
-                            </button>
-                        </div>
-                    </section>
-
-                </div>
-            </div>
-
-            <div class="about-quote-wrap">
-                <div class="about-fade-bridge" aria-hidden="true"></div>
-                <div id="about-quotes" class="about-quotes" aria-live="polite">
-                    <div class="about-quote-rotator">
-                        <p class="quote-text"></p>
-                        <p class="quote-source"></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-{% endcomment %}
-
-    <section id="parallax-section-bulletin" class="parallax-section relative flex items-center justify-center min-h-vhfix">
+    <section id="parallax-section-bulletin"
+             class="parallax-section relative flex items-center justify-center min-h-vhfix">
         <div class="parallax-background absolute inset-0 bg-cover bg-center"></div>
-        <div class="parallax-content relative isolate z-10 mx-auto max-w-6xl px-5 py-vh-18 text-center flex flex-col items-center justify-center min-h-vhfix bg-transparent">
+        <div class="parallax-content relative isolate z-10 mx-auto px-0 py-vh-18 text-center flex flex-col items-center justify-center min-h-vhfix bg-transparent">
             <h1>Bulletin</h1>
-            <div id="bulletin-root" class="bulletin-root" hx-get="{% url 'bulletin-list-partial' %}" hx-trigger="load" hx-target="#bulletin-root" hx-swap="innerHTML">
+            <div id="bulletin-root"
+                 class="bulletin-root"
+                 hx-get="{% url 'hr_bulletin:bulletin_list_partial' %}"
+                 hx-trigger="load"
+                 hx-target="#bulletin-root"
+                 hx-swap="innerHTML">
                 <p class="bulletin-loading">Loading posts...</p>
             </div>
         </div>
     </section>
 
+{% endblock content %}
 
+{% block extra_scripts %}
 
-    <div id="modal" class="modal hidden" aria-hidden="true">
-        <div class="modal-backdrop" data-modal-close></div>
-        <div class="modal-panel">
-            <div id="modal-message-box"></div>
-            <div id="modal-content"></div>
-        </div>
-    </div>
+    {# about data for quote rotator (only needed on this page) #}
+    {% get_static_prefix as sp %}
+    <script id="about-data" type="application/json">
+    [
+      {"src": "{{ sp }}hr_site/img/about/HR_AMST_1.JPG", "alt": "Hammer of the Deep",         "quote": "\"You are audible!\"",                                      "source": "William Murderface"},
+      {"src": "{{ sp }}hr_site/img/about/HR_AMST_2.JPG", "alt": "Herald of the Maw",          "quote": "\"Some of my finest work, honestly I might have peaked.\"", "source": "God"},
+      {"src": "{{ sp }}hr_site/img/about/HR_AMST_3.JPG", "alt": "Architect of the Maelstrom", "quote": "\"They sang as they slew.\"",                               "source": "J.R.R. Tolkien"},
+      {"src": "{{ sp }}hr_site/img/about/HR_AMST_4.JPG", "alt": "Breaker of the Sky",         "quote": "\"These guys fucking rock!\"",                              "source": "Mr. Rogers"}
+    ]
+    </script>
 
-{% comment 'merch modal' %}
-    <div id="merch-modal" class="fixed inset-0 z-50 hidden">
-        <div class="absolute inset-0 bg-black/80"
-             onclick="document.getElementById('merch-modal').classList.add('hidden')"></div>
-        <div class="relative z-10 max-w-2xl mx-auto my-12 bg-[#1B1B1B] text-white rounded-xl shadow-2xl p-6">
-            <div id="merch-modal-body">
-                <h3 class="text-2xl font-bold mb-2">Product Title</h3>
-                <p class="text-sm opacity-80 mb-4">Product description goes here. Loaded via HTMX.</p>
-                <div class="flex gap-3">
-                    <button class="card-button buy-button" data-buy data-price-id="price_12345PLACEHOLDER"
-                            data-qty="1">
-                        <i class="fas fa-cart-plus"></i> Buy
-                    </button>
-                    <button class="card-button outline"
-                            onclick="document.getElementById('merch-modal').classList.add('hidden')">
-                        Close
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-{% endcomment %}
+    <script src="{% static 'hr_site/index.js' %}"></script>
 
-{% get_static_prefix as sp %}
-<script id="about-data" type="application/json">
-[
-  {"src": "{{ sp }}hr_site/img/about/HR_AMST_1.JPG", "alt": "Hammer of the Deep",         "quote": "\"You are audible!\"",                                      "source": "William Murderface"},
-  {"src": "{{ sp }}hr_site/img/about/HR_AMST_2.JPG", "alt": "Herald of the Maw",          "quote": "\"Some of my finest work, honestly I might have peaked.\"", "source": "God"},
-  {"src": "{{ sp }}hr_site/img/about/HR_AMST_3.JPG", "alt": "Architect of the Maelstrom", "quote": "\"They sang as they slew.\"",                               "source": "J.R.R. Tolkien"},
-  {"src": "{{ sp }}hr_site/img/about/HR_AMST_4.JPG", "alt": "Breaker of the Sky",         "quote": "\"These guys fucking rock!\"",                              "source": "Mr. Rogers"}
-]
-</script>
+    <script defer>
+        document.addEventListener('DOMContentLoaded', () => {
+            const dataEl = document.getElementById('about-data');
+            if (!dataEl) return;
 
-<script defer>
-    document.addEventListener('htmx:afterSwap', (e) => {
-        if (e.target && e.target.id === 'merch-modal-body') {
-            document.getElementById('merch-modal').classList.remove('hidden');
-        }
-    });
-</script>
+            let items;
+            try {
+                items = JSON.parse(dataEl.textContent || '[]');
+            } catch {
+                items = [];
+            }
 
-<script defer>
-    const stripe = Stripe("pk_test_XXXXYOUR_PUBLISHABLE_KEY");
+            const quotes = items.map(x => {
+                const quote = (x?.quote ?? '').toString().trim();
+                const source = (x?.source ?? '').toString().trim();
+                return quote ? {quote, source} : null;
+            }).filter(Boolean);
 
-    function handleStripeResult (result) {
-        if (result.error) {
-            console.error(result.error.message);
-            alert(result.error.message);
-        }
-    }
+            const quoteBox = document.querySelector('#about-quotes .quote-text');
+            const sourceBox = document.querySelector('#about-quotes .quote-source');
 
-    // Delegate clicks for any [data-buy] button
-    document.addEventListener('click', (e) => {
-        const btn = e.target.closest('[data-buy]');
-        if (!btn) return;
+            if (quotes.length && quoteBox && sourceBox) {
+                let i = 0;
+                const delay = 5000;
+                const show = (idx) => {
+                    quoteBox.classList.remove('is-visible');
+                    sourceBox.classList.remove('is-visible');
+                    requestAnimationFrame(() => {
+                        setTimeout(() => {
+                            quoteBox.textContent = quotes[idx].quote;
+                            sourceBox.textContent = quotes[idx].source ? `— ${quotes[idx].source}` : '';
+                            if (quotes[idx].quote) quoteBox.classList.add('is-visible');
+                            if (quotes[idx].source) sourceBox.classList.add('is-visible');
+                        }, 120);
+                    });
+                };
 
-        const priceId = btn.dataset.priceId;
-        const qty = parseInt(btn.dataset.qty || '1', 10);
+                const next = () => {
+                    i = (i + 1) % quotes.length;
+                    show(i);
+                };
 
-        if (!priceId) {
-            console.warn('Missing data-price-id on buy button');
-            return;
-        }
-
-
-        stripe.redirectToCheckout({
-            lineItems: [{price: priceId, quantity: qty}],
-            mode: 'payment',
-            successUrl: window.location.origin + '/checkout/success?session_id={CHECKOUT_SESSION_ID}',
-            cancelUrl: window.location.origin + '/checkout/cancel'
-        }).then(handleStripeResult);
-    });
-</script>
-
-<script src="https://kit.fontawesome.com/ba660226a8.js" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/feather-icons"></script>
-<script>feather.replace();</script>
-<script src="{% static 'hr_site/index.js' %}"></script>
-<script defer>
-    document.addEventListener('DOMContentLoaded', () => {
-        const dataEl = document.getElementById('about-data');
-        if (!dataEl) return;
-
-        let items;
-        try {
-            items = JSON.parse(dataEl.textContent || '[]');
-        } catch {
-            items = [];
-        }
-
-        const quotes = items.map(x => {
-            const quote = (x?.quote ?? '').toString().trim();
-            const source = (x?.source ?? '').toString().trim();
-            return quote ? {quote, source} : null;
-        }).filter(Boolean);
-
-        //const quotes = items.map(x => x?.quote ? String(x.quote) : '').filter(Boolean);
-        {#const sources = items.map(x => x?.source ? String(x.))#}
-        const quoteBox = document.querySelector('#about-quotes .quote-text');
-        const sourceBox = document.querySelector('#about-quotes .quote-source');
-
-        if (quotes.length && quoteBox && sourceBox) {
-            let i = 0;
-            const delay = 5000;
-            const show = (idx) => {
-                quoteBox.classList.remove('is-visible');
-                sourceBox.classList.remove('is-visible');
-                requestAnimationFrame(() => {
-                    setTimeout(() => {
-                        quoteBox.textContent = quotes[idx].quote;
-                        sourceBox.textContent = quotes[idx].source ? `— ${quotes[idx].source}` : '';
-                        if (quotes[idx].quote) quoteBox.classList.add('is-visible');
-                        if (quotes[idx].source) sourceBox.classList.add('is-visible');
-                    }, 120);
-                });
-            };
-
-            const next = () => {
-                i = (i + 1) % quotes.length;
                 show(i);
-            };
+                let timer = setInterval(next, delay);
 
-            show(i);
-            let timer = setInterval(next, delay);
+                const rot = document.querySelector('#about-quotes .about-quote-rotator');
+                if (rot) {
+                    rot.addEventListener('mouseenter', () => clearInterval(timer));
+                    rot.addEventListener('mouseleave', () => {
+                        timer = setInterval(next, delay);
+                    });
+                }
+            }
+        });
+    </script>
 
-            const rot = document.querySelector('#about-quotes .about-quote-rotator');
-            if (rot) {
-                rot.addEventListener('mouseenter', () => clearInterval(timer));
-                rot.addEventListener('mouseleave', () => {
-                    timer = setInterval(next, delay);
-                });
+    {# existing Stripe handler (you can swap this for the mock later) #}
+    <script defer>
+        const stripe = Stripe("pk_test_XXXXYOUR_PUBLISHABLE_KEY");
+
+        function handleStripeResult (result) {
+            if (result.error) {
+                console.error(result.error.message);
+                alert(result.error.message);
             }
         }
-    });
-</script>
-<script>
-    (() => {
-        const setVH = () => {
-            const vh = (window.visualViewport?.height ?? window.innerHeight) * 0.01;
-            document.documentElement.style.setProperty('--vh', `${vh}px`);
-        };
 
-        // run once ASAP
-        setVH();
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-buy]');
+            if (!btn) return;
 
-        // update on all the usual suspects
-        window.addEventListener('resize', setVH, {passive: true});
-        window.addEventListener('orientationchange', setVH);
-        window.visualViewport?.addEventListener('resize', setVH, {passive: true});
+            const priceId = btn.dataset.priceId;
+            const qty = parseInt(btn.dataset.qty || '1', 10);
 
-        // bfcache restore & fullscreen toggles
-        window.addEventListener('pageshow', (e) => {
-            if (e.persisted) setVH();
+            if (!priceId) {
+                console.warn('Missing data-price-id on buy button');
+                return;
+            }
+
+            stripe.redirectToCheckout({
+                lineItems: [{price: priceId, quantity: qty}],
+                mode: 'payment',
+                successUrl: window.location.origin + '/checkout/success?session_id={CHECKOUT_SESSION_ID}',
+                cancelUrl: window.location.origin + '/checkout/cancel'
+            }).then(handleStripeResult);
         });
-        document.addEventListener('fullscreenchange', setVH);
+    </script>
 
-        // micro-rAF to catch chrome UI animations
-        let raf;
-        ['scroll', 'resize'].forEach(evt => {
-            window.addEventListener(evt, () => {
-                cancelAnimationFrame(raf);
-                raf = requestAnimationFrame(setVH);
-            }, {passive: true});
-        });
-    })();
-</script>
-
-</body>
-</html>
+{% endblock extra_scripts %}

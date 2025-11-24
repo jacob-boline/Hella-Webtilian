@@ -6,6 +6,7 @@ from django.db import models
 from django.utils.translation import gettext as _
 
 from hr_access.managers import UserManager
+from hr_core.utils.email import normalize_email
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -29,7 +30,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def is_global_admin(self):
-        return self.is_superuser
+        return self.role == self.Role.GLOBAL_ADMIN
 
     @property
     def full_name(self):
@@ -49,5 +50,5 @@ class User(AbstractBaseUser, PermissionsMixin):
         return f"{self.pk}-{self.email}"
 
     def save(self, *args, **kwargs):
-        self.email = self.email.casefold()
+        self.email = normalize_email(self.email)
         super(User, self).save(*args, **kwargs)

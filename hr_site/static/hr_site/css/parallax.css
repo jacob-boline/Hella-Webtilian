@@ -1,0 +1,121 @@
+/* ===========================
+   Parallax layout + behavior
+   =========================== */
+
+/* Overall wrapper for all parallax sections */
+#parallax-wrapper {
+    position:    relative;
+    align-items: center;
+    text-align:  center;
+}
+
+/* Individual parallax sections */
+.parallax-section {
+    position:   relative;
+    overflow:   hidden;
+    height:     auto;
+    padding:    0;
+    min-height: calc(var(--vh) * 100);
+}
+
+/* Background layer that scrolls at different speed */
+.parallax-background {
+    position:            absolute;
+    top:                 0;
+    left:                0;
+    width:               100%;
+    min-height:          calc(var(--vh) * 100);
+    background-size:     cover;
+    background-position: center;
+    will-change:         transform;
+    transform:           translate3d(0, 0, 0);
+}
+
+/* Ensure text in parallax content stays on top + readable */
+div.parallax-content p {
+    position: relative !important;
+    color:    #FFF !important;
+    z-index:  10 !important;
+}
+
+/* Section wipes – gradient / image overlays between sections */
+.section-wipe {
+    position:            absolute;
+    left:                0;
+    inset-inline:        0;
+    z-index:             20;
+    width:               100%;
+    min-width:           100%;
+    max-width:           100%;
+    height:              calc(var(--vh) * 60);
+    background-size:     cover;
+    background-position: center;
+    transform:           translate3d(0, 0, 0);
+    pointer-events:      none;
+    will-change:         transform;
+}
+
+/* Prefer viewport-based heights if supported */
+@supports (height: 1vh) {
+    .parallax-background {
+        min-height: calc(var(--vh) * 100);
+    }
+
+    .section-wipe {
+        height: calc(var(--vh) * 60);
+    }
+}
+
+
+/* ===========================
+   Section background images
+   =========================== */
+
+/* Shows section */
+#parallax-section-shows .parallax-background {
+    background-image: url("/static/hr_site/img/parallax_bg_1-0.jpg");
+}
+
+/* Wipe between shows → merch */
+#section-wipe-1.section-wipe {
+    background-image: url("/static/hr_site/mid/sci_fi_fork_in_road.jpg");
+}
+
+/* Merch section */
+#parallax-section-merch .parallax-background {
+    background-image: url("/static/hr_site/img/parallax_bg_2-7.png");
+}
+
+/* Wipe between merch → about */
+#section-wipe-2.section-wipe {
+    background-image: url("/static/hr_site/img/section-wipe/vimal-s-1F-dLqrnn-E-unsplash.jpg");
+}
+
+/* About section */
+#parallax-section-about .parallax-background {
+    background-image: url("/static/hr_site/img/parallax_bg_3-0.png");
+}
+
+/* Wipe between about → bulletin */
+#section-wipe-3.section-wipe {
+    background-image: url("/static/hr_site/mid/old_english_tree_rows.jpg");
+}
+
+/* Bulletin section (was posts before – using your current ID) */
+#parallax-section-bulletin .parallax-background {
+    background-image: url("/static/hr_site/img/parallax_bg_4-3.png");
+}
+
+
+/* ===========================
+   Reduced motion fallback
+   =========================== */
+
+@media (prefers-reduced-motion: reduce) {
+    .parallax-background,
+    .section-wipe {
+        transform:  none !important;
+        transition: none !important;
+        animation:  none !important;
+    }
+}

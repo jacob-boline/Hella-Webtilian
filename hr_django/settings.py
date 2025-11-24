@@ -36,6 +36,16 @@ INTERNAL_IPS = ['127.0.0.1', ]
 # Application definition
 
 INSTALLED_APPS = [
+    #-----------------------------------#
+    #       These 6 must be first       #
+    #-----------------------------------#
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+
     'hr_about.apps.AboutConfig',
     'hr_access.apps.AccessConfig',
     'hr_bulletin.apps.BulletinConfig',
@@ -46,12 +56,7 @@ INSTALLED_APPS = [
     'hr_site.apps.SiteConfig',
     'hr_storage.apps.StorageConfig',
 
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+
 
     'debug_toolbar',
     'phonenumber_field',

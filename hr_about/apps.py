@@ -1,4 +1,4 @@
-# hr_live/apps.py
+# hr_about/apps.py
 
 from django.apps import AppConfig
 

@@ -13,7 +13,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 from phonenumber_field.phonenumber import PhoneNumber
 
 from hr_common.models import Address
-from hr_live.managers import ActManager, BookerManager, MusicianManager, ShowManager, VenueManager
+from hr_live.managers import ShowManager, VenueManager, BookerManager, MusicianManager, ActManager
 from hr_core.utils.slug import sync_slug_from_source
 
 

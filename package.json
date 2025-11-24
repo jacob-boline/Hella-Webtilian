@@ -1,39 +1,27 @@
 {
-  "dependencies": {
-    "@tailwindcss/cli": "^4.0.9",
-    "create-stylelint": "^0.4.0"
-  },
   "name": "hella-webtilian",
   "version": "1.0.0",
-  "type": "modeule",
   "main": "index.js",
+  "description": "",
+  "dependencies": {
+    "create-stylelint": "^0.4.0"
+  },
   "devDependencies": {
-    "@babel/core": "^7.26.7",
-    "@babel/preset-env": "^7.26.7",
-    "autoprefixer": "^10.4.20",
-    "babel-loader": "^9.2.1",
+    "autoprefixer": "^10.4.22",
     "concurrently": "^9.2.1",
-    "css-loader": "^7.1.2",
-    "postcss": "^8.5.3",
-    "postcss-loader": "^8.1.1",
-    "style-loader": "^4.0.0",
-    "tailwindcss": "^4.0.9",
-    "webpack": "^5.97.1",
-    "webpack-bundle-tracker": "^3.1.1",
-    "webpack-cli": "^6.0.1",
-    "webpack-dev-server": "^5.2.0"
+    "cssnano": "^7.1.2",
+    "postcss": "^8.5.6",
+    "postcss-cli": "^11.0.1",
+    "postcss-import": "^16.1.1"
   },
   "scripts": {
-    "tw:dev": "tailwindcss -i ./hr_site/static/hr_site/index.css -o ./hr_site/static/hr_site/build.css --watch",
-    "tw:build": "tailwindcss -i ./hr_site/static/hr_site/index.css -o ./hr_site/static/hr_site/build.css --minify",
-    "django:run": ".venv/bin/python manage.py runserver 0.0.0.0:8000",
-    "django:lr": ".venv/bin/python manage.py livereload",
-    "dev:all": "concurrently -k -n TW,DJANGO,LR -c blue,green,magenta \"npm:tw:dev\" \"npm:django:run\" \"npm:django:lr\"",
-    "wp:serve": "webpack serve --mode development",
-    "wp:build": "webpack --mode production",
-    "dev": "npm run tw:dev",
-    "start": "concurrently \"npm:tw:dev\" \"npm:wp:serve\"",
-    "build": "npm run wp:build && npm run tw:build"
+    "css:dev": "postcss hr_site/static/hr_site/css/app.css -o hr_site/static/hr_site/build.css --watch",
+    "css:build": "postcss hr_site/static/hr_site/css/app.css -o hr_site/static/hr_site/build.css",
+    "django:run": "python manage.py runserver 0.0.0.0:8000",
+    "django:lr": "python manage.py livereload",
+    "dev:all": "concurrently -k -n CSS,DJANGO,LR -c blue,green,magenta \"npm:css:dev\" \"npm:django:run\" \"npm:django:lr\"",
+    "dev": "npm run css:dev",
+    "build": "npm run css:build"
   },
   "repository": {
     "type": "git",
@@ -45,6 +33,5 @@
   "bugs": {
     "url": "https://github.com/yc5424tl/hella-webtilian/issues"
   },
-  "homepage": "https://github.com/yc5424tl/hella-webtilian#readme",
-  "description": ""
+  "homepage": "https://github.com/yc5424tl/hella-webtilian#readme"
 }

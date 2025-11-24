@@ -6,7 +6,7 @@ from hr_common.managers import AddressManager
 
 class Address(models.Model):
     street_address = models.CharField(max_length=255, blank=False, null=False, verbose_name='Address')
-    city = models.CharField(max_length=255, blank=False, null=False, verbose='City')
+    city = models.CharField(max_length=255, blank=False, null=False, verbose_name='City')
     subdivision = models.CharField(max_length=100, blank=False, null=False, verbose_name='State/Province')
     postal_code = models.CharField(max_length=25, blank=False, null=False, verbose_name='Zip')
     country = models.CharField(max_length=255, blank=False, null=False, verbose_name='Country')

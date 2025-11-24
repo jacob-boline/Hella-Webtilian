@@ -11,7 +11,7 @@ def index(request):
     products = Product.objects.prefetch_related('variants').order_by('name')
     slides = CarouselSlide.objects.filter(is_active=True).order_by('order', 'id')
     quotes = PullQuote.objects.filter(is_active=True).order_by("order", "id")
-    shows = Show.objects.filter(status='published', date__gte=today).select_related('venue').prefetch_related('lineup').order_by('data', 'time', 'id')[:5]
+    shows = Show.objects.filter(status='published', date__gte=today).select_related('venue').prefetch_related('lineup').order_by('date', 'time', 'id')[:5]
     return render(request, "hr_site/index.html", {
         'products': products,
         'slides': slides,

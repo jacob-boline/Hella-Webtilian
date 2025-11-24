@@ -1,0 +1,211 @@
+/* hr_site/static/css/core.css */
+
+/* ===========================
+   Fonts (local @font-face)
+   =========================== */
+
+@font-face {
+    font-family:  "Bungee Hairline";
+    src:          url("./fonts/BungeeHairline-Regular.ttf") format("truetype");
+    font-display: swap;
+}
+
+@font-face {
+    font-family:  "Megrim";
+    src:          url("./fonts/Megrim-Regular.ttf") format("truetype");
+    font-display: swap;
+}
+
+@font-face {
+    font-family:  "Quantico";
+    src:          url("./fonts/Quantico-Regular.ttf") format("truetype"),
+                  url("./fonts/Quantico-Bold.ttf") format("truetype"),
+                  url("./fonts/Quantico-Italic.ttf") format("truetype"),
+                  url("./fonts/Quantico-BoldItalic.ttf") format("truetype");
+    font-display: swap;
+}
+
+@font-face {
+    font-family:  "KARNIVBL";
+    src:          url("./fonts/KARNIVBL.ttf") format("truetype");
+    font-display: swap;
+}
+
+@font-face {
+    font-family:  "Tilt Prism";
+    src:          url("./fonts/TiltPrism-Regular.ttf") format("truetype");
+    font-display: swap;
+}
+
+@font-face {
+    font-family:  "Exo 2";
+    src:          url("./fonts/Exo2-VariableFont_wght.ttf") format("truetype");
+    font-display: swap;
+}
+
+@font-face {
+    font-family:  "Syne Mono";
+    src:          url("./fonts/SyneMono-Regular.ttf") format("truetype");
+    font-display: swap;
+}
+
+
+/* ===========================
+   Root design tokens
+   =========================== */
+
+:root {
+    --bg-dark:                #1E1E1E;
+    --card-bg-start:          #2A2A2A;
+    --card-bg-end:            #1B1B1B;
+    --accent:                 #FA0;
+    --glow:                   #FD6;
+    --neon-color:             #FF00F7;
+    --neon-duration:          6.5s;
+
+    /* wipe edge tuning */
+    --edge-fade:              15%;
+    --wipe-edge-fade-outside: 15vh;
+    --wipe-edge-fade-inside:  10vh;
+
+    /* Viewport shims (kept in sync via JS) */
+    --vh:                     1vh;
+    --vw:                     1vw;
+    --pad-inline:             clamp(1rem, 6vw, 3rem);
+
+    --q-clear:                clamp(4rem, calc(var(--vh) * 8), 10rem);
+    --q-rise-frac:            -0.28;
+    --q-rise:                 calc(var(--q-clear) * var(--q-rise-frac));
+
+    --padding-sm:             clamp(1rem, 3%, 1.5rem);
+    --padding-md:             clamp(1.5rem, 6%, 3rem);
+    --padding-lg:             clamp(3rem, 12%, 6rem);
+
+    --card-bg-1:              #2A2A2A;
+    --card-bg-2:              #1B1B1B;
+    --panel-bg:               #F3F4F6;
+    --panel-hi:               #FFF;
+    --panel-lo:               #DADDE3;
+    --ink-900:                #0F1115;
+    --ink-700:                #2B2F36;
+    --muted:                  #5B6472;
+    --purple:                 #9D00FF;
+}
+
+
+/* ===========================
+   Base reset + body
+   =========================== */
+
+* {
+    margin:  0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-dark);
+    font-family:      "Space Grotesk", sans-serif;
+    color:            #F0F0F0;
+}
+
+
+/* ===========================
+   Global message bar
+   =========================== */
+
+.global-message-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2000;
+
+    padding: 0.75rem 1.25rem;
+    background-color: #14532d;
+    color: #f9fafb;
+    font-size: 0.9rem;
+    text-align: center;
+
+    transform: translateY(-100%);
+    opacity: 0;
+    transition: transform 0.25s ease-out, opacity 0.25s ease-out;
+}
+
+.global-message-bar.is-visible {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+
+/* ===========================
+   Shared layout helpers
+   =========================== */
+
+/* Main parallax content wrapper */
+.parallax-content {
+    position:       relative;
+    z-index:        10;
+    min-height:     calc(var(--vh) * 100);
+    min-width:      100vmin;
+    padding-top:    calc(var(--vh) * 18);
+    padding-bottom: calc(var(--vh) * 18);
+}
+
+/* Narrow content column */
+.content-narrow {
+    max-width:      64rem;
+    margin-inline:  auto;
+    padding-inline: clamp(16px, 5vw, 24px);
+    padding-block:  min(calc(var(--vh) * 16), 12rem);
+}
+
+/* Slightly wider content column */
+.content-wide {
+    max-width:      72rem;
+    margin-inline:  auto;
+    padding-inline: clamp(1rem, 6vw, 2rem);
+    padding-block:  min(calc(var(--vh) * 16), 12rem);
+}
+
+
+/* ===========================
+   Shared components
+   =========================== */
+
+/* Soft light panel (e.g. section 2) */
+.panel-soft {
+    background:    rgba(255, 255, 255, .80);
+    color:         #111;
+    border-radius: .75rem;
+    box-shadow:    .5rem .5rem 1.5rem rgba(0, 0, 0, .35);
+}
+
+/* Generic section title */
+.section-title {
+    font-family:    "Exo 2", sans-serif;
+    font-weight:    700;
+    font-size:      clamp(2rem, 4.5vmin, 3rem);
+    letter-spacing: .02em;
+    margin:         0;
+    text-shadow:    0 0 .25rem rgba(255, 255, 255, .35);
+}
+
+/* Engraved character style (used across cards / UI) */
+.date-char,
+.time-char,
+.btn-char {
+    font-family: "Bungee Hairline", sans-serif;
+    display:     inline-block;
+    color:       #BFBFBF;
+    text-shadow: -4px -4px 4px rgba(0, 0, 0, .9),
+                 1px 1px 2px rgba(255, 255, 255, .25);
+}
+
+/* Card button base – variants (shows/merch) extend this */
+.card-button {
+    display:         inline-flex;
+    align-items:     center;
+    justify-content: center;
+    gap:             .5rem;
+}

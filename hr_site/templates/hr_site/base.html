@@ -1,0 +1,128 @@
+{# hr_site/templates/hr_site/base.html #}
+
+{% load static livereload_tags %}
+{% livereload_script %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Hella Reptilian{% endblock %}</title>
+
+    <link rel="icon" href="{% static 'hr_site/img/favicon/fav-icon-hr-green.png' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Zilla+Slab+Highlight:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne+Mono&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{% static 'hr_site/build.css' %}">
+
+    <script src="https://unpkg.com/htmx.org@1.9.12" defer></script>
+    <script src="https://js.stripe.com/v3" defer></script>
+
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body class="bg-black text-white">
+
+<div id="global-message-bar" class="global-message-bar">
+    <span id="global-message-content"></span>
+</div>
+
+<div id="parallax-wrapper">
+
+    {# ---- Banner / Title ---- #}
+    <section id="banner" class="w-full px-4 z-30 fixed">
+        <div class="flex flex-wrap">
+            <div class="w-full banner-row">
+                <span class="banner-letter blink">H</span>
+                <span class="banner-letter">E</span>
+                <span class="banner-letter">L</span>
+                <span class="banner-letter">L</span>
+                <span class="banner-letter">A</span>
+                <span class="banner-letter">&nbsp;</span>
+                <span class="banner-letter">R</span>
+                <span class="banner-letter">E</span>
+                <span class="banner-letter">P</span>
+                <span class="banner-letter">T</span>
+                <span class="banner-letter">I</span>
+                <span class="banner-letter">L</span>
+                <span class="banner-letter">I</span>
+                <span class="banner-letter">A</span>
+                <span class="banner-letter">N</span>
+                <span class="banner-letter">!</span>
+                <span class="ml-2"></span>
+                <span id="nav-audio" class="z-40 fixed"></span>
+            </div>
+            <div class="w-full banner-row">
+                <span id="banner-end"></span>
+            </div>
+        </div>
+    </section>
+
+    <section id="banner-scroller"></section>
+
+    {# ---- Sidebar / Drawer ---- #}
+    <div id="open-nav-btn-container" class="text-left">
+        <button class="rounded-lg text-sm p-1.5 top-2.5 right-2.5 inline-flex items-center z-40 fixed"
+                id="nav-open"
+                type="button"
+                data-drawer-target="drawer-navigation"
+                data-drawer-show="drawer-navigation">
+            <i class="fa-regular fa-square-caret-right"></i>
+        </button>
+    </div>
+
+    <div id="drawer-navigation"
+         class="fixed top-0 left-0 transform -translate-x-full transition-transform duration-300 ease-in-out h-full z-50"
+         tabindex="-1">
+        <button type="button"
+                data-drawer-close
+                class="rounded-lg text-sm p-1.5 top-2.5 right-2.5 inline-flex items-center relative">
+            <i class="fa-regular fa-circle-xmark"></i>
+            <span class="sr-only">Close menu</span>
+        </button>
+
+        <aside id="sidebar-access">
+            {% include 'hr_access/_sidebar_access.html' %}
+        </aside>
+
+        <iframe style="border: 0; width: 200px; height: 342px;"
+                src="https://bandcamp.com/EmbeddedPlayer/album=1766078263/size=large/bgcol=333333/linkcol=4ec5ec/tracklist=false/transparent=true/"
+                seamless>
+            <a href="https://hellareptilian.bandcamp.com/album/into-hella-we-ride-demo">
+                Into Hella We Ride! [Demo] by Hella Reptilian!
+            </a>
+        </iframe>
+    </div>
+
+    {# ---- Global modal shell ---- #}
+    <div id="modal" class="modal hidden" aria-hidden="true">
+        <div class="modal-backdrop" data-modal-close></div>
+        <div class="modal-panel">
+            <div id="modal-message-box"></div>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    {# ---- Page Content ---- #}
+    {% block content %}{% endblock %}
+
+</div>
+
+{# ---- Global scripts ---- #}
+<script src="https://kit.fontawesome.com/ba660226a8.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/feather-icons"></script>
+<script>feather.replace();</script>
+
+
+<script src="{% static 'hr_site/js/vh-fix.js' %}"></script>
+<script src="{% static 'hr_site/js/main.js' %}"></script>
+<script src="{% static 'hr_site/index.js' %}"></script>
+
+{# ---- page-specific scripts hook ---- #}
+{% block -extra_scripts %}{% endblock %}
+
+</body>
+</html>

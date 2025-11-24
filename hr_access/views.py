@@ -27,7 +27,7 @@ from hr_core.utils import http
 from hr_core.utils.email import normalize_email
 from hr_shop.models import Order
 from hr_site.views import display_message_box_modal
-from services.customers import attach_customer_to_user
+from hr_shop.services.customers import attach_customer_to_user
 from hr_access.models import User
 
 # =====================================================================================================================

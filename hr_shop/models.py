@@ -94,11 +94,7 @@ class ProductVariant(models.Model):
     slug = models.SlugField(max_length=160, blank=True)
     name = models.CharField(max_length=128)
     price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0'))])
-
-    is_primary = models.BooleanField(
-        default=False, help_text="If set, this variant will be used as the product default/display variant."
-    )
-
+    is_primary = models.BooleanField(default=False, help_text="If set, this variant will be used as the product default/display variant.")
     option_values = models.ManyToManyField(ProductOptionValue, through='ProductVariantOption', related_name='variants', blank=True)
 
     # size = model.CharField(max_length=16, blank=True, choices=[
@@ -158,20 +154,37 @@ class InventoryItem(models.Model):
 class Price(models.Model):
     pass
 
+class Customer(models.Model):
+    email = models.EmailField(blank=False, null=False, unique=False, validators=[EmailValidator()])
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, related_name='customers', on_delete=models.SET_NULL)
+    first_name = models.CharField(max_length=100, blank=True)
+    last_name = models.CharField(max_length=100, blank=True)
+    phone = models.CharField(max_length=50, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = [('email',)]
+        ordering = ['-created_at']
+
+    def __str__(self):
+        label = f'{self.first_name} {self.last_name}'.strip() or self.email
+        return f'Customer {self.pk} - {label}'
+
 
 class Order(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
         ('paid', 'Paid'),
         ('failed', 'Failed'),
-        ('refunded', 'Refunded'),
+        ('refunded', 'Refunded')
     ]
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='orders',)
-
+    # user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name='orders',)
+    customer = models.ForeignKey(Customer, null=True, blank=False, on_delete=models.PROTECT, related_name='orders')
     stripe_checkout_session_id = models.CharField(max_length=255, unique=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    email = models.EmailField()
+    email = models.EmailField(null=False, blank=False, validators=[EmailValidator()])
     shipping_address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True, blank=True)
     total = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
     created_at = models.DateTimeField(default=timezone.now)
@@ -208,19 +221,3 @@ class WebhookEvent(models.Model):
     ok = models.BooleanField(default=False)
 
 
-class Customer(models.Model):
-    email = models.EmailField(blank=False, null=False, unique=False, validators=[EmailValidator()])
-    user_id = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, null=True, related_name='customers', on_delete=models.SET_NULL,)
-    first_name = models.CharField(max_length=100, blank=True)
-    last_name = models.CharField(max_length=100, blank=True)
-    phone = models.CharField(max_length=50, blank=True)
-    created_at = models.DateTimeField(default=timezone.now)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        unique_together = [('email',)]
-        ordering = ['-created_at']
-
-    def __str__(self):
-        label = f'{self.first_name} {self.last_name}'.strip() or self.email
-        return f'Customer {self.pk} - {label}'

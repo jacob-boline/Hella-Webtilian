@@ -73,9 +73,9 @@
     --q-clear:                clamp(4rem, calc(var(--vh) * 8), 10rem);
     --q-rise-frac:            -0.28;
     --q-rise:                 calc(var(--q-clear) * var(--q-rise-frac));
-    /*--q-rise:                 clamp(-1.5rem, -3vh, -3rem);*/
-    /*--q-bridge-frac:          .34;*/
-    /*--q-rot-frac:             .24;*/
+/*    --q-rise:                 clamp(-1.5rem, -3vh, -3rem);
+    --q-bridge-frac:          .34;
+    --q-rot-frac:             .24;*/
 
     --padding-sm:             clamp(1rem, 3%, 1.5rem);
     --padding-md:             clamp(1.5rem, 6%, 3rem);
@@ -104,10 +104,31 @@ body {
     color:            #F0F0F0;
 }
 
-/*@layer utilities {*/
-/*  .min-h-vhfix { min-height: calc(var(--vh) * 100); }*/
-/*  .py-vh-18    { padding-block: calc(var(--vh) * 18); } !* optional helper if you want *!*/
-/*}*/
+.global-message-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2000;
+    padding: 0.75rem 1.25rem;
+    background-color: #14532d;
+    color: #f9fafb;
+    font-size: 0.9rem;
+    text-align: center;
+    transform: translateY(-100%);
+    opacity: 0;
+    transition: transform 0.25s ease-out, opacity 0.25s ease-out;
+}
+
+.global-message-bar.is-visible {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/*@layer utilities {
+  .min-h-vhfix { min-height: calc(var(--vh) * 100); }
+  .py-vh-18    { padding-block: calc(var(--vh) * 18); } !* optional helper if you want *!
+}*/
 
 div#parallax-wrapper {
     position:    relative;
@@ -344,7 +365,7 @@ nav.navbar {
     }
 }
 
-#parallax-section-1 .parallax-background {
+#parallax-section-shows .parallax-background {
     background-image: url("/static/hr_site/img/parallax_bg_1.jpg");
 }
 
@@ -352,7 +373,7 @@ nav.navbar {
     background-image: url("/static/hr_site/mid/sci_fi_fork_in_road.jpg");
 }
 
-#parallax-section-2 .parallax-background {
+#parallax-section-merch .parallax-background {
     background-image: url("/static/hr_site/img/parallax_bg_2-4.png");
 }
 
@@ -362,6 +383,14 @@ nav.navbar {
 
 #parallax-section-about .parallax-background {
     background-image: url("/static/hr_site/img/parallax-bg-3.png");
+}
+
+#section-wipe-3.section-wipe {
+    background-image: url("/static/hr_site/mid/old_english_tree_rows.jog");
+}
+
+#parallax-section-posts {
+    background-image: url("/static/hr_site/img/parallax-bg_4-1.jpg");
 }
 
 .concert-card-container {
@@ -572,161 +601,161 @@ nav.navbar {
 }
 
 
-/*.card-center {*/
-/*    display:        flex;*/
-/*    flex-direction: column;*/
-/*    align-items:    center;*/
-/*    gap:            .5rem;*/
-/*}*/
+/*.card-center {
+    display:        flex;
+    flex-direction: column;
+    align-items:    center;
+    gap:            .5rem;
+}
 
-/*.card-left, .card-right, .card-center {*/
-/*    flex: 1 1 280px;*/
-/*}*/
+.card-left, .card-right, .card-center {
+    flex: 1 1 280px;
+}
 
-/*.card-left {*/
-/*    font-size:   1.5rem;*/
-/*    font-weight: bold;*/
-/*}*/
+.card-left {
+    font-size:   1.5rem;
+    font-weight: bold;
+}
 
-/*.card-left, .card-right {*/
-/*    display:         flex;*/
-/*    justify-content: center;*/
-/*    align-items:     center;*/
-/*    gap:             1.5rem;*/
-/*}*/
+.card-left, .card-right {
+    display:         flex;
+    justify-content: center;
+    align-items:     center;
+    gap:             1.5rem;
+}
 
-/*.card-left * {*/
-/*    margin: 0;*/
-/*}*/
+.card-left * {
+    margin: 0;
+}
 
-/*.card-left .date, .card-left .time, .card-right a {*/
-/*    display:     inline-flex;*/
-/*    white-space: nowrap;*/
-/*}*/
+.card-left .date, .card-left .time, .card-right a {
+    display:     inline-flex;
+    white-space: nowrap;
+}
 
-/*@media (max-width: 600px) {*/
-/*    .card-left, .card-right {*/
-/*        flex-direction: column;*/
-/*        gap:            1rem;*/
-/*    }*/
-/*}*/
+@media (max-width: 600px) {
+    .card-left, .card-right {
+        flex-direction: column;
+        gap:            1rem;
+    }
+}
 
-/*@media (min-width: 768px) {*/
-/*    .card-left {*/
-/*        font-size: 1.5rem;*/
-/*    }*/
-/*}*/
+@media (min-width: 768px) {
+    .card-left {
+        font-size: 1.5rem;
+    }
+}
 
-/*@media (min-width: 1024px) {*/
-/*    .card-left {*/
-/*        font-size: 2rem;*/
-/*    }*/
-/*}*/
+@media (min-width: 1024px) {
+    .card-left {
+        font-size: 2rem;
+    }
+}
 
-/*@media (max-width: 900px) {*/
-/*    .concert-card {*/
-/*        flex-direction:  column;*/
-/*        justify-content: flex-start;*/
-/*        row-gap:         1rem;*/
-/*        padding:         1rem 1rem 1.5rem;*/
-/*    }*/
+@media (max-width: 900px) {
+    .concert-card {
+        flex-direction:  column;
+        justify-content: flex-start;
+        row-gap:         1rem;
+        padding:         1rem 1rem 1.5rem;
+    }
 
-/*    .card-left, .card-right, .card-center {*/
-/*        flex:  0 1 auto;*/
-/*        width: 100%;*/
-/*    }*/
+    .card-left, .card-right, .card-center {
+        flex:  0 1 auto;
+        width: 100%;
+    }
 
-/*    .card-center {*/
-/*        max-width:     24ch;*/
-/*        margin-inline: auto;*/
-/*    }*/
+    .card-center {
+        max-width:     24ch;
+        margin-inline: auto;
+    }
 
-/*    .card-right {*/
-/*        display:               grid;*/
-/*        grid-template-columns: 1fr 1fr;*/
-/*        gap:                   .75rem;*/
-/*        width:                 100%;*/
-/*        margin-top:            1rem;*/
-/*        justify-content:       stretch;*/
-/*    }*/
-/*}*/
+    .card-right {
+        display:               grid;
+        grid-template-columns: 1fr 1fr;
+        gap:                   .75rem;
+        width:                 100%;
+        margin-top:            1rem;
+        justify-content:       stretch;
+    }
+}
 
-/*@media (max-width: 600px) {*/
-/*    .concert-card {*/
-/*        height:     auto;*/
-/*        max-height: none;*/
-/*        padding:    1rem;*/
-/*        gap:        .5rem;*/
-/*    }*/
+@media (max-width: 600px) {
+    .concert-card {
+        height:     auto;
+        max-height: none;
+        padding:    1rem;
+        gap:        .5rem;
+    }
 
-/*    .card-left,*/
-/*    .card-center,*/
-/*    .card-right {*/
-/*        flex:  unset;*/
-/*        width: 100%;*/
-/*    }*/
-/*}*/
+    .card-left,
+    .card-center,
+    .card-right {
+        flex:  unset;
+        width: 100%;
+    }
+}
 
-/*.date-time {*/
-/*    font-family:   "Quantico", sans-serif;*/
-/*    display:       inline-flex;*/
-/*    align-items:   center;*/
-/*    gap:           .75rem;*/
-/*    background:    linear-gradient(145deg, #2A2A2A, #1B1B1B);*/
-/*    padding:       .5rem 1rem;*/
-/*    border-radius: .75rem;*/
-/*    box-shadow:    .25rem .25rem .5rem #131313, -.25rem -.25rem .5rem #2F2F2F;*/
-/*    line-height:   1;*/
-/*}*/
+.date-time {
+    font-family:   "Quantico", sans-serif;
+    display:       inline-flex;
+    align-items:   center;
+    gap:           .75rem;
+    background:    linear-gradient(145deg, #2A2A2A, #1B1B1B);
+    padding:       .5rem 1rem;
+    border-radius: .75rem;
+    box-shadow:    .25rem .25rem .5rem #131313, -.25rem -.25rem .5rem #2F2F2F;
+    line-height:   1;
+}
 
-/*.date-time {*/
-/*    display:        flex;*/
-/*    !*flex-direction: column;*!*/
-/*    align-items:    center;*/
-/*    gap:            0.35rem;*/
-/*    background:     linear-gradient(145deg, #2A2A2A, #1B1B1B);*/
-/*    padding:        .75rem 1rem;*/
-/*    border-radius:  .75rem;*/
-/*    box-shadow:     .25rem .25rem .5rem #131313, -.25rem -.25rem .5rem #2F2F2F;*/
-/*}*/
+.date-time {
+    display:        flex;
+    !*flex-direction: column;*!
+    align-items:    center;
+    gap:            0.35rem;
+    background:     linear-gradient(145deg, #2A2A2A, #1B1B1B);
+    padding:        .75rem 1rem;
+    border-radius:  .75rem;
+    box-shadow:     .25rem .25rem .5rem #131313, -.25rem -.25rem .5rem #2F2F2F;
+}
 
-/*!* subtle divider line to separate venue from datetime *!*/
-/*.venue-line {*/
-/*    margin-top:  .35rem;*/
-/*    padding-top: .35rem;*/
-/*    border-top:  1px solid rgba(255, 255, 255, 0.08);*/
-/*    font-family: "Quantico", sans-serif;*/
-/*    font-size:   clamp(.85rem, 1vw + .2rem, 1rem);*/
-/*    color:       #CFCFCF;*/
-/*    display:     flex;*/
-/*    align-items: center;*/
-/*    gap:         .5rem;*/
-/*    opacity:     0.9;*/
-/*    transition:  all .25s ease;*/
-/*}*/
+!* subtle divider line to separate venue from datetime *!
+.venue-line {
+    margin-top:  .35rem;
+    padding-top: .35rem;
+    border-top:  1px solid rgba(255, 255, 255, 0.08);
+    font-family: "Quantico", sans-serif;
+    font-size:   clamp(.85rem, 1vw + .2rem, 1rem);
+    color:       #CFCFCF;
+    display:     flex;
+    align-items: center;
+    gap:         .5rem;
+    opacity:     0.9;
+    transition:  all .25s ease;
+}
 
-/*!* icon and text glow interaction *!*/
-/*.venue-line i {*/
-/*    font-size:  .9rem;*/
-/*    opacity:    .8;*/
-/*    color:      #9D00FF;*/
-/*    transition: color .25s ease, text-shadow .25s ease;*/
-/*}*/
+!* icon and text glow interaction *!
+.venue-line i {
+    font-size:  .9rem;
+    opacity:    .8;
+    color:      #9D00FF;
+    transition: color .25s ease, text-shadow .25s ease;
+}
 
-/*.venue-line:hover {*/
-/*    color:       #F5F5F5;*/
-/*    text-shadow: 0 0 .25rem rgba(255, 255, 255, .5), 0 0 .75rem rgba(157, 0, 255, .4);*/
-/*}*/
+.venue-line:hover {
+    color:       #F5F5F5;
+    text-shadow: 0 0 .25rem rgba(255, 255, 255, .5), 0 0 .75rem rgba(157, 0, 255, .4);
+}
 
-/*.venue-line:hover i {*/
-/*    color:       #E0CFFF;*/
-/*    text-shadow: 0 0 .3rem #9D00FF, 0 0 .6rem #9D00FF;*/
-/*}*/
+.venue-line:hover i {
+    color:       #E0CFFF;
+    text-shadow: 0 0 .3rem #9D00FF, 0 0 .6rem #9D00FF;
+}
 
-/*.venue-name {*/
-/*    letter-spacing: .04em;*/
-/*    text-transform: uppercase;*/
-/*}*/
+.venue-name {
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}*/
 
 .acts {
     display:        flex;
@@ -1615,16 +1644,16 @@ nav.navbar {
                         rgba(8, 8, 8, .24) 64%,
                         rgba(8, 8, 8, 0) 100%
                 );
-    /*background: linear-gradient(*/
-    /*                    180deg,*/
-    /*                    rgba(8, 8, 8, .56) 0%,*/
-    /*                    rgba(8, 8, 8, .48) 16%,*/
-    /*                    rgba(8, 8, 8, .36) 32%,*/
-    /*                    rgba(8, 8, 8, .20) 48%,*/
-    /*                    rgba(8, 8, 8, .12) 64%,*/
-    /*                    rgba(8, 8, 8, .04) 80%,*/
-    /*                    rgba(8, 8, 8, 0) 100%*/
-    /*            );*/
+/*    background: linear-gradient(
+                        180deg,
+                        rgba(8, 8, 8, .56) 0%,
+                        rgba(8, 8, 8, .48) 16%,
+                        rgba(8, 8, 8, .36) 32%,
+                        rgba(8, 8, 8, .20) 48%,
+                        rgba(8, 8, 8, .12) 64%,
+                        rgba(8, 8, 8, .04) 80%,
+                        rgba(8, 8, 8, 0) 100%
+                );*/
 
 }
 
@@ -1638,9 +1667,9 @@ nav.navbar {
     flex-direction: column;
     align-items:    center;
     gap:            .5rem;
-    /*padding-top:    min(calc(var(--q-clear) * var(--q-rot-frac)), 20vh);*/
-    /*padding-bottom: clamp(1rem, 3vmin, 2.5rem);*/
-    /*min-height:     calc(var(--q-clear) * (.56) + 5rem);*/
+   /* padding-top:    min(calc(var(--q-clear) * var(--q-rot-frac)), 20vh);
+    padding-bottom: clamp(1rem, 3vmin, 2.5rem);
+    min-height:     calc(var(--q-clear) * (.56) + 5rem);*/
 
     padding-top:    calc(var(--q-clear) * .48 + max(0px, calc(var(--q-rise) * -1)));
     padding-bottom: clamp(1rem, calc(var(--vh) * 3), 2.5rem);
@@ -1661,8 +1690,8 @@ nav.navbar {
                             rgba(8, 8, 8, .96) 100%
                     );
 
-    /*padding-block:  clamp(1rem, 1vh, 2rem);*/
-    /*min-height:     clamp(64px, calc(4vh + 2rem), 128px);*/
+    /*padding-block:  clamp(1rem, 1vh, 2rem);
+    min-height:     clamp(64px, calc(4vh + 2rem), 128px);*/
 }
 
 /*.about-fade-bridge {
@@ -1764,8 +1793,8 @@ nav.navbar {
 
 .about-quote-rotator .quote-source {
     margin:         .25rem 0 0;
-    /*font-family:    "Exo 2", sans-serif;*/
-    /*font-family:    "zai AEG Mignon Typewriter 1924", sans-serif;*/
+/*    font-family:    "Exo 2", sans-serif;
+    font-family:    "zai AEG Mignon Typewriter 1924", sans-serif;*/
     font-family:    "Syne Mono", monospace;
     font-size:      clamp(1.25rem, 1.5vmin, 1.5rem);
     line-height:    1.25;

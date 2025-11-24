@@ -1,11 +1,12 @@
 # hr_access/admin.py
 
 from django.contrib import admin, messages
+from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from .forms import CustomUserChangeForm, CustomUserCreationForm
-from .models import User
+from hr_access.forms import CustomUserChangeForm, CustomUserCreationForm
 
+User = get_user_model()
 
 @admin.register(User)
 class CustomUserAdmin(BaseUserAdmin):
@@ -16,14 +17,14 @@ class CustomUserAdmin(BaseUserAdmin):
     list_display = ["email", "username", 'role', "is_superuser", "is_staff", 'is_active']
     list_filter = ['role', 'is_superuser', 'is_staff', 'is_active']
 
-    fieldsets = BaseUserAdmin.fieldsets + (
+    fieldsets = (
         (None, {
             'fields': ('username', 'email', 'password'),
         }),
         ('Role & Status', {
             'fields': ('role', 'is_active'),
         }),
-        ('Permissions (role based', {
+        ('Permissions (role based)', {
             'fields': ('is_staff', 'is_superuser', 'groups'),
         }),
         ('Important dates', {
@@ -51,13 +52,13 @@ class CustomUserAdmin(BaseUserAdmin):
             old = UserModel.objects.get(pk=obj.pk)
 
             demoting_from_admin = (
-                old.role == User.Role.GLOBAL_ADMIN and
-                obj.role != User.Role.GLOBAL_ADMIN
+                old.role == UserModel.Role.GLOBAL_ADMIN and
+                obj.role != UserModel.Role.GLOBAL_ADMIN
             )
 
             if demoting_from_admin:
                 has_other_admin = UserModel.objects.exclude(pk=obj.pk).filter(
-                    role=User.Role.GLOBAL_ADMIN,
+                    role=UserModel.Role.GLOBAL_ADMIN,
                     is_active=True,
                 ).exists()
 

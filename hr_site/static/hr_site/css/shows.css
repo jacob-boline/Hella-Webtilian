@@ -1,0 +1,408 @@
+/* ===========================
+   Shows / Concert cards
+   =========================== */
+
+/* Container holding one or more concert cards */
+.concert-card-container {
+    display:         flex;
+    flex-direction:  column;
+    align-items:     center;
+    justify-content: center;
+    gap:             6rem;
+    padding:         2rem;
+    width:           80vw;
+    min-width:       400px;
+}
+
+@media (max-width: 600px) {
+    .concert-card-container {
+        gap:       2rem;
+        padding:   1rem 1rem 3rem;
+        width:     92vw;
+        min-width: 0;
+    }
+}
+
+/* Main card layout */
+.concert-card {
+    font-family:           "Megrim", cursive;
+    display:               grid;
+    grid-template-columns: 1fr; /* mobile-first */
+    gap:                   1rem;
+    align-items:           center;
+
+    background:            linear-gradient(145deg, var(--card-bg-1), var(--card-bg-2));
+    border-radius:         .75rem;
+    color:                 #F0F0F0;
+    box-shadow:
+        8px 8px 16px #131313,
+        -8px -8px 16px #2F2F2F;
+
+    padding:               1.25rem clamp(.75rem, 2vw, 1.5rem);
+    max-width:             clamp(320px, 92vw, 1600px);
+    width:                 100%;
+}
+
+/* Optional semantic hook (you use card-left on the date col) */
+.card-left {
+    /* no layout rules needed; .date-panel handles styling */
+}
+
+/* Left date/venue panel */
+.date-panel {
+    background:    linear-gradient(145deg, var(--panel-bg), #ECEFF3);
+    border-radius: .75rem;
+    padding:       1rem 1rem 1.125rem;
+    color:         var(--ink-900);
+    box-shadow:
+        inset .45rem .45rem 1rem var(--panel-lo),
+        inset -.45rem -.45rem 1rem var(--panel-hi),
+        0 .25rem .75rem rgba(0, 0, 0, .15);
+}
+
+.date-block {
+    display:        flex;
+    flex-direction: column;
+    gap:            .35rem;
+    font-family:    "Quantico", sans-serif;
+    line-height:    1;
+}
+
+.date-panel .month {
+    font-size:      clamp(1.25rem, 2.6vw, 2.2rem);
+    font-weight:    800;
+    letter-spacing: .06em;
+}
+
+.date-panel .dowday {
+    font-size:   clamp(1rem, 2vw, 1.5rem);
+    font-weight: 700;
+    color:       var(--ink-700);
+}
+
+.date-panel .dow {
+    margin-right: .35rem;
+}
+
+.date-panel .day {
+    font-variant-numeric: tabular-nums;
+}
+
+.date-panel .time {
+    margin-top:  .35rem;
+    font-size:   clamp(.95rem, 1.8vw, 1.25rem);
+    font-weight: 700;
+    color:       var(--ink-900);
+}
+
+.date-panel .venue {
+    margin-top:     .35rem;
+    font-size:      clamp(.8rem, 1.4vw, 1rem);
+    letter-spacing: .06em;
+    color:          var(--muted);
+    text-transform: uppercase;
+}
+
+
+/* Center block – acts list */
+.card-center {
+    display:         flex;
+    justify-content: center;
+}
+
+.acts {
+    display:        flex;
+    flex-direction: column;
+    align-items:    center;
+    gap:            .75rem;
+}
+
+/* Act name with neon-ish hover */
+.act-name {
+    font-size:   2rem;
+    font-weight: 700;
+    color:       #9D00FF;
+    text-shadow:
+        0 0 4px rgba(255, 255, 255, .4),
+        0 0 12px rgba(255, 255, 255, .3);
+
+    will-change: filter, opacity, text-shadow, transform;
+    transition:
+        transform .125s ease,
+        color .125s ease,
+        text-shadow .125s ease;
+}
+
+.act-name:hover {
+    color:       var(--neon-color);
+    text-shadow:
+        0 0 .25rem currentColor,
+        0 0 .5rem rgba(255, 255, 255, 0.8),
+        0 0 1rem currentColor,
+        0 0 2rem currentColor,
+        0 0 4rem currentColor,
+        0 0 8rem currentColor;
+
+    transform:   scale(1.0625);
+    animation:   neon-sequence var(--neon-duration) infinite alternate;
+}
+
+/* Neon flicker sequence */
+@keyframes neon-sequence {
+    0% {
+        opacity:     1;
+        filter:      brightness(1.25);
+        text-shadow:
+            0 0 5px currentColor,
+            0 0 15px currentColor,
+            0 0 30px currentColor,
+            0 0 60px currentColor,
+            0 0 120px currentColor;
+    }
+    6% {
+        opacity:     .64;
+        filter:      brightness(.75);
+        text-shadow:
+            0 0 3px currentColor,
+            0 0 10px currentColor;
+    }
+    8% {
+        opacity: 1;
+        filter:  brightness(1.25);
+    }
+    10% {
+        opacity:     .64;
+        filter:      brightness(.75);
+        text-shadow:
+            0 0 4px currentColor,
+            0 0 12px currentColor;
+    }
+    12% {
+        opacity: 1;
+        filter:  brightness(1.2);
+    }
+    15% {
+        opacity: .6;
+        filter:  brightness(.7);
+    }
+    20% {
+        opacity: 1;
+        filter:  brightness(1.2);
+    }
+    22% {
+        opacity:     .6;
+        filter:      brightness(.7);
+        text-shadow:
+            0 0 3px currentColor,
+            0 0 10px currentColor;
+    }
+    24% {
+        opacity:     1;
+        filter:      brightness(1.2);
+        text-shadow:
+            0 0 5px currentColor,
+            0 0 15px currentColor,
+            0 0 30px currentColor,
+            0 0 60px currentColor,
+            0 0 120px currentColor;
+    }
+    27% {
+        opacity:     .6;
+        filter:      brightness(.7);
+        text-shadow:
+            0 0 3px currentColor,
+            0 0 10px currentColor;
+    }
+    28% {
+        opacity: 1;
+        filter:  brightness(1.2);
+    }
+    30% {
+        opacity: .55;
+        filter:  brightness(.7);
+    }
+    32% {
+        opacity: 1;
+        filter:  brightness(1.25);
+    }
+    35% {
+        opacity: .6;
+        filter:  brightness(.75);
+    }
+    36% {
+        opacity: 1;
+        filter:  brightness(1.25);
+    }
+    40% {
+        opacity: .6;
+        filter:  brightness(.75);
+    }
+    46% {
+        opacity: 1;
+        filter:  brightness(1.25);
+    }
+    60% {
+        opacity: 1;
+        filter:  brightness(1.35);
+    }
+    61% {
+        opacity: .92;
+        filter:  brightness(1.15);
+    }
+    62% {
+        opacity: 1;
+        filter:  brightness(1.35);
+    }
+    70% {
+        opacity: .95;
+        filter:  brightness(1.15);
+    }
+    71% {
+        opacity: 1;
+        filter:  brightness(1.35);
+    }
+    77% {
+        opacity: .92;
+        filter:  brightness(1.20);
+    }
+    78% {
+        opacity: 1;
+        filter:  brightness(1.25);
+    }
+    80% {
+        opacity: .6;
+        filter:  brightness(.75);
+    }
+    82% {
+        opacity: 1;
+        filter:  brightness(1.25);
+    }
+    88% {
+        opacity: .6;
+        filter:  brightness(.75);
+    }
+    90% {
+        opacity: 1;
+        filter:  brightness(1.25);
+    }
+    96% {
+        opacity: .6;
+        filter:  brightness(.75);
+    }
+    100% {
+        opacity: 1;
+        filter:  brightness(1.25);
+    }
+}
+
+
+/* Right column – actions */
+.card-right {
+    display:         flex;
+    justify-content: flex-end;
+}
+
+/* Show-specific button styling
+   (merch buttons use .outline / .buy-cyan and are handled in merch.css) */
+.card-button:not(.outline):not(.buy-cyan) {
+    font-size:       1.75rem;
+    font-weight:     700;
+    font-family:     "Bungee Hairline", sans-serif;
+
+    display:         flex;
+    align-items:     center;
+    gap:             .75rem;
+    padding:         .5rem 1rem;
+
+    border-radius:   .75rem;
+    text-decoration: none;
+
+    color:           #BFBFBF;
+    background:      linear-gradient(145deg, #2A2A2A, #1B1B1B);
+    box-shadow:
+        .25rem .25rem .5rem #131313,
+        -.25rem -.25rem .5rem #2F2F2F;
+
+    transition:      all .25s ease;
+}
+
+.card-button:not(.outline):not(.buy-cyan):hover {
+    color:       #F5F5F5;
+    text-shadow:
+        0 0 .25rem rgba(255, 255, 255, .6),
+        0 0 .5rem rgba(255, 255, 255, .4),
+        0 0 .75rem rgba(200, 200, 255, .4);
+
+    background:  linear-gradient(145deg, #2F2F2F, #1C1C1C);
+    transform:   translateY(-2px);
+    box-shadow:
+        .25rem .25rem .75rem #131313,
+        -.25rem -.25rem .75rem #2F2F2F;
+}
+
+.card-button:not(.outline):not(.buy-cyan):active {
+    color:       #E0E0E0;
+    text-shadow: none;
+
+    background:  linear-gradient(145deg, #262626, #1A1A1A);
+    transform:   translateY(1px);
+    box-shadow:
+        inset .25rem .25rem .5rem #131313,
+        inset -.25rem -.25rem .5rem #2F2F2F;
+}
+
+
+/* ===========================
+   Responsive layout
+   =========================== */
+
+/* Large screens: three columns — date / acts / CTA */
+@media (min-width: 1024px) {
+    .concert-card {
+        grid-template-columns: 1fr 2.25fr auto; /* ~25% / ~55% / auto */
+        align-items:           stretch;
+    }
+
+    .date-panel {
+        height: 100%;
+    }
+
+    .card-center {
+        justify-content: center;
+    }
+}
+
+/* Tablets: 3 columns but looser proportions */
+@media (min-width: 720px) and (max-width: 1023.98px) {
+    .concert-card {
+        grid-template-columns: 1.2fr 2fr auto;
+    }
+}
+
+/* Mobile: CTA full-width at bottom */
+@media (max-width: 719.98px) {
+    .card-right {
+        justify-content: stretch;
+    }
+
+    .card-button:not(.outline):not(.buy-cyan) {
+        width:           100%;
+        justify-content: center;
+    }
+}
+
+
+/* ===========================
+   Reduced motion
+   =========================== */
+
+@media (prefers-reduced-motion: reduce) {
+    .act-name,
+    .card-button {
+        transition: none;
+    }
+
+    .act-name:hover {
+        animation: none;
+    }
+}
