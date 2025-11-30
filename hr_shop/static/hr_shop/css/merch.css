@@ -1,0 +1,262 @@
+/* ===========================
+   Merch section wrapper
+   =========================== */
+
+.merch-section {
+  --accent-neon: #39ff14;
+  --accent-neon-glow: rgba(57, 255, 20, 0.55);
+}
+
+/* Responsive grid for merch cards */
+.merch-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+
+  padding: 2rem;
+  padding-inline: clamp(16px, 6vw, 32px);
+}
+
+@media (min-width: 640px) {
+  .merch-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    padding-inline: clamp(1.5rem, 6vw, 2rem);
+  }
+}
+
+@media (min-width: 1024px) {
+  .merch-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+    padding-inline: clamp(2rem, 6vw, 3rem);
+  }
+}
+
+@media (min-width: 1200px) {
+  .merch-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+    padding-inline: clamp(3rem, 6vw, 4rem);
+  }
+}
+
+/* ===========================
+   Merch cards
+   =========================== */
+
+.merch-card {
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+
+  color: #f0f0f0;
+
+  background: linear-gradient(
+    145deg,
+    rgba(14, 22, 16, 0.75),
+    rgba(4, 6, 8, 0.92)
+  );
+  box-shadow:
+    0 0 2rem rgba(0, 0, 0, 0.75),
+    0 0 1.5rem rgba(0, 255, 180, 0.08),
+    inset 0 0 0.75rem rgba(0, 255, 120, 0.04);
+
+  transition:
+    box-shadow 0.5s ease,
+    transform 0.25s ease;
+}
+
+/* product image area */
+.merch-img {
+  cursor: pointer;
+
+  position: relative;
+
+  overflow: hidden;
+
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.75rem;
+
+  background: #111;
+}
+
+.merch-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.merch-img:hover img {
+  transform: scale(1.0625);
+}
+
+.merch-img:focus-visible {
+  border-radius: 0.75rem;
+  outline: 2px solid var(--accent-neon);
+  box-shadow: 0 0 0 0.25rem rgba(57, 255, 20, 0.25);
+}
+
+/* name + price row */
+.merch-meta {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0.75rem 0.75rem 0;
+}
+
+/* small note: your HTML uses class="march-price" – probably
+   you want .merch-price for this to apply */
+.merch-title,
+.merch-price {
+  font-family: "Megrim", cursive;
+  font-size: 1.5rem;
+  color: #c6ffd0;
+  text-shadow: 0 0 0.5rem rgba(57, 255, 20, 0.22);
+}
+
+.merch-price {
+  font-weight: 700;
+}
+
+/* buttons row under each card */
+.merch-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+/* the base .card-btn layout lives in shows.css; this is just tweaks */
+.card-btn i {
+  margin-right: 0.5rem;
+}
+
+/* ===========================
+   Neon action buttons
+   (Details = cyan outline, Buy = lime)
+   =========================== */
+
+/* CYAN variant (DETAILS) */
+.card-btn.outline {
+  --btn-fill1: #00f2fe;
+  --btn-fill2: #00d4ff;
+  --btn-text: #06171a;
+  --btn-ring: rgba(0, 245, 255, 0.55);
+  --btn-ring-strong: rgba(0, 245, 255, 0.65);
+  --btn-glow-outer-base: rgba(0, 245, 255, 0.35);
+  --btn-glow-outer-hover: rgba(0, 245, 255, 0.45);
+  --btn-hover-text: #9afaff;
+  --btn-focus-glow: rgba(0, 245, 255, 0.3);
+  --btn-icon-glow: #00d4ff;
+}
+
+/* LIME variant (BUY) */
+.card-btn.buy-cyan {
+  --btn-fill1: #b8ff5e;
+  --btn-fill2: #39ff14;
+  --btn-text: #000;
+  --btn-ring: rgba(102, 255, 51, 0.55);
+  --btn-ring-strong: rgba(102, 255, 51, 0.85);
+  --btn-glow-outer-base: rgba(57, 255, 20, 0.35);
+  --btn-glow-outer-hover: rgba(57, 255, 20, 0.45);
+  --btn-hover-text: #eaffeA;
+  --btn-focus-glow: rgba(57, 255, 20, 0.35);
+  --btn-icon-glow: #39ff14;
+}
+
+/* shared neon button styling */
+.card-btn.outline,
+.card-btn.buy-cyan {
+  position: relative;
+
+  padding: 0.5rem 1rem;
+  border: 1px solid #000;
+  border-radius: 0.75rem;
+
+  font-family: "Quantico", sans-serif;
+  font-weight: 700;
+  color: var(--btn-text);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.125rem;
+
+  background: linear-gradient(180deg, var(--btn-fill1), var(--btn-fill2));
+  background-clip: padding-box;
+  box-shadow:
+    0 0 1rem var(--btn-glow-outer-base),
+    4px 4px 8px #131313,
+    -4px -4px 8px #2f2f2f,
+    inset 0 -2px 0 rgba(0, 0, 0, 0.25);
+
+  transition:
+    transform 0.125s ease,
+    filter 0.125s ease,
+    box-shadow 0.125s ease,
+    background 0.125s ease,
+    color 0.125s ease;
+}
+
+/* inner ring */
+.card-btn.outline::after,
+.card-btn.buy-cyan::after {
+  pointer-events: none;
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  border-radius: inherit;
+
+  box-shadow: inset 0 0 0 2px var(--btn-ring);
+
+  transition: box-shadow 0.125s ease;
+}
+
+/* hover: turn into inset glassy + outer glow */
+.card-btn.outline:hover,
+.card-btn.buy-cyan:hover {
+  transform: translateY(-2px);
+
+  border-color: var(--btn-ring-strong);
+
+  color: var(--btn-hover-text);
+  text-shadow:
+    0 0 8px #fff,
+    0 0 16px var(--btn-icon-glow);
+
+  background: rgba(0, 0, 0, 0.72);
+  box-shadow:
+    inset 4px 4px 8px #131313,
+    inset -4px -4px 8px #2f2f2f,
+    0 0 24px var(--btn-glow-outer-hover),
+    4px 4px 16px #131313,
+    -4px -4px 16px #2f2f2f;
+}
+
+.card-btn.outline:hover::after,
+.card-btn.buy-cyan:hover::after {
+  box-shadow: inset 0 0 0 2px var(--btn-ring-strong);
+}
+
+/* pressed */
+.card-btn.outline:active,
+.card-btn.buy-cyan:active {
+  transform: translateY(0);
+  box-shadow:
+    inset 4px 4px 8px #131313,
+    inset -4px -4px 8px #2f2f2f;
+}
+
+/* focus ring */
+.card-btn.outline:focus-visible,
+.card-btn.buy-cyan:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 4px rgba(255, 255, 255, 0.2),
+    0 0 0 8px var(--btn-focus-glow);
+}

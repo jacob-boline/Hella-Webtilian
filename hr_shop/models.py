@@ -25,6 +25,7 @@ class Product(models.Model):
     slug = models.SlugField(max_length=220, unique=True, blank=True)
     description = models.TextField(blank=True, null=True)
     image = models.ImageField(upload_to='products/', blank=True, null=True)
+    active = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -62,10 +63,28 @@ class ProductOptionType(models.Model):
     name = models.CharField(max_length=50)  # e.g. 'Size'
     code = models.SlugField(max_length=50)  # e.g. 'size', 'color', 'format'
     position = models.PositiveIntegerField(default=0)
+    active = models.BooleanField(default=False)
 
     class Meta:
         unique_together = [('product', 'code')]
         ordering = ['position', 'id']
+
+    def save(self, *args, **kwargs):
+        if self.position in (0, None):
+            existing = (
+                ProductOptionType.objects
+                .filter(product=self.product)
+                .exclude(id=self.id)
+                .values_list('position', flat=True)
+            )
+
+            used = set(existing)
+            pos = 1
+            while pos in used:
+                pos += 1
+            self.position = pos
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.product.name} - {self.name}'
@@ -79,10 +98,28 @@ class ProductOptionValue(models.Model):
     name = models.CharField(max_length=50)  # e.g. 'Black', 'XL'
     code = models.SlugField(max_length=50)  # e.g. 'black', 'xl'
     position = models.PositiveIntegerField(default=0)
+    active = models.BooleanField(default=False)
 
     class Meta:
         unique_together = [('option_type', 'code')]
         ordering = ['position', 'id']
+
+    def save(self, *args, **kwargs):
+        if self.position in (0, None):
+            existing = (
+                ProductOptionValue.objects
+                .filter(option_type=self.option_type)
+                .exclude(id=self.id)
+                .values_list('position', flat=True)
+            )
+
+            used = set(existing)
+            pos = 1
+            while pos in used:
+                pos += 1
+            self.position = pos
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.option_type.name}: {self.name}'
@@ -96,6 +133,7 @@ class ProductVariant(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0'))])
     is_primary = models.BooleanField(default=False, help_text="If set, this variant will be used as the product default/display variant.")
     option_values = models.ManyToManyField(ProductOptionValue, through='ProductVariantOption', related_name='variants', blank=True)
+    active = models.BooleanField(default=False)
 
     # size = model.CharField(max_length=16, blank=True, choices=[
     #     ('XS', 'XS'),
@@ -107,7 +145,6 @@ class ProductVariant(models.Model):
     # ])
 
     # color = models.CharField(max_length=32, blank=True, choices=[])
-
 
     class Meta:
         constraints = [
@@ -153,6 +190,7 @@ class InventoryItem(models.Model):
 
 class Price(models.Model):
     pass
+
 
 class Customer(models.Model):
     email = models.EmailField(blank=False, null=False, unique=False, validators=[EmailValidator()])

@@ -7,7 +7,7 @@
 
 {% block content %}
 
-    <div id="section-wipe-0" class="section-wipe z-20 absolute" style="background-image: url('{% static "hr_site/img/wipe/bryan-goff-we1ky8_ZTHg-unsplash.jpg" %}');"></div>
+    <div id="section-wipe-0" class="section-wipe z-20 absolute"></div>
 
     <section id="parallax-section-shows" class="parallax-section relative flex items-center justify-center min-h-vhfix">
         <div class="parallax-background absolute inset-0 bg-cover bg-center"></div>
@@ -16,49 +16,7 @@
 
             {% if shows %}
                 {% for show in shows %}
-                    {% if forloop.first %}
-                        <div class="concert-card">
-                            <div class="card-left date-panel" aria-label="Show date, time, and venue">
-                                <div class="date-block">
-                                    <div class="month">
-                                        {{ show.date|date:"M"|upper }}
-                                    </div>
-                                    <div class="dowday">
-                                        <span class="dow">{{ show.date|date:"D"|upper }}</span>
-                                        <span class="day">{{ show.date|date:"j" }}</span>
-                                    </div>
-                                    <div class="time">
-                                        {{ show.time|time:"g:i A" }}
-                                    </div>
-                                    <div class="venue">
-                                        {{ show.venue.name }}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="card-center">
-                                <div class="acts">
-                                    {% for act in show.lineup.all %}
-                                        <div class="act-name">{{ act.name }}</div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-
-                            <div class="card-right">
-                                {% if show.venue.address %}
-                                    {% with addr=show.venue.address %}
-                                        <a class="card-button"
-                                           href="https://www.google.com/maps/search/?api=1&query={{ addr.street_address }} {{ addr.city }} {{ addr.subdivision }} {{ addr.postal_code }}|urlencode"
-                                           target="_blank" rel="noopener">
-                                            <i class="fas fa-map-marked-alt"></i> Directions
-                                        </a>
-                                    {% endwith %}
-                                {% endif %}
-                            </div>
-                        </div>
-                    {% else %}
-                        {% include "hr_live/_concert_card.html" with show=show %}
-                    {% endif %}
+                    {% include "hr_live/_concert_card.html" with show=show %}
                 {% endfor %}
             {% else %}
                 <p class="opacity-70 italic">
@@ -81,7 +39,7 @@
                         <button class="merch-img"
                                 aria-label="Open details for {{ product.name }}"
 
-                                hx-get="{% url 'hr_shop:get_product_modal_partial' product_slug=product.slug %}"
+                                hx-get="{% url "hr_shop:get_product_modal_partial" product_slug=product.slug %}"
                                 hx-target="#modal-content"
                                 hx-swap="innerHTML"
                                 hx-on::after-request="document.getElementById('modal').classList.remove('hidden');
@@ -89,7 +47,7 @@
                             {% if product.image %}
                                 <img src="{{ product.image.url }}" alt="{{ product.name }}">
                             {% else %}
-                                <img src="{% static 'hr_shop/img/merch/placeholder.png' %}" alt="{{ product.name }}">
+                                <img src="{{ MEDIA_URL }}hr_shop/poster-neon_pastel.png" alt="{{ product.name }}">
                             {% endif %}
                         </button>
 
@@ -105,8 +63,8 @@
                         </div>
 
                         <div class="merch-actions">
-                            <button class="card-button outline"
-                                    hx-get="{% url 'hr_shop:product_modal_partial' product_slug=product.slug  %}"
+                            <button class="card-btn outline"
+                                    hx-get="{% url "hr_shop:get_product_modal_partial" product_slug=product.slug  %}"
                                     hx-target="#modal-content"
                                     hx-swap="innerHTML"
                                     hx-on::after-request="document.getElementById('modal').classList.remove('hidden');
@@ -142,35 +100,19 @@
                             known by the name of Hella Reptilian!
                         </p>
                     </div>
-
-                    <div id="about-carousel-container"
-                         hx-get="{% url 'hr_about:get_carousel_partial' %}"
-                         hx-trigger="load"
-                         hx-swap="innerHTML">
-                        <div class="about-gallery loading-state">
-                            <p>Loading photos</p>
-                        </div>
+                    <div id="about-carousel-container">
+                        {% include "hr_about/_about_carousel.html" with slides=slides %}
                     </div>
-
                 </div>
             </div>
 
             <div class="about-quote-wrap">
                 <div class="about-fade-bridge" aria-hidden="true"></div>
-                <div id="about-quotes-container"
-                     hx-get="{% url 'hr_about:get_quotes_partial' %}"
-                     hx-trigger="load"
-                     hx-swap="innerHTML">
-
-                    <div class="about-quotes loading-state">
-                        <div class="about-quote-rotator">
-                            <p class="quote-text">Loading quotes...</p>
-                            <p class="quote-source"></p>
-                        </div>
-                    </div>
-
+                <div id="about-quotes-container">
+                    {% include "hr_about/_about_quotes.html" with quotes=quotes %}
                 </div>
             </div>
+
         </div>
     </section>
 
@@ -194,107 +136,4 @@
 
 {% endblock content %}
 
-{% block extra_scripts %}
-
-    {# about data for quote rotator (only needed on this page) #}
-    {% get_static_prefix as sp %}
-    <script id="about-data" type="application/json">
-    [
-      {"src": "{{ sp }}hr_site/img/about/HR_AMST_1.JPG", "alt": "Hammer of the Deep",         "quote": "\"You are audible!\"",                                      "source": "William Murderface"},
-      {"src": "{{ sp }}hr_site/img/about/HR_AMST_2.JPG", "alt": "Herald of the Maw",          "quote": "\"Some of my finest work, honestly I might have peaked.\"", "source": "God"},
-      {"src": "{{ sp }}hr_site/img/about/HR_AMST_3.JPG", "alt": "Architect of the Maelstrom", "quote": "\"They sang as they slew.\"",                               "source": "J.R.R. Tolkien"},
-      {"src": "{{ sp }}hr_site/img/about/HR_AMST_4.JPG", "alt": "Breaker of the Sky",         "quote": "\"These guys fucking rock!\"",                              "source": "Mr. Rogers"}
-    ]
-    </script>
-
-    <script src="{% static 'hr_site/index.js' %}"></script>
-
-    <script defer>
-        document.addEventListener('DOMContentLoaded', () => {
-            const dataEl = document.getElementById('about-data');
-            if (!dataEl) return;
-
-            let items;
-            try {
-                items = JSON.parse(dataEl.textContent || '[]');
-            } catch {
-                items = [];
-            }
-
-            const quotes = items.map(x => {
-                const quote = (x?.quote ?? '').toString().trim();
-                const source = (x?.source ?? '').toString().trim();
-                return quote ? {quote, source} : null;
-            }).filter(Boolean);
-
-            const quoteBox = document.querySelector('#about-quotes .quote-text');
-            const sourceBox = document.querySelector('#about-quotes .quote-source');
-
-            if (quotes.length && quoteBox && sourceBox) {
-                let i = 0;
-                const delay = 5000;
-                const show = (idx) => {
-                    quoteBox.classList.remove('is-visible');
-                    sourceBox.classList.remove('is-visible');
-                    requestAnimationFrame(() => {
-                        setTimeout(() => {
-                            quoteBox.textContent = quotes[idx].quote;
-                            sourceBox.textContent = quotes[idx].source ? `— ${quotes[idx].source}` : '';
-                            if (quotes[idx].quote) quoteBox.classList.add('is-visible');
-                            if (quotes[idx].source) sourceBox.classList.add('is-visible');
-                        }, 120);
-                    });
-                };
-
-                const next = () => {
-                    i = (i + 1) % quotes.length;
-                    show(i);
-                };
-
-                show(i);
-                let timer = setInterval(next, delay);
-
-                const rot = document.querySelector('#about-quotes .about-quote-rotator');
-                if (rot) {
-                    rot.addEventListener('mouseenter', () => clearInterval(timer));
-                    rot.addEventListener('mouseleave', () => {
-                        timer = setInterval(next, delay);
-                    });
-                }
-            }
-        });
-    </script>
-
-    {# existing Stripe handler (you can swap this for the mock later) #}
-    <script defer>
-        const stripe = Stripe("pk_test_XXXXYOUR_PUBLISHABLE_KEY");
-
-        function handleStripeResult (result) {
-            if (result.error) {
-                console.error(result.error.message);
-                alert(result.error.message);
-            }
-        }
-
-        document.addEventListener('click', (e) => {
-            const btn = e.target.closest('[data-buy]');
-            if (!btn) return;
-
-            const priceId = btn.dataset.priceId;
-            const qty = parseInt(btn.dataset.qty || '1', 10);
-
-            if (!priceId) {
-                console.warn('Missing data-price-id on buy button');
-                return;
-            }
-
-            stripe.redirectToCheckout({
-                lineItems: [{price: priceId, quantity: qty}],
-                mode: 'payment',
-                successUrl: window.location.origin + '/checkout/success?session_id={CHECKOUT_SESSION_ID}',
-                cancelUrl: window.location.origin + '/checkout/cancel'
-            }).then(handleStripeResult);
-        });
-    </script>
-
-{% endblock extra_scripts %}
+{% block extra_scripts %}{% endblock extra_scripts %}

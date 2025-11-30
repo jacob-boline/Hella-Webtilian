@@ -8,10 +8,10 @@
 
         {% if slides %}
             {% with first=slides.0 %}
-                <img class="aboout-stage-img" src="{{ first.image.url }}" alt="{{ first.title }}">
+                <img class="about-stage-img" src="{{ first.image.url }}" alt="{{ first.title }}">
             {% endwith %}
         {% else %}
-            <img class="about-stage-image" src="" alt="No images available">
+            <img class="about-stage-img" src="" alt="No images available">
         {% endif %}
 
         <button class="about-nav next" aria-label="Next image">
@@ -26,7 +26,7 @@
 
         <ul class="about-thumbs" role="tablist">
             {% for slide in slides %}
-                <li role="tab">
+                <li>
                     <button
                             class="about-thumb{% if forloop.first %} is-active{% endif %}"
                             type="button"

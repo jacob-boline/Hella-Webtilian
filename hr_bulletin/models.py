@@ -59,7 +59,6 @@ class Post(models.Model):
     def is_published(self):
         return self.status == 'published' and (not self.publish_at or self.publish_at <= timezone.now())
 
-
     def save(self, *args, **kwargs):
         sync_slug_from_source(self, self.title, slug_field_name="slug", allow_update=True, max_length=220)
         super().save(*args, **kwargs)

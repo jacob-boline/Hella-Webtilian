@@ -2,161 +2,113 @@
    Banner / Navbar
    =========================== */
 
-/* If you ever use a <nav class="navbar"> wrapper */
-nav.navbar {
-    position: fixed;
-}
-
 /* Main banner strip at the top */
 #banner {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    height: calc(var(--vh) * 10);
+  position: fixed;
+  top: 0;
 
-    background: #000;
-    color: darkorange;
-    text-align: left;
+  width: 100%;
+  height: calc(var(--vh) * 10);
 
-    /* you still get padding from .px-4 via utilities.css */
-    transition: all 3s ease;
+  color: darkorange;
+  text-align: left;
+
+  background: #000;
+
+  /* you still get padding from .px-4 via utilities.css */
+  transition: all 3s ease;
 }
 
 /* rows inside banner */
 #banner .row,
 #banner .row .banner-row {
-    height: calc(var(--vh) * 6);
+  height: calc(var(--vh) * 6);
 }
 
 .banner-row:nth-of-type(2) {
-    background-color: transparent;
+  background-color: transparent;
 }
 
 /* Tall black strip used to “scroll past” banner */
 #banner-scroller {
-    width: 100%;
-    height: calc(var(--vh) * 180);
-    background: #000;
+  width: 100%;
+  height: calc(var(--vh) * 180);
+  background: #000;
 }
-
 
 /* ===========================
    Animated banner letters
    =========================== */
 
-.banner-letter {
-    display: inline-block;
-    font-size: 6vmin;
-    font-family: "KARNIVBL", display, serif;
+.banner-row > span {
+  display: inline-block;
 
-    color: darkorange;
-    opacity: 0;
+  font-family: "KARNIVBL", display, serif;
+  font-size: 6vmin;
+  color: darkorange;
 
-    transition:
-        color 0.5s ease,
-        opacity 0.5s ease-out;
+  opacity: 0;
+
+  transition:
+    color 0.5s ease,
+    opacity 0.5s ease-out;
 }
 
 /* used for the first letter + JS visibility */
-.banner-letter.blink,
-.banner-letter.is-visible {
-    opacity: 1;
+.banner-row > span.blink,
+.banner-row > span.is-visible {
+  opacity: 1;
 }
 
 /* glowing “burn” animation when triggered */
-.banner-letter.burn {
-    animation: letter-glow 1.25s ease both;
+.banner-row > span.burn {
+  animation: letter-glow 1.25s ease both;
 }
 
-.banner-letter:hover {
-    color: cyan;
-    text-shadow: 0 0 1rem #FFF;
-    transition: all 0.25s ease;
+.banner-row > span:hover {
+  color: cyan;
+  text-shadow: 0 0 1rem #fff;
+  transition: all 0.25s ease;
 }
 
 /* fade-out state */
-.banner-letter.is-fading {
-    opacity: 0;
-    transition: opacity 2.5s ease;
+.banner-row > span.is-fading {
+  opacity: 0;
+  transition: opacity 2.5s ease;
 }
 
 @keyframes letter-glow {
-    0% {
-        opacity:     0;
-        text-shadow: 0 0 1px rgba(255, 255, 255, .1);
-    }
-    66% {
-        opacity:     1;
-        text-shadow: 0 0 .75rem rgba(255, 255, 255, .9);
-    }
-    77% {
-        opacity: 1;
-    }
-    100% {
-        opacity:     .5;
-        text-shadow: 0 0 .75rem rgba(255, 255, 255, 0);
-    }
-}
+  0% {
+    text-shadow: 0 0 1px rgba(255, 255, 255, 0.1);
+    opacity: 0;
+  }
 
+  66% {
+    text-shadow: 0 0 0.75rem rgba(255, 255, 255, 0.9);
+    opacity: 1;
+  }
+
+  77% {
+    opacity: 1;
+  }
+
+  100% {
+    text-shadow: 0 0 0.75rem rgba(255, 255, 255, 0);
+    opacity: 0.5;
+  }
+}
 
 /* ===========================
    Generic blinking cursor-ish
    =========================== */
 
 @keyframes blinker {
-    50% {
-        opacity: 0;
-    }
+  50% {
+    opacity: 0;
+  }
 }
 
 .blink {
-    display: inline-block;
-    animation: blinker 2.5s ease-in-out infinite;
-}
-
-
-/* ===========================
-   Section <h1> title glow
-   (used in multiple parallax sections)
-   =========================== */
-
-#parallax-section-1 h1,
-#parallax-section-2 h1,
-#parallax-section-about h1,
-#parallax-section-merch h1,
-#parallax-section-shows h1,
-#parallax-section-bulletin h1 {
-    font-family:    "Exo 2", sans-serif;
-    font-size:      clamp(3rem, 5vmin, 4rem);
-    font-weight:    700;
-    text-transform: uppercase;
-
-    color:          #F5F5F5;
-    text-align:     center;
-    line-height:    1.125;
-    letter-spacing: .25em;
-
-    margin:         0 0 .75rem;
-
-    text-shadow:
-        0 0 4px rgba(255, 255, 255, .6),
-        0 0 16px rgba(255, 255, 255, .4),
-        0 0 24px rgba(200, 200, 255, .4);
-
-    animation: pulse-glow 2.5s infinite ease-in-out;
-}
-
-@keyframes pulse-glow {
-    0%, 100% {
-        text-shadow:
-            0 0 .25rem rgba(255, 255, 255, .6),
-            0 0 .75rem rgba(255, 255, 255, .4),
-            0 0 1.5rem rgba(200, 200, 255, .4);
-    }
-    50% {
-        text-shadow:
-            0 0 .75rem rgba(255, 255, 255, .8),
-            0 0 1.5rem rgba(255, 255, 255, .6),
-            0 0 3rem rgba(200, 200, 255, .6);
-    }
+  display: inline-block;
+  animation: blinker 2.5s ease-in-out infinite;
 }

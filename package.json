@@ -1,37 +1,26 @@
 {
   "name": "hella-webtilian",
   "version": "1.0.0",
-  "main": "index.js",
-  "description": "",
-  "dependencies": {
-    "create-stylelint": "^0.4.0"
-  },
-  "devDependencies": {
-    "autoprefixer": "^10.4.22",
-    "concurrently": "^9.2.1",
-    "cssnano": "^7.1.2",
-    "postcss": "^8.5.6",
-    "postcss-cli": "^11.0.1",
-    "postcss-import": "^16.1.1"
-  },
+  "description": "Hella Reptilian band site / Django SPA",
+  "private": true,
+
   "scripts": {
-    "css:dev": "postcss hr_site/static/hr_site/css/app.css -o hr_site/static/hr_site/build.css --watch",
-    "css:build": "postcss hr_site/static/hr_site/css/app.css -o hr_site/static/hr_site/build.css",
-    "django:run": "python manage.py runserver 0.0.0.0:8000",
-    "django:lr": "python manage.py livereload",
-    "dev:all": "concurrently -k -n CSS,DJANGO,LR -c blue,green,magenta \"npm:css:dev\" \"npm:django:run\" \"npm:django:lr\"",
-    "dev": "npm run css:dev",
-    "build": "npm run css:build"
+    "django:run": "uv run manage.py runserver 0.0.0.0:8000",
+    "django:lr": "uv run manage.py livereload",
+    "dev": "concurrently -k -n DJANGO,LR -c green,magenta \"npm:django:run\" \"npm:django:lr\"",
+    "lint:css": "stylelint \"**/*.css\"",
+    "lint:css:fix": "stylelint \"**/*.css\" --fix"
+
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/yc5424tl/hella-webtilian.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/yc5424tl/hella-webtilian/issues"
-  },
-  "homepage": "https://github.com/yc5424tl/hella-webtilian#readme"
+
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+
+    "stylelint": "^16.26.0",
+    "stylelint-order": "^7.0.0",
+    "stylelint-use-nesting": "^6.0.0",
+    "stylelint-plugin-defensive-css": "^1.0.4",
+    "stylelint-config-clean-order": "^8.0.0",
+    "stylelint-config-alphabetical-order": "^1.0.0"
+  }
 }

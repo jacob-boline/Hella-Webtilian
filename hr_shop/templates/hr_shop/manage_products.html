@@ -1,6 +1,6 @@
 {# hr_shop/templates/manage_products.html #}
 
-{% extends "base.html" %}
+{% extends "hr_site/base.html" %}
 {% load static %}
 
 {% block content %}
@@ -9,7 +9,7 @@
     <section class="pm-column pm-products">
         <h2>Products</h2>
         <div id="pm-product-list"
-             hx-get="{% url 'hr_shop:get_manage_product_list_partial' %}"
+             hx-get="{% url 'hr_shop:get_product_list_partial' %}"
              hx-trigger="load"
              hx-target="#pm-product-list"
              hx-swap="innerHTML">

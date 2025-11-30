@@ -1,9 +1,12 @@
-/* app.css (or build.css if you want to keep the name) */
-@import "./utilities.css";
-@import "./core.css";
-@import "./parallax.css";
-@import "./banner.css";
-@import "./drawer.css";
-@import "./shows.css";
-@import "./merch.css";
-@import "./about.css";
+/* hr_site/static/hr_site/css/app.css */
+
+@import url("/static/hr_site/css/utilities.css");
+@import url("/static/hr_site/css/core.css");
+@import url("/static/hr_site/css/parallax.css");
+@import url("/static/hr_site/css/banner.css");
+@import url("/static/hr_site/css/drawer.css");
+@import url("/static/hr_live/css/shows.css");
+@import url("/static/hr_shop/css/merch.css");
+@import url("/static/hr_about/css/about.css");
+@import url("/static/hr_about/css/carousel.css");
+

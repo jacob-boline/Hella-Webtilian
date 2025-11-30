@@ -20,11 +20,6 @@ def index(request):
     })
 
 
-# -------------------------------------------------------------------
-# HTMX: /about/partial/carousel
-# -------------------------------------------------------------------
-
-
 def display_message_box_modal(request, *args, **kwargs):
     """
     Generic HTMX-friendly message box for the modal.
@@ -57,8 +52,7 @@ def display_message_box_modal(request, *args, **kwargs):
 
     return render(request, "hr_site/display_message_box_modal.html", context)
 
-
- # # ------------------------------------------------------------------
+    # ------------------------------------------------------------------
     # # Confirmation when removing superuser / global admin privileges
     # # ------------------------------------------------------------------
     # def save_modal(self, request, obj, form, change):
@@ -115,85 +109,3 @@ def display_message_box_modal(request, *args, **kwargs):
     #             return render(request, "hr_access/confirm_superuser_removal.html", context)
     #
     #     super().save_model(request, obj, form, change)
-
-
-# def about_carousel_partial(request):
-#     """
-#     Returns the active carousel slides as an HTML fragment
-#     """
-#     slides = CarouselSlide.objects.filter(is_active=True).order_by('order', 'id')
-#     context = {
-#         'slides': slides
-#     }
-#     return render(request, 'hr_site/partials/carousel.html', context)
-#
-#
-# # -------------------------------------------------------------------
-# # HTMX: /about/partial/quotes
-# # -------------------------------------------------------------------
-#
-# def about_quotes_partial(request):
-#     """
-#     Returns the active pull quotes as an HTML fragment.
-#     """
-#     quotes = PullQuote.objects.filter(is_active=True).order_by("order", "id")
-#
-#     context = {
-#         "quotes": quotes,
-#     }
-#     return render(request, 'hr_site/partials/quotes.html', context)
-#
-#
-# # -------------------------------------------------------------------
-# # JSON helpers
-# # -------------------------------------------------------------------
-#
-# def _serialize_slide(slide: CarouselSlide) -> dict:
-#     return {
-#         "id": slide.id,
-#         "title": slide.title,
-#         "caption": slide.caption,
-#         "image": slide.image.url if slide.image else None,
-#         "order": slide.order,
-#         "is_active": slide.is_active,
-#         "created_at": slide.created_at.isoformat(),
-#         "updated_at": slide.updated_at.isoformat(),
-#     }
-#
-#
-# def _serialize_quote(quote: PullQuote) -> dict:
-#     return {
-#         "id": quote.id,
-#         "text": quote.text,
-#         "attribution": quote.attribution,
-#         "order": quote.order,
-#         "is_active": quote.is_active,
-#         "created_at": quote.created_at.isoformat(),
-#         "updated_at": quote.updated_at.isoformat(),
-#     }
-#
-#
-# # -------------------------------------------------------------------
-# # JSON: /api/about/carousel
-# # -------------------------------------------------------------------
-#
-# def api_about_carousel(request):
-#     """
-#     JSON list of active carousel slides.
-#     """
-#     slides = CarouselSlide.objects.filter(is_active=True).order_by("order", "id")
-#     data = [_serialize_slide(s) for s in slides]
-#     return JsonResponse({"results": data}, status=200)
-#
-#
-# # -------------------------------------------------------------------
-# # JSON: /api/about/quotes
-# # -------------------------------------------------------------------
-#
-# def api_about_quotes(request):
-#     """
-#     JSON list of active pull quotes.
-#     """
-#     quotes = PullQuote.objects.filter(is_active=True).order_by("order", "id")
-#     data = [_serialize_quote(q) for q in quotes]
-#     return JsonResponse({"results": data}, status=200)

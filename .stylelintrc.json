@@ -1,0 +1,25 @@
+{
+  "extends": [
+    "stylelint-config-standard",
+    "stylelint-config-clean-order"
+  ],
+
+  "plugins": [
+    "stylelint-use-nesting",
+    "stylelint-plugin-defensive-css"
+  ],
+
+  "rules": {
+    "alpha-value-notation": null,
+    "color-function-notation": null,
+    "color-function-alias-notation": null,
+    "font-family-name-quotes": null,
+    "selector-class-pattern": null,
+    "comment-empty-line-before": null,
+    "comment-whitespace-inside": null,
+    "media-feature-range-notation": null,
+    "selector-not-notation": null,
+    "value-keyword-case": null,
+    "plugin/use-defensive-css": [true, { "severity":  "warning" }]
+  }
+}

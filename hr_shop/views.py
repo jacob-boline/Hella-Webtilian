@@ -221,6 +221,14 @@ def delete_variant(request, pk):
     return get_manage_product_panel_partial(request, product_pk)
 
 
+def get_merch_grid_partial(request):
+    active_products = Product.objects.filter(Q(active__exact=True)).prefetch_related(
+        'variants__option_values__option_type',
+        'option_type__values'
+    )
+
+
+
 def get_product_modal_partial(request, product_slug):
     product = get_object_or_404(
         Product.objects.prefetch_related(

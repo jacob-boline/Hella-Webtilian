@@ -9,7 +9,7 @@ from imagekit.processors import ResizeToFill
 class CarouselSlide(models.Model):
     title = models.CharField(max_length=255)
     caption = models.TextField(blank=True)
-    image = models.ImageField(upload_to='carousel/')
+    image = models.ImageField(upload_to='hr_about/')
     image_thumb = ImageSpecField(source='image', processors=[ResizeToFill(220, 220)], format='JPEG', options={'quality': 80},)
     order = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)

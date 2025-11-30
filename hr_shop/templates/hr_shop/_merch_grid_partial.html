@@ -23,14 +23,14 @@
             </div>
 
             <div class="merch-actions">
-                <button class="card-button buy-button"
+                <button class="merch-card-btn buy-button"
                         hx-get="{% url 'hr_shop:mock_checkout_dialog' variant_slug=variant.slug %}"
                         hx-target="#modal-message-box"
                         hx-swap="innerHTML">
                     <i class="fas fa-cart-plus"></i> Buy
                 </button>
 
-                <button class="card-button outline"
+                <button class="merch-card-btn outline"
                         hx-get="{% url 'hr_shop:merch_modal_partial' variant_slug=variant.slug %}"
                         hx-target="#modal-message-box"
                         hx-swap="innerHTML">
