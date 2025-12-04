@@ -1,42 +1,61 @@
+{# hr_shop/templates/hr_shop/_merch_grid.html #}
+
+{% load static %}
+{% load shop_tags %}
+
+
 <div id="merch-grid">
-    {% for variant in variants %}
-        <article class="merch-card" data-sku="{{ variant.sku }}">
-            <button class="merch-img"
-                    aria-label="Open details for {{ variant.product.name }}{% if variant.name %} ({{ variant.name }}){% endif %}"
-                    hx-get="{% url 'hr_shop:merch_modal_partial' variant_slug=variant.slug %}"
-                    hx-target="#modal-message-box"
-                    hx-swap="innerHTML">
-                {% if variant.product.image %}
-                    <img src="{{ variant.product.image.url }}"
-                         alt="{{ variant.product.name }}{% if variant.name %} ({{ variant.name }}){% endif %}">
-                {% else %}
-                    <img src="{% static 'hr_site/img/merch/placeholder.png' %}"
-                         alt="{{ variant.product.name }}{% if variant.name %} ({{ variant.name }}){% endif %}">
-                {% endif %}
-            </button>
+    {% for product in products %}
+        {% get_display_variant product as display_variant %}
+        {% if display_variant %}
+            <article class="merch-card" data-sku="{{ display_variant.sku }}">
 
-            <div class="merch-meta">
-                <h3 class="merch-title">
-                    {{ variant.product.name }}{% if variant.name %} ({{ variant.name }}){% endif %}
-                </h3>
-                <div class="merch-price">${{ variant.price }}</div>
-            </div>
-
-            <div class="merch-actions">
-                <button class="merch-card-btn buy-button"
-                        hx-get="{% url 'hr_shop:mock_checkout_dialog' variant_slug=variant.slug %}"
+                {# --- Clickable product image --- #}
+                <button class="merch-img"
+                        aria-label="Open details for {{ product.name }}{% if display_variant.name %} ({{ display_variant.name }}){% endif %}"
+                        hx-get="{% url 'hr_shop:product_modal_partial' product_slug=product.slug %}"
                         hx-target="#modal-message-box"
                         hx-swap="innerHTML">
-                    <i class="fas fa-cart-plus"></i> Buy
+
+                    {% if display_variant.image %}
+                        <img src="{{ display_variant.image }}"
+                             alt="{{ product.name }}{% if display_variant.name %} ({{ display_variant.name }}){% endif %}">
+                    {% else %}
+                        <img src="{% static 'hr_shop/img/placeholder_2.png' %}"
+                             alt="{{ product.name }}{% if display_variant.name %} ({{ display_variant.name }}){% endif %}">
+                    {% endif %}
                 </button>
 
-                <button class="merch-card-btn outline"
-                        hx-get="{% url 'hr_shop:merch_modal_partial' variant_slug=variant.slug %}"
-                        hx-target="#modal-message-box"
-                        hx-swap="innerHTML">
-                    <i class="fas fa-circle-info"></i> Details
-                </button>
-            </div>
-        </article>
+                {# --- Title + Price --- #}
+                <div class="merch-meta">
+                    <h3 class="merch-title">
+                        {{ product.name }}{% if display_variant.name %} ({{ display_variant.name }}){% endif %}
+                    </h3>
+                    <div class="merch-price">
+                        ${{ display_variant.price }}
+                    </div>
+                </div>
+
+                {# --- Buttons: Details on left / Buy on right --- #}
+                <div class="merch-actions">
+
+                    <button class="merch-card-btn outline"
+                            hx-get="{% url 'hr_shop:product_modal_partial' product_slug=product.slug %}"
+                            hx-target="#modal-message-box"
+                            hx-swap="innerHTML">
+                        <i class="fas fa-circle-info"></i> Details
+                    </button>
+
+                    <button class="merch-card-btn buy-button"
+                            hx-post="{% url 'hr_shop:add_to_cart' variant_slug=display_variant.slug %}"
+                            hx-vals='{"quantity": 1}'
+                            hx-swap="none">
+                        <i class="fas fa-cart-plus"></i> Buy
+                    </button>
+
+                </div>
+
+            </article>
+        {% endif %}
     {% endfor %}
 </div>

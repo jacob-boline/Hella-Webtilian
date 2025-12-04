@@ -1,0 +1,12 @@
+# ======================================================
+# Product Seed Configuration
+# ======================================================
+
+Product: "Sticker Set"
+
+description: "A set of stickers for sticking."
+default_price: 20.00
+active: true
+
+option_types:
+  Color: ["Green"]

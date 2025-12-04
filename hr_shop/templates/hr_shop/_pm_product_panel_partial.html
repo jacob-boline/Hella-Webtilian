@@ -51,7 +51,7 @@
         <table class="pm-variant-table">
             <thead>
             <tr>
-                <th>Primary</th>
+                <th>Display Variant (for Product)</th>
                 <th>SKU</th>
                 <th>Name</th>
                 <th>Price</th>
@@ -62,7 +62,7 @@
             <tbody>
             {% for v in variants %}
                 <tr>
-                    <td>{% if v.is_primary %}★{% endif %}</td>
+                    <td>{% if v.is_display_variant %}★{% endif %}</td>
                     <td>{{ v.sku }}</td>
                     <td>{{ v.name }}</td>
                     <td>${{ v.price }}</td>
@@ -95,7 +95,7 @@
             <div>{{ variant_form.sku.label_tag }} {{ variant_form.sku }}</div>
             <div>{{ variant_form.name.label_tag }} {{ variant_form.name }}</div>
             <div>{{ variant_form.price.label_tag }} {{ variant_form.price }}</div>
-            <div>{{ variant_form.is_primary.label_tag }} {{ variant_form.is_primary }}</div>
+            <div>{{ variant_form.is_display_variant.label_tag }} {{ variant_form.is_display_variant }}</div>
             <button type="submit">Add Variant</button>
         </form>
 

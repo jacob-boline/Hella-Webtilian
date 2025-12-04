@@ -1,0 +1,6 @@
+Variant:
+  name: "Black"
+  is_display_variant: false
+
+options:
+  Color: "Black"

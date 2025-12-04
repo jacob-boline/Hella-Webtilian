@@ -1,0 +1,8 @@
+Variant:
+  name: "Crimson"
+  is_display_variant: true
+  share_image_across:
+    - "Size"
+
+options:
+  Color: "Crimson"

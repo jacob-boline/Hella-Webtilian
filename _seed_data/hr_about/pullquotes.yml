@@ -1,0 +1,30 @@
+# ==========================================
+# PullQuote Seed Config
+# ==========================================
+
+quotes:
+
+  - text: "These guys fucking rock."
+    attribution: "Mr. Rogers"
+    order: 1
+    is_active: true
+
+  - text: "They sang as they slew."
+    attribution: "J.R.R. Tolkien"
+    order: 2
+    is_active: true
+
+  - text: "You are audible!"
+    attribution: "William Murderface"
+    order: 3
+    is_active: true
+
+  - text: "You're in a band? That's so cool!"
+    attribution: "Women Everywhere"
+    order: 4
+    is_active: true
+
+  - text: "People say this is when my work peaked for the whole creation thing."
+    attribution: "God"
+    order: 5
+    is_active: true

@@ -1,0 +1,6 @@
+Variant:
+  name: "Neon Pastel"
+  is_display_variant: true
+
+options:
+  Color: "Neon Pastel"

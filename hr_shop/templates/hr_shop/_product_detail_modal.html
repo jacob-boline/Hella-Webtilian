@@ -1,10 +1,16 @@
-{# hr_shop/templates/_product_modal.html #}
+{# hr_shop/templates/_product_detail_modal.html #}
+
+{% load static %}
 
 <div class="modal-content">
     <h3 class="modal-title">{{ product.name }}</h3>
 
-    {% if product.image %}
+    {% if primary_variant.image %}
+        <img src="{{ primary_variant.image.url }}" alt="{{ product.name }}" class="modal-image">
+    {% elif product.image %}
         <img src="{{ product.image.url }}" alt="{{ product.name }}" class="modal-image">
+    {% else %}
+        <img src="{% static 'hr_shop/img/placeholder_2.png' %}" alt="{{ product.name }}" class="modal-image">
     {% endif %}
 
     {% if product.description %}
@@ -19,7 +25,10 @@
                     <select id="opt-{{ opt.code }}" name="opt_{{ opt.code }}" class="modal-select">
                         <option value="">Select {{ opt.name }}</option>
                         {% for val in opt.values.all %}
-                            <option value="{{ val.id }}">{{ val.name }}</option>
+                            <option value="{{ val.id }}"
+                                    {% if opt.default_value_id == val.id %}selected{% endif %}>
+                                {{ val.name }}
+                            </option>
                         {% endfor %}
                     </select>
                 </div>

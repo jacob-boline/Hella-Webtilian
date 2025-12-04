@@ -32,7 +32,8 @@ urlpatterns = [
 
     path('admin/', admin.site.urls),
     path('__debug__/', include('debug_toolbar.urls')),
-    path('favicon.ico', RedirectView.as_view(url=staticfiles_storage.url('hr_site/img/favicon/fav-icon-hr-green.png')))
+    # path('favicon.ico', RedirectView.as_view(url=staticfiles_storage.url('hr_site/img/favicon/fav-icon-hr-green.png')))
+    path("favicon.ico", RedirectView.as_view(url=f"{settings.MEDIA_URL}favicon/fav-icon-hr-green.png", permanent=True)),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:

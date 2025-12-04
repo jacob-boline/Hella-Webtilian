@@ -1,0 +1,13 @@
+# ======================================================
+# Product Seed Configuration
+# ======================================================
+
+Product: "Divine Hoodie"
+
+description: "Holy hoodies. Specifically, four holes."
+default_price: 40.00
+active: true
+
+option_types:
+  Size: ["S", "M", "L", "XL"]
+  Color: ["Cloud", "Open Sky", "Creation"]

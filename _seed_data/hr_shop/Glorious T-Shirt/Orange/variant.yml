@@ -1,0 +1,8 @@
+Variant:
+  name: "Orange"
+  is_display_variant: false
+  share_image_across:
+    - "Size"
+
+options:
+  Color: "Orange"

@@ -1,0 +1,12 @@
+# ======================================================
+# Product Seed Configuration
+# ======================================================
+
+Product: "Side Arm Bazooka"
+
+description: "Truly unique as a statement item. Leave an impact."
+default_price: 79999.00
+active: true
+
+option_types:
+  Color: ["Black", "Camo", "Pink"]

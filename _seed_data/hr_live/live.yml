@@ -1,0 +1,114 @@
+# seed_data/hr_live/live.yml
+
+bookers:
+  - key: "main_booker"
+    first_name: "Jamie"
+    last_name: "Signals"
+    phone_number: "+16125550123"
+    email: "booking@thediveriff.com"
+    note: "Prefers email, hates FB messages."
+
+venues:
+  - name: "The Dive Rift"
+    website: "https://example.com/thediverift"
+    phone_number: "+16125550123"
+    email: "info@thediverift.com"
+    note: "Sticky floors, great sound."
+    bookers: ["main_booker"]
+    address:
+      street_address: "123 W River Rd"
+      city: "Minneapolis"
+      subdivision: "MN"
+      postal_code: "55401"
+      country: "USA"
+
+  - name: "Lizard Lounge"
+    website: "https://example.com/lizardlounge"
+    phone_number: "+16125550124"
+    email: "booking@lizardlounge.com"
+    note: "DIY vibes, cheap beer."
+    bookers: ["main_booker"]
+    address:
+      street_address: "400 Hennepin Ave"
+      city: "Minneapolis"
+      subdivision: "MN"
+      postal_code: "55403"
+      country: "USA"
+
+musicians:
+  - key: "jacob"
+    first_name: "Jacob"
+    last_name: "Boline"
+    phone_number: "+16125550111"
+    email: "jacob@example.com"
+    note: "Guitar / vox"
+
+  - key: "drummer"
+    first_name: "Alex"
+    last_name: "Skins"
+    phone_number: "+16125550112"
+    email: null
+    note: "Drums"
+
+  - key: "bassist"
+    first_name: "Sam"
+    last_name: "Lowend"
+    phone_number: "+16125550113"
+    email: null
+    note: "Bass"
+
+acts:
+  - name: "Hella Reptilian!"
+    website: "https://hellareptilian.com"
+    note: "Main project."
+    members: ["jacob", "drummer", "bassist"]   # musician keys
+    contacts: ["jacob"]
+
+  - name: "Support Band A"
+    website: null
+    note: "Local support."
+    members: ["jacob", "drummer"]
+    contacts: ["jacob"]
+
+  - name: "Support Band B"
+    website: null
+    note: "Touring support."
+    members: ["bassist"]
+    contacts: ["bassist"]
+
+shows:
+  - date: "2025-01-10"
+    time: "21:00"
+    timezone: "America/Chicago"
+    venue: "The Dive Rift"       # match venues.name
+    booker: "main_booker"        # match bookers.key
+    lineup: ["Hella Reptilian!", "Support Band A"]
+    status: "published"
+    image: "show_01.jpg"         # from seed_data/hr_live/show_images/
+
+  - date: "2025-02-15"
+    time: "20:30"
+    timezone: "America/Chicago"
+    venue: "Lizard Lounge"
+    booker: "main_booker"
+    lineup: ["Hella Reptilian!", "Support Band B"]
+    status: "published"
+    image: "show_02.jpg"
+
+  - date: "2025-03-20"
+    time: "19:30"
+    timezone: "America/Chicago"
+    venue: "The Dive Rift"
+    booker: "main_booker"
+    lineup: ["Support Band A", "Hella Reptilian!"]
+    status: "draft"
+    image: null
+
+  - date: "2025-04-05"
+    time: "21:30"
+    timezone: "America/Chicago"
+    venue: "Lizard Lounge"
+    booker: "main_booker"
+    lineup: ["Hella Reptilian!"]
+    status: "published"
+    image: "show_03.jpg"

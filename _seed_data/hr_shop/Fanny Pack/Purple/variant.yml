@@ -1,0 +1,6 @@
+Variant:
+  name: "Purple"
+  is_display_variant: false
+
+options:
+  Color: "Purple"

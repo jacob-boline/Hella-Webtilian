@@ -24,19 +24,37 @@
             <i data-feather="chevron-left"></i>
         </button>
 
-        <ul class="about-thumbs" role="tablist">
-            {% for slide in slides %}
-                <li>
-                    <button
-                            class="about-thumb{% if forloop.first %} is-active{% endif %}"
-                            type="button"
-                            data-src="{{ slide.image.url }}"
-                            data-alt="{{ slide.title|escape }}"
-                            style="background-image: url('{{ slide.image_thumb.url }}');">
-                    </button>
-                </li>
-            {% endfor %}
+        <ul class="about-thumbs">
+          {% for slide in slides %}
+            <li data-index="{{ forloop.counter0 }}">
+              <button
+                type="button"
+                class="about-thumb{% if forloop.first %} is-active{% endif %}"
+                data-src="{{ slide.image.url }}"
+                data-alt="{{ slide.title }}"
+                data-index="{{ forloop.counter0 }}"
+              >
+                <img src="{{ slide.image.url }}" alt="{{ slide.title }}">
+              </button>
+            </li>
+          {% endfor %}
         </ul>
+
+
+{#        <ul class="about-thumbs" role="tablist">#}
+{#            {% for slide in slides %}#}
+{#                <li data-index="{{ forloop.counter0 }}">#}
+{#                    <button#}
+{#                            class="about-thumb{% if forloop.first %} is-active{% endif %}"#}
+{#                            type="button"#}
+{#                            data-index="{{ forloop.counter0 }}"#}
+{#                            data-src="{{ slide.image.url }}"#}
+{#                            data-alt="{{ slide.title|escape }}"#}
+{#                            style="background-image: url('{{ slide.image_thumb.url }}');">#}
+{#                    </button>#}
+{#                </li>#}
+{#            {% endfor %}#}
+{#        </ul>#}
 
         <button class="thumbs-next" aria-label="Next image">
             <i data-feather="chevron-right"></i>

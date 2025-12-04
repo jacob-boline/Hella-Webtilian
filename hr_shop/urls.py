@@ -7,16 +7,15 @@ app_name = 'hr_shop'
 
 urlpatterns = [
 
-# Products
+    # Products
 
     path('<slug:product_slug>/modal/', views.get_product_modal_partial, name='get_product_modal_partial'),
-
     path('manage/', views.product_manager, name='product_manager'),
 
     # Product Management Partials
     path('manage/products/', views.get_manage_product_list_partial, name='get_product_list_partial'),
     path('manage/product/<int:pk>/', views.get_manage_product_panel_partial, name='get_product_panel_partial'),
-    path('manage/option-type/<int:pk>/', views.get_manage_option_type_panel_partial, name='get_option_type_panel_partial'),
+    path('manage/option-type/<int:pk>/', views.get_manage_option_type_panel_partial, name='get_manage_option_type_panel_partial'),
 
     # Product CRUD
     # path('manage/products/create/', views.product_create, name='product_create'),
@@ -36,21 +35,24 @@ urlpatterns = [
     path('manage/product/<int:product_pk>/variant/create/', views.create_variant, name='create_variant'),
     path('manage/variant/<int:pk>/delete/', views.delete_variant, name='delete_variant'),
 
-#     path("shop/", views.shop_product_list, name="product_list"),                                  # SSR
-#     path("shop/partial/products", views.shop_product_list_partial, name="product_list_partial"),  # HTMX
-#     path("api/shop/products", views.api_shop_products, name="api_products"),                      # JSON
-#
-#     path("shop/<slug:product_slug>/", views.shop_product_detail, name="product_detail"),          # SSR
-#     path("shop/partial/<slug:product_slug>/variants", views.shop_variants_partial, name="variants_partial"),  # HTMX
-#     path("api/shop/products/<slug:product_slug>", views.api_shop_product_detail, name="api_product_detail"),  # JSON
-#
-#     # Variants
-#     path("shop/<slug:product_slug>/<slug:variant_slug>/", views.shop_variant_detail, name="variant_detail"),  # SSR
-#     path("shop/partial/<slug:product_slug>/<slug:variant_slug>/card", views.shop_variant_card_partial, name="variant_card_partial"),  # HTMX
-#     path("api/shop/products/<slug:product_slug>/variants/<slug:variant_slug>", views.api_shop_variant_detail, name="api_variant_detail"),  # JSON
-#
-#     # Optional: quick inventory lookup by SKU
-#     path("api/shop/inventory/<str:sku>", views.api_inventory_by_sku, name="api_inventory_by_sku"),
+    path('merch/<slug:product_slug>/modal/', views.get_product_modal_partial, name='product_modal_partial'),
+    path('cart/add/<slug:variant_slug>/', views.add_variant_to_cart, name='add_to_cart'),
+
+    # path("shop/", views.shop_product_list, name="product_list"),                                  # SSR
+    # path("shop/partial/products", views.shop_product_list_partial, name="product_list_partial"),  # HTMX
+    # path("api/shop/products", views.api_shop_products, name="api_products"),                      # JSON
+    #
+    # path("shop/<slug:product_slug>/", views.shop_product_detail, name="product_detail"),          # SSR
+    # path("shop/partial/<slug:product_slug>/variants", views.shop_variants_partial, name="variants_partial"),  # HTMX
+    # path("api/shop/products/<slug:product_slug>", views.api_shop_product_detail, name="api_product_detail"),  # JSON
+    #
+    # # Variants
+    # path("shop/<slug:product_slug>/<slug:variant_slug>/", views.shop_variant_detail, name="variant_detail"),  # SSR
+    # path("shop/partial/<slug:product_slug>/<slug:variant_slug>/card", views.shop_variant_card_partial, name="variant_card_partial"),  # HTMX
+    # path("api/shop/products/<slug:product_slug>/variants/<slug:variant_slug>", views.api_shop_variant_detail, name="api_variant_detail"),  # JSON
+    #
+    # # Optional: quick inventory lookup by SKU
+    # path("api/shop/inventory/<str:sku>", views.api_inventory_by_sku, name="api_inventory_by_sku"),
 
     # path('product/add/<str:encoded_name>/', views.add_product, name='add_product'),
     # path('product/remove/<str:encoded_name>/', views.remove_product, name='remove_product'),

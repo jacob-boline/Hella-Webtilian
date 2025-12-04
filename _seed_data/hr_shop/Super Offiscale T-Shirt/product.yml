@@ -1,0 +1,13 @@
+# ======================================================
+# Product Seed Configuration
+# ======================================================
+
+Product: "Super Offiscale T-Shirt"
+
+description: "An Approved T-Shirt."
+default_price: 30.00
+active: true
+
+option_types:
+  Size: ["S", "M", "L", "XL"]
+  Color: ["Aqua", "Black", "Blue", "Pink"]

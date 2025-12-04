@@ -1,0 +1,6 @@
+Variant:
+  name: "Blue"
+  is_display_variant: false
+
+options:
+  Color: "Blue"

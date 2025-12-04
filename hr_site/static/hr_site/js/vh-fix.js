@@ -1,3 +1,5 @@
+// hr_site/static/js/vh-fix.js
+
 (() => {
     const setVH = () => {
         const vh = (window.visualViewport?.height ?? window.innerHeight) * 0.01;

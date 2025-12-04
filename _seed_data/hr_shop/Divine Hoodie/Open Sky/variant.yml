@@ -1,0 +1,9 @@
+Variant:
+  name: "Open Sky"
+  is_display_variant: true
+  share_image_across:
+    - "Size"
+
+options:
+  Color: "Black"
+

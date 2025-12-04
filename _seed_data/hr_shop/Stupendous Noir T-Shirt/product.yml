@@ -1,0 +1,13 @@
+# ======================================================
+# Product Seed Configuration
+# ======================================================
+
+Product: "Stupendous Noir T-Shirt"
+
+description: "???!!!"
+default_price: 30.00
+active: true
+
+option_types:
+  Size: ["S", "M", "L", "XL"]
+  Color: ["Black Streetlight", "Crimson", "White"]

@@ -1,0 +1,6 @@
+Variant:
+  name: "Neon Black"
+  is_display_variant: false
+
+options:
+  Color: "Neon Black"

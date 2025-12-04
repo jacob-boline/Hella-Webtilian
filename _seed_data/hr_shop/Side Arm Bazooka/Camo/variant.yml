@@ -1,0 +1,6 @@
+Variant:
+  name: "Camo"
+  is_display_variant: true
+
+options:
+  Color: "Camo"

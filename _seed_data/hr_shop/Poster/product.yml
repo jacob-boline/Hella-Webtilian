@@ -1,0 +1,12 @@
+# ======================================================
+# Product Seed Configuration
+# ======================================================
+
+Product: "Poster"
+
+description: "A standard poster. Wall not included."
+default_price: 20.00
+active: true
+
+option_types:
+  Color: ["Neon Black", "Neon Pastel"]

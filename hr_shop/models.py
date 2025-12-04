@@ -1,5 +1,39 @@
 # hr_shop/models.py
 
+"""
+===========================================
+Hella Reptilian Shop Models — Quick Summary
+===========================================
+
+Product:
+    A sellable catalog item (e.g., SHIRT, ALBUM) that groups one or more variants.
+
+ProductVariant:
+    A purchasable variation of a product (e.g., Red XL Shirt) with its own SKU, price,
+    and active flag; optionally marked as the product’s primary/default variant to display in the shop.
+
+ProductOptionType:
+    A per-product attribute category (e.g., Size, Color); may be cloned from an
+    OptionTypeTemplate and may contain multiple ProductOptionValues.
+
+ProductOptionValue:
+    A specific value belonging to an option type (e.g., XL, Black); may be cloned from
+    an OptionValueTemplate; used to construct variant combinations.
+
+OptionTypeTemplate:
+    A reusable, product-agnostic definition of an attribute type (e.g., “Size”) that
+    can be cloned onto products when creating/editing them.
+
+OptionValueTemplate:
+    A reusable, product-agnostic definition of an attribute value (e.g., “XL”) that is
+    cloned into ProductOptionTypes derived from templates.
+
+ProductVariantOption:
+    The join table linking a ProductVariant to the specific ProductOptionValues that
+    define its configuration (e.g., Variant #12 → Size: XL, Color: Black).
+"""
+
+
 from decimal import Decimal
 
 from django.conf import settings
@@ -37,11 +71,11 @@ class Product(models.Model):
     @property
     def display_variant(self):
         """
-        Returns the primary variant if set, otherwise the first variant available.
+        Returns the display variant if set, otherwise the first variant available.
         """
-        primary = self.variants.filter(is_primary=True).first()
-        if primary:
-            return primary
+        display_variant = self.variants.filter(is_display_variant=True).first()
+        if display_variant:
+            return display_variant
         return self.variants.order_by('id').first()
 
     @property
@@ -59,9 +93,9 @@ class ProductOptionType(models.Model):
     """
     Per-product attribute type: e.g. Size, Color, Format
     """
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='option_types', )
-    name = models.CharField(max_length=50)  # e.g. 'Size'
-    code = models.SlugField(max_length=50)  # e.g. 'size', 'color', 'format'
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='option_types', null=True, blank=True)
+    name = models.CharField(max_length=50)
+    code = models.SlugField()
     position = models.PositiveIntegerField(default=0)
     active = models.BooleanField(default=False)
 
@@ -89,6 +123,38 @@ class ProductOptionType(models.Model):
     def __str__(self):
         return f'{self.product.name} - {self.name}'
 
+    # def clone_to_product(self, product, *, include_values=True, code_suffix=None):
+    #     new_code = self.code
+    #     if code_suffix:
+    #         new_code = f'{self.code}-{code_suffix}'
+    #
+    #     base_code = new_code
+    #     counter = 1
+    #     while ProductOptionType.objects.filter(product=product, code=new_code).exists():
+    #         counter += 1
+    #         new_code = f'{base_code}-{counter}'
+    #
+    #     new_type = ProductOptionType.objects.create(
+    #         product=product,
+    #         name=self.name,
+    #         code=new_code,
+    #         position=0,
+    #         active=self.active,
+    #         is_template=False,
+    #     )
+    #
+    #     if include_values:
+    #         for v in self.values.all():
+    #             ProductOptionValue.objects.create(
+    #                 option_type=new_type,
+    #                 name=v.name,
+    #                 code=v.code,
+    #                 position=0,
+    #                 active=getattr(v, 'active', True),
+    #             )
+    #
+    #     return new_type
+
 
 class ProductOptionValue(models.Model):
     """
@@ -96,7 +162,7 @@ class ProductOptionValue(models.Model):
     """
     option_type = models.ForeignKey(ProductOptionType, on_delete=models.CASCADE, related_name='values')
     name = models.CharField(max_length=50)  # e.g. 'Black', 'XL'
-    code = models.SlugField(max_length=50)  # e.g. 'black', 'xl'
+    code = models.SlugField()
     position = models.PositiveIntegerField(default=0)
     active = models.BooleanField(default=False)
 
@@ -124,6 +190,89 @@ class ProductOptionValue(models.Model):
     def __str__(self):
         return f'{self.option_type.name}: {self.name}'
 
+# hr_shop/models.py
+
+
+class OptionTypeTemplate(models.Model):
+    """
+    Reusable option type definition, e.g. 'Size', 'Color', 'Cut'.
+    Not tied to a product. Use active=True to show it in the template picker.
+    """
+    name = models.CharField(max_length=50)
+    code = models.SlugField()
+    position = models.PositiveIntegerField(default=0)
+    active = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = [('code',)]
+        ordering = ['position', 'id']
+
+    def __str__(self):
+        return f"Template: {self.name}"
+
+    def clone_to_product(self, product, *, include_values=True, code_suffix=None):
+        """
+        Create a ProductOptionType + ProductOptionValue set for this product,
+        using this template as the source.
+        """
+
+        # Choose code (allow suffix and avoid collisions on that product).
+        new_code = self.code
+        if code_suffix:
+            new_code = f'{self.code}-{code_suffix}'
+
+        base_code = new_code
+        counter = 1
+        while ProductOptionType.objects.filter(product=product, code=new_code).exists():
+            counter += 1
+            new_code = f'{base_code}-{counter}'
+
+        new_type = ProductOptionType.objects.create(
+            product=product,
+            name=self.name,
+            code=new_code,
+            position=0,         # your save() will autoincrement
+            active=True,
+        )
+
+        if include_values:
+            templates = self.values.all()
+            new_values = []
+            for v in templates:
+                new_values.append(ProductOptionValue(
+                    option_type=new_type,
+                    name=v.name,
+                    code=v.code,
+                    position=0,  # let save() autoincrement, or compute here if you prefer
+                    active=v.active,
+                ))
+            ProductOptionValue.objects.bulk_create(new_values)
+
+        return new_type
+
+
+class OptionValueTemplate(models.Model):
+    """
+    Reusable option value definition, e.g. 'S', 'M', 'L', 'Black', 'Purple'.
+    Tied to an OptionTypeTemplate.
+    """
+    option_type = models.ForeignKey(
+        OptionTypeTemplate,
+        on_delete=models.CASCADE,
+        related_name='values'
+    )
+    name = models.CharField(max_length=50)
+    code = models.SlugField()
+    position = models.PositiveIntegerField(default=0)
+    active = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = [('option_type', 'code')]
+        ordering = ['position', 'id']
+
+    def __str__(self):
+        return f"{self.option_type.name} (template): {self.name}"
+
 
 class ProductVariant(models.Model):
     product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='variants')
@@ -131,9 +280,10 @@ class ProductVariant(models.Model):
     slug = models.SlugField(max_length=160, blank=True)
     name = models.CharField(max_length=128)
     price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0'))])
-    is_primary = models.BooleanField(default=False, help_text="If set, this variant will be used as the product default/display variant.")
+    is_display_variant = models.BooleanField(default=False, help_text="If set, this variant will be used as the product default/display variant.")
     option_values = models.ManyToManyField(ProductOptionValue, through='ProductVariantOption', related_name='variants', blank=True)
     active = models.BooleanField(default=False)
+    image = models.ImageField(upload_to="variants/", blank=True, null=True)
 
     # size = model.CharField(max_length=16, blank=True, choices=[
     #     ('XS', 'XS'),
@@ -149,7 +299,7 @@ class ProductVariant(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['product', 'slug'], name='uq_variant_slug_per_product'),
-            models.UniqueConstraint(fields=['product'], condition=Q(is_primary=True), name='uq_primary_variant_per_product',),
+            models.UniqueConstraint(fields=['product'], condition=Q(is_display_variant=True), name='uq_primary_variant_per_product',),
         ]
 
     def __str__(self):
@@ -257,5 +407,3 @@ class WebhookEvent(models.Model):
     received_at = models.DateTimeField(default=timezone.now)
     processed_at = models.DateTimeField(null=True, blank=True)
     ok = models.BooleanField(default=False)
-
-

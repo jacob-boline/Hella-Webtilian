@@ -1,0 +1,13 @@
+# ======================================================
+# Product Seed Configuration
+# ======================================================
+
+Product: "Glorious T-Shirt"
+
+description: "Don't look in a mirror while wearing or you may be unable look away."
+default_price: 30.00
+active: true
+
+option_types:
+  Size: ["S", "M", "L", "XL"]
+  Color: ["Black", "Gray", "Orange"]

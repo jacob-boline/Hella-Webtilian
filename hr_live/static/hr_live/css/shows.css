@@ -435,6 +435,16 @@
     .directions-btn {
         font-size: 1.2rem;
     }
+
+    .act-name {
+        font-size: 2.0rem;
+    }
+}
+
+@media (min-width: 1440px) {
+    .act-name {
+        font-size: 2.5rem;
+    }
 }
 
 /* Tablets: 3 columns but looser proportions */

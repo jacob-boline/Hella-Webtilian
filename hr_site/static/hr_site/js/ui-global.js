@@ -97,7 +97,8 @@
     });
 
 
-    document.addEventListener('DOMContentLoaded', () => {
+    // document.addEventListener('DOMContentLoaded', () => {
+    function initDrawer() {
         const drawer = document.getElementById('drawer-navigation');
         const openBtn = document.getElementById('nav-open-btn');
         const closeBtn = document.getElementById('nav-close-btn');
@@ -145,7 +146,13 @@
                 closeDrawer();
             }
         });
-    });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initDrawer);
+    } else {
+        initDrawer();
+    }
 
     window.hrSite = window.hrSite || {};
     window.hrSite.hideModal = hideModal;

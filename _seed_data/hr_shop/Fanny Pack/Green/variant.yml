@@ -1,0 +1,6 @@
+Variant:
+  name: "Green"
+  is_display_variant: true
+
+options:
+  Color: "Green"

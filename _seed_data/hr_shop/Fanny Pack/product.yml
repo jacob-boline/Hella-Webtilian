@@ -1,0 +1,12 @@
+# ======================================================
+# Product Seed Configuration
+# ======================================================
+
+Product: "Fanny Pack"
+
+description: "Crafted from the scales of the endangered Bummulus cingulatus"
+default_price: 20.00
+active: true
+
+option_types:
+  Color: ["Blue", "Green", "Purple"]

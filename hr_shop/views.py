@@ -1,6 +1,7 @@
 # hr_shop/views.py
 
 # import json
+import json
 import logging
 # import urllib.parse
 # import stripe
@@ -8,17 +9,49 @@ import logging
 # from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseBadRequest
+from django.http import HttpResponseBadRequest, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 
 from hr_shop.models import Order, Product, ProductVariant, ProductOptionType, ProductOptionValue
 from hr_shop.forms import ProductQuickForm, ProductEditForm, ProductVariantForm, ProductOptionTypeForm, ProductOptionValueForm
-# from hr_shop.cart import Cart
+from hr_shop.cart import add_to_cart
+
 from hr_core.utils.http import is_htmx
+from hr_shop.queries import get_active_product_tree
+
 
 log = logging.getLogger(__name__)
+
+
+def add_variant_to_cart(request, variant_slug):
+    quantity = request.POST.get('quantity', 1)
+
+    cart, variant, line_qty = add_to_cart(request, variant_slug, quantity)
+
+    response = HttpResponse(status=204)
+    response['HX-Trigger'] = json.dumps({
+        'showMessage': {
+            'message': f"Added {variant.product.name} x{line_qty} to cart"
+        }
+    })
+
+    return response
+#
+# def add_to_cart(request, variant_slug):
+#     quantity = int(request.POST.get('quantity', 1))
+#
+#     variant = get_object_or_404(ProductVariant, slug=variant_slug)
+#
+#     cart = get_or_create_cart(request)
+#     cart.add(variant, quantity)
+#
+#     response = HttpResponse(status=204)
+#     response['HX-Trigger'] = json.dumps({
+#         'showMessage': {'message': f"Added {variant.product.name} to cart"}
+#     })
+#     return response
 
 
 @staff_member_required
@@ -35,8 +68,10 @@ def get_manage_product_list_partial(request):
     form = ProductQuickForm()
     return render(
         request,
-        'hr_shop/_pm_product_list.html',
-        {'products': products, 'form': form}
+        'hr_shop/_pm_product_list.html', {
+            'products': products,
+            'form': form
+        }
     )
 
 
@@ -51,12 +86,11 @@ def create_product(request):
 
     products = Product.objects.all().order_by('name')
     form = ProductQuickForm()
-    return render(
-        request,
-        'hr_shop/_pm_product_list.html',
-        {'products': products, 'form': form},
+    return render(request,'hr_shop/_pm_product_list.html', {
+            'products': products,
+            'form': form
+        }
     )
-
 
 
 @staff_member_required
@@ -69,18 +103,14 @@ def get_manage_product_panel_partial(request, pk):
     variant_form = ProductVariantForm()
     option_type_form = ProductOptionTypeForm()
 
-    return render(
-        request,
-        'hr_shop/_pm_product_panel_partial.html',
-        {
-            'product': product,
-            'option_types': option_types,
-            'variants': variants,
-            'product_form': product_form,
-            'variant_form': variant_form,
-            'option_type_form': option_type_form,
-        },
-    )
+    return render(request, 'hr_shop/_pm_product_panel_partial.html', {
+        'product': product,
+        'option_types': option_types,
+        'variants': variants,
+        'product_form': product_form,
+        'variant_form': variant_form,
+        'option_type_form': option_type_form
+    })
 
 
 @staff_member_required
@@ -108,7 +138,7 @@ def get_manage_option_type_panel_partial(request, pk):
         {
             'option_type': opt_type,
             'values': values,
-            'value_form': form,
+            'value_form': form
         }
     )
 
@@ -222,30 +252,73 @@ def delete_variant(request, pk):
 
 
 def get_merch_grid_partial(request):
-    active_products = Product.objects.filter(Q(active__exact=True)).prefetch_related(
-        'variants__option_values__option_type',
-        'option_type__values'
-    )
 
+    products = get_active_product_tree()
+
+    return render(request, 'hr_shop/_merch_grid_partial.html', { 'products': products, })
+
+    # active_option_values_qs = (
+    # ProductOptionValue.objects
+    # .filter(active=True, option_type__active=True, variants__active=True).select_related('option_type').distinct())
+    #
+    #
+    # active_variants_qs = ( ProductVariant.objects.filter(active=True).prefetch_related(Prefetch('option_values', queryset=active_option_values_qs)
+    #
+    # active_option_types_qs = (
+    #                        ProductOptionType.objects.filter(active=True, values__active=True, values__variants__active=True).prefetch_related(Prefetch('values', queryset=active_option_values_qs, to_attr='active values'))
+    #                        )
+    #
+    # return (
+    #     Product.objects
+    #         .filter(active=True)
+    #         .prefetch_related(Prefetch('variants', queryset=active_variants_qs, to_attr='active_variants'), Prefetch('option_types', queryset=active_option_types_qs, to_attr='active_option_types'),)) ))
 
 
 def get_product_modal_partial(request, product_slug):
-    product = get_object_or_404(
-        Product.objects.prefetch_related(
-            'variants__option_values__option_type',
-            'option_types__values',
-        ),
-        slug=product_slug,
-    )
+    product = get_object_or_404(Product, slug=product_slug)
+    option_types = product.option_types.prefetch_related('values')
+    display_variant = product.display_variant
 
-    option_types = list(product.option_types.all().order_by('position'))
-    variants = list(product.variants.all())
+    if display_variant:
+        display_values = display_variant.option_values.select_related('option_type')
 
-    return render(request, 'hr_shop/_product_modal.html', {
+        # map each option type on the product to the option value related to the product's display variant
+        mapping = {
+            ov.option_type_id: ov.option_type_id for ov in display_values
+        }
+
+        for opt in option_types:
+            setattr(opt, 'default_value_id', mapping.get(opt.id))
+
+    context = {
         'product': product,
         'option_types': option_types,
-        'variants': variants,
-    })
+        'display_variant': display_variant
+    }
+
+    return render(request, 'hr_shop/_product_detail_modal.html', context)
+
+
+#
+#
+# def get_product_modal_partial(request, product_slug):
+#     product = get_object_or_404(
+#         Product.objects.filter(active=True).prefetch_related(
+#             'variants__option_values__option_type',
+#             'option_types__values'
+#         ),
+#         slug=product_slug
+#     )
+#
+#     option_types = product.option_types.filter(active=True).order_by('position', 'id').prefetch_related('values')
+#
+#     variants = product.variants.filter(active=True).order_by('id')
+#
+#     return render(request, 'hr_shop/_product_detail_modal.html', {
+#         'product': product,
+#         'option_types': option_types,
+#         'variants': variants
+#     })
 
 
 @login_required
@@ -254,21 +327,34 @@ def orders(request):
           .filter(Q(email=request.user.email) | Q(user=request.user))
           .order_by('-created_at')
           .distinct())
-    ctx = {"orders": qs[:20], "has_more": qs.count() > 20}
+
+    ctx = {
+        "orders": qs[:20],
+        "has_more": qs.count() > 20
+    }
+
+    template = "orders.html"
     if is_htmx(request):
-        return render(request, "account/_orders_modal.html", ctx)
-    return render(request, "account/orders.html", ctx)
+        template = "_orders_modal.html"
+
+    return render(request, f"account/{template}", ctx)
 
 
 @login_required
 def orders_page(request, n: int):
-    per = 20; start = (n-1)*per; end = n*per
+    per = 20
+    start = (n-1)*per
+    end = n*per
+
     qs = (Order.objects
           .filter(Q(email=request.user.email) | Q(user=request.user))
           .order_by('-created_at')
           .distinct())
-    return render(request, "account/_orders_list_items.html",
-                  {"orders": qs[start:end], "has_more": qs.count() > end})
+
+    return render(request, "account/_orders_list_items.html", {
+        "orders": qs[start:end],
+        "has_more": qs.count() > end
+    })
 
 
 @login_required
@@ -278,17 +364,6 @@ def order_detail_modal(request, order_id: int):
         pk=order_id
     )
     return render(request, "account/_order_detail_modal.html", {"order": order})
-
-
-
-
-
-
-
-
-
-
-
 
 
 

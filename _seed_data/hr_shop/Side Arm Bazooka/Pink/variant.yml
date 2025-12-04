@@ -1,0 +1,6 @@
+Variant:
+  name: "Pink"
+  is_display_variant: false
+
+options:
+  Color: "Pink"

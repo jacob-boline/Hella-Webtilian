@@ -135,9 +135,9 @@
 
                 navOpenBtn.style.opacity = btnOpacity.toFixed(3);
 
-                if (btnOpacity < 0.05) {
-                    navOpenBtn.style.pointerEvents = 'none';
-                }
+                // if (btnOpacity < 0.05) {
+                //     navOpenBtn.style.pointerEvents = 'none';
+                // }
             }
         }
 
