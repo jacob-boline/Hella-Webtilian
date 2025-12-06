@@ -1,19 +1,10 @@
 # hr_bulletin/views.py
 
-from typing import Dict, Any
-
-# from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.models import Group
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.http import Http404, HttpResponseBadRequest, JsonResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect, render
+from django.core.paginator import Paginator
+from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
-from django.views.decorators.http import require_GET, require_http_methods
+from django.views.decorators.http import require_GET
 
-# from hr_access.models import User
-
-# from .forms import PostForm
 from hr_bulletin.models import Post
 from hr_core.utils.pagination import paginate
 from hr_core.utils.permissions import is_site_admin
@@ -29,8 +20,9 @@ def bulletin_list(request):
 
 @require_GET
 def bulletin_list_partial(request):
-    qs = Post.objects.frontpage()
-    page_obj = paginate(request, qs, per_page=10)
+    page_number = request.GET.get('page', 1)
+    paginator = Paginator(Post.objects.frontpage(), 3)
+    page_obj = paginator.get_page(page_number)
     ctx = {"page_obj": page_obj, "posts": page_obj.object_list}
     return render(request, "hr_bulletin/_list.html", ctx)
 

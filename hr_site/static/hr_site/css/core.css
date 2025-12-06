@@ -266,3 +266,52 @@ nav.navbar {
       0 0 3rem rgba(200, 200, 255, 0.6);
   }
 }
+
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  pointer-events: none;
+}
+
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  pointer-events: auto;
+  background: radial-gradient(circle at top, rgba(0, 0, 0, 0.55), #000);
+  opacity: 0.9;
+}
+
+.modal-panel {
+  position: relative;
+  z-index: 1001;
+  pointer-events: auto;
+  width: 100%;
+  max-width: min(48rem, calc(100vw - 2 * var(--pad-inline)));
+  max-height: min(80vh, calc(var(--vh) * 80));
+  padding: 1.5rem 1.75rem 1.75rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: radial-gradient(circle at top left, rgba(57, 255, 20, 0.08), rgba(0,0,0,0.96));
+  box-shadow: 0 24px 48px rgba(0,0,0,0.75), 0 0 32px rgba(57, 255, 20, 0.25);
+  overflow-y: auto;
+}
+
+#modal-message-box + #modal-content,
+#modal-content {
+  margin-top: 0.75rem;
+}
+
+.modal.hidden {
+  display: none;
+  pointer-events: none;
+}
+
+

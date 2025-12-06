@@ -1,8 +1,7 @@
 {# hr_bulletin/templates/_post_card.html #}
 
-{# expects 'post' in context #}
-
-<article class="bulletin-post">
+<article class="bulletin-post
+       {% if post.body|length > 260 %}is-collapsible is-collapsed{% endif %}">
 
     {% if post.hero %}
         <div class="bulletin-hero">
@@ -12,7 +11,7 @@
 
     <header class="bulletin-header">
         <h3 class="bulletin-title">
-            <a href="{% url 'bulletin_detail' slug=post.slug  %}">
+            <a href="{% url 'hr_bulletin:bulletin_detail' slug=post.slug  %}">
                 {{ post.title }}
             </a>
         </h3>
@@ -35,6 +34,28 @@
                 </span>
             {% endif %}
         </div>
+
+        {# --- Body preview / full text --- #}
+        {% if post.body %}
+            <div class="bulletin-body">
+                <div class="bulletin-body-inner">
+                    {# render however you normally render body; tweak filter if needed #}
+                    {{ post.body|linebreaksbr }}
+                </div>
+
+                {% if post.body|length > 260 %}
+                    <button type="button"
+                            class="bulletin-toggle"
+                            aria-expanded="false">
+                        <span class="bulletin-gradient"></span>
+                        <span class="bulletin-toggle-label">
+                            Read more
+                            <span class="bulletin-arrow">▾</span>
+                        </span>
+                    </button>
+                {% endif %}
+            </div>
+        {% endif %}
     </header>
 
 </article>

@@ -1,16 +1,14 @@
 # hr_bulletin/urls.py
 
 from django.urls import path
-from . import views
+from hr_bulletin import views
 
 
 app_name = "hr_bulletin"
 
 urlpatterns = [
-    # Public
     path("", views.bulletin_list, name="bulletin_list"),
     path("list/", views.bulletin_list_partial, name="bulletin_list_partial"),
-    # path("api/posts", views.api_bulletin_posts, name="api_bulletin_posts"),
     path("<slug:slug>/", views.bulletin_detail, name="bulletin_detail"),
 
     # # Admin-only CRUD

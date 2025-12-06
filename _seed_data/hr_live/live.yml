@@ -10,7 +10,7 @@ bookers:
 
 venues:
   - name: "The Dive Rift"
-    website: "https://example.com/thediverift"
+    website: "https://rift.com/thediverift"
     phone_number: "+16125550123"
     email: "info@thediverift.com"
     note: "Sticky floors, great sound."
@@ -23,7 +23,7 @@ venues:
       country: "USA"
 
   - name: "Lizard Lounge"
-    website: "https://example.com/lizardlounge"
+    website: "https://super-example.com/lizardlounge"
     phone_number: "+16125550124"
     email: "booking@lizardlounge.com"
     note: "DIY vibes, cheap beer."

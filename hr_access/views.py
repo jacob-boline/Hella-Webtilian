@@ -130,38 +130,10 @@ def user_login(request):
     form = AuthenticationForm(request)
 
     if http.is_htmx(request):
-        return render(
-            request,
-            "hr_access/_sidebar_access.html",
-            {"authentication_form": form},
-        )
+        return render(request, "hr_access/_sidebar_access.html", {"authentication_form": form})
 
     # Normal full-page login view
     return render(request, "hr_access/login.html", {"authentication_form": form})
-
-# def user_login(request):
-#     if request.method == 'POST':
-#         username = request.POST.get('username') or ''
-#         password = request.POST.get('password') or ''
-#         user = authenticate(request=request, username=username, password=password)
-#         if user is not None:
-#             login(request, user)
-#             headers_dict = {'dialogChanged': None,
-#                             'bulletinChanged': None,
-#                             'accessChanged': None,
-#                             'showsChanged': None,
-#                             'showMessage': 'login successful'}
-#             return HttpResponse(status=204, headers={'HX-Trigger': json.dumps(headers_dict)})
-#         else:
-#             form = AuthenticationForm(request, data=request.POST)
-#             messages.info(request, 'No match found for Username/Password')
-#             headers_dict = {'showMessage': 'No match found for Username/Password'}
-#             response = render(request, 'hr_access/login.html', {'authentication_form': form})
-#             response.headers['HX-Trigger'] = json.dumps(headers_dict)
-#             return response
-#     else:
-#         form = AuthenticationForm()
-#         return render(request, 'hr_access/login.html', {'authentication_form': form})
 
 
 def login_success(request):

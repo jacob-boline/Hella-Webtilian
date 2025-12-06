@@ -9,10 +9,10 @@ import logging
 # from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseBadRequest, HttpResponse
-from django.shortcuts import get_object_or_404
-from django.shortcuts import render
+from django.http import HttpResponseBadRequest, HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404, render
 from django.db.models import Q, Prefetch
+from django.views.decorators.http import require_GET
 
 from hr_shop.models import Order, Product, ProductVariant, ProductOptionType, ProductOptionValue
 from hr_shop.forms import ProductQuickForm, ProductEditForm, ProductVariantForm, ProductOptionTypeForm, ProductOptionValueForm
@@ -23,6 +23,63 @@ from hr_shop.queries import get_active_product_tree
 
 
 log = logging.getLogger(__name__)
+
+
+@require_GET
+def product_image_for_selection(request, product_slug):
+    """
+    Given ?ov=<option_value_id>&ov=<option_value_id>...,
+    find the best-matching variant for this product and
+    return its image URL + alt.
+    """
+    product = get_object_or_404(Product, slug=product_slug)
+
+    # Gather selected option value IDs
+    raw_ids = request.GET.getlist("ov")
+    try:
+        selected_ids = {int(x) for x in raw_ids if x}
+    except ValueError:
+        selected_ids = set()
+
+    # Prefetch everything we need
+    variants = (
+        product.variants
+        .select_related("image")
+        .prefetch_related("option_values")
+    )
+
+    chosen_variant = None
+
+    if selected_ids:
+        # Look for the most specific variant whose option_values
+        # set is a superset of the selected IDs.
+        # (If you want strict equality, change the condition.)
+        for v in variants:
+            v_ids = set(v.option_values.values_list("id", flat=True))
+            if selected_ids.issubset(v_ids):
+                chosen_variant = v
+                break
+
+    # Fallbacks
+    if not chosen_variant:
+        chosen_variant = product.display_variant or variants.first()
+
+    img = chosen_variant.resolve_image() if chosen_variant else None
+    if img:
+        return JsonResponse(
+            {
+                "url": img.image.url,
+                "alt": img.alt_text or product.name,
+            }
+        )
+
+    # Final fallback: no image
+    return JsonResponse(
+        {
+            "url": "",
+            "alt": product.name,
+        }
+    )
 
 
 def add_variant_to_cart(request, variant_slug):
@@ -257,22 +314,6 @@ def get_merch_grid_partial(request):
 
     return render(request, 'hr_shop/_merch_grid_partial.html', { 'products': products, })
 
-    # active_option_values_qs = (
-    # ProductOptionValue.objects
-    # .filter(active=True, option_type__active=True, variants__active=True).select_related('option_type').distinct())
-    #
-    #
-    # active_variants_qs = ( ProductVariant.objects.filter(active=True).prefetch_related(Prefetch('option_values', queryset=active_option_values_qs)
-    #
-    # active_option_types_qs = (
-    #                        ProductOptionType.objects.filter(active=True, values__active=True, values__variants__active=True).prefetch_related(Prefetch('values', queryset=active_option_values_qs, to_attr='active values'))
-    #                        )
-    #
-    # return (
-    #     Product.objects
-    #         .filter(active=True)
-    #         .prefetch_related(Prefetch('variants', queryset=active_variants_qs, to_attr='active_variants'), Prefetch('option_types', queryset=active_option_types_qs, to_attr='active_option_types'),)) ))
-
 
 def get_product_modal_partial(request, product_slug):
     product = get_object_or_404(Product, slug=product_slug)
@@ -283,9 +324,7 @@ def get_product_modal_partial(request, product_slug):
         display_values = display_variant.option_values.select_related('option_type')
 
         # map each option type on the product to the option value related to the product's display variant
-        mapping = {
-            ov.option_type_id: ov.option_type_id for ov in display_values
-        }
+        mapping = {ov.option_type_id: ov.id for ov in display_values}
 
         for opt in option_types:
             setattr(opt, 'default_value_id', mapping.get(opt.id))
@@ -297,28 +336,6 @@ def get_product_modal_partial(request, product_slug):
     }
 
     return render(request, 'hr_shop/_product_detail_modal.html', context)
-
-
-#
-#
-# def get_product_modal_partial(request, product_slug):
-#     product = get_object_or_404(
-#         Product.objects.filter(active=True).prefetch_related(
-#             'variants__option_values__option_type',
-#             'option_types__values'
-#         ),
-#         slug=product_slug
-#     )
-#
-#     option_types = product.option_types.filter(active=True).order_by('position', 'id').prefetch_related('values')
-#
-#     variants = product.variants.filter(active=True).order_by('id')
-#
-#     return render(request, 'hr_shop/_product_detail_modal.html', {
-#         'product': product,
-#         'option_types': option_types,
-#         'variants': variants
-#     })
 
 
 @login_required
@@ -334,6 +351,7 @@ def orders(request):
     }
 
     template = "orders.html"
+
     if is_htmx(request):
         template = "_orders_modal.html"
 

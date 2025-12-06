@@ -283,8 +283,10 @@
             if (
                 target.id === 'about-carousel-container' ||
                 target.id === 'about-quotes-container' ||
+                target.id === 'bulletin-root' ||
                 target.closest?.('#about-carousel-container') ||
-                target.closest?.('#about-quotes-container')
+                target.closest?.('#about-quotes-container') ||
+                target.closest?.('#bulletin-root')
             ) {
                 reflowParallax();
             }

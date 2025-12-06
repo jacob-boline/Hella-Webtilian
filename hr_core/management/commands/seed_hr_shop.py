@@ -16,6 +16,7 @@ from hr_shop.models import (
     ProductOptionValue,
     ProductVariant,
     InventoryItem,
+    ProductImage,   # <-- NEW
 )
 
 
@@ -31,7 +32,7 @@ class Command(BaseCommand):
     def _seed_hr_shop(self):
         """
         Seed hr_shop using YAML + images under:
-            seed_data/hr_shop/<ProductName>/
+            _seed_data/hr_shop/<ProductName>/
         """
         self.stdout.write("  → hr_shop…")
 
@@ -78,8 +79,8 @@ class Command(BaseCommand):
             name=product_name,
             defaults={
                 "description": description,
-                "active": active,
-            },
+                "active": active
+            }
         )
         if not created:
             product.description = description
@@ -87,9 +88,6 @@ class Command(BaseCommand):
             product.save(update_fields=["description", "active"])
 
         self.stdout.write(f"    • Seeding product: {product.name}")
-
-        # Attach product hero image: product.*
-        self._attach_product_image(product, product_dir)
 
         # Ensure option types/values from option_types config
         option_cfg = cfg.get("option_types", {}) or {}
@@ -112,7 +110,6 @@ class Command(BaseCommand):
                 product=product,
                 product_option_cfg=option_cfg,
                 vdir=vdir,
-                type_map=type_map,
                 value_map=value_map,
                 default_price=default_price,
                 start_index=next_index,
@@ -173,43 +170,25 @@ class Command(BaseCommand):
     # Variant group seeding (one folder = one image group)
     # ------------------------------------------------------
     def _seed_variant_group_from_folder(
-        self,
-        product,
-        product_option_cfg,
-        vdir: Path,
-        type_map,
-        value_map,
-        default_price: Decimal,
-        start_index: int,
+            self,
+            product,
+            product_option_cfg,
+            vdir: Path,
+            value_map,
+            default_price: Decimal,
+            start_index: int,
     ) -> int:
         """
         Each folder under the product dir like:
 
-            Hella Reptilian Logo Tee/
-              Black/
+            Divine Hoodie/
+              Clouds/
                 variant.yml
-                image.jpg
+                Cloud Hoodie.png
 
         defines a *group* of variants that all share the same image and
-        the same base config, and may fan out across some option types
+        base config, and may fan out across some option types
         (e.g. all Sizes).
-
-        variant.yml example:
-
-            Variant:
-              name: "Black"
-              is_display_variant: true
-              share_image_across:
-                - "Size"
-              # price: 27.00   (optional per-group override)
-
-            options:
-              Color: "Black"
-
-        Meaning:
-          - Fix Color="Black"
-          - Expand across all Size values from product.yml
-          - All Size variants share this folder's image.
         """
         var_yml = vdir / "variant.yml"
         if not var_yml.exists():
@@ -230,13 +209,9 @@ class Command(BaseCommand):
         self.stdout.write(f"      • Variant group: {group_name}")
 
         # Build the expansion spec across option types
-        # product_option_cfg has the "Size: [..]" etc
         type_order = list(product_option_cfg.keys())
 
         # Map of type_name -> list of value names to use in this group
-        # If a type is fixed in options_cfg, use that single value.
-        # If a type is in share_image_across but not fixed, expand across all values.
-        # If a type is in neither, we ignore it for this group (no value).
         dimension_values: dict[str, list[str]] = {}
         for type_name, all_values in product_option_cfg.items():
             if type_name in options_cfg:
@@ -247,14 +222,13 @@ class Command(BaseCommand):
                 # Fan out across all product values for this type
                 dimension_values[type_name] = list(all_values or [])
             else:
-                # No value contributed for this type in this group
+                # No contribution from this type for this group
                 dimension_values[type_name] = []
 
-        # Active dimensions are types that actually vary / contribute
         active_dims = [
             (t, vals)
             for t, vals in dimension_values.items()
-            if vals  # non-empty
+            if vals
         ]
 
         if not active_dims:
@@ -269,8 +243,11 @@ class Command(BaseCommand):
         dim_names = [t for t, _ in active_dims]
         dim_values_lists = [vals for _, vals in active_dims]
 
-        # Load the image file for this group (if any)
+        # --- Create or reuse a ProductImage for this group's image file ---
         group_image_path = self._find_first_image_file(vdir)
+        group_image_obj = None
+        if group_image_path:
+            group_image_obj = self._get_or_create_product_image(group_image_path)
 
         created_variants = []
 
@@ -283,10 +260,7 @@ class Command(BaseCommand):
                 vname = combo.get(tname)
                 if vname:
                     ordered_value_names.append(vname)
-            if ordered_value_names:
-                variant_name = " / ".join(ordered_value_names)
-            else:
-                variant_name = group_name
+            variant_name = " / ".join(ordered_value_names) if ordered_value_names else group_name
 
             # Deterministic SKU: <PRODUCT-SLUG>-NNN
             prod_slug = slugify(product.name)
@@ -299,14 +273,13 @@ class Command(BaseCommand):
                 product=product,
                 sku=sku,
                 defaults={
-                    "name": variant_name,
-                    "price": group_price,
-                    "active": True,
+                    "name":               variant_name,
+                    "price":              group_price,
+                    "active":             True,
                     "is_display_variant": False,
                 },
             )
             if not created:
-                # Keep it in sync lightly
                 variant.name = variant_name
                 if not variant.price:
                     variant.price = group_price
@@ -334,10 +307,10 @@ class Command(BaseCommand):
                 defaults={"on_hand": 25, "reserved": 0},
             )
 
-            # Attach shared image to all variants generated from this group
-            if group_image_path and not variant.image:
-                with group_image_path.open("rb") as f:
-                    variant.image.save(group_image_path.name, File(f), save=True)
+            # 🔴 IMPORTANT: attach the shared group image to this variant
+            if group_image_obj and (created or not variant.image):
+                variant.image = group_image_obj
+                variant.save(update_fields=["image"])
 
             created_variants.append(variant)
 
@@ -361,17 +334,6 @@ class Command(BaseCommand):
     # ------------------------------------------------------
     # Image helpers
     # ------------------------------------------------------
-    @staticmethod
-    def _attach_product_image(product, product_dir: Path):
-        """Attach product hero image from product.* if not already present."""
-        if product.image:
-            return
-        candidates = list(product_dir.glob("product.*"))
-        if not candidates:
-            return
-        img_path = candidates[0]
-        with img_path.open("rb") as f:
-            product.image.save(img_path.name, File(f), save=True)
 
     @staticmethod
     def _find_first_image_file(vdir: Path):
@@ -380,3 +342,26 @@ class Command(BaseCommand):
             if p.is_file() and not p.name.lower().endswith((".yml", ".yaml")):
                 return p
         return None
+
+    @staticmethod
+    def _get_or_create_product_image(img_path: Path) -> ProductImage | None:
+        """
+        Create (or reuse) a ProductImage for a variant group folder.
+
+        For idempotency, we try to reuse by filename:
+          - If a ProductImage already exists whose image name ends with this filename,
+            reuse it.
+          - Otherwise, create a new ProductImage and save the file.
+        """
+        filename = img_path.name
+
+        # Try to reuse an existing ProductImage with the same filename
+        existing = ProductImage.objects.filter(image__endswith=filename).first()
+        if existing:
+            return existing
+
+        img = ProductImage(alt_text=filename)
+        with img_path.open("rb") as f:
+            img.image.save(filename, File(f))
+
+        return img

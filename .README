@@ -23,3 +23,14 @@
 
  ==========================================================================================================
 
+ seed the dev db:
+
+        python manage.py init  (full nuke and rebuild)
+
+        flags (can be combined):
+
+        --no-input (skip confirmation)
+
+        --no-npm   (skips 'npm run dev' which runs the app with livereload)
+
+        --no-seed  (skips seeding/populating the DB)

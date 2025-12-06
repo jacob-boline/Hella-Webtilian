@@ -13,11 +13,11 @@
   grid-template-columns: 1fr;
   gap: 1rem;
 
-  padding: 2rem;
+  padding: 2rem 0;
   padding-inline: clamp(16px, 6vw, 32px);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .merch-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.75rem;
@@ -25,7 +25,7 @@
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1280px) {
   .merch-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.5rem;
@@ -33,7 +33,7 @@
   }
 }
 
-@media (min-width: 1280px) {
+@media (min-width: 1440px) {
   .merch-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1.5rem;
@@ -300,4 +300,230 @@
   box-shadow:
     0 0 0 4px rgba(255, 255, 255, 0.2),
     0 0 0 8px var(--btn-focus-glow);
+}
+
+
+/* ===========================
+   Merch modal – expanded card
+   =========================== */
+
+.merch-modal {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1.75fr);
+  gap: 1.5rem;
+  align-items: flex-start;
+
+  /* reuse card feel inside the modal panel */
+  color: #f0f0f0;
+}
+
+@media (max-width: 768px) {
+  .merch-modal {
+    grid-template-columns: 1fr;
+  }
+}
+
+.merch-modal-media {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.modal-image {
+  display: block;
+  width: 100%;
+  max-width: 20rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+
+  background: #111;
+  box-shadow:
+    0 0 2rem rgba(0, 0, 0, 0.75),
+    0 0 1.5rem rgba(0, 255, 180, 0.12),
+    inset 0 0 0.75rem rgba(0, 255, 120, 0.06);
+}
+
+/* right side column */
+
+.merch-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  text-align: left;
+}
+
+.modal-title {
+  margin: 0;
+  font-family: "Megrim", cursive;
+  font-size: 1.75rem;
+  letter-spacing: 0.08em;
+  color: var(--glow);
+  text-shadow: 0 0 0.5rem darkorange;
+}
+
+.modal-description {
+  margin: 0.25rem 0 0.75rem;
+  font-family: "Exo 2", sans-serif;
+  font-size: 0.98rem;
+  line-height: 1.6;
+  color: #e5e7eb;
+}
+
+/* options */
+
+.modal-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.modal-variant-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.modal-variant-group label {
+  font-family: "Quantico", sans-serif;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #cbd5f5;
+}
+
+.modal-select {
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.4rem;
+  border: 1px solid rgba(148, 163, 184, 0.8);
+  background: rgba(15, 23, 42, 0.95);
+  color: #e5e7eb;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.95rem;
+}
+
+/* buttons row */
+
+.modal-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.modal-buttons .buy-button {
+  /* already inherits neon from .card-btn.buy-cyan */
+}
+
+@media (max-width: 640px) {
+  .modal-buttons {
+    justify-content: center;
+  }
+}
+
+/* ===========================
+   Product modal layout
+   =========================== */
+
+.modal-product {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  color: #f0f0f0;
+  background: linear-gradient(
+    145deg,
+    rgba(14, 22, 16, 0.9),
+    rgba(4, 6, 8, 0.98)
+  );
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow:
+    0 0 2rem rgba(0, 0, 0, 0.85),
+    0 0 1.5rem rgba(0, 255, 180, 0.12),
+    inset 0 0 0.75rem rgba(0, 255, 120, 0.06);
+}
+
+@media (min-width: 768px) {
+  .modal-product {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
+.modal-product-media {
+  flex: 0 0 40%;
+  max-width: 18rem;
+  margin-inline: auto;
+}
+
+@media (min-width: 768px) {
+  .modal-product-media {
+    margin-inline: 0;
+  }
+}
+
+.modal-image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  object-fit: cover;
+  background: #000;
+  box-shadow: 0 0 1.5rem rgba(0, 0, 0, 0.75);
+}
+
+.modal-product-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.modal-title {
+  margin: 0;
+  font-family: "Megrim", cursive;
+  font-size: 1.75rem;
+  color: var(--glow);
+  text-shadow: 0 0 0.5rem darkorange;
+}
+
+.modal-description {
+  margin: 0.25rem 0 0.5rem;
+  font-family: "Exo 2", sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #e5e7eb;
+}
+
+.modal-variant-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+.modal-variant-group label {
+  font-family: "Quantico", sans-serif;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #a5b4fc;
+}
+
+.modal-select {
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.4rem;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  background: rgba(15, 23, 42, 0.9);
+  color: #e5e7eb;
+  font-size: 0.9rem;
+}
+
+.modal-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
 }

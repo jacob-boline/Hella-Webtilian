@@ -22,7 +22,7 @@ class Command(BaseCommand):
     # hr_live seeding
     # ==============================
     def _seed_hr_live(self):
-        base = Path(settings.BASE_DIR) / "seed_data" / "hr_live"
+        base = Path(settings.BASE_DIR) / "_seed_data" / "hr_live"
         if not base.exists():
             self.stdout.write(
                 self.style.WARNING(f"  → No seed_data/hr_live directory found at {base}")
@@ -297,7 +297,7 @@ class Command(BaseCommand):
                 )
                 continue
 
-            website = a.get("website") or ""
+            website = a.get("website") or f"band{acts_cfg.index(a)}.com"
             note = a.get("note") or ""
 
             act, created = Act.objects.get_or_create(
@@ -363,7 +363,7 @@ class Command(BaseCommand):
         """
         self.stdout.write("    • Seeding Shows…")
 
-        images_dir = base / "show_images"
+        # images_dir = base / "show_images"
 
         for s in shows_cfg:
             date_str = s.get("date")
@@ -373,7 +373,7 @@ class Command(BaseCommand):
             booker_key = s.get("booker")
             lineup_names = s.get("lineup") or []
             status = s.get("status") or "draft"
-            image_name = s.get("image")
+            # image_name = s.get("image")
 
             if not (date_str and time_str and venue_name):
                 self.stdout.write(
@@ -450,15 +450,15 @@ class Command(BaseCommand):
                     show.lineup.add(act)
 
             # Attach image if provided
-            if image_name and images_dir.exists():
-                image_path = images_dir / image_name
-                if image_path.exists():
-                    if not show.image:
-                        with image_path.open("rb") as f:
-                            show.image.save(image_path.name, File(f), save=True)
-                else:
-                    self.stdout.write(
-                        self.style.WARNING(
-                            f"      (Show image '{image_name}' not found in {images_dir}.)"
-                        )
-                    )
+            # if image_name and images_dir.exists():
+            #     image_path = images_dir / image_name
+            #     if image_path.exists():
+            #         if not show.image:
+            #             with image_path.open("rb") as f:
+            #                 show.image.save(image_path.name, File(f), save=True)
+            #     else:
+            #         self.stdout.write(
+            #             self.style.WARNING(
+            #                 f"      (Show image '{image_name}' not found in {images_dir}.)"
+            #             )
+            #         )

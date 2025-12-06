@@ -37,6 +37,7 @@ urlpatterns = [
 
     path('merch/<slug:product_slug>/modal/', views.get_product_modal_partial, name='product_modal_partial'),
     path('cart/add/<slug:variant_slug>/', views.add_variant_to_cart, name='add_to_cart'),
+    path('product/<slug:product_slug>/image-for-selection/', views.product_image_for_selection, name='product_image_for_selection'),
 
     # path("shop/", views.shop_product_list, name="product_list"),                                  # SSR
     # path("shop/partial/products", views.shop_product_list_partial, name="product_list_partial"),  # HTMX

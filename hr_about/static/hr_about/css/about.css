@@ -25,18 +25,14 @@
     display:             flex;
     flex-direction:      column;
     align-items:         center;
-
     width:               100%;
-    /*max-width:           80vw;*/
     max-width: 100%;
     margin-top:          48px;
     margin-inline:       auto;
     border:              1px solid var(--card-border);
     border-bottom-color: transparent;
     border-radius:       16px 16px 0 0;
-
     text-align:          center;
-
     background:          linear-gradient(180deg, rgba(20, 20, 20, 0.55), var(--card-bg));
     backdrop-filter:     saturate(1.25) blur(8px);
     outline:             none;
@@ -60,32 +56,26 @@
 
 #parallax-section-about .about-intro p {
     position:       relative;
-
     max-width:      min(72ch, 92%);
     margin:         1.5rem auto 3rem;
     padding-bottom: 0;
-
     font-family:    "Syne Mono", monospace;
-    font-size:      clamp(1.5rem, 2.5vmin, 2rem);
+    font-size:      clamp(1rem, 1.75vmin, 1.5rem);
     font-weight:    300;
     line-height:    1.5;
     letter-spacing: 0.01em;
-
     opacity:        0.92;
 }
 
 /* Divider line under intro paragraph */
 #parallax-section-about .about-intro p::after {
     content:    "";
-
     position:   absolute;
     bottom:     0;
     left:       50%;
     transform:  translate(-50%, 1.25rem);
-
     width:      min(72rem, 92%);
     height:     1px;
-
     opacity:    0.92;
     background: linear-gradient(
                     90deg,
@@ -111,40 +101,30 @@
         "thumbs";
     gap:                 0.5rem;
     justify-items:       center;
-
     width: 100%;
     max-width: 100%;
-
-    /*width:               min(80vw, 64rem);*/
-    /*max-width:           100%;*/
     margin-inline:       auto;
 }
 
 /* Large stage image */
 .about-stage {
     position:     relative;
-
     overflow:     hidden;
     grid-area:    stage;
-
     aspect-ratio: 16 / 9;
-    width:        100%;
+    width:        70%;
     max-width: 100%;
     height: auto;
-
     background:   #0b0b0b;
     box-shadow:   8px 8px 24px rgba(0, 0, 0, 0.35);
 }
 
 .about-stage-img {
     transform:  translateZ(0);
-
     display:    block;
-
     width:      100%;
     height:     100%;
     max-width: 100%;
-
     object-fit: cover;
     box-shadow: inset 0 0 4vmin 3vmin rgba(0, 0, 0, 0.5);
 }
@@ -157,7 +137,6 @@
     place-items:     center;
     align-items:     center;
     justify-content: center;
-
     width:           100%;
     min-height:      clamp(2rem, 6vh, 4rem);
     margin-top:      0.5rem;
@@ -166,11 +145,9 @@
 .about-caption .about-quote {
     max-width:   64ch;
     margin:      0;
-
     font-family: "Exo 2", sans-serif;
     font-size:   clamp(1rem, 1.5vmin, 1.5rem);
     text-align:  center;
-
     opacity:     0.92;
 }
 
@@ -183,15 +160,12 @@
 }
 
 #about-carousel.quote-overlay .about-quote {
-    /*width:         80vw;*/
     width: 100%;
     max-width: 100%;
     padding:       0.5rem 0;
     border-radius: 0.75rem;
-
     font-size:     clamp(1rem, 1.5vmin, 1.5rem);
     text-align:    left;
-
     background:    linear-gradient(
                         180deg,
                         rgba(0, 0, 0, 0.05),
@@ -205,26 +179,20 @@
 /* arrows on stage */
 .about-gallery figure.about-stage button.about-nav {
     cursor:        pointer;
-
     position:      absolute;
     z-index:       2;
     top:           50%;
     transform:     translateY(-50%);
-
     display:       grid;
     place-items:   center;
-
     width:         3rem;
     height:        3rem;
     border:        1px solid rgba(255, 255, 255, 0.25);
     border-radius: 999px;
-
     font-size:     1.5rem;
     line-height:   0;
     color:         #fff;
-
     background:    rgba(0, 0, 0, 0.45);
-
     transition:    background 0.125s ease, transform 0.125s ease;
 }
 
@@ -252,7 +220,6 @@
     gap:             0.25rem;
     align-items:     center;
     justify-content: center;
-
     width:           100%;
     margin-top:      2rem;
     margin-bottom:   0.5rem;
@@ -266,41 +233,21 @@
 
 .about-thumbs-wrap > button {
     cursor:        pointer;
-
     display:       grid;
     place-items:   center;
-
     width:         2rem;
     height:        2rem;
     border:        1px solid rgba(255, 255, 255, 0.2);
     border-radius: 999px;
-
     color:         #fff;
-
     background:    rgba(0, 0, 0, 0.35);
-
     transition:    background 0.125s ease, transform 0.125s ease;
 }
-
-/* scrolling thumbnails list */
-/*.about-thumbs {*/
-/*    display:           grid;*/
-/*    grid-auto-columns: clamp(4rem, 12vmin, 6rem);*/
-/*    grid-auto-flow:    column;*/
-/*    gap:               1.25rem;*/
-
-/*    width:             ;*/
-/*    margin:            0 1rem;*/
-/*    padding:           0;*/
-
-/*    list-style:        none;*/
-/*}*/
 
 .about-thumbs {
     display: flex;
     justify-content: center;
     gap: 0.75rem;
-
     width: 100%;
     max-width: 100%;
     margin: 0 1rem;
@@ -308,15 +255,8 @@
     list-style: none;
 }
 
-/*.about-thumbs li {*/
-/*    !* overwritten by rule above, but in case you tweak later *!*/
-/*    flex: 0 0 clamp(3.5rem, 10vw, 5rem);*/
-/*}*/
-
-
 .about-thumbs li {
     display: none;
-    /*position: relative;*/
 }
 
 .about-thumbs li.is-visible {
@@ -325,18 +265,14 @@
 
 .about-thumbs button {
     cursor:        pointer;
-
     overflow:      hidden;
     display:       block;
-
     aspect-ratio:  1 / 1;
     width:         100%;
     padding:       0;
     border:        1px solid rgba(255, 255, 255, 0.12);
     border-radius: 0.75rem;
-
     background:    #0b0b0b;
-
     transition:
         transform 0.125s ease,
         box-shadow 0.125s ease,
@@ -372,10 +308,7 @@
 
 .about-quote-wrap {
     position:        relative;
-
     overflow:        visible;
-
-    /*width:           80vw;*/
     width: 100%;
     max-width: 100%;
     margin-bottom:   calc(var(--vh) * 18);
@@ -383,7 +316,6 @@
     border:          1px solid var(--card-border, rgba(255, 255, 255, 0.12));
     border-top:      0;
     border-radius:   0 0 1rem 1rem;
-
     backdrop-filter: saturate(1.125) blur(8px);
     box-shadow:      var(--card-shadow, 0 1rem 2rem rgba(0, 0, 0, 0.48));
 }
@@ -393,13 +325,10 @@
 .about-quote-wrap::after {
     pointer-events: none;
     content:        "";
-
     position:       absolute;
     top:            0;
     bottom:         0;
-
     width:          1px;
-
     background:     linear-gradient(
                         180deg,
                         transparent 0%,
@@ -441,13 +370,11 @@
     flex-direction: column;
     gap:            0.5rem;
     align-items:    center;
-
     min-height:     calc(var(--q-clear) + 3rem);
     padding-top:    calc(var(--q-clear) * 0.48 + max(0px, calc(var(--q-rise) * -1)));
     padding-bottom: clamp(1rem, calc(var(--vh) * 3), 2.5rem);
     border:         0;
     border-radius:  0 0 1rem 1rem;
-
     background:     linear-gradient(
                         180deg,
                         rgba(8, 8, 8, 0) 0%,
@@ -465,28 +392,22 @@
     margin:      0;
     padding-right: 2rem;
     padding-left: 2rem;
-
     font-family: "Caveat", cursive;
     font-size:   clamp(2rem, 4vmin, 3rem);
     line-height: 1.25;
-
     opacity:     1;
-
     transition:  opacity 0.25s ease;
 }
 
 /* quote source line */
 .about-quote-rotator .quote-source {
     margin:         0.25rem 0 0;
-
     font-family:    "Syne Mono", monospace;
     font-size:      clamp(1.25rem, 1.5vmin, 1.5rem);
     line-height:    1.25;
     color:          #e9e9e9;
     letter-spacing: 0.01rem;
-
     opacity:        0.92;
-
     transition:     opacity 0.25s ease;
 }
 

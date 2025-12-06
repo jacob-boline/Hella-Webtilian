@@ -33,7 +33,7 @@ export function initAboutQuotes(root = document) {
     render(0);
 
     if (items.length > 1) {
-        const intervalMs = 8000;
+        const intervalMs = 3456;
         setInterval(() => {
             index = (index + 1) % items.length;
             render(index);

@@ -109,10 +109,10 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING("Skipping seed_data (per --no-seed)."))
 
         # 6) Start npm run dev
-        if not no_npm:
-            self._start_npm_dev(base_dir)
-        else:
-            self.stdout.write(self.style.WARNING("Skipping `npm run dev` (per --no-npm)."))
+        # if not no_npm:
+        #     self._start_npm_dev(base_dir)
+        # else:
+        #     self.stdout.write(self.style.WARNING("Skipping `npm run dev` (per --no-npm)."))
 
         self.stdout.write(self.style.SUCCESS("✅ initialize complete."))
 

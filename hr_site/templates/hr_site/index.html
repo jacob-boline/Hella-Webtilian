@@ -1,8 +1,7 @@
 {# hr_site/templates/hr_site/index.html #}
 
 {% extends "hr_site/base.html" %}
-{% load static %}
-{% load shop_tags %}
+{% load static shop_tags shop_images %}
 
 {% block title %}Hella Reptilian — Home{% endblock %}
 
@@ -37,114 +36,57 @@
             <div id="merch-grid" class="merch-grid">
                 {% for product in products %}
                     {% get_display_variant product as display_variant %}
-                    <article class="merch-card" data-product-slug="{{ product.slug }}">
-                        <button class="merch-img"
-                                type="button"
-                                aria-label="Open details for {{ product.name }}"
-                                hx-get="{% url "hr_shop:get_product_modal_partial" product_slug=product.slug %}"
-                                hx-target="#modal-content"
-                                hx-swap="innerHTML">
-                            {% if display_variant.image %}
-                                <img src="{{ display_variant.image.url }}" alt="{{ product.name }}" loading="lazy">
-                            {% elif product.image %}
-                                <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
-                            {% else %}
-                                <img src="{% static 'hr_shop/img/placeholder_2.png' %}" alt="{{ product.name }}" loading="lazy">
-                            {% endif %}
-                        </button>
-
-                        <div class="merch-meta">
-                            <h3 class="merch-title">{{ product.name }}</h3>
-                            <div class="merch-price">
-                                {% if product.min_variant_price %}
-                                    From ${{ product.min_variant_price }}
-                                {% else %}
-                                    Price TBD
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <div class="merch-actions">
-                            <button class="card-btn outline"
+                    {% if display_variant %}
+                        {% variant_image display_variant as display_image %}
+                        <article class="merch-card" data-sku="{{ display_variant.sku }}">
+                            <button class="merch-img"
                                     type="button"
-                                    hx-get="{% url 'hr_shop:get_product_modal_partial' product_slug=product.slug %}"
+                                    aria-label="Open details for {{ product.name }}{% if display_variant.name %} ({{ display_variant.name }}){% endif %}"
+                                    hx-get="{% url "hr_shop:get_product_modal_partial" product_slug=product.slug %}"
                                     hx-target="#modal-content"
                                     hx-swap="innerHTML">
-                                <i class="fas fa-circle-info"></i> Details
+
+                                {% if display_image %}
+                                    <img src="{{ display_image.image.url }}"
+                                         alt="{{ product.name }}{% if display_variant.name %} ({{ display_variant.name }}){% endif %}">
+                                {% else %}
+                                    <img src="{% static 'hr_shop/img/placeholder_2.png' %}"
+                                         alt="{{ product.name }}{% if display_variant.name %} ({{ display_variant.name }}){% endif %}">
+                                {% endif %}
                             </button>
 
-                            <button class="card-btn buy-cyan"
-                                    type="button"
-                                    hx-post="{% url 'hr_shop:add_to_cart' variant_slug=display_variant.slug %}"
-                                    hx-vals='{"quantity": 1}'
-                                    hx-swap="none">
-                                <i class="fas fa-cart-plus"></i> Add to cart
-                            </button>
-                        </div>
+                            <div class="merch-meta">
+                                <h3 class="merch-title">
+                                    {{ product.name }}{% if display_variant.name %} ({{ display_variant.name }}){% endif %}
+                                </h3>
+                                <div class="merch-price">
+                                    ${{ display_variant.price }}
+                                </div>
+                            </div>
 
-                    </article>
+                            <div class="merch-actions">
+                                <button class="card-btn outline"
+                                        type="button"
+                                        hx-get="{% url 'hr_shop:get_product_modal_partial' product_slug=product.slug %}"
+                                        hx-target="#modal-content"
+                                        hx-swap="innerHTML">
+                                    <i class="fas fa-circle-info"></i> Details
+                                </button>
+
+                                <button class="card-btn buy-cyan"
+                                        type="button"
+                                        hx-post="{% url 'hr_shop:add_to_cart' variant_slug=display_variant.slug %}"
+                                        hx-vals='{"quantity": 1}'
+                                        hx-swap="none">
+                                    <i class="fas fa-cart-plus"></i> Add to cart
+                                </button>
+                            </div>w
+                        </article>
+                    {% endif %}
                 {% empty %}
                     <p>No merch available yet. Check back soon.</p>
                 {% endfor %}
             </div>
-
-{#            <div id="merch-grid" class="merch-grid">#}
-{#                {% for product in products %}#}
-{#                    {% get_display_variant product as display_variant %}#}
-{#                    {% if display_variant %}#}
-{#                        <article class="merch-card" data-sku="{{ display_variant.sku }}">#}
-{##}
-                            {# --- Clickable product image --- #}
-{#                            <button class="merch-img"#}
-{#                                    aria-label="Open details for {{ product.name }}{% if display_variant.name %} ({{ display_variant.name }}){% endif %}"#}
-{#                                    hx-get="{% url 'hr_shop:product_modal_partial' product_slug=product.slug %}"#}
-{#                                    hx-target="#modal-message-box"#}
-{#                                    hx-swap="innerHTML">#}
-{##}
-{#                                {% if display_variant.image %}#}
-{#                                    <img src="{{ display_variant.image }}"#}
-{#                                         alt="{{ product.name }}{% if display_variant.name %} ({{ display_variant.name }}){% endif %}">#}
-{#                                {% else %}#}
-{#                                    <img src="{% static 'hr_shop/img/placeholder_2.png' %}"#}
-{#                                         alt="{{ product.name }}{% if display_variant.name %} ({{ display_variant.name }}){% endif %}">#}
-{#                                {% endif %}#}
-{#                            </button>#}
-{##}
-                            {# --- Title + Price --- #}
-{#                            <div class="merch-meta">#}
-{#                                <h3 class="merch-title">#}
-{#                                    {{ product.name }}{% if display_variant.name %} ({{ display_variant.name }}){% endif %}#}
-{#                                </h3>#}
-{#                                <div class="merch-price">#}
-{#                                    ${{ display_variant.price }}#}
-{#                                </div>#}
-{#                            </div>#}
-{##}
-                            {# --- Buttons: Details on left / Buy on right --- #}
-{#                            <div class="merch-actions">#}
-{##}
-{#                                <button class="card-btn outline"#}
-{#                                        type="button"#}
-{#                                        hx-get="{% url 'hr_shop:get_product_modal_partial' product_slug=product.slug %}"#}
-{#                                        hx-target="#modal-content"#}
-{#                                        hx-swap="innerHTML">#}
-{#                                    <i class="fas fa-circle-info"></i> Details#}
-{#                                </button>#}
-{##}
-{#                                <button class="card-btn buy-cyan"#}
-{#                                        hx-post="{% url 'hr_shop:add_to_cart' variant_slug=display_variant.slug %}"#}
-{#                                        hx-vals='{"quantity": 1}'#}
-{#                                        hx-swap="none">#}
-{#                                    <i class="fas fa-cart-plus"></i> Add to Cart#}
-{#                                </button>#}
-{##}
-{#                            </div>#}
-{##}
-{#                        </article>#}
-{#                    {% endif %}#}
-{#                {% endfor %}#}
-{#            </div>#}
-
         </div>
     </section>
 
@@ -180,7 +122,6 @@
                 </div>
             </div>
 
-
         </div>
     </section>
 
@@ -189,7 +130,7 @@
     <section id="parallax-section-bulletin"
              class="parallax-section relative flex items-center justify-center min-h-vhfix">
         <div class="parallax-background absolute inset-0 bg-cover bg-center"></div>
-        <div class="parallax-content relative isolate z-10 mx-auto px-0 py-vh-18 text-center flex flex-col items-center justify-center min-h-vhfix bg-transparent">
+        <div class="parallax-content relative isolate z-10 mx-auto max-w-6xl px-5 py-vh-18 text-center flex flex-col items-center justify-center min-h-vhfix bg-transparent">
             <h1>Bulletin</h1>
             <div id="bulletin-root"
                  class="bulletin-root"

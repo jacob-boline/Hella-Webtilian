@@ -1,15 +1,15 @@
 # hr_bulletin/models.py
 
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
-from django.conf import settings
 
-from hr_core.utils.slug import sync_slug_from_source
 from hr_bulletin.managers import PostManager
+from hr_core.utils.slug import sync_slug_from_source
 
 
 class Tag(models.Model):
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50, unique=True, blank=False, null=False)
     slug = models.SlugField(max_length=60, unique=True)
 
     class Meta:
@@ -17,6 +17,11 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        source = self.name
+        sync_slug_from_source(self, source, max_length=160)
+        super().save(*args, **kwargs)
 
 
 class PublishedManager(models.Manager):
@@ -27,12 +32,12 @@ class PublishedManager(models.Manager):
 class Post(models.Model):
     STATUS_CHOICES = [
         ('draft', 'Draft'),
-        ('published', 'Published'),
+        ('published', 'Published')
     ]
 
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=220, unique=True, blank=True)
-    body = models.TextField()  #  HTML or Markdown
+    body = models.TextField()  # wHTML or Markdown
     hero = models.ImageField(upload_to='posts/hero/', blank=True, null=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='draft')
     publish_at = models.DateTimeField(null=True, blank=True)

@@ -2,12 +2,15 @@
 
 {% for post in posts %}
     {% include "hr_bulletin/_post_card.html" with post=post %}
+    {% if page_obj.has_next and forloop.last %}
+        <span hx-get="{% url 'hr_bulletin:bulletin_list_partial' %}?page={{ page_obj.next_page_number }}"
+              hx-swap="beforeend"
+              hx-target="#bulletin-root"
+              hx-select=".bulletin-post"
+              hx-trigger="revealed">
+        </span>
+    {% endif %}
 {% empty %}
     <p class="bulletin-empty">No posts yet.</p>
 {% endfor %}
 
-{% if page_obj.has_next %}
-    <div class="bulletin-load-more" hx-get="{% url 'bulletin_list_partial' %}?page={{ page_obj.next_page_number }}" hx-trigger="revealed" hx-swap="afterend">
-        Loading more...
-    </div>
-{% endif %}
