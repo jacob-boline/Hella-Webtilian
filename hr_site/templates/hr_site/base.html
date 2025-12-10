@@ -17,7 +17,7 @@
 
     <link rel="stylesheet" href="{% static 'hr_site/css/app.css' %}">
 
-    <script src="https://unpkg.com/htmx.org@1.9.12" defer></script>
+    <script src="https://unpkg.com/htmx.org@2.0.3" defer></script>
     <script src="https://js.stripe.com/v3" defer></script>
 
     {% block extra_head %}{% endblock %}
@@ -94,11 +94,12 @@
     </div>
 
     {# ---- Global modal shell ---- #}
-    <div id="modal" class="modal hidden" aria-hidden="true">
+    <div id="modal" class="modal hidden product-modal" aria-hidden="true">
         <div class="modal-backdrop" data-modal-close></div>
         <div class="modal-panel">
+            <button class="modal-close-btn" data-modal-close>&times;</button>
             <div id="modal-message-box"></div>
-            <div id="modal-content"></div>
+            <div id="modal-content" hx-swap="innerHTML transition:true"></div>
         </div>
     </div>
 
@@ -115,12 +116,16 @@
 <script src="{% static 'hr_site/js/core-utils.js' %}"></script>
 <script src="{% static 'hr_site/js/vh-fix.js' %}"></script>
 <script src="{% static 'hr_site/js/ui-global.js' %}"></script>
+<script src="{% static 'hr_site/js/htmx-csrf.js' %}"></script>
+<script src="{% static 'hr_access/js/access.js' %}"></script>
 <script src="{% static 'hr_site/js/banner.js' %}"></script>
 <script src="{% static 'hr_site/js/scroll-effects.js' %}"></script>
+<script src="{% static 'hr_live/js/neon-sequencer.js' %}"></script>
 <script src="{% static 'hr_shop/js/merch.js' %}"></script>
 <script src="{% static 'hr_bulletin/js/bulletin.js' %}"></script>
 <script type="module" src="{% static 'hr_about/js/carousel.js' %}"></script>
 <script type="module" src="{% static 'hr_about/js/quotes.js' %}"></script>
+
 
 
 {# ---- page-specific scripts hook ---- #}

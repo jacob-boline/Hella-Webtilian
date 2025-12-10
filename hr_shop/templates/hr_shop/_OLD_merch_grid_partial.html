@@ -15,16 +15,17 @@
                 <button class="merch-img"
                         aria-label="Open details for {{ product.name }}{% if display_variant.name %} ({{ display_variant.name }}){% endif %}"
                         hx-get="{% url 'hr_shop:product_modal_partial' product_slug=product.slug %}"
-                        hx-target="#modal-message-box"
-                        hx-swap="innerHTML">
+                        hx-target="#modal-content">
 
-                    {% if display_image %}
-                        <img src="{{ display_image.image.url }}"
-                             alt="{{ product.name }}{% if display_variant.name %} ({{ display_variant.name }}){% endif %}">
-                    {% else %}
-                        <img src="{% static 'hr_shop/img/placeholder_2.png' %}"
-                             alt="{{ product.name }}{% if display_variant.name %} ({{ display_variant.name }}){% endif %}">
-                    {% endif %}
+{#                    {% if display_image %}#}
+{#                        <img src="{{ display_image.image.url }}"#}
+{#                             alt="{{ product.name }}{% if display_variant.name %} ({{ display_variant.name }}){% endif %}"#}
+{#                             class="merch-thumb-img">#}
+{#                    {% else %}#}
+{#                        <img src="{% static 'hr_shop/img/placeholder_2.png' %}"#}
+{#                             alt="{{ product.name }}{% if display_variant.name %} ({{ display_variant.name }}){% endif %}"#}
+{#                             class="merch-thumb-img">#}
+{#                    {% endif %}#}
                 </button>
 
                 {# --- Title + Price --- #}
@@ -42,7 +43,7 @@
 
                     <button class="merch-card-btn outline"
                             hx-get="{% url 'hr_shop:product_modal_partial' product_slug=product.slug %}"
-                            hx-target="#modal-message-box"
+                            hx-target="#modal-content"
                             hx-swap="innerHTML">
                         <i class="fas fa-circle-info"></i> Details
                     </button>

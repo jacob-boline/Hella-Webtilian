@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'hr_common',
     'hr_email',
     'hr_live',
+    'hr_payment',
     'hr_shop',
     'hr_site',
     'hr_storage',
@@ -133,3 +134,4 @@ STORAGES = {
     },
 }
 
+SHOP_PAYMENT_BACKEND = "mock_stripe"

@@ -43,21 +43,22 @@
                                     type="button"
                                     aria-label="Open details for {{ product.name }}{% if display_variant.name %} ({{ display_variant.name }}){% endif %}"
                                     hx-get="{% url "hr_shop:get_product_modal_partial" product_slug=product.slug %}"
-                                    hx-target="#modal-content"
-                                    hx-swap="innerHTML">
+                                    hx-target="#modal-content">
 
                                 {% if display_image %}
                                     <img src="{{ display_image.image.url }}"
-                                         alt="{{ product.name }}{% if display_variant.name %} ({{ display_variant.name }}){% endif %}">
+                                         alt="{{ product.name }}{% if display_variant.name %} ({{ display_variant.name }}){% endif %}"
+                                         class="merch-thumb-img">
                                 {% else %}
                                     <img src="{% static 'hr_shop/img/placeholder_2.png' %}"
-                                         alt="{{ product.name }}{% if display_variant.name %} ({{ display_variant.name }}){% endif %}">
+                                         alt="{{ product.name }}{% if display_variant.name %} ({{ display_variant.name }}){% endif %}"
+                                         class="merch-thumb-img">
                                 {% endif %}
                             </button>
 
                             <div class="merch-meta">
                                 <h3 class="merch-title">
-                                    {{ product.name }}{% if display_variant.name %} ({{ display_variant.name }}){% endif %}
+                                    {{ product.name }}
                                 </h3>
                                 <div class="merch-price">
                                     ${{ display_variant.price }}
@@ -80,7 +81,7 @@
                                         hx-swap="none">
                                     <i class="fas fa-cart-plus"></i> Add to cart
                                 </button>
-                            </div>w
+                            </div>
                         </article>
                     {% endif %}
                 {% empty %}

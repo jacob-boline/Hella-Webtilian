@@ -4,6 +4,7 @@ import urllib.parse
 from django.db import models
 from hr_common.managers import AddressManager
 
+
 class Address(models.Model):
     street_address = models.CharField(max_length=255, blank=False, null=False, verbose_name='Address')
     city = models.CharField(max_length=255, blank=False, null=False, verbose_name='City')

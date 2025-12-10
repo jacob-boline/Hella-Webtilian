@@ -1,213 +1,238 @@
 // hr_site/static/hr_site/js/ui-global.js
 
 (function () {
-  function initGlobalUI() {
-    // ------------------------------
-    // Element handles
-    // ------------------------------
-    const modalEl = document.getElementById('modal');
-    const modalContent = document.getElementById('modal-content');
-    const modalMsg = document.getElementById('modal-message-box');
+    function initGlobalUI () {
+        // ------------------------------
+        // Element handles
+        // ------------------------------
+        const modalEl = document.getElementById('modal');
+        const modalContent = document.getElementById('modal-content');
+        const modalMsg = document.getElementById('modal-message-box');
 
-    const messageBar = document.getElementById('global-message-bar');
-    const messageText = document.getElementById('global-message-content');
+        const messageBar = document.getElementById('global-message-bar');
+        const messageText = document.getElementById('global-message-content');
 
-    // ------------------------------
-    // Global message bar
-    // ------------------------------
-    function showGlobalMessage(text, timeoutMs = 1000) {
-      if (!messageBar || !messageText) return;
+        // ------------------------------
+        // Global message bar
+        // ------------------------------
+        function showGlobalMessage (text, timeoutMs = 1000) {
+            if (!messageBar || !messageText) return;
 
-      messageText.textContent = text || '';
-      messageBar.classList.add('is-visible');
+            messageText.textContent = text || '';
+            messageBar.classList.add('is-visible');
 
-      window.setTimeout(() => {
-        messageBar.classList.remove('is-visible');
-      }, timeoutMs);
-    }
-
-    // ------------------------------
-    // Modal helpers
-    // ------------------------------
-    function openModal() {
-      if (!modalEl) return;
-      modalEl.classList.remove('hidden');
-      modalEl.setAttribute('aria-hidden', 'false');
-      // Lock scroll behind modal
-      document.body.style.overflow = 'hidden';
-    }
-
-    function hideModal() {
-      if (!modalEl) return;
-      modalEl.classList.add('hidden');
-      modalEl.setAttribute('aria-hidden', 'true');
-      // Restore scroll
-      document.body.style.overflow = '';
-
-      if (modalContent) {
-        modalContent.replaceChildren();
-      }
-      if (modalMsg) {
-        modalMsg.replaceChildren();
-      }
-    }
-
-    // ------------------------------
-    // Modal: click / escape
-    // ------------------------------
-    if (modalEl) {
-      // Backdrop or [data-modal-close] closes modal
-      document.addEventListener('click', (e) => {
-        const backdrop = e.target.closest('.modal-backdrop');
-        const closer = e.target.closest('[data-modal-close]');
-        if (!backdrop && !closer) return;
-
-        e.preventDefault();
-        hideModal();
-      });
-
-      // ESC closes modal (if visible)
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && !modalEl.classList.contains('hidden')) {
-          hideModal();
+            window.setTimeout(() => {
+                messageBar.classList.remove('is-visible');
+            }, timeoutMs);
         }
-      });
-    }
 
-    // ------------------------------
-    // Modal: HTMX integration
-    // ------------------------------
-    if (modalEl && modalContent) {
-      // When HTMX swaps into modal content/message box → open modal
-      document.addEventListener('htmx:afterSwap', (e) => {
-        const target = e.target;
-        if (!target) return;
-
-        if (
-          target === modalContent ||
-          target === modalMsg ||
-          target.id === 'modal-content' ||
-          target.id === 'modal-message-box'
-        ) {
-          openModal();
+        // ------------------------------
+        // Modal helpers
+        // ------------------------------
+        function openModal () {
+            if (!modalEl) return;
+            modalEl.classList.remove('hidden');
+            modalEl.setAttribute('aria-hidden', 'false');
+            // Lock scroll behind modal
+            document.body.style.overflow = 'hidden';
         }
-      });
 
-      // If server responds with 204 or empty for #modal-content, close & cancel swap
-      document.addEventListener('htmx:beforeSwap', (e) => {
-        const target = e.target;
-        if (target !== modalContent) return;
+        function hideModal () {
+            if (!modalEl) return;
 
-        const detail = e.detail || {};
-        const xhr = detail.xhr;
+            const navOpenBtn = document.getElementById('nav-open-btn');
+            if (navOpenBtn) navOpenBtn.classList.remove('hidden');
 
-        const isEmpty =
-          (xhr && xhr.status === 204) ||
-          !detail.serverResponse ||
-          detail.serverResponse.trim() === '';
+            modalEl.classList.add('hidden');
+            modalEl.setAttribute('aria-hidden', 'true');
+            // Restore scroll
+            document.body.style.overflow = '';
 
-        if (isEmpty) {
-          hideModal();
-          detail.shouldSwap = false;
+            if (modalContent) {
+                modalContent.replaceChildren();
+            }
+            if (modalMsg) {
+                modalMsg.replaceChildren();
+            }
         }
-      });
-    }
 
-    // ------------------------------
-    // HTMX custom events from HX-Trigger
-    // ------------------------------
-    document.addEventListener('passwordChanged', (e) => {
-      const detail = e.detail || {};
-      const msg = detail.message || detail.text || 'Password updated.';
-      hideModal();
-      showGlobalMessage(msg, 5000);
-    });
+        // ------------------------------
+        // Modal: click / escape
+        // ------------------------------
+        if (modalEl) {
+            // Backdrop or [data-modal-close] closes modal
+            document.addEventListener('click', (e) => {
+                const backdrop = e.target.closest('.modal-backdrop');
+                const closer = e.target.closest('[data-modal-close]');
+                if (!backdrop && !closer) return;
 
-    document.addEventListener('showMessage', (e) => {
-      const detail = e.detail || {};
-      const msg =
-        detail.message ||
-        detail.text ||
-        (typeof detail === 'string' ? detail : '') ||
-        '';
-      if (msg) {
-        showGlobalMessage(msg, 5000);
-      }
-    });
+                e.preventDefault();
+                hideModal();
+            });
 
-    // ------------------------------
-    // Drawer navigation
-    // ------------------------------
-    function initDrawer() {
-      const drawer = document.getElementById('drawer-navigation');
-      const openBtn = document.getElementById('nav-open-btn');
-      const closeBtn = document.getElementById('nav-close-btn');
+            // ESC closes modal (if visible)
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && !modalEl.classList.contains('hidden')) {
+                    hideModal();
+                }
+            });
+        }
 
-      if (!drawer || !openBtn) {
-        console.warn('Drawer nav: missing #drawer-navigation or #nav-open-btn');
-        return;
-      }
+        // ------------------------------
+        // Modal: HTMX integration
+        // ------------------------------
+        if (modalEl && modalContent) {
+            // When HTMX swaps into modal content/message box → open modal
+            document.addEventListener('htmx:afterSwap', (e) => {
+                const target = e.target;
+                if (!target) return;
 
-      const openDrawer = () => {
-        drawer.classList.add('show');
-        openBtn.classList.add('hidden');
-      };
+                if (
+                    target === modalContent ||
+                    target === modalMsg ||
+                    target.id === 'modal-content' ||
+                    target.id === 'modal-message-box'
+                ) {
+                    openModal();
+                }
+            });
 
-      const closeDrawer = () => {
-        drawer.classList.remove('show');
-        openBtn.classList.remove('hidden');
-      };
+            // If server responds with 204 or empty for #modal-content, close & cancel swap
+            document.addEventListener('htmx:beforeSwap', (e) => {
+                const target = e.target;
+                if (target !== modalContent) return;
 
-      openBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        openDrawer();
-      });
+                const detail = e.detail || {};
+                const xhr = detail.xhr;
 
-      if (closeBtn) {
-        closeBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          closeDrawer();
+                const isEmpty =
+                    (xhr && xhr.status === 204) ||
+                    !detail.serverResponse ||
+                    detail.serverResponse.trim() === '';
+
+                if (isEmpty) {
+                    hideModal();
+                    detail.shouldSwap = false;
+                }
+            });
+        }
+
+        // ------------------------------
+        // HTMX custom events from HX-Trigger
+        // ------------------------------
+        document.addEventListener('passwordChanged', (e) => {
+            const detail = e.detail || {};
+            const msg = detail.message || detail.text || 'Password updated.';
+            hideModal();
+            showGlobalMessage(msg, 5000);
         });
-      }
 
-      // ESC closes drawer
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-          closeDrawer();
-        }
-      });
+        document.body.addEventListener('showMessage', (event) => {
+            // const detail = e.detail || {};
+            // const msg =
+            //   detail.message ||
+            //   detail.text ||
+            //   (typeof detail === 'string' ? detail : '') ||
+            //   '';
+            console.log('showMessage received event:', event);
+            const msg = event.detail.message;
+            if (msg) {
+                showGlobalMessage(msg, 5000);
+            }
+        });
 
-      // Click outside closes drawer
-      document.addEventListener('click', (e) => {
-        if (!drawer.classList.contains('show')) return;
-        const clickedInside = drawer.contains(e.target);
-        const clickedOpenBtn = openBtn.contains(e.target);
-        if (!clickedInside && !clickedOpenBtn) {
-          closeDrawer();
+
+        document.body.addEventListener('htmx:afterSwap', function (event) {
+            // Only react when the modal content is what got swapped
+            if (event.target.id === 'modal-content') {
+                const modal = document.getElementById('modal');
+                const drawer = document.getElementById('drawer-navigation');
+
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    modal.setAttribute('aria-hidden', 'false');
+                }
+
+                if (drawer) {
+                    drawer.classList.remove('show');
+                }
+            }
+        });
+
+
+        // ------------------------------
+        // Drawer navigation
+        // ------------------------------
+        function initDrawer () {
+            const drawer = document.getElementById('drawer-navigation');
+            const openBtn = document.getElementById('nav-open-btn');
+            const closeBtn = document.getElementById('nav-close-btn');
+
+            if (!drawer || !openBtn) {
+                console.warn('Drawer nav: missing #drawer-navigation or #nav-open-btn');
+                return;
+            }
+
+            const openDrawer = () => {
+                drawer.classList.add('show');
+                openBtn.classList.add('hidden');
+            };
+
+            const closeDrawer = () => {
+                drawer.classList.remove('show');
+                openBtn.classList.remove('hidden');
+            };
+
+            openBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openDrawer();
+            });
+
+            if (closeBtn) {
+                closeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    closeDrawer();
+                });
+            }
+
+            // ESC closes drawer
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeDrawer();
+                }
+            });
+
+            // Click outside closes drawer
+            document.addEventListener('click', (e) => {
+                if (!drawer.classList.contains('show')) return;
+                const clickedInside = drawer.contains(e.target);
+                const clickedOpenBtn = openBtn.contains(e.target);
+                if (!clickedInside && !clickedOpenBtn) {
+                    closeDrawer();
+                }
+            });
         }
-      });
+
+        initDrawer();
+
+        // ------------------------------
+        // Public API
+        // ------------------------------
+        window.hrSite = window.hrSite || {};
+        window.hrSite.hideModal = hideModal;
+        window.hrSite.showGlobalMessage = showGlobalMessage;
+
+        // Optional small helper alias
+        window.hrModal = {
+            open: openModal,
+            close: hideModal,
+        };
     }
 
-    initDrawer();
-
-    // ------------------------------
-    // Public API
-    // ------------------------------
-    window.hrSite = window.hrSite || {};
-    window.hrSite.hideModal = hideModal;
-    window.hrSite.showGlobalMessage = showGlobalMessage;
-
-    // Optional small helper alias
-    window.hrModal = {
-      open: openModal,
-      close: hideModal,
-    };
-  }
-
-  // Ensure DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initGlobalUI);
-  } else {
-    initGlobalUI();
-  }
+    // Ensure DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initGlobalUI);
+    } else {
+        initGlobalUI();
+    }
 })();

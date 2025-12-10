@@ -294,15 +294,17 @@ nav.navbar {
   z-index: 1001;
   pointer-events: auto;
   width: 100%;
-  max-width: min(48rem, calc(100vw - 2 * var(--pad-inline)));
+  max-width: min(64rem, calc(100vw - 2 * var(--pad-inline)));
   max-height: min(80vh, calc(var(--vh) * 80));
-  padding: 1.5rem 1.75rem 1.75rem;
+  padding: 0 1.75rem 1.75rem;
   border-radius: 1rem;
   border: 1px solid rgba(255, 255, 255, 0.14);
-  background: radial-gradient(circle at top left, rgba(57, 255, 20, 0.08), rgba(0,0,0,0.96));
-  box-shadow: 0 24px 48px rgba(0,0,0,0.75), 0 0 32px rgba(57, 255, 20, 0.25);
+  background: radial-gradient(circle at top left, rgba(0, 0, 0, 0.36), rgba(0, 0, 0, 0.95));
+  box-shadow: 0 0 24px rgba(0, 234, 255, 0.25);
   overflow-y: auto;
 }
+
+
 
 #modal-message-box + #modal-content,
 #modal-content {
@@ -312,6 +314,31 @@ nav.navbar {
 .modal.hidden {
   display: none;
   pointer-events: none;
+}
+
+.modal-close-btn {
+  margin-left: 100%;
+  font-size: 2rem;
+  background-color: transparent;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+@media (max-width: 767.98px) {
+  .modal-panel {
+    width:     100vw;
+    max-width: 100vw;
+    padding:   0.75rem 0.75rem 1.25rem;
+    border-radius: 0.75rem;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1279.98px) {
+  .modal-panel {
+    width:          min(90vw, 960px);
+    padding-inline: 1.5rem;
+  }
 }
 
 

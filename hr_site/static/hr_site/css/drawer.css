@@ -87,7 +87,6 @@
     width:      100%;
 }
 
-.user-panel button,
 .sidebar-btn:hover {
     color: aquamarine;
 }
@@ -138,18 +137,99 @@
 
 /* honour dark mode – keep the same hover behaviour there */
 @media (prefers-color-scheme: dark) {
-    #drawer-navigation button {
-        color: #FFF;
-        transition: color 0.125s ease-in-out;
-    }
+    /*#drawer-navigation button {*/
+    /*    color: #FFF;*/
+    /*    transition: color 0.125s ease-in-out;*/
+    /*}*/
 
-    #drawwer-navigation button:hover {
-        color: aquamarine;
-        transition: color 0.125s ease-in-out;
-    }
+    /*#drawwer-navigation button:hover {*/
+    /*    color: aquamarine;*/
+    /*    transition: color 0.125s ease-in-out;*/
+    /*}*/
 
      #drawer-navigation .sidebar-btn:hover {
          color: darkorange;
          transition: all 0.125s ease-in-out;
      }
 }
+
+.card-count-badge {
+    background: #00eaff;
+    color: #000;
+    border-radius: 12px;
+    padding: 2px 6px;
+    margin-left: 6px;
+    font-weight: bold;
+    min-width: 20px;
+    display: inline-block;
+    text-align: center;
+}
+
+/*#cart-count,*/
+/*.cart-label,*/
+/*.fa.fa-shopping-cart {*/
+/*    background-color: transparent;*/
+/*    color: white;*/
+/*}*/
+.cart-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    margin-bottom: 2rem;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(6px);
+
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+
+    color: #fff;
+    cursor: pointer;
+
+    /* animate ALL the stuff we’re actually changing */
+    transition:
+        color 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease,
+        background-color 0.25s ease;
+}
+
+/* keep icon/text white by default */
+.cart-btn .fa-shopping-cart,
+.cart-btn .cart-label {
+    color: inherit;
+    background: transparent;
+}
+
+/* hover state */
+.cart-btn:hover {
+    color: aquamarine; /* text */
+    border-color: aquamarine;
+    box-shadow: 0 0 14px rgba(0, 234, 255, 0.9);
+    background-color: rgba(0, 0, 0, 0.75);
+}
+
+
+/* neon count badge */
+.cart-count-badge {
+    background: #00eaff;
+    color: #000;
+
+    border-radius: 999px;
+    padding: 2px 8px;
+    margin-left: 2px;
+
+    font-weight: 700;
+    min-width: 20px;
+    text-align: center;
+    line-height: 1;
+
+    display: none; /* JS will flip to inline-flex when count > 0 */
+}
+
+

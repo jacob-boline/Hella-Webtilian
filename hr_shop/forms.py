@@ -9,7 +9,7 @@ class ProductAdminForm(forms.ModelForm):
         queryset=OptionTypeTemplate.objects.filter(active=True),
         required=False,
         label="Apply option templates",
-        help_text="Select reusable option types to clone onto this product."
+        help_text="[Select reusable option types to clone onto this product."
     )
 
     class Meta:
@@ -71,3 +71,7 @@ class ProductVariantForm(forms.ModelForm):
     class Meta:
         model = ProductVariant
         fields = ['sku', 'name', 'price', 'is_display_variant']
+
+
+class CheckoutForm(forms.Form):
+    pass

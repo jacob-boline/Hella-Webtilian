@@ -493,7 +493,7 @@ class Order(models.Model):
         on_delete=models.PROTECT,
         related_name="orders",
     )
-    stripe_checkout_session_id = models.CharField(max_length=255, unique=True)
+    stripe_checkout_session_id = models.CharField(max_length=255, unique=True, blank=True, null=True)
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,

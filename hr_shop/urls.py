@@ -1,43 +1,58 @@
 # hr_shop/urls.py
 
 from django.urls import path
-from hr_shop import views
+from hr_shop.views import products, cart, manage
 
 app_name = 'hr_shop'
 
 urlpatterns = [
 
-    # Products
+    # Products (front-end)
 
-    path('<slug:product_slug>/modal/', views.get_product_modal_partial, name='get_product_modal_partial'),
-    path('manage/', views.product_manager, name='product_manager'),
+    path('<slug:product_slug>/modal/', products.get_product_modal_partial, name='get_product_modal_partial'),
+    path('merch/<slug:product_slug>/modal/', products.get_product_modal_partial, name='product_modal_partial'),
+    path('product/<slug:product_slug>/variant-preview', products.update_details_modal, name='update_details_modal'),
+    path('product/<slug:product_slug>/image-for-selection/', products.product_image_for_selection, name='product_image_for_selection'),
 
-    # Product Management Partials
-    path('manage/products/', views.get_manage_product_list_partial, name='get_product_list_partial'),
-    path('manage/product/<int:pk>/', views.get_manage_product_panel_partial, name='get_product_panel_partial'),
-    path('manage/option-type/<int:pk>/', views.get_manage_option_type_panel_partial, name='get_manage_option_type_panel_partial'),
+    # Admin: main product manager shell
 
-    # Product CRUD
-    # path('manage/products/create/', views.product_create, name='product_create'),
-    # path('manage/product/<int:pk>/update/', views.product_update, name='product_update'),
+    path('manage/', manage.product_manager, name='product_manager'),
 
-    # OptionType CRUD
-    path('manage/product/<int:product_pk>/option-type/create/', views.create_option_type, name='create_option_type'),
-    path('manage/option-type/<int:pk>/update/', views.update_option_type, name='update_option_type'),
-    path('manage/option-type/<int:pk>/delete/', views.delete_option_type, name='delete_option_type'),
+    # Admin: product management partials
 
-    # OptionValue CRUD
-    path('manage/option-type/<int:option_type_pk>/value/create/', views.create_option_value, name='create_option_value'),
-    path('manage/option-value/<int:pk>/update/', views.update_option_value, name='update_option_value'),
-    path('manage/option-value/<int:pk>/delete/', views.delete_option_value, name='delete_option_value'),
+    path('manage/products/', manage.get_manage_product_list_partial, name='get_product_list_partial'),
+    path('manage/product/<int:pk>/', manage.get_manage_product_panel_partial, name='get_product_panel_partial'),
+    path('manage/option-type/<int:pk>/', manage.get_manage_option_type_panel_partial, name='get_manage_option_type_panel_partial'),
 
-    # Variant CRUD
-    path('manage/product/<int:product_pk>/variant/create/', views.create_variant, name='create_variant'),
-    path('manage/variant/<int:pk>/delete/', views.delete_variant, name='delete_variant'),
+    # Admin: OptionType CRUD
 
-    path('merch/<slug:product_slug>/modal/', views.get_product_modal_partial, name='product_modal_partial'),
-    path('cart/add/<slug:variant_slug>/', views.add_variant_to_cart, name='add_to_cart'),
-    path('product/<slug:product_slug>/image-for-selection/', views.product_image_for_selection, name='product_image_for_selection'),
+    path('manage/product/<int:product_pk>/option-type/create/', manage.create_option_type, name='create_option_type'),
+    path('manage/option-type/<int:pk>/update/', manage.update_option_type, name='update_option_type'),
+    path('manage/option-type/<int:pk>/delete/', manage.delete_option_type, name='delete_option_type'),
+
+    # Admin: OptionValue CRUD
+
+    path('manage/option-type/<int:option_type_pk>/value/create/', manage.create_option_value, name='create_option_value'),
+    path('manage/option-value/<int:pk>/update/', manage.update_option_value, name='update_option_value'),
+    path('manage/option-value/<int:pk>/delete/', manage.delete_option_value, name='delete_option_value'),
+
+    # Admin: Variant CRUD
+
+    path('manage/product/<int:product_pk>/variant/create/', manage.create_variant, name='create_variant'),
+    path('manage/variant/<int:pk>/delete/', manage.delete_variant, name='delete_variant'),
+
+    # Cart
+
+    path('cart/add/<slug:variant_slug>/', cart.add_variant_to_cart, name='add_to_cart'),
+    path('cart/add/by-options/<slug:product_slug>/', cart.add_to_cart_by_options, name='add_to_cart_by_options'),
+    path('cart/update/<int:variant_id>/', cart.set_cart_quantity, name='set_cart_quantity'),
+    path('cart/remove/<int:variant_id>/', cart.remove_from_cart, name='remove_from_cart'),
+    path('cart/', cart.view_cart, name='view_cart'),
+
+    # -------------------------------------------------------------------------
+    # Legacy / commented routes below still reference `views.*` but are commented
+    # so they won't break even though we're no longer importing `views` directly.
+    # -------------------------------------------------------------------------
 
     # path("shop/", views.shop_product_list, name="product_list"),                                  # SSR
     # path("shop/partial/products", views.shop_product_list_partial, name="product_list_partial"),  # HTMX
@@ -54,7 +69,7 @@ urlpatterns = [
     #
     # # Optional: quick inventory lookup by SKU
     # path("api/shop/inventory/<str:sku>", views.api_inventory_by_sku, name="api_inventory_by_sku"),
-
+    #
     # path('product/add/<str:encoded_name>/', views.add_product, name='add_product'),
     # path('product/remove/<str:encoded_name>/', views.remove_product, name='remove_product'),
     # path('product/update/<str:encoded_name>/', views.update_product, name='update_product'),

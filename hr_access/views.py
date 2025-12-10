@@ -25,6 +25,7 @@ from hr_access.forms import StaffForm, SetPasswordForm, CustomUserCreationForm
 from hr_access.emails import send_claim_email
 from hr_core.utils import http
 from hr_core.utils.email import normalize_email
+from hr_shop.cart import get_cart
 from hr_shop.models import Order
 from hr_site.views import display_message_box_modal
 from hr_shop.services.customers import attach_customer_to_user
@@ -291,12 +292,12 @@ def orders(request):
 # ==================================================================================================================
 
 def access_panel(request):
-    return render(request, 'hr_access/access_panel.html')
+    return render(request, 'hr_access/_sidebar_access.html')
 
 
 def user_panel(request):
     # headers_dict = {'accessChanged': None}
-    response = render(request, 'hr_access/user_panel.html')
+    response = render(request, 'hr_access/_user_panel.html')
     # response.headers['HX-Trigger'] = json.dumps(headers_dict)
     return response
 
@@ -395,3 +396,7 @@ def perform_superuser_removal(request, user_id):
         confirm_url="",  # just a Close button / clears message box
         confirm_label="Close",
     )
+
+
+
+

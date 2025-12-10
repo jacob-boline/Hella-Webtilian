@@ -10,32 +10,7 @@ from hr_shop.models import ProductVariant
 CART_SESSION_KEY = "hr_shop_cart"
 
 
-class CartItemExistsError(Exception):
-    def __init__(self, variant_id, message=None):
-        self.variant = ProductVariant.objects.get(id=variant_id)
-        self.message = (
-            message
-            or "You cannot add an already existing item this way. "
-               "Use <cart.set_quantity()> or <cart.add(override=True)> instead."
-        )
-        super().__init__(self.message)
 
-    def __str__(self):
-        return f"{self.variant} -> {self.message}"
-
-
-class CartItemNotFoundError(Exception):
-    def __init__(self, variant_id, message=None):
-        self.variant = ProductVariant.objects.get(id=variant_id)
-        self.message = (
-            message
-            or "Item must be present in the cart before it can be updated. "
-               "Use <cart.add()> first."
-        )
-        super().__init__(self.message)
-
-    def __str__(self):
-        return f"{self.variant} -> {self.message}"
 
 
 class Cart:
@@ -175,3 +150,45 @@ def add_to_cart(request, variant_slug, quantity=1, *, override=False):
     # quantity in cart for this variant after operation
     line = cart.cart[str(variant.id)]
     return cart, variant, line["quantity"]
+
+
+def get_cart(request) -> Cart:
+    """
+    Convenience helper, always returns a Cart instance for this request.
+    """
+    return Cart(request)
+
+
+def get_cart_item_count(request) -> int:
+    """
+    Total quantity of items in the cart for this request.
+    """
+    return len(Cart(request))
+
+
+class CartItemExistsError(Exception):
+    def __init__(self, variant_id, message=None):
+        self.variant = ProductVariant.objects.get(id=variant_id)
+        self.message = (
+            message
+            or "You cannot add an already existing item this way. "
+               "Use <cart.set_quantity()> or <cart.add(override=True)> instead."
+        )
+        super().__init__(self.message)
+
+    def __str__(self):
+        return f"{self.variant} -> {self.message}"
+
+
+class CartItemNotFoundError(Exception):
+    def __init__(self, variant_id, message=None):
+        self.variant = ProductVariant.objects.get(id=variant_id)
+        self.message = (
+            message
+            or "Item must be present in the cart before it can be updated. "
+               "Use <cart.add()> first."
+        )
+        super().__init__(self.message)
+
+    def __str__(self):
+        return f"{self.variant} -> {self.message}"

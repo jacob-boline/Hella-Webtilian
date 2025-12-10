@@ -1,0 +1,71 @@
+{# hr_access/_view_cart.html #}
+
+<div class="view-cart-modal">
+    <h2 class="sub-header">Shopping Cart</h2>
+    {% if cart %}
+        {% for item in cart %}
+            <div class="cart-summary-card">
+                <img
+                    class="item-thumbnail"
+                    src="{{ item.variant.image.image.url }}"
+                    alt="{{ item.variant.product.name }}{% if item.variant.name %} – {{ item.variant.name }}{% endif %}"
+                >
+
+                <div class="item-main">
+                    <p class="item-title">
+                        {{ item.variant.product.name }}
+                        {% if item.variant.name %}
+                            {{ item.variant.name }}
+                        {% endif %}
+                    </p>
+                    <p class="item-unit-price">
+                        ${{ item.unit_price }}
+                    </p>
+                </div>
+
+                <div class="item-quantity">
+                    <label for="qty-{{ item.variant.id }}">Qty:</label>
+                    <input
+                        id="qty-{{ item.variant.id }}"
+                        type="number"
+                        name="quantity"
+                        min="1"
+                        value="{{ item.quantity }}"
+                        hx-post="{% url 'hr_shop:set_cart_quantity' variant_id=item.variant.id %}"
+                        hx-trigger="change"
+                        hx-target="#modal-content"
+                        hx-swap="innerHTML">
+                </div>
+
+                <div class="item-subtotal-wrapper">
+                    <p class="item-subtotal">${{ item.subtotal }}</p>
+
+                    <button
+                        type="button"
+                        class="cart-remove-btn"
+                        hx-post="{% url 'hr_shop:remove_from_cart' variant_id=item.variant.id %}"
+                        hx-target="#modal-content"
+                        hx-swap="innerHTML">
+                        Remove
+                    </button>
+                </div>
+            </div>
+
+        {% endfor %}
+
+        <div class="cart-total">
+
+            <button class="checkout-btn" type="button"
+                    hx-get="{% url 'hr_shop:checkout_details' %}"
+                    hx-target="#modal-content"
+                    hw-swap="innerHTML">Checkout</button>
+
+            <span>Total:</span>
+            <p class="cart-total-amount">${{ total }}</p>
+        </div>
+
+    {% else %}
+        <p>Your cart is empty.</p>
+    {% endif %}
+
+</div>
