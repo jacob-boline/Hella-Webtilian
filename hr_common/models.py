@@ -7,6 +7,8 @@ from hr_common.managers import AddressManager
 
 class Address(models.Model):
     street_address = models.CharField(max_length=255, blank=False, null=False, verbose_name='Address')
+    street_address_line2 = models.CharField(max_length=255, blank=True, null=True, verbose_name="Address Line 2")
+    unit = models.CharField(max_length=50, blank=True, null=True, verbose_name='Apt/Office/Unit')
     city = models.CharField(max_length=255, blank=False, null=False, verbose_name='City')
     subdivision = models.CharField(max_length=100, blank=False, null=False, verbose_name='State/Province')
     postal_code = models.CharField(max_length=25, blank=False, null=False, verbose_name='Zip')

@@ -478,6 +478,13 @@ class Customer(models.Model):
         return f"Customer {self.pk} - {label}"
 
 
+class CustomerAddress(models.Model):
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='addresses')
+    address = models.ForeignKey(Address, on_delete=models.PROTECT, related_name='customer_links')
+    is_default_shipping = models.BooleanField(default=False)
+    is_default_billing = models.BooleanField(default=False)
+
+
 class Order(models.Model):
     STATUS_CHOICES = [
         ("pending", "Pending"),

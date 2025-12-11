@@ -73,5 +73,32 @@ class ProductVariantForm(forms.ModelForm):
         fields = ['sku', 'name', 'price', 'is_display_variant']
 
 
-class CheckoutForm(forms.Form):
-    pass
+class CheckoutDetailsForm(forms.Form):
+
+    email = forms.EmailField(required=True, label='Email')
+    phone = forms.CharField(required=False, max_length=50, label='Phone')
+
+    first_name = forms.CharField(required=True, max_length=100, label='First Name')
+    middle_initial = forms.CharField(required=False, max_length=5, label='Middle Initial')
+    last_name = forms.CharField(required=True, max_length=100, label="Last Name")
+    suffix = forms.CharField(required=False, max_length=20, label="Suffix")
+
+    street_address = forms.CharField(required=True, max_length=255, label='Street Address')
+    street_address_line2 = forms.CharField(required=False, max_length=255, label='Street Address Line 2')
+
+    BUILDING_TYPE_CHOICES = [
+        ("single_family", "Single family home"),
+        ("apartment", "Apartment / Condo"),
+        ("business", "Business"),
+        ("po_box", "P.O. Box"),
+        ("other", "Other")
+    ]
+
+    building_type = forms.ChoiceField(required=True, choices=BUILDING_TYPE_CHOICES, label='Building Type')
+    unit_number = forms.CharField(required=False, max_length=64, label='Apt/Office/Unit')
+
+    city = forms.CharField(required=True, max_length=255, label='City')
+    state = forms.CharField(required=True, max_length=100, label='State')
+    zip_code = forms.CharField(required=True, max_length=25, label='Zip Code')
+
+    note = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3}), label='Note')

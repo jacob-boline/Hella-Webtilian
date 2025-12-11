@@ -6,8 +6,8 @@ from django.templatetags.static import static
 from django.views.decorators.http import require_POST, require_GET
 
 from hr_shop.models import Product
-from queries import get_active_product_tree
-from utils import resolve_variant_for_values
+from hr_shop.queries import get_active_product_tree
+from hr_shop.utils import resolve_variant_for_values
 
 
 def get_merch_grid_partial(request):

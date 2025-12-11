@@ -4,7 +4,7 @@ from django.http import HttpResponseBadRequest, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_POST
 
-from cart import get_cart, Cart, add_to_cart
+from hr_shop.cart import get_cart, Cart, add_to_cart
 from hr_shop.models import Product
 from hr_core.utils import http
 

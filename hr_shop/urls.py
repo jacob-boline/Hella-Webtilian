@@ -1,7 +1,7 @@
 # hr_shop/urls.py
 
 from django.urls import path
-from hr_shop.views import products, cart, manage
+from hr_shop.views import products, cart, manage, checkout
 
 app_name = 'hr_shop'
 
@@ -48,6 +48,12 @@ urlpatterns = [
     path('cart/update/<int:variant_id>/', cart.set_cart_quantity, name='set_cart_quantity'),
     path('cart/remove/<int:variant_id>/', cart.remove_from_cart, name='remove_from_cart'),
     path('cart/', cart.view_cart, name='view_cart'),
+
+    path('checkout/details/', checkout.checkout_details, name='checkout_details'),
+    path('checkout/details/submit', checkout.checkout_details_submit, name='checkout_details_submit'),
+    path('checkout/review/', checkout.checkout_review, name='checkout_review'),
+    path('checkout/create/', checkout.checkout_create_order, name='checkout_create_order'),
+    path('order/<int:order_id>/thank-you/', checkout.order_thank_you, name='order_thank_you'),
 
     # -------------------------------------------------------------------------
     # Legacy / commented routes below still reference `views.*` but are commented

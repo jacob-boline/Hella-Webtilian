@@ -55,10 +55,12 @@
 
         <div class="cart-total">
 
-            <button class="checkout-btn" type="button"
+            <button class="card-btn buy-cyan checkout-btn" type="button"
                     hx-get="{% url 'hr_shop:checkout_details' %}"
                     hx-target="#modal-content"
-                    hw-swap="innerHTML">Checkout</button>
+                    hx-swap="innerHTML transition:true">
+                Checkout
+            </button>
 
             <span>Total:</span>
             <p class="cart-total-amount">${{ total }}</p>

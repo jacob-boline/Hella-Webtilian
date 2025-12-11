@@ -295,7 +295,7 @@ nav.navbar {
   pointer-events: auto;
   width: 100%;
   max-width: min(64rem, calc(100vw - 2 * var(--pad-inline)));
-  max-height: min(80vh, calc(var(--vh) * 80));
+  max-height: min(85vh, calc(var(--vh) * 85));
   padding: 0 1.75rem 1.75rem;
   border-radius: 1rem;
   border: 1px solid rgba(255, 255, 255, 0.14);
