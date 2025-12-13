@@ -4,7 +4,8 @@
 <div class="dialog" role="dialog" aria-modal="true">
     <button class="close" data-close-modal>&times;</button>
     <h3>Claim a Guest Order</h3>
-    <form hx-post="/account/orders/claim/start" hx-swap="none">
+    <form hx-post="{% url 'hr_access:claim_start' %}" hx-swap="none">
+        {% csrf_token %}
         <label>Email used at checkout
             <input type="email" name="email" required>
         </label>

@@ -13,7 +13,8 @@ def form_field(
         required=None,
         help=None,
         wrapper_classes="field-row field-row-full",
-        group_classes="field-group"
+        group_classes="field-group",
+        placeholder=None
 ):
     """
     Render a field block with label, input, and error display.
@@ -57,6 +58,13 @@ def form_field(
         widget_attrs['aria-invalid'] = 'true'
     if described_by_ids:
         widget_attrs['aria-describedby'] = described_by_ids
+    if placeholder is not None:
+        if isinstance(placeholder, str):
+            widget_attrs['placeholder'] = placeholder
+        elif isinstance(placeholder, (int, float)):
+            widget_attrs['placeholder'] = str(placeholder)
+        else:
+            pass
 
     rendered_field = field.as_widget(attrs=widget_attrs)
 

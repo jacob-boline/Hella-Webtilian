@@ -1,0 +1,34 @@
+{# hr_access/templates/hr_access/claim/_claim_resend.html #}
+
+{% load form_fields %}
+
+<div class="auth-modal checkout-details-modal">
+    <h2 class="sub-header">Resend Activation Link</h2>
+    <p class="checkout-message">
+        Have a pending accoount that needs activation?
+        Enter your email and we'll send a new activation link.
+    </p>
+
+    <form id="claim-resend-form"
+          method="post"
+          action="{% url 'hr_access:claim_resend' %}"
+          hx-post="{% url 'hr_access:claim_resend' %}"
+          hx-swap="none"
+          novalidate>
+
+        {% csrf_token %}
+        {% form_field form.email placeholder='your@email.com' %}
+
+        <div class="checkout-footer">
+            <button type="submit" class="card-btn buy-cyan">
+                Send Activation Link
+            </button>
+            <button type="button" class="card-btn outline" data-modal-close>
+                Cancel
+            </button>
+        </div>
+
+        {% include 'hr_access/_auth_alt_action.html' %}
+
+    </form>
+</div>

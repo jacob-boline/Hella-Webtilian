@@ -37,6 +37,7 @@
         <!-- OPTION SELECTORS -->
         {% if option_types %}
             <form id="product-options-form">
+                {% csrf_token %}
                 {% for opt in option_types %}
                     <div class="modal-variant-group">
                         <label for="opt-{{ opt.code }}">{{ opt.name }}</label>

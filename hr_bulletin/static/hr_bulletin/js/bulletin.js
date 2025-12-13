@@ -16,9 +16,11 @@ document.addEventListener('click', function (e) {
     if (expanded) {
         label.firstChild && (label.firstChild.textContent = 'Hide');
         toggle.setAttribute('aria-expanded', 'true');
+        hrSite.reflowParallax();
     } else {
         label.firstChild && (label.firstChild.textContent = 'Read more');
         toggle.setAttribute('aria-expanded', 'false');
+        hrSite.reflowParallax();
     }
 });
 

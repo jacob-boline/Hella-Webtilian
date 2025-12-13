@@ -1,0 +1,31 @@
+{# hr_access/templates/hr_access/claim/_claim_email_sent.html #}
+
+<div class="checkout-state auth-state-{{ ok|yesno:'success,error' }}">
+    <div class="checkout-state-icon" style="color: var(--neon-{{ ok|yesno:'green,red' }});">
+        <i class="fas fa-{{ ok|yesno:'envelope-circle-check,exclamation-triangle' }}"></i>
+    </div>
+
+    {% if ok %}
+        <h2 class="checkout-title">Check Your Email</h2>
+        <p class="checkout-message">
+            We've sent a verification link to <strong>{{ email }}</strong>.
+            Click the link in the email to connect your guest order(s) to this account.
+        </p>
+        <p class="checkout-message checkout-message-secondary">
+            The link expires in 15 minutes.
+        </p>
+    {% else %}
+        <h2 class="checkout-title">
+            Could Not Send Email
+        </h2>
+        <p class="checkout-message">
+            {{ message|default:"Something went wrong. Please try again." }}
+        </p>
+    {% endif %}
+
+    <div class="checkout-actions">
+        <button type="button" class="card-btn buy-cyan" data-modal-close>
+            Done
+        </button>
+    </div>
+</div>

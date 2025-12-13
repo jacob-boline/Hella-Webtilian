@@ -3,6 +3,7 @@
 <div class="pm-product-header">
 
     <form hx-post="{% url 'hr_shop:update_product' pk=product.pk %}" hx-target="#pm-product-panel" hx-swap="innerHTML" class="pm-product-edit-form">
+        {% csrf_token %}
         {{ product_form.non_field_errors }}
         <div>{{ product_form.name.label_tag }} {{ product_form.name }}</div>
         <div>{{ product_form.slug.label_tag }} {{ product_form.slug }}</div>
@@ -36,6 +37,7 @@
 
         <h5>Add Option Type</h5>
         <form hx-post="{% url 'hr_shop:create_option_type' product_pk=product.pk %}" hx-target="#pm-product-panel" hx-swap="innerHTML" class="pm-option-type-create-form">
+            {% csrf_token %}
             {{ option_type_form.non_field_errors }}
             <div>{{ option_type_form.name.label_tag }} {{ option_type_form.name }}</div>
             <div>{{ option_type_form.code.label_tag }} {{ option_type_form.code }}</div>
@@ -79,6 +81,7 @@
                     </td>
                     <td>
                         <form hx-post="{% url 'hr_shop:delete_variant' pk=v.pk %}" hx-target="#pm-product-panel" hx-swap="innerHTML" style="display:inline;">
+                            {% csrf_token %}
                             <button type="submit" class="pm-small-button">Delete</button>
                         </form>
                     </td>
@@ -91,6 +94,7 @@
 
         <h5>Add Variant</h5>
         <form hx-post="{% url 'hr_shop:create_variant' product_pk=product.pk %}" hx-target="#pm-product-panel" hx-swap="innerHTML" class="pm-variant-create-form">
+            {% csrf_token %}
             {{ variant_form.non_field_errors }}
             <div>{{ variant_form.sku.label_tag }} {{ variant_form.sku }}</div>
             <div>{{ variant_form.name.label_tag }} {{ variant_form.name }}</div>

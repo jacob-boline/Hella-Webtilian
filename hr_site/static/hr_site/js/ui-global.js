@@ -120,12 +120,6 @@
         // ------------------------------
         // HTMX custom events from HX-Trigger
         // ------------------------------
-        document.addEventListener('passwordChanged', (e) => {
-            const detail = e.detail || {};
-            const msg = detail.message || detail.text || 'Password updated.';
-            hideModal();
-            showGlobalMessage(msg, 5000);
-        });
 
         document.body.addEventListener('showMessage', (event) => {
             // const detail = e.detail || {};

@@ -6,6 +6,7 @@
     hx-swap="innerHTML"
     class="pm-product-create-form"
 >
+    {% csrf_token %}
     {{ form.non_field_errors }}
     <div>
         {{ form.name.label_tag }} {{ form.name }}

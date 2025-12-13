@@ -1,0 +1,36 @@
+{# hr_access/templates/hr_access/claim/_claim_account.html #}
+
+{% load form_fields %}
+
+<div class="auth-model checkout-details-modal">
+    <h2 class="sub-header">Activate Your Account</h2>
+
+    <p class="checkout-message">
+        Welcome, {{ shadow.email }}! Set a password to complete your account setup.
+    </p>
+
+    {% include 'hr_common/_non_field_errors.html' %}
+
+    <form
+        id="claim-account-form"
+        method="post"
+        hx-post=''
+        hx-target="#modal-content"
+        hx-swap="innerHTML"
+        novalidate>
+
+        {% csrf_token %}
+
+        {% form_field form.password1 help="At least 8 characters, not entirely numeric" %}
+        {% form_field form.password2 %}
+
+        <div class="checkout-footer">
+            <button type="submit" class="card-btn buy-cyan">
+                Activate Accoount
+            </button>
+            <button type="button" class="card-btn outline" data-modal-close>
+                Cancel
+            </button>
+        </div>
+    </form>
+</div>

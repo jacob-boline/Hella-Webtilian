@@ -1,5 +1,4 @@
-{#  templates/registration/_login.html #}
-
+{#  hr_accesstemplates/hr_access//registration/_login.html #}
 
 {% load form_fields %}
 
@@ -17,10 +16,9 @@
         hx-swap="innerHTML"
         novalidate>
 
+        {% csrf_token %}
         {% form_field form.username %}
-
         {% form_field form.password %}
-
 
         <div class="checkout-footer">
             <button type="submit" class="card-btn buy-cyan">
