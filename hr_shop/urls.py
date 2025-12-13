@@ -18,11 +18,13 @@ urlpatterns = [
 
     path('manage/', manage.product_manager, name='product_manager'),
 
+
     # Admin: product management partials
 
     path('manage/products/', manage.get_manage_product_list_partial, name='get_product_list_partial'),
     path('manage/product/<int:pk>/', manage.get_manage_product_panel_partial, name='get_product_panel_partial'),
     path('manage/option-type/<int:pk>/', manage.get_manage_option_type_panel_partial, name='get_manage_option_type_panel_partial'),
+
 
     # Admin: OptionType CRUD
 
@@ -30,16 +32,19 @@ urlpatterns = [
     path('manage/option-type/<int:pk>/update/', manage.update_option_type, name='update_option_type'),
     path('manage/option-type/<int:pk>/delete/', manage.delete_option_type, name='delete_option_type'),
 
+
     # Admin: OptionValue CRUD
 
     path('manage/option-type/<int:option_type_pk>/value/create/', manage.create_option_value, name='create_option_value'),
     path('manage/option-value/<int:pk>/update/', manage.update_option_value, name='update_option_value'),
     path('manage/option-value/<int:pk>/delete/', manage.delete_option_value, name='delete_option_value'),
 
+
     # Admin: Variant CRUD
 
     path('manage/product/<int:product_pk>/variant/create/', manage.create_variant, name='create_variant'),
     path('manage/variant/<int:pk>/delete/', manage.delete_variant, name='delete_variant'),
+
 
     # Cart
 
@@ -49,11 +54,22 @@ urlpatterns = [
     path('cart/remove/<int:variant_id>/', cart.remove_from_cart, name='remove_from_cart'),
     path('cart/', cart.view_cart, name='view_cart'),
 
+
+    # Checkout flow
+
     path('checkout/details/', checkout.checkout_details, name='checkout_details'),
     path('checkout/details/submit', checkout.checkout_details_submit, name='checkout_details_submit'),
     path('checkout/review/', checkout.checkout_review, name='checkout_review'),
     path('checkout/create/', checkout.checkout_create_order, name='checkout_create_order'),
     path('order/<int:order_id>/thank-you/', checkout.order_thank_you, name='order_thank_you'),
+
+    # Email confirmation
+
+    path('checkout/confirm/<str:token>/', checkout.confirm_checkout_email, name='confirm_checkout_email'),
+    path('checkout/check-confirmed/', checkout.check_email_confirmed, name='check_email_confirmed'),
+    path('checkout/resend_confirmation/', checkout.resend_checkout_confirmation, name='resend_checkout_confirmation'),
+
+
 
     # -------------------------------------------------------------------------
     # Legacy / commented routes below still reference `views.*` but are commented

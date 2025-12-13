@@ -49,6 +49,7 @@ from django.db.models import Q
 from django.utils import timezone
 
 from hr_common.models import Address
+from hr_core.utils.email import normalize_email
 from hr_core.utils.slug import sync_slug_from_source
 
 
@@ -115,7 +116,7 @@ class ProductOptionType(models.Model):
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        related_name="option_types",
+        related_name="option_types"
     )
     name = models.CharField(max_length=64)
     code = models.SlugField()
@@ -128,7 +129,7 @@ class ProductOptionType(models.Model):
         help_text=(
             "If true, different values of this option type are expected to "
             "map to different images for this product."
-        ),
+        )
     )
 
     # Optional: default selection to pre-populate selects in the UI
@@ -137,7 +138,7 @@ class ProductOptionType(models.Model):
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
-        related_name="+",
+        related_name="+"
     )
 
     class Meta:
@@ -172,7 +173,7 @@ class ProductOptionValue(models.Model):
     option_type = models.ForeignKey(
         ProductOptionType,
         on_delete=models.CASCADE,
-        related_name="values",
+        related_name="values"
     )
     name = models.CharField(max_length=50)  # e.g. 'Black', 'XL'
     code = models.SlugField()
@@ -246,7 +247,7 @@ class OptionTypeTemplate(models.Model):
             name=self.name,
             code=new_code,
             position=0,  # save() will autoincrement position per product
-            active=True,
+            active=True
         )
 
         if include_values:
@@ -259,7 +260,7 @@ class OptionTypeTemplate(models.Model):
                         name=v.name,
                         code=v.code,
                         position=0,  # save() will autoincrement
-                        active=v.active,
+                        active=v.active
                     )
                 )
             ProductOptionValue.objects.bulk_create(new_values)
@@ -276,7 +277,7 @@ class OptionValueTemplate(models.Model):
     option_type = models.ForeignKey(
         OptionTypeTemplate,
         on_delete=models.CASCADE,
-        related_name="values",
+        related_name="values"
     )
     name = models.CharField(max_length=50)
     code = models.SlugField()
@@ -318,7 +319,7 @@ class ProductVariant(models.Model):
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        related_name="variants",
+        related_name="variants"
     )
     sku = models.CharField(max_length=64, unique=True)
     slug = models.SlugField(max_length=160, blank=True, unique=True)
@@ -327,7 +328,7 @@ class ProductVariant(models.Model):
     price = models.DecimalField(
         max_digits=10,
         decimal_places=2,
-        validators=[MinValueValidator(Decimal("0"))],
+        validators=[MinValueValidator(Decimal("0"))]
     )
 
     is_display_variant = models.BooleanField(
@@ -335,38 +336,37 @@ class ProductVariant(models.Model):
         help_text=(
             "If set, this variant will be used as the product default/"
             "display variant."
-        ),
+        )
     )
 
     option_values = models.ManyToManyField(
         ProductOptionValue,
         through="ProductVariantOption",
         related_name="variants",
-        blank=True,
+        blank=True
     )
 
     active = models.BooleanField(default=True)
 
-    # New: one image per variant, but shared across variants via ProductImage.
     image = models.ForeignKey(
         ProductImage,
         related_name="variants",
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.SET_NULL
     )
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
                 fields=["product", "slug"],
-                name="uq_variant_slug_per_product",
+                name="uq_variant_slug_per_product"
             ),
             models.UniqueConstraint(
                 fields=["product"],
                 condition=Q(is_display_variant=True),
-                name="uq_primary_variant_per_product",
-            ),
+                name="uq_primary_variant_per_product"
+            )
         ]
 
     def __str__(self):
@@ -402,12 +402,12 @@ class ProductVariantOption(models.Model):
     variant = models.ForeignKey(
         ProductVariant,
         on_delete=models.CASCADE,
-        related_name="variant_options",
+        related_name="variant_options"
     )
     option_value = models.ForeignKey(
         ProductOptionValue,
         on_delete=models.CASCADE,
-        related_name="variant_options",
+        related_name="variant_options"
     )
 
     class Meta:
@@ -454,14 +454,14 @@ class Customer(models.Model):
         blank=False,
         null=False,
         unique=False,
-        validators=[EmailValidator()],
+        validators=[EmailValidator()]
     )
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         blank=True,
         null=True,
         related_name="customers",
-        on_delete=models.SET_NULL,
+        on_delete=models.SET_NULL
     )
     first_name = models.CharField(max_length=100, blank=True)
     last_name = models.CharField(max_length=100, blank=True)
@@ -490,7 +490,7 @@ class Order(models.Model):
         ("pending", "Pending"),
         ("paid", "Paid"),
         ("failed", "Failed"),
-        ("refunded", "Refunded"),
+        ("refunded", "Refunded")
     ]
 
     customer = models.ForeignKey(
@@ -498,30 +498,31 @@ class Order(models.Model):
         null=True,
         blank=False,
         on_delete=models.PROTECT,
-        related_name="orders",
+        related_name="orders"
     )
     stripe_checkout_session_id = models.CharField(max_length=255, unique=True, blank=True, null=True)
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
-        default="pending",
+        default="pending"
     )
     email = models.EmailField(
         null=False,
         blank=False,
-        validators=[EmailValidator()],
+        validators=[EmailValidator()]
     )
     shipping_address = models.ForeignKey(
         Address,
         on_delete=models.SET_NULL,
         null=True,
-        blank=True,
+        blank=True
     )
     total = models.DecimalField(
         max_digits=10,
         decimal_places=2,
-        validators=[MinValueValidator(0)],
+        validators=[MinValueValidator(0)]
     )
+    note = models.CharField(max_length=1000, null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -538,7 +539,7 @@ class OrderItem(models.Model):
     order = models.ForeignKey(
         Order,
         on_delete=models.CASCADE,
-        related_name="items",
+        related_name="items"
     )
     variant = models.ForeignKey(ProductVariant, on_delete=models.PROTECT)
     quantity = models.PositiveIntegerField(default=1)
@@ -558,3 +559,36 @@ class WebhookEvent(models.Model):
     received_at = models.DateTimeField(default=timezone.now)
     processed_at = models.DateTimeField(null=True, blank=True)
     ok = models.BooleanField(default=False)
+
+
+# ==========================
+# Email Confirmation
+# ==========================
+
+class ConfirmedEmail(models.Model):
+    """
+    Tracks email addresses that have been confirmed for checkout.
+    Once an email is confirmed, it never needs to be confirmed again.
+    This enables guest checkout while preventing abuse.
+    """
+    email = models.EmailField(unique=True, db_index=True)
+    confirmed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Confirmed Email"
+        verbose_name_plural = "Confirmed Emails"
+        ordering = ["-confirmed_at"]
+
+    def __str__(self):
+        return self.email
+
+    @classmethod
+    def is_confirmed(cls, email: str) -> bool:
+        """Check if an email address has been confirmed."""
+        return cls.objects.filter(email__iexact=normalize_email(email)).exists()
+
+    @classmethod
+    def mark_confirmed(cls, email: str) -> "ConfirmedEmail":
+        """Mark an email address as confirmed. Idempotent."""
+        obj, _ = cls.objects.get_or_create(email=(normalize_email(email)))
+        return obj

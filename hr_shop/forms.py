@@ -95,10 +95,10 @@ class CheckoutDetailsForm(forms.Form):
     ]
 
     building_type = forms.ChoiceField(required=True, choices=BUILDING_TYPE_CHOICES, label='Building Type')
-    unit_number = forms.CharField(required=False, max_length=64, label='Apt/Office/Unit')
+    unit = forms.CharField(required=False, max_length=64, label='Apt/Office/Unit')
 
     city = forms.CharField(required=True, max_length=255, label='City')
     state = forms.CharField(required=True, max_length=100, label='State')
     zip_code = forms.CharField(required=True, max_length=25, label='Zip Code')
 
-    note = forms.CharField(required=False, widget=forms.Textarea(attrs={'rows': 3}), label='Note')
+    note = forms.CharField(required=False, max_length=1000, widget=forms.Textarea(attrs={'rows': 5}), label='Note')

@@ -1,0 +1,38 @@
+{# hr_shop/templates/hr_shop/_checkout_session_expired.html #}
+
+{# Modal partial shown when checkout session has expired #}
+
+
+{% load static %}
+
+<div class="checkout-session-expired checkout-state-center">
+
+    <div class="expired-icon">
+        <i class="fas fa-clock"></i>
+    </div>
+
+    <h2 class="checkout-title">Session Expired</h2>
+
+    <p class="checkout-message">
+        Your checkout session has expired or could not be found.
+        Please re-enter your details to continue.
+    </p>
+
+    <div class="checkout-actions">
+        <button type="button"
+                class="card-btn buy-cyan"
+                hx-get="{% url 'hr_shop:checkout_details' %}"
+                hx-target="#modal-content"
+                hx-swap="innerHTML">
+            <i class="fas fa-redo"></i> Start Again
+        </button>
+
+        <button type="button"
+                class="card-btn outline"
+                hx-get="{% url 'hr_shop:view_cart' %}"
+                hx-target="#modal-content"
+                hx-swap="innerHTML">
+            <i class="fas fa-shopping-cart"></i> View Cart
+        </button>
+    </div>
+</div>

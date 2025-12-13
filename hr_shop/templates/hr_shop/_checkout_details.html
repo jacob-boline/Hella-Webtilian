@@ -23,7 +23,7 @@
         {% csrf_token %}
 
         {# CONTACT #}
-        <h3 class="checkout-section-title">Contact</h3>
+        <h3 class="checkout-title">Contact</h3>
         <div class="field-row field-row-two-cols">
             <div class="field-group">
                 <label for="{{ form.email.id_for_label }}">
@@ -53,7 +53,7 @@
         </div>
 
         {# NAME #}
-        <h3 class="checkout-section-title">Name</h3>
+        <h3 class="checkout-title">Name</h3>
 
         <div class="field-row field-row-two-cols">
             <div class="field-group">
@@ -112,7 +112,7 @@
         </div>
 
         {# ADDRESS #}
-        <h3 class="checkout-section-title">Shipping address</h3>
+        <h3 class="checkout-title">Shipping address</h3>
 
         <div class="field-row field-row-full">
             <div class="field-group">
@@ -161,14 +161,14 @@
                 {% endif %}
             </div>
 
-            <div class="field-group" id="unit-number-group">
-                <label for="{{ form.unit_number.id_for_label }}">
+            <div class="field-group" id="unit-group">
+                <label for="{{ form.unit.id_for_label }}">
                     Unit / Apt / Office #
                 </label>
-                {{ form.unit_number }}
-                {% if form.unit_number.errors %}
+                {{ form.unit }}
+                {% if form.unit.errors %}
                     <div class="field-error">
-                        {% for error in form.unit_number.errors %}
+                        {% for error in form.unit.errors %}
                             <span>{{ error }}</span>
                         {% endfor %}
                     </div>

@@ -1,0 +1,47 @@
+{#  templates/registration/_login.html #}
+
+
+{% load form_fields %}
+
+<div class="auth-modal checkout-details-modal">
+    <h2 class="sub-header">Sign In</h2>
+
+    {% include 'hr_common/_non_field_errors.html' %}
+
+    <form
+        id="login-form"
+        method="post"
+        action="{% url 'hr_access:login' %}"
+        hx-post="{% url 'hr_access:login' %}"
+        hx-target="#modal-content"
+        hx-swap="innerHTML"
+        novalidate>
+
+        {% form_field form.username %}
+
+        {% form_field form.password %}
+
+
+        <div class="checkout-footer">
+            <button type="submit" class="card-btn buy-cyan">
+                Sign In
+            </button>
+            <button type="button" class="card-btn outline" data-modal-close>
+                Cancel
+            </button>
+        </div>
+
+        <div class="auth-links">
+            <button type="button"
+                    class="link-btn"
+                    hx-get="{% url 'password_reset' %}"
+                    hx-target="#nodal-content"
+                    hx-swap="innerHTML">
+                Forgot password?
+            </button>
+        </div>
+
+    {% include 'hr_access/_auth_alt_action.html' %}
+
+    </form>
+</div>

@@ -135,3 +135,12 @@ STORAGES = {
 }
 
 SHOP_PAYMENT_BACKEND = "mock_stripe"
+
+# DEFAULT_FROM_EMAIL = 'noreply@hellareptilian.com'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'in-v3.mailjet.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')  # Mailjet API Key
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')  # Mailjet secret
+DEFAULT_FROM_EMAIL = 'Hella Reptilian <no-reply@hellareptilian.com>'

@@ -66,9 +66,16 @@
   --card-bg-start: #2a2a2a;
   --card-bg-end: #1b1b1b;
   --accent: #fa0;
+  --gold: #ffa500;
   --glow: #fd6;
   --neon-color: #ff00f7;
   --neon-duration: 6.5s;
+  --neon-blue: #00eaff;
+  --neon-red: #ff6b6b;
+  --neon-green: #39ff14;
+  --text: #f5f5f5;
+  --muted-text: #aaaaaa;
+  --faint-text: #888888;
 
   /* wipe edge tuning */
   --edge-fade: 15%;
@@ -94,6 +101,8 @@
   --ink-700: #2b2f36;
   --muted: #5b6472;
   --purple: #9d00ff;
+
+
 }
 
 /* ===========================

@@ -1,0 +1,41 @@
+ hr_common/templates/_form_field.html
+
+
+<div class="{{ wrapper_classes }} field-row--{{ state|default:'neutral' }}">
+    <div class="{{ group_classes }}
+                {% if state == 'error' %} field-group--error{% endif %}
+                {% if state == 'valid' %} field-group--valid{% endif %}">
+
+        {# LABEL #}
+        <label for="{{ field_id }}">
+            {{ label }}
+            {% if required %}
+                <span class="required-star">*</span>
+            {% endif %}
+        </label>
+
+        {# INPUT ELEMENT WITH ARIA ATTRS #}
+        {{ rendered_field|safe }}
+
+        {# HELP TEXT (from Django field or manual override) #}
+        {% if help %}
+            <div id="{{ help_id }}" class="field-help">
+                {{ help }}
+            </div>
+        {% elif field.help_text %}
+            <div id="{{ help_id }}" class="field-help">
+                {{ field.help_text }}
+            </div>
+        {% endif %}
+
+        {# ERRORS #}
+        {% if has_errors %}
+            <div id="{{ error_id }}" class="field-error">
+                {% for error in field.errors %}
+                    <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+    </div>
+</div>

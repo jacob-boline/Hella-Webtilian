@@ -1,0 +1,117 @@
+{# hr_shop/templates/hr_shop/_checkout_review.html #}
+
+{# Modal partial for reviewing order before payment #}
+
+{% load static %}
+
+<div class="checkout-review-modal">
+    <h2 class="review-title">Review Your Order</h2>
+
+    {# Customer & Address Summary #}
+    {% if customer and address %}
+        <div class="review-section">
+
+            <h3 class="review-section-title">Shipping Details</h3>
+
+            <div class="shipping-summary">
+                <p class="customer-name">
+                    {{ customer.first_name }} {{ customer.last_name }}
+                </p>
+                <p class="customer-email">
+                    {{ customer.email }}
+                </p>
+                {% if customer.phone %}
+                    <p class="customer-phone">{{ customer.phone }}</p>
+                {% endif %}
+                <p class="shipping-address">
+                    {{ address.street_address }}<br>
+                    {% if address.street_address_line2 %}{{ address.street_address_line2 }}<br>{% endif %}
+                    {% if address.unit %}Unit {{ address.unit }}<br>{% endif %}
+                    {{ address.city }}, {{ address.subdivision }} {{ address.postal_code }}
+                </p>
+            </div>
+
+            <button type="button"
+                    class="edit-details-btn"
+                    hx-get="{% url 'hr_shop:checkout_details' %}"
+                    hx-target="#modal-content"
+                    hx-swap="innerHTML">
+                <i class="fas fa-edit"></i> Edit
+            </button>
+        </div>
+    {% endif %}
+
+    {# Order Items #}
+    <div class="review-section">
+
+        <h3 class="checkout-title">Items</h3>
+
+        <div class="review-items">
+            {% for item in items %}
+            <div class="review-item">
+                <div class="item-info">
+                    <span class="item-name">{{ item.variant.product.name }}</span>
+                    {% if item.variant.name %}
+                    <span class="item-variant">{{ item.variant.name }}</span>
+                    {% endif %}
+                    <span class="item-qty">Qty: {{ item.quantity }}</span>
+                </div>
+                <span class="item-price">${{ item.unit_price|floatformat:2 }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {# Order Totals #}
+    <div class="review-section review-totals">
+        <div class="total-row">
+            <span>Subtotal</span>
+            <span>${{ subtotal|floatformat:2 }}</span>
+        </div>
+
+        {% if tax %}
+            <div class="total-row">
+                <span>Tax</span>
+                <span>${{ tax|floatformat:2 }}</span>
+            </div>
+        {% endif %}
+
+        {% if shipping %}
+            <div class="total-row">
+                <span>Shipping</span>
+                <span>${{ shipping|floatformat:2 }}</span>
+            </div>
+        {% endif %}
+
+        <div class="total-row total-final">
+            <span>Total</span>
+            <span>${{ total|floatformat:2 }}</span>
+        </div>
+    </div>
+
+    {# Special Instructions #}
+    {% if note %}
+        <div class="review-section">
+            <h3 class="checkout-title">Special Instructions</h3>
+            <p class="review-note">{{ note }}</p>
+        </div>
+    {% endif %}
+
+    {# Actions #}
+    <div class="review-actions">
+        <form method="post" action="{% url 'hr_shop:checkout_create_order' %}">
+            {% csrf_token %}
+            <button type="submit" class="card-btn buy-cyan">
+                <i class="fas fa-lock"></i> Proceed to Payment
+            </button>
+        </form>
+
+        <button type="button"
+                class="card-btn outline"
+                hx-get="{% url 'hr_shop:view_cart' %}"
+                hx-target="#modal-content"
+                hx-swap="innerHTML">
+            <i class="fas fa-arrow-left"></i> Back to Cart
+        </button>
+    </div>
+</div>

@@ -159,6 +159,44 @@
             }
         });
 
+        function initCheckoutDetailsForm(root) {
+            const container = root || document;
+            const form = container.getElementById
+                ? container.getElementById('checkout-details-form')
+                : container.querySelector('#checkout-details-form');
+
+            if (!form) return;
+
+            const buildingSelect = form.querySelector('#id_building_type');
+            const unitGroup = form.querySelector('#unit-group');
+
+            if (!buildingSelect || !unitGroup) return;
+
+            const showFor = ['apartment', 'business', 'other'];
+
+            function updateUnitVisibility () {
+                const val = buildingSelect.value;
+                const unitInput = unitGroup.querySelector('input');
+
+                if (showFor.indexOf(val) >= 0) {
+                    unitGroup.style.visibility = 'visible';
+                }
+                else {
+                    unitGroup.style.visibility = 'hidden';
+                    if (unitInput) unitInput.value = '';
+                }
+            }
+
+            buildingSelect.addEventListener('change', updateUnitVisibility);
+            updateUnitVisibility();
+        }
+
+        document.body.addEventListener('htmx:afterSwap', function (event) {
+            if (event.target.id === 'modal-content' || event.target.querySelector('#checkout-details-form')) {
+                initCheckoutDetailsForm(event.target);
+            }
+        });
+
 
         // ------------------------------
         // Drawer navigation

@@ -5,11 +5,22 @@ from logging import getLogger
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import user_passes_test
-from django.contrib.auth import authenticate, login, logout, update_session_auth_hash, get_user_model
+from django.contrib.auth import (
+    login,
+    logout,
+    update_session_auth_hash,
+    get_user_model
+)
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.tokens import default_token_generator
-from django.contrib.auth.views import LoginView
+from django.contrib.auth.views import (
+    LoginView,
+    PasswordResetView,
+    PasswordResetDoneView,
+    PasswordResetConfirmView,
+    PasswordResetCompleteView
+)
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned, ValidationError
 from django.core.mail import send_mail
 from django.core.signing import TimestampSigner, BadSignature, SignatureExpired
@@ -23,9 +34,9 @@ from django.views.decorators.http import require_POST, require_http_methods
 
 from hr_access.forms import StaffForm, SetPasswordForm, CustomUserCreationForm
 from hr_access.emails import send_claim_email
+from hr_core.mixins import HtmxTemplateMixin
 from hr_core.utils import http
 from hr_core.utils.email import normalize_email
-from hr_shop.cart import get_cart
 from hr_shop.models import Order
 from hr_site.views import display_message_box_modal
 from hr_shop.services.customers import attach_customer_to_user
@@ -40,47 +51,95 @@ signer = TimestampSigner()
 # =====================================================================================================================
 #  ACCOUNT
 # =====================================================================================================================
+#
+# def signup(request):
+#     """
+#     Public signup.
+#     - If an INACTIVE (shadow) user exists with that email → send claim link instead.
+#     - If an ACTIVE user exists → error.
+#     - Else create user, log in.
+#     """
+#     if request.method == "POST":
+#         form = CustomUserCreationForm(request.POST)
+#         if form.is_valid():
+#             email = normalize_email(form.cleaned_data.get("email"))
+#             UserModel = get_user_model()
+#
+#             # inactive = User.objects.filter(email=email, is_active=False).first()
+#             # if inactive:
+#             #     # Send claim link instead of creating a duplicate account.
+#             #     send_claim_email(request, inactive)
+#             #     messages.info(
+#             #         request,
+#             #         "We found a pending account for that email. We sent a link to finish setup."
+#             #     )
+#             #     return redirect("account:login")  # or wherever
+#
+#             if UserModel.objects.filter(email=email, is_active=True).exists():
+#                 messages.error(request, "An account already exists for that email. Please sign in.")
+#                 return redirect("account:login")
+#
+#             user = form.save()  # creation form already normalizes email + sets password
+#             login(request, user)
+#             #  immediately attach any guest orders with matching email
+#             try:
+#                 attach_customer_to_user(user)
+#             except (ObjectDoesNotExist, MultipleObjectsReturned, ValidationError, IntegrityError) as err:
+#                 logger.warning(f'Failed to attach guest orders for user {user.pk}: {err}')
+#             messages.success(request, "Welcome! Your account is ready.")
+#             return redirect("account:orders")  # or LOGIN_REDIRECT_URL
+#     else:
+#         form = CustomUserCreationForm()
+#
+#     return render(request, "hr_access/signup.html", {"form": form})
+
 
 def signup(request):
     """
     Public signup.
-    - If an INACTIVE (shadow) user exists with that email → send claim link instead.
-    - If an ACTIVE user exists → error.
-    - Else create user, log in.
+        - If a shadow user exists with that email -> send claim link.
+        - If an active user exists -> error.
+        - Else create user, log in.
     """
-    if request.method == "POST":
+    if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
+
         if form.is_valid():
-            email = normalize_email(form.cleaned_data.get("email"))
-            User = get_user_model()
+            email = normalize_email(form.cleaned_data.get('email'))
+            UserModel = get_user_model()
 
-            # inactive = User.objects.filter(email=email, is_active=False).first()
-            # if inactive:
-            #     # Send claim link instead of creating a duplicate account.
-            #     send_claim_email(request, inactive)
-            #     messages.info(
-            #         request,
-            #         "We found a pending account for that email. We sent a link to finish setup."
-            #     )
-            #     return redirect("account:login")  # or wherever
+            if UserModel.objects.filter(email=email, is_active=True).exists():
+                form.add_error('email', "An account already exists with this email.")
+                template = 'hr_access/_signup.html' if http.is_htmx(request) else 'hr_access/signup.html'
+                return render(request, template, {'form': form})
 
-            if User.objects.filter(email=email, is_active=True).exists():
-                messages.error(request, "An account already exists for that email. Please sign in.")
-                return redirect("account:login")
-
-            user = form.save()  # creation form already normalizes email + sets password
+            user = form.save()
             login(request, user)
-            #  immediately attach any guest orders with matching email
+
             try:
                 attach_customer_to_user(user)
             except (ObjectDoesNotExist, MultipleObjectsReturned, ValidationError, IntegrityError) as err:
                 logger.warning(f'Failed to attach guest orders for user {user.pk}: {err}')
-            messages.success(request, "Welcome! Your account is ready.")
-            return redirect("account:orders")  # or LOGIN_REDIRECT_URL
-    else:
-        form = CustomUserCreationForm()
 
-    return render(request, "hr_access/signup.html", {"form": form})
+            if http.is_htmx(request):
+                response = render(request, 'hr_access/registration/_signup_success.html')
+                response.headers['HX-Trigger'] = json.dumps({
+                    'accessChanged': None,
+                    'showMessage': 'Welcome! Your account is ready.'
+                })
+                return response
+
+            messages.success(request, 'Welcome! Your account is ready.')
+
+            return redirect('hr_access:orders')
+
+        else:
+            template = 'hr_access/_signup.html' if http.is_htmx(request) else 'hr_access/signup.html'
+            return render(request, template, {'form': form})
+
+    form = CustomUserCreationForm()
+    template = 'hr_access/_signup,html' if http.is_htmx(request) else 'hr_access/signup.html'
+    return render(request, template, {'form': form})
 
 
 def user_login(request):
@@ -123,7 +182,7 @@ def user_login(request):
         messages.error(request, "No match found for Username/Password")
         return render(
             request,
-            "hr_access/login.html",
+            "hr_access/_registration/login.html",
             {"authentication_form": form},
         )
 
@@ -134,11 +193,11 @@ def user_login(request):
         return render(request, "hr_access/_sidebar_access.html", {"authentication_form": form})
 
     # Normal full-page login view
-    return render(request, "hr_access/login.html", {"authentication_form": form})
+    return render(request, "hr_access/_registration/login.html", {"authentication_form": form})
 
 
 def login_success(request):
-    return render(request, 'hr_access/_login_success.html')
+    return render(request, 'hr_access/registration/_login_success.html')
 
 
 def user_logout(request):
@@ -169,7 +228,7 @@ def password_change(request):
         if form.is_valid():
             form.save()
             update_session_auth_hash(request, form.user)
-            #messages.success(request, 'Password updated.')
+            # messages.success(request, 'Password updated.')
 
             if http.is_htmx(request):
                 headers = {
@@ -187,8 +246,8 @@ def password_change(request):
         form = PasswordChangeForm(user=request.user)
 
     if http.is_htmx(request):
-        return render(request, "hr_access/_password_change_form.html", {"form": form})
-    return render(request, "hr_access/password_change_form.html", {"form": form})
+        return render(request, "hr_access/_registration/_password_change_form.html", {"form": form})
+    return render(request, "hr_access/_registration/password_change_form.html", {"form": form})
 
 
 # ==================================================================================================================
@@ -305,13 +364,13 @@ def user_panel(request):
 def sidebar_access(request):
     return render(request, 'hr_access/_sidebar_ul.html')
 
-
 # ==================================================================================================================
 #  ROLES
 # ==================================================================================================================
 
+
 class AdminLogin(LoginView):
-    template_name = 'hr_access/loginview_form.html'
+    template_name = 'hr_access/_registration/loginview_form.html'
 
 
 @user_passes_test(lambda u: u.is_superuser)
@@ -398,5 +457,27 @@ def perform_superuser_removal(request, user_id):
     )
 
 
+class HRPasswordResetView(HtmxTemplateMixin, PasswordResetView):
+    template_name = 'registration/password_reset_form.html'
+    htmx_template_name = 'registration/_password_reset_form.html'
+
+    email_template_name = 'registration/password_reset_email.txt'
+    html_email_template_name = 'registration/password_reset_email.html'
+    subject_template_name = 'registration/password_reset_subject.txt'
+    # success_url 'password_reset_done' or override
 
 
+class HRPasswordResetDoneView(HtmxTemplateMixin, PasswordResetDoneView):
+    template_name = 'registration/password_reset_done.html'
+    htmx_template_name = 'registration/_password_reset_done.html'
+
+
+class HRPasswordResetConfirmView(HtmxTemplateMixin, PasswordResetConfirmView):
+    template_name = 'registration/password_reset_confirm.html'
+    htmx_template_name = 'registration/_password_reset_confirm.html'
+    # success_url =  'password_reset_complete' or override
+
+
+class HRPasswordResetCompleteView(HtmxTemplateMixin, PasswordResetCompleteView):
+    template_name = 'registration/password_reset_complete.html'
+    htmx_template_name = 'registration/_password_reset_complete.html'

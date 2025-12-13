@@ -1,0 +1,96 @@
+{# hr_shop/templates/hr_shop/_checkout_awaiting_confirmation.html #}
+
+{# Modal partial shown while waiting for email confirmation #}
+
+
+{% load static %}
+
+<div id="confirmation-waiting"
+     class="checkout-awaiting-confirmation .checkout-state-center"
+     {% if not rate_limited and not error %}
+     hx-get="{% url 'hr_shop:check_email_confirmed' %}"
+     hx-trigger="every 5s [pollCount < 720]"
+     hx-on::before-request="this.pollCount = (this.pollCount || 0) + 1"
+     hx-swap="innerHTML"
+     hx-target="#modal-content"
+     {% endif %}>
+
+    <div class="confirmation-icon">
+        {% if rate_limited %}
+            <i class="fas fa-exclamation-triangle"></i>
+        {% elif error %}
+            <i class="fas fa-times-circle"></i>
+        {% else %}
+            <i class="fas fa-envelope"></i>
+        {% endif %}
+    </div>
+
+    <p class="checkout-message">
+        {{ message }}
+    </p>
+
+    <p class="email-sent-to">
+        {% if not error %}
+            Sent to: <strong>{{ email }}</strong>
+        {% endif %}
+    </p>
+
+    {% if sent_at %}
+        <p class="email-sent-at">
+            Sent at {{ sent_at|time:"g:i A" }}
+        </p>
+    {% endif %}
+
+    <div class="checkout-actions">
+        {% if not rate_limited %}
+            <button type="button"
+                    class="card-btn outline"
+                    hx-post="{% url 'hr_shop:resend_checkout_confirmation' %}"
+                    hx-target="#modal-content"
+                    hx-swap="innerHTML"
+                    hx-indicator="#resend-spinner"
+                    hx-disabled-elt="this">
+                <span class="htmx-indicator" id="resend-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </span>
+                <span class="btn-text">
+                    <i class="fas fa-redo"></i>
+                    Resend Email
+                </span>
+            </button>
+        {% endif %}
+
+        <button type="button"
+                class="card-btn outline"
+                hx-get="{% url 'hr_shop:checkout_details' %}"
+                hx-target="#modal-content"
+                hx-swap="innerHTML">
+            <i class="fas fa-edit"></i> Change Email
+        </button>
+    </div>
+
+    <details class="email-help">
+        <summary>Didn't receive the email?</summary>
+        <ul>
+            <li>Check your spam or junk folder</li>
+            <li>Make sure you entered the correct email address</li>
+            <li>Add orders@hellareptilian.com to your contacts</li>
+            <li>Try the resend button above</li>
+            <li>Wait a few minutes - emails can sometimes be delayed</li>
+        </ul>
+    </details>
+
+    <p class="confirmation-note">
+        <small>
+            {% if not rate_limited and not error %}
+            This page will automatically update when you confirm.<br>
+            {% endif %}
+            The confirmation link expires in 1 hour.
+        </small>
+    </p>
+
+    {# Hidden status announcer for screen readers #}
+    <div role="status" aria-live="polite" class="sr-only" id="status-announcer">
+        Waiting for email confirmation
+    </div>
+</div>

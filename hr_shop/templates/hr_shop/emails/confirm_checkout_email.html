@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Confirm Your Email - Hella Reptilian</title>
+    <!--[if mso]>
+    <noscript>
+        <xml>
+            <o:OfficeDocumentSettings>
+                <o:PixelsPerInch>96</o:PixelsPerInch>
+            </o:OfficeDocumentSettings>
+        </xml>
+    </noscript>
+    <![endif]-->
+</head>
+
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #1a1a1a; color: #f0f0f0;">
+    <table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; background-color: #1a1a1a;">
+        <tr>
+            <td align="center" style="padding: 40px 20px;">
+                <table role="presentation" style="width: 100%; max-width: 480px; border-collapse: collapse; border: 0; border-spacing: 0; background-color: #2a2a2a; border-radius: 12px; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);">
+                    <!-- Header -->
+                    <tr>
+                        <td style="padding: 32px 32px 24px; text-align: center; border-bottom: 1px solid #3a3a3a;">
+                            <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #fa0; letter-spacing: 0.05em; text-transform: uppercase;">
+                                                                Hella Reptilian
+                            </h1>
+                        </td>
+                    </tr>
+
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 32px;">
+                            <h2 style="margin: 0 0 16px; font-size: 22px; font-weight: 600; color: #ffffff; text-align: center;">
+                                Confirm Your Email
+                            </h2>
+
+                            <p style="margin: 0 0 24px; font-size: 15px; line-height: 1.6; color: #cccccc; text-align: center;">
+                                Click the button below to confirm your email address and continue with your order.
+                            </p>
+
+                            <!-- CTA Button -->
+                            <table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0;">
+                                <tr>
+                                    <td align="center" style="padding: 16px 0 32px;">
+                                        <a href="{{ confirm_url }}"
+                                           target="_blank"
+                                           style="display: inline-block; padding: 14px 32px; font-size: 16px; font-weight: 700; color: #000000; text-decoration: none; text-transform: uppercase; letter-spacing: 0.05em; background: linear-gradient(180deg, #B8FF5E, #39FF14); border-radius: 8px; box-shadow: 0 4px 12px rgba(57, 255, 20, 0.3);">
+                                            Confirm Email
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Alternative link -->
+                            <p style="margin: 0 0 16px; font-size: 13px; line-height: 1.5; color: #888888; text-align: center;">
+                                Or copy and paste this link into your browser:
+                            </p>
+                            <p style="margin: 0 0 24px; font-size: 12px; line-height: 1.4; color: #00eaff; text-align: center; word-break: break-all;">
+                                {{ confirm_url }}
+                            </p>
+
+                            <!-- Expiry notice -->
+                            <p style="margin: 0; padding: 16px; font-size: 13px; line-height: 1.5; color: #888888; text-align: center; background-color: #222222; border-radius: 6px;">
+                                This link expires in <strong style="color: #cccccc;">1 hour</strong>.<br>
+                                If you didn't request this, you can safely ignore this email.
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding: 24px 32px; text-align: center; border-top: 1px solid #3a3a3a; background-color: #252525; border-radius: 0 0 12px 12px;">
+                            <p style="margin: 0; font-size: 12px; color: #666666;">
+                                &copy; {{ year }} Hella Reptilian. All rights reserved.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
