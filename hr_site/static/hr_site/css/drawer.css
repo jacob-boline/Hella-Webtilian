@@ -94,13 +94,15 @@
 #nav-close-btn {
     background-color: transparent;
     border:           none;
-    margin-top:       calc(1.75rem);
-    margin-left:      32px;
+    margin-top: 0.5rem;
+    margin-left: 0.0625rem;
+    /*margin-top:       calc(1.75rem);*/
+    /*margin-left:      32px;*/
 }
 
-#nav-close-btn:hover {
-    color: aquamarine;
-}
+/*#nav-close-btn:hover {*/
+/*    color: aquamarine;*/
+/*}*/
 
 #nav-close-btn,
 #nav-open-btn {
@@ -110,22 +112,24 @@
     font-size:     1.25rem;
     color:         #FFF;
     background:    transparent;
-    transition:    background-color 0.25s ease,
-                   color 0.25s ease,
-                   opacity 3s ease-in;
+    transition:    background-color 0.2s ease,
+                   color 0.2s ease,
+                   opacity 1s ease-in;
     border-radius: 50%;
+    padding:     1.5rem;
 }
 
 #nav-open-btn {
-    padding:     1.5rem;
+
     opacity:     0;
-    transition:  opacity 3s ease-in;
+    transition:  opacity 1s ease-in;
     margin-top:  calc(1.5rem + 12px);
     margin-left: 24px;
 }
 
 /* hover feedback for drawer buttons */
-#nav-open-btn:hover {
+#nav-open-btn:hover,
+#nav-close-btn:hover {
     color:            aquamarine;
     background-color: rgba(128, 128, 128, 0.3);
 }

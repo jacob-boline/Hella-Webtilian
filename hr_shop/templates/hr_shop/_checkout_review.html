@@ -9,52 +9,60 @@
 
     {# Customer & Address Summary #}
     {% if customer and address %}
-        <div class="review-section">
+        <div class="review-section shipping-review">
+            <div class="shipping-header-row">
 
-            <h3 class="review-section-title">Shipping Details</h3>
-
-            <div class="shipping-summary">
-                <p class="customer-name">
-                    {{ customer.first_name }} {{ customer.last_name }}
-                </p>
-                <p class="customer-email">
-                    {{ customer.email }}
-                </p>
-                {% if customer.phone %}
-                    <p class="customer-phone">{{ customer.phone }}</p>
-                {% endif %}
-                <p class="shipping-address">
-                    {{ address.street_address }}<br>
-                    {% if address.street_address_line2 %}{{ address.street_address_line2 }}<br>{% endif %}
-                    {% if address.unit %}Unit {{ address.unit }}<br>{% endif %}
-                    {{ address.city }}, {{ address.subdivision }} {{ address.postal_code }}
-                </p>
+                <button type="button"
+                        class="edit-details-btn"
+                        hx-get="{% url 'hr_shop:checkout_details' %}"
+                        hx-target="#modal-content"
+                        hx-swap="innerHTML">
+                </button>
             </div>
 
-            <button type="button"
-                    class="edit-details-btn"
-                    hx-get="{% url 'hr_shop:checkout_details' %}"
-                    hx-target="#modal-content"
-                    hx-swap="innerHTML">
-                <i class="fas fa-edit"></i> Edit
-            </button>
+            <div class="shipping-summary">
+                <div class="shipping-block">
+                    <p class="review-section-title">Shipping Address</p>
+
+                    <p class="customer-name customer-field">
+                        {{ customer.full_name }}
+                    </p>
+
+                    <p class="shipping-address customer-field">
+                        {{ address.formatted }}
+                    </p>
+                </div>
+                <div class="shipping-contact">
+                    <p class="review-section-title">Contact</p>
+                    <p class="customer-email customer-field">
+                        {{ customer.email }}
+                    </p>
+                    {% if customer.phone %}
+                        <p class="customer-phone customer-field">
+                            {{ customer.phone }}
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     {% endif %}
 
     {# Order Items #}
     <div class="review-section">
 
-        <h3 class="checkout-title">Items</h3>
+        <h3 class="review-section-title">Items</h3>
 
         <div class="review-items">
             {% for item in items %}
             <div class="review-item">
                 <div class="item-info">
                     <span class="item-name">{{ item.variant.product.name }}</span>
-                    {% if item.variant.name %}
-                    <span class="item-variant">{{ item.variant.name }}</span>
-                    {% endif %}
-                    <span class="item-qty">Qty: {{ item.quantity }}</span>
+                    <div class="item-meta">
+                        {% if item.variant.name %}
+                            <span class="item-variant">{{ item.variant.name }}</span>
+                        {% endif %}
+                        <span class="item-qty">Qty: {{ item.quantity }}</span>
+                    </div>
                 </div>
                 <span class="item-price">${{ item.unit_price|floatformat:2 }}</span>
             </div>
@@ -92,7 +100,7 @@
     {# Special Instructions #}
     {% if note %}
         <div class="review-section">
-            <h3 class="checkout-title">Special Instructions</h3>
+            <p class="review-section-title">Special Instructions</p>
             <p class="review-note">{{ note }}</p>
         </div>
     {% endif %}

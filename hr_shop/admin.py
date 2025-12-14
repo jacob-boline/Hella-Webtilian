@@ -68,7 +68,7 @@ class ConfirmedEmailAdmin(admin.ModelAdmin):
 
 @admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = ('email', 'first_name', 'last_name', 'phone', 'user', 'created_at')
+    list_display = ('email', 'first_name', 'middle_initial', 'last_name', 'phone', 'user', 'created_at')
     search_fields = ('email', 'first_name', 'last_name', 'phone')
     list_filter = ('created_at',)
     readonly_fields = ('created_at', 'updated_at')

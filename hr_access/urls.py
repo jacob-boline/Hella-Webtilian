@@ -1,8 +1,7 @@
 # hr_access/urls.py
 
-from django.contrib.auth import views as auth_views
-from django.contrib.auth.views import LogoutView, PasswordChangeDoneView
-from django.urls import path, reverse_lazy
+from django.contrib.auth.views import PasswordChangeDoneView
+from django.urls import path
 
 from hr_access import views
 from hr_access.views import (
@@ -17,9 +16,8 @@ app_name = 'hr_access'
 urlpatterns = [
 
     # Panels / sidebar
-    path('determine_sidebar_access_panel', views.determine_sidebar_access_panel, name='determine_sidebar_access_panel'),
-    path('access/sidebar/', views.sidebar_access, name='sidebar_access'),
-    path('get_user_sidebar_panel', views.get_user_sidebar_panel, name='get_user_sidebar_panel'),
+    path('sidebar/load/', views.determine_sidebar_access_panel, name='determine_sidebar_access_panel'),
+    path('sidebar/load/user-panel/', views.get_user_sidebar_panel, name='get_user_sidebar_panel'),
 
     # Auth (public login/logout/signup)
     path('signup/', views.signup, name='signup'),

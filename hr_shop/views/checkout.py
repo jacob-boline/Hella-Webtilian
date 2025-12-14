@@ -322,7 +322,7 @@ def checkout_details_submit(request):
             template = 'hr_shop/_checkout_details.html' if http.is_htmx(request) else 'hr_shop/checkout_details.html'
             return render(request, template, {'form': form})
 
-    customer, created = _get_or_create_customer(email, user, form)
+    customer = _get_or_create_customer(email, user, form)
     address = _build_address_from_form(form)
     note = form.cleaned_data.get('note', '').strip()
 
@@ -582,17 +582,18 @@ def checkout_create_order(request):
         messages.error(request, "Please confirm your email address before placinig an order.")
         return redirect('hr_shop:checkout_review')
 
-    order = Order.objects.create(
-        customer=customer,
-        email=normalize_email(customer.email),
-        shipping_address=shipping_address,
-        total=Decimal('0.00'),
-        status='pending'
-    )
+    order_kwargs = {
+        "customer":         customer,
+        "email":            normalize_email(customer.email),
+        "shipping_address": shipping_address,
+        "total":            Decimal("0.00"),
+        "status":           "pending",
+    }
 
     if note:
-        order.note = note
-        order.save(updated_fields=['note', 'updated_at'])
+        order_kwargs["note"] = note
+
+    order = Order.objects.create(**order_kwargs)
 
     subtotal = Decimal('0.00')
     for line in items:
@@ -614,7 +615,7 @@ def checkout_create_order(request):
     total = subtotal + tax + shipping
 
     order.total = total
-    order.save(updated_fields=['total', 'updated_at'])
+    order.save(update_fields=['total', 'updated_at'])
 
     provider = get_payment_provider()
     session = provider.create_checkout_session(order)
@@ -642,5 +643,6 @@ def order_thank_you(request, order_id: int):
     order = get_object_or_404(Order, pk=order_id)
     context = {"order": order}
 
-    template = 'hr_shop/_order_thank_you.html' if http.is_htmx(request) else 'hr_shop/order_thank_you.html'
-    return render(request, template, context)
+    if http.is_htmx(request):
+        return HttpResponse("Thank you for your order!", status=204)
+    return render(request, 'hr_shop/order_thank_you.html', context)

@@ -214,6 +214,17 @@ nav.navbar {
   letter-spacing: 0.02em;
 }
 
+.group-title {
+    margin: 0 0 0.25rem;
+    font-family: "Exo 2", sans-serif;
+    font-weight: 600;
+    color: var(--gold);
+    font-size: 1rem;
+
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
 /* Engraved character style (used across cards / UI) */
 /*.date-char,*/
 /*.time-char,*/
@@ -308,7 +319,7 @@ nav.navbar {
   padding: 0 1.75rem 1.75rem;
   border-radius: 1rem;
   border: 1px solid rgba(255, 255, 255, 0.14);
-  background: radial-gradient(circle at top left, rgba(0, 0, 0, 0.36), rgba(0, 0, 0, 0.95));
+  background: radial-gradient(circle at top left, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.95));
   box-shadow: 0 0 24px rgba(0, 234, 255, 0.25);
   overflow-y: auto;
 }

@@ -46,3 +46,31 @@ class Address(models.Model):
         destination = urllib.parse.quote_plus(f'{self.street_address} {self.city}, {self.subdivision}')
         directions_url = f'https://www.google.com/maps/dir/?api=1&destination={destination}&basemap=satellite'
         return directions_url
+
+    @property
+    def formatted(self):
+        """
+        Return a plain-text, multi-line shipping address.
+        """
+        lines = []
+
+        if self.street_address:
+            lines.append(self.street_address)
+
+        if self.street_address_line2:
+            lines.append(self.street_address_line2)
+
+        if self.unit:
+            lines.append(f"Unit {self.unit}")
+
+        city_line = ", ".join(
+            filter(None, [self.city, self.subdivision])
+        )
+        if self.postal_code:
+            city_line = f"{city_line} {self.postal_code}"
+
+        if city_line.strip():
+            lines.append(city_line)
+
+        return "\n".join(lines)
+

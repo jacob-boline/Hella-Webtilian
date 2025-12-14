@@ -465,6 +465,8 @@ class Customer(models.Model):
     )
     first_name = models.CharField(max_length=100, blank=True)
     last_name = models.CharField(max_length=100, blank=True)
+    middle_initial = models.CharField(max_length=5, null=True, blank=True)
+    suffix = models.CharField(max_length=20, null=True, blank=True)
     phone = models.CharField(max_length=50, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
@@ -476,6 +478,17 @@ class Customer(models.Model):
     def __str__(self):
         label = f"{self.first_name} {self.last_name}".strip() or self.email
         return f"Customer {self.pk} - {label}"
+
+    @property
+    def full_name(self):
+        parts = [
+            self.first_name,
+            self.middle_initial,
+            self.last_name,
+            self.suffix
+        ]
+
+        return " ".join(p for p in parts if p).strip()
 
 
 class CustomerAddress(models.Model):
