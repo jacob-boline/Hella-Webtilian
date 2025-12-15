@@ -5,9 +5,18 @@ from django.db import models
 from hr_common.managers import AddressManager
 
 
+class BuildingType(models.TextChoices):
+    SINGLE_FAMILY = "single_family", "Single family home"
+    APARTMENT = "apartment", "Apartment / Condo"
+    BUSINESS = "business", "Business"
+    PO_BOX = "po_box", "P.O. Box"
+    OTHER = "other", "Other"
+
+
 class Address(models.Model):
     street_address = models.CharField(max_length=255, blank=False, null=False, verbose_name='Address')
     street_address_line2 = models.CharField(max_length=255, blank=True, null=True, verbose_name="Address Line 2")
+    building_type = models.CharField(max_length=20, choices=BuildingType.choices, default=BuildingType.SINGLE_FAMILY)
     unit = models.CharField(max_length=50, blank=True, null=True, verbose_name='Apt/Office/Unit')
     city = models.CharField(max_length=255, blank=False, null=False, verbose_name='City')
     subdivision = models.CharField(max_length=100, blank=False, null=False, verbose_name='State/Province')
@@ -73,4 +82,3 @@ class Address(models.Model):
             lines.append(city_line)
 
         return "\n".join(lines)
-

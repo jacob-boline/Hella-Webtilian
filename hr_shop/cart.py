@@ -86,7 +86,7 @@ class Cart:
         if line is None:
             self.cart[key] = {
                 "quantity": quantity,
-                "price": str(variant.price),
+                "unit_price": str(variant.price),
             }
         else:
             if override:

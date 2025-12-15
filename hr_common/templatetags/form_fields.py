@@ -76,7 +76,7 @@ def form_field(
         'help': help_text,
         'wrapper_classes': wrapper_classes,
         'group_classes': group_classes,
-        'state': state,
+        'subdivision': state,
         'has_errors': has_errors,
         'field_id': field_id,
         'help_id': help_id,

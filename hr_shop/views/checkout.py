@@ -1,5 +1,6 @@
 # hr_shop/views/checkout.py
 
+import json
 import logging
 from decimal import Decimal
 from typing import Dict, Any
@@ -56,10 +57,11 @@ def _build_address_from_form(form: CheckoutDetailsForm) -> Address:
     address = Address.objects.create(
         street_address=street1,
         street_address_line2=street2,
+        building_type=form.cleaned_data['building_type'],
         unit=unit,
         city=form.cleaned_data['city'].strip(),
-        subdivision=form.cleaned_data['state'].strip(),
-        postal_code=form.cleaned_data['zip_code'].strip(),
+        subdivision=form.cleaned_data['subdivision'].strip(),
+        postal_code=form.cleaned_data['postal_code'].strip(),
         country='United States'
     )
 
@@ -78,6 +80,7 @@ def _get_or_create_customer(email: str, user, form: CheckoutDetailsForm) -> Cust
             'first_name': form.cleaned_data['first_name'].strip(),
             'middle_initial': form.cleaned_data.get('middle_initial', '').strip() or None,
             'last_name':  form.cleaned_data['last_name'].strip(),
+            'suffix': form.cleaned_data.get('suffix', '').strip() or None,
             'phone': form.cleaned_data.get('phone', '').strip() or None
         }
     )
@@ -87,6 +90,7 @@ def _get_or_create_customer(email: str, user, form: CheckoutDetailsForm) -> Cust
         first_name = form.cleaned_data['first_name'].strip()
         middle_initial = form.cleaned_data.get('middle_initial', '').strip()
         last_name = form.cleaned_data['last_name'].strip()
+        suffix = form.cleaned_data.get('suffix', '').strip()
         phone = form.cleaned_data.get('phone', '').strip()
 
         if first_name and customer.first_name != first_name:
@@ -98,6 +102,9 @@ def _get_or_create_customer(email: str, user, form: CheckoutDetailsForm) -> Cust
         if last_name and customer.last_name != last_name:
             customer.last_name = last_name
             updated_fields.append('last_name')
+        if suffix and customer.suffix != suffix:
+            customer.suffix = suffix
+            updated_fields.append('suffix')
         if phone and customer.phone != phone:
             customer.phone = phone
             updated_fields.append('phone')
@@ -129,8 +136,8 @@ def _iter_cart_items_for_order(request):
                 except ProductVariant.DoesNotExist:
                     continue
 
-        if variant is None:
-            continue
+        # if variant is None:
+        #     continue
 
         unit_price_raw = item.get("unit_price") or item.get("price") or variant.price
         unit_price = Decimal(str(unit_price_raw))
@@ -264,10 +271,10 @@ def checkout_details(request):
         'street_address':       '',
         'street_address_line2': '',
         'building_type':        'single_family',
-        'unit_number':          '',
+        'unit':          '',
         'city':                 '',
-        'state':                '',
-        'zip_code':             '',
+        'subdivision':                '',
+        'postal_code':             '',
         'special_instructions': '',
     }
 
@@ -278,19 +285,24 @@ def checkout_details(request):
         initial['first_name'] = customer.first_name
         initial['middle_initial'] = customer.middle_initial or ''
         initial['last_name'] = customer.last_name
+        initial['suffix'] = customer.suffix or ''
 
         addr = _get_most_recent_address_for_customer(customer)
         if addr:
             initial['street_address'] = addr.street_address
             initial['street_address_line2'] = addr.street_address_line2
+            initial['building_type'] = addr.building_type
+            initial['unit'] = addr.unit
             initial['city'] = addr.city
-            initial['state'] = addr.subdivision
-            initial['zip_code'] = addr.postal_code
+            initial['subdivision'] = addr.subdivision
+            initial['postal_code'] = addr.postal_code
 
     elif user and user.is_authenticated:
         initial['email'] = user.email or ''
         initial['first_name'] = user.first_name or ''
+        initial['middle_initial'] = user.middle_initial or ''
         initial['last_name'] = user.last_name or ''
+        initial['suffix'] = user.suffiix or ''
 
     form = CheckoutDetailsForm(initial=initial)
     template = 'hr_shop/_checkout_details.html' if http.is_htmx(request) else 'hr_shop/checkout_details.html'
@@ -363,7 +375,7 @@ def checkout_details_submit(request):
         'rate_limited': False,
         'sent_at': timezone.now()
     }
-    template = 'hr_shop/_checkout_awaiting_confirmation.html' if http.is_htmx(request) else 'hr_shop/checkouot_awaiting_confirmation.html'
+    template = 'hr_shop/_checkout_awaiting_confirmation.html' if http.is_htmx(request) else 'hr_shop/checkout_awaiting_confirmation.html'
     return render(request, template, context)
 
 
@@ -371,7 +383,7 @@ def checkout_details_submit(request):
 def confirm_checkout_email(request, token: str):
     """
     Handle email confirmation link click.
-    Verifies token, marks email as confirmed, resotres session state, redirects to review.
+    Verifies token, marks email as confirmed, resotres session subdivision, redirects to review.
     """
     payload = verify_checkout_email_token(token)
 
@@ -396,7 +408,7 @@ def confirm_checkout_email(request, token: str):
         address_exists = Address.objects.filter(pk=address_id).exists()
 
         if customer_exists and address_exists:
-            request.session['checkout_custoomer_id'] = customer_id
+            request.session['checkout_customer_id'] = customer_id
             request.session['checkout_address_id'] = address_id
             request.session['checkout_note'] = note
             request.session.modified = True
@@ -556,7 +568,7 @@ def checkout_create_order(request):
 
     customer = ctx.get('customer')
     note = ctx.get('note')
-    shipping_address = ctx.get('shipping_address')
+    shipping_address = ctx.get('address')
 
     # customer_id = request.session.get('checkout_customer_id')
     # address_id = request.session.get('checkout_address_id')
@@ -579,7 +591,7 @@ def checkout_create_order(request):
     #     return redirect('hr_shop:checkout_details')
 
     if not is_email_confirmed_for_checkout(request, customer.email):
-        messages.error(request, "Please confirm your email address before placinig an order.")
+        messages.error(request, "Please confirm your email address before placing an order.")
         return redirect('hr_shop:checkout_review')
 
     order_kwargs = {
@@ -629,6 +641,13 @@ def checkout_create_order(request):
         messages.success(request, "Payment succeeded! Thank you for your order.")
     else:
         messages.info(request, "Redirecting to payment provider...")
+
+    if http.is_htmx(request):
+        return HttpResponse(status=204, headers={
+            'HX-Trigger': json.dumps({
+                'messageBoxClosed': f'Payment succeeded! Thank you for your order!'
+            })
+        })
 
     return redirect(redirect_url)
 

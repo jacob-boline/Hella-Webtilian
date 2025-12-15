@@ -2,6 +2,7 @@
 
 from django import forms
 from hr_shop.models import Product, ProductVariant, ProductOptionType, ProductOptionValue, OptionTypeTemplate
+from hr_common.models import BuildingType
 
 
 class ProductAdminForm(forms.ModelForm):
@@ -86,19 +87,11 @@ class CheckoutDetailsForm(forms.Form):
     street_address = forms.CharField(required=True, max_length=255, label='Street Address')
     street_address_line2 = forms.CharField(required=False, max_length=255, label='Street Address Line 2')
 
-    BUILDING_TYPE_CHOICES = [
-        ("single_family", "Single family home"),
-        ("apartment", "Apartment / Condo"),
-        ("business", "Business"),
-        ("po_box", "P.O. Box"),
-        ("other", "Other")
-    ]
-
-    building_type = forms.ChoiceField(required=True, choices=BUILDING_TYPE_CHOICES, label='Building Type')
+    building_type = forms.ChoiceField(required=True, choices=BuildingType.choices, label='Building Type')
     unit = forms.CharField(required=False, max_length=64, label='Apt/Office/Unit')
 
     city = forms.CharField(required=True, max_length=255, label='City')
-    state = forms.CharField(required=True, max_length=100, label='State')
-    zip_code = forms.CharField(required=True, max_length=25, label='Zip Code')
+    subdivision = forms.CharField(required=True, max_length=100, label='State')
+    postal_code = forms.CharField(required=True, max_length=25, label='Zip Code')
 
     note = forms.CharField(required=False, max_length=1000, widget=forms.Textarea(attrs={'rows': 5}), label='Note')

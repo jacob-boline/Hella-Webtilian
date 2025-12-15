@@ -66,7 +66,7 @@ def pre_payment_entry(request, cart):
                         'line1': shipping_address.street_address,
                         'line2': shipping_address.unit,
                         'postal_code': shipping_address.index,
-                        'state': shipping_address.subdivision
+                        'subdivision': shipping_address.subdivision
                     },
                     'name': form.compile_name()
                 }

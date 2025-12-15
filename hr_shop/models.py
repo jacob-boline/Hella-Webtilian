@@ -558,6 +558,7 @@ class OrderItem(models.Model):
     quantity = models.PositiveIntegerField(default=1)
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
 
+    @property
     def subtotal(self):
         return self.quantity * self.unit_price
 

@@ -194,13 +194,13 @@
                 </div>
 
                 <div class="field-group">
-                    <label for="{{ form.state.id_for_label }}">
+                    <label for="{{ form.subdivision.id_for_label }}">
                         State <span class="required-star">*</span>
                     </label>
-                    {{ form.state }}
-                    {% if form.state.errors %}
+                    {{ form.subdivision }}
+                    {% if form.subdivision.errors %}
                         <div class="field-error">
-                            {% for error in form.state.errors %}
+                            {% for error in form.subdivision.errors %}
                                 <span>{{ error }}</span>
                             {% endfor %}
                         </div>
@@ -208,13 +208,13 @@
                 </div>
 
                 <div class="field-group">
-                    <label for="{{ form.zip_code.id_for_label }}">
+                    <label for="{{ form.postal_code.id_for_label }}">
                         Zip <span class="required-star">*</span>
                     </label>
-                    {{ form.zip_code }}
-                    {% if form.zip_code.errors %}
+                    {{ form.postal_code }}
+                    {% if form.postal_code.errors %}
                         <div class="field-error">
-                            {% for error in form.zip_code.errors %}
+                            {% for error in form.postal_code.errors %}
                                 <span>{{ error }}</span>
                             {% endfor %}
                         </div>

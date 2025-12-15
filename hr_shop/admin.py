@@ -9,7 +9,8 @@ from hr_shop.models import (
     OptionTypeTemplate,
     ConfirmedEmail,
     Customer,
-    Order
+    Order,
+    OrderItem
 )
 from hr_shop.forms import ProductAdminForm
 
@@ -76,6 +77,13 @@ class CustomerAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
 
 
+class OrderItemInline(admin.TabularInline):
+    model = OrderItem
+    fields = ('variant', 'quantity', 'unit_price', 'subtotal')
+    readonly_fields = ('subtotal',)
+    extra = 0
+
+
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('id', 'customer', 'email', 'status', 'total', 'created_at')
@@ -84,3 +92,4 @@ class OrderAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at', 'updated_at', 'stripe_checkout_session_id')
     ordering = ('-created_at',)
     date_hierarchy = 'created_at'
+    inlines = (OrderItemInline,)
