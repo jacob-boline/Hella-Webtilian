@@ -94,4 +94,4 @@ class CheckoutDetailsForm(forms.Form):
     subdivision = forms.CharField(required=True, max_length=100, label='State')
     postal_code = forms.CharField(required=True, max_length=25, label='Zip Code')
 
-    note = forms.CharField(required=False, max_length=1000, widget=forms.Textarea(attrs={'rows': 5}), label='Note')
+    note = forms.CharField(required=False, max_length=1000, widget=forms.Textarea(attrs={'rows': 8}), label='Note')

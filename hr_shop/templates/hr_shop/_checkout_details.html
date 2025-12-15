@@ -1,5 +1,7 @@
 {# hr_shop/templates/hr_shop/_checkout_details.html #}
 
+{% load form_group %}
+
 <div class="view-cart-modal checkout-details-modal">
     <h2 class="sub-header">Checkout Details</h2>
 
@@ -24,218 +26,51 @@
 
         {# CONTACT #}
         <h3 class="group-title">Contact</h3>
-        <div class="field-row field-row-two-cols">
-            <div class="field-group">
-                <label for="{{ form.email.id_for_label }}">
-                    Email <span class="required-star">*</span>
-                </label>
-                {{ form.email }}
-                {% if form.email.errors %}
-                    <div class="field-error">
-                        {% for error in form.email.errors %}
-                            <span>{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            </div>
 
-            <div class="field-group">
-                <label for="{{ form.phone.id_for_label }}">Phone</label>
-                {{ form.phone }}
-                {% if form.phone.errors %}
-                    <div class="field-error">
-                        {% for error in form.phone.errors %}
-                            <span>{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            </div>
+        <div class="field-row field-row-two-cols">
+            {% form_group form.email %}
+            {% form_group form.phone %}
         </div>
 
         {# NAME #}
         <h3 class="group-title">Name</h3>
 
         <div class="field-row field-row-two-cols">
-            <div class="field-group">
-                <label for="{{ form.first_name.id_for_label }}">
-                    First name <span class="required-star">*</span>
-                </label>
-                {{ form.first_name }}
-                {% if form.first_name.errors %}
-                    <div class="field-error">
-                        {% for error in form.first_name.errors %}
-                            <span>{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-
-            <div class="field-group">
-                <label for="{{ form.middle_initial.id_for_label }}">Middle initial</label>
-                {{ form.middle_initial }}
-                {% if form.middle_initial.errors %}
-                    <div class="field-error">
-                        {% for error in form.middle_initial.errors %}
-                            <span>{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            </div>
+            {% form_group form.first_name %}
+            {% form_group form.middle_initial %}
         </div>
 
         <div class="field-row field-row-two-cols">
-            <div class="field-group">
-                <label for="{{ form.last_name.id_for_label }}">
-                    Last name <span class="required-star">*</span>
-                </label>
-                {{ form.last_name }}
-                {% if form.last_name.errors %}
-                    <div class="field-error">
-                        {% for error in form.last_name.errors %}
-                            <span>{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-
-            <div class="field-group">
-                <label for="{{ form.suffix.id_for_label }}">Suffix</label>
-                {{ form.suffix }}
-                {% if form.suffix.errors %}
-                    <div class="field-error">
-                        {% for error in form.suffix.errors %}
-                            <span>{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            </div>
+            {% form_group form.last_name %}
+            {% form_group form.suffix %}
         </div>
 
         {# ADDRESS #}
         <h3 class="group-title">Shipping address</h3>
 
         <div class="field-row field-row-full">
-            <div class="field-group">
-                <label for="{{ form.street_address.id_for_label }}">
-                    Street address <span class="required-star">*</span>
-                </label>
-                {{ form.street_address }}
-                {% if form.street_address.errors %}
-                    <div class="field-error">
-                        {% for error in form.street_address.errors %}
-                            <span>{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            </div>
+            {% form_group form.street_address %}
         </div>
 
         <div class="field-row field-row-full">
-            <div class="field-group">
-                <label for="{{ form.street_address_line2.id_for_label }}">
-                    Street address line 2
-                </label>
-                {{ form.street_address_line2 }}
-                {% if form.street_address_line2.errors %}
-                    <div class="field-error">
-                        {% for error in form.street_address_line2.errors %}
-                            <span>{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            </div>
+            {% form_group form.street_address_line2 %}
         </div>
 
         <div class="field-row field-row-two-cols">
-            <div class="field-group">
-                <label for="{{ form.building_type.id_for_label }}">
-                    Building type <span class="required-star">*</span>
-                </label>
-                {{ form.building_type }}
-                {% if form.building_type.errors %}
-                    <div class="field-error">
-                        {% for error in form.building_type.errors %}
-                            <span>{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-
-            <div class="field-group" id="unit-group">
-                <label for="{{ form.unit.id_for_label }}">
-                    Unit / Apt / Office #
-                </label>
-                {{ form.unit }}
-                {% if form.unit.errors %}
-                    <div class="field-error">
-                        {% for error in form.unit.errors %}
-                            <span>{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            </div>
+            {% form_group form.building_type %}
+            {% form_group form.unit %}
         </div>
 
         {# City/State/Zip stacked (left) + Note (right) #}
         <div class="field-row field-row-two-cols field-row-bottom-block">
             <div class="field-col-left">
-                <div class="field-group">
-                    <label for="{{ form.city.id_for_label }}">
-                        City <span class="required-star">*</span>
-                    </label>
-                    {{ form.city }}
-                    {% if form.city.errors %}
-                        <div class="field-error">
-                            {% for error in form.city.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-
-                <div class="field-group">
-                    <label for="{{ form.subdivision.id_for_label }}">
-                        State <span class="required-star">*</span>
-                    </label>
-                    {{ form.subdivision }}
-                    {% if form.subdivision.errors %}
-                        <div class="field-error">
-                            {% for error in form.subdivision.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-
-                <div class="field-group">
-                    <label for="{{ form.postal_code.id_for_label }}">
-                        Zip <span class="required-star">*</span>
-                    </label>
-                    {{ form.postal_code }}
-                    {% if form.postal_code.errors %}
-                        <div class="field-error">
-                            {% for error in form.postal_code.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
+                {% form_group form.city %}
+                {% form_group form.subdivision %}
+                {% form_group form.postal_code %}
             </div>
 
             <div class="field-col-right">
-                <div class="field-group">
-                    <label for="{{ form.note.id_for_label }}">
-                        Special instructions / note
-                    </label>
-                    {{ form.note }}
-                    {% if form.note.errors %}
-                        <div class="field-error">
-                            {% for error in form.note.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
+                {% form_group form.note %}
             </div>
         </div>
 
