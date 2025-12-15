@@ -102,10 +102,7 @@ def view_cart(request):
         'total': cart.total()
     }
 
-    if http.is_htmx(request):
-        return render(request, 'hr_shop/_view_cart.html', context)
-
-    return render(request, 'hr_shop/view_cart.html', context)
+    return render(request, 'hr_shop/_view_cart.html', context)
 
 
 @require_POST

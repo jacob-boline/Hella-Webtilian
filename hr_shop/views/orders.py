@@ -3,7 +3,6 @@ from django.db.models import Q
 from django.shortcuts import render, get_object_or_404
 
 from hr_shop.models import Order
-from hr_core.utils import http
 
 
 @login_required
@@ -18,12 +17,7 @@ def orders(request):
         "has_more": qs.count() > 20
     }
 
-    template = "orders.html"
-
-    if http.is_htmx(request):
-        template = "_orders_modal.html"
-
-    return render(request, f"account/{template}", ctx)
+    return render(request, "account/_orders_modal.html", ctx)
 
 
 @login_required

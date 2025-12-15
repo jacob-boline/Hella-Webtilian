@@ -13,7 +13,6 @@ from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 
 from hr_common.models import Address
-from hr_core.utils import http
 from hr_core.utils.email import normalize_email
 from hr_core.utils.tokens import verify_checkout_email_token
 from hr_payment.providers import get_payment_provider
@@ -165,8 +164,12 @@ def _render_checkout_review(request):
     items = list(_iter_cart_items_for_order(request))
 
     if not items:
-        messages.error(request, "Your cart is empty.")
-        return redirect("hr_shop:view_cart")
+        return HttpResponse(
+            status=204,
+            headers={
+                'HX-Trigger': json.dumps({'showMessage': 'Your cart is empty.'})
+            }
+        )
 
     subtotal = sum(
         (line["unit_price"] * line["quantity"] for line in items),
@@ -195,9 +198,7 @@ def _render_checkout_review(request):
         'note':     note
     }
 
-    template = 'hr_shop/_checkout_review.html' if http.is_htmx(request) else 'hr_shop/checkout_review.html'
-
-    return render(request, template, context)
+    return render(request, 'hr_shop/_checkout_review.html', context)
 
 #
 # def is_email_confirmed_for_checkout(request, email: str) -> bool:
@@ -305,9 +306,7 @@ def checkout_details(request):
         initial['suffix'] = user.suffiix or ''
 
     form = CheckoutDetailsForm(initial=initial)
-    template = 'hr_shop/_checkout_details.html' if http.is_htmx(request) else 'hr_shop/checkout_details.html'
-
-    return render(request, template, {'form': form})
+    return render(request, 'hr_shop/_checkout_details.html', {'form': form})
 
 
 @require_POST
@@ -322,8 +321,7 @@ def checkout_details_submit(request):
     form = CheckoutDetailsForm(request.POST)
 
     if not form.is_valid():
-        template = 'hr_shop/_checkout_details.html' if http.is_htmx(request) else 'hr_shop/checkout_details.html'
-        return render(request, template, {'form': form})
+        return render(request, 'hr_shop/_checkout_details.html', {'form': form})
 
     user = getattr(request, 'user', None)
     email = form.cleaned_data['email'].strip()
@@ -331,8 +329,7 @@ def checkout_details_submit(request):
     if user and user.is_authenticated:
         if normalize_email(email) != normalize_email(user.email):
             form.add_error('email', 'Please use the email address associated with your account.')
-            template = 'hr_shop/_checkout_details.html' if http.is_htmx(request) else 'hr_shop/checkout_details.html'
-            return render(request, template, {'form': form})
+            return render(request, 'hr_shop/_checkout_details.html', {'form': form})
 
     customer = _get_or_create_customer(email, user, form)
     address = _build_address_from_form(form)
@@ -361,13 +358,11 @@ def checkout_details_submit(request):
             'rate_limited': True,
             'sent_at': None
         }
-        template = 'hr_shop/_checkout_awaiting_confirmation.html' if http.is_htmx(request) else 'hr_shop/checkout_awaiting_confirmation.html'
-        return render(request, template, context)
+        return render(request, 'hr_shop/_checkout_awaiting_confirmation.html', context)
 
     except EmailSendError:
         messages.error(request, 'Could not send confirmation email. Please try again.')
-        template = 'hr_shop/_checkout_details.html' if http.is_htmx(request) else 'hr_shop/checkout_details.html'
-        return render(request, template, {'form': form})
+        return render(request, 'hr_shop/_checkout_details.html', {'form': form})
 
     context = {
         'email': email,
@@ -375,8 +370,7 @@ def checkout_details_submit(request):
         'rate_limited': False,
         'sent_at': timezone.now()
     }
-    template = 'hr_shop/_checkout_awaiting_confirmation.html' if http.is_htmx(request) else 'hr_shop/checkout_awaiting_confirmation.html'
-    return render(request, template, context)
+    return render(request, 'hr_shop/_checkout_awaiting_confirmation.html', context)
 
 
 @require_GET
@@ -514,8 +508,7 @@ def resend_checkout_confirmation(request):
             'error': True
         }
 
-    template = 'hr_shop/_checkout_awaiting_confirmation.html' if http.is_htmx(request) else 'hr_shop/checkout_awaiting_confirmation.html'
-    return render(request, template, context)
+    return render(request, 'hr_shop/_checkout_awaiting_confirmation.html', context)
 
 
 @require_GET
@@ -539,12 +532,15 @@ def checkout_review(request):
 
     ctx = _get_checkout_context(request)
     if not ctx:
-        messages.error(request, "Your session is invalid or has expired. Please try again.")
-        return redirect('hr_shop:checkout_details')
+        return render(request, 'hr_shop/_checkout_session_expired.html')
 
     if not is_email_confirmed_for_checkout(request, ctx.get('customer').email):
-        messages.warning(request, "Please confirm your email address to continue.")
-        return redirect('hr_shop:checkout_details')
+        return render(request, 'hr_shop/_checkout_awaiting_confirmation.html', {
+            'email': ctx['customer'].email,
+            'message': 'Please confirm your email address to continue.',
+            'rate_limited': False,
+            'sent_at': None
+        })
 
     return _render_checkout_review(request)
 
@@ -558,13 +554,13 @@ def checkout_create_order(request):
     items = list(_iter_cart_items_for_order(request))
 
     if not items:
-        messages.error(request, "Your cart is empty.")
-        return redirect("hr_shop:view_cart")
+        return HttpResponse(status=204, headers={
+            'HX-Trigger': json.dumps({'showMessage': 'Your cart is empty.'})
+        })
 
     ctx = _get_checkout_context(request)
     if not ctx:
-        messages.error(request, "Your session is invalid or has expired. Please try again.")
-        return redirect('hr_shop:checkout_details')
+        return render(request, 'hr_shop/_checkout_session_expired.html')
 
     customer = ctx.get('customer')
     note = ctx.get('note')
@@ -591,8 +587,12 @@ def checkout_create_order(request):
     #     return redirect('hr_shop:checkout_details')
 
     if not is_email_confirmed_for_checkout(request, customer.email):
-        messages.error(request, "Please confirm your email address before placing an order.")
-        return redirect('hr_shop:checkout_review')
+        return render(request, 'hr_shop/_checkout_awaiting_confirmation.html', {
+            'email': customer.email,
+            'message': 'Please confirm your email address before placing an order.',
+            'rate_limited': False,
+            'sent_at': None
+        })
 
     order_kwargs = {
         "customer":         customer,
@@ -636,20 +636,20 @@ def checkout_create_order(request):
         'hr_shop:order_thank_you', args=[order.id]
     )
 
+    triggers: Dict[str, Any] = {}
     if order.status == 'paid':
         _clear_cart(request)
-        messages.success(request, "Payment succeeded! Thank you for your order.")
+        triggers['messageBoxClosed'] = 'Payment succeeded! Thank you for your order!'
     else:
-        messages.info(request, "Redirecting to payment provider...")
+        triggers['showMessage'] = 'Redirecting to payment provider...'
 
-    if http.is_htmx(request):
-        return HttpResponse(status=204, headers={
-            'HX-Trigger': json.dumps({
-                'messageBoxClosed': f'Payment succeeded! Thank you for your order!'
-            })
-        })
+    response = HttpResponse(status=204)
+    if triggers:
+        response.headers['HX-Trigger'] = json.dumps(triggers)
+    if redirect_url:
+        response.headers['HX-Redirect'] = redirect_url
 
-    return redirect(redirect_url)
+    return response
 
 
 @require_GET
@@ -662,6 +662,4 @@ def order_thank_you(request, order_id: int):
     order = get_object_or_404(Order, pk=order_id)
     context = {"order": order}
 
-    if http.is_htmx(request):
-        return HttpResponse("Thank you for your order!", status=204)
-    return render(request, 'hr_shop/order_thank_you.html', context)
+    return HttpResponse("Thank you for your order!", status=204)

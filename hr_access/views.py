@@ -110,12 +110,7 @@ def signup(request):
 
             if UserModel.objects.filter(email=email, is_active=True).exists():
                 form.add_error('email', "An account already exists with this email.")
-                template = (
-                    'hr_access/registration/_signup.html'
-                    if http.is_htmx(request)
-                    else 'hr_access/registration/signup.html'
-                )
-                return render(request, template, {'form': form})
+                return render(request, 'hr_access/registration/_signup.html', {'form': form})
 
             user = form.save()
             login(request, user)
@@ -125,33 +120,18 @@ def signup(request):
             except (ObjectDoesNotExist, MultipleObjectsReturned, ValidationError, IntegrityError) as err:
                 logger.warning(f'Failed to attach guest orders for user {user.pk}: {err}')
 
-            if http.is_htmx(request):
-                response = render(request, 'hr_access/registration/_signup_success.html')
-                response.headers['HX-Trigger'] = json.dumps({
-                    'accessChanged': None,
-                    'showMessage': 'Welcome! Your account is ready.'
-                })
-                return response
-
-            messages.success(request, 'Welcome! Your account is ready.')
-
-            return redirect('hr_access:orders')
+            response = render(request, 'hr_access/registration/_signup_success.html')
+            response.headers['HX-Trigger'] = json.dumps({
+                'accessChanged': None,
+                'showMessage': 'Welcome! Your account is ready.'
+            })
+            return response
 
         else:
-            template = (
-                'hr_access/registration/_signup.html'
-                if http.is_htmx(request)
-                else 'hr_access/registration/signup.html'
-            )
-            return render(request, template, {'form': form})
+            return render(request, 'hr_access/registration/_signup.html', {'form': form})
 
     form = CustomUserCreationForm()
-    template = (
-        'hr_access/registration/_signup.html'
-        if http.is_htmx(request)
-        else 'hr_access/registration/signup.html'
-    )
-    return render(request, template, {'form': form})
+    return render(request, 'hr_access/registration/_signup.html', {'form': form})
 
 
 # ==================================================================================================================
@@ -159,11 +139,7 @@ def signup(request):
 # ==================================================================================================================
 
 def user_login(request):
-    """
-    Handles both:
-    - Full page login (/account/login) for non-HTMX requests
-    - Sidebar HTMX login for hx-post requests targeting #sidebar-access
-    """
+    """Partial-only login handler for sidebar HTMX interactions."""
     if request.method == "POST":
         form = AuthenticationForm(request, data=request.POST)
 
@@ -171,54 +147,32 @@ def user_login(request):
             user = form.get_user()
             login(request, user)
 
-            if http.is_htmx(request):
-                response = render(request, "hr_access/_sidebar_access.html")
-                response.headers["HX-Trigger"] = json.dumps({
-                    "accessChanged": None,
-                    "showMessage": "Login successful",
-                })
-                return response
-
-            # Non-HTMX: normal redirect
-            return redirect("hr_site:index")
-
-        # ---- Invalid credentials ----
-        if http.is_htmx(request):
-            response = render(
-                request,
-                "hr_access/_sidebar_access.html",
-                {"authentication_form": form},
-            )
+            response = render(request, "hr_access/_sidebar_access.html")
             response.headers["HX-Trigger"] = json.dumps({
-                "showMessage": "No match found for Username/Password",
+                "accessChanged": None,
+                "showMessage": "Login successful",
             })
             return response
 
-        # Non-HTMX invalid login → full-page with errors
-        messages.error(request, "No match found for Username/Password")
-        return render(
+        # ---- Invalid credentials ----
+        response = render(
             request,
-            "hr_access/registration/login.html",
+            "hr_access/_sidebar_access.html",
             {"authentication_form": form},
         )
+        response.headers["HX-Trigger"] = json.dumps({
+            "showMessage": "No match found for Username/Password",
+        })
+        return response
 
     # ------------------ GET ------------------
     form = AuthenticationForm(request)
 
-    if http.is_htmx(request):
-        return render(request, "hr_access/_sidebar_access.html", {"authentication_form": form})
-
-    # Normal full-page login view
-    return render(request, "hr_access/registration/login.html", {"authentication_form": form})
+    return render(request, "hr_access/_sidebar_access.html", {"authentication_form": form})
 
 
 def login_success(request):
-    template = (
-        'hr_access/registration/_login_success.html'
-        if http.is_htmx(request)
-        else 'hr_access/registration/login_success.html'
-    )
-    return render(request, template)
+    return render(request, 'hr_access/registration/_login_success.html')
 
 
 def user_logout(request):
@@ -426,11 +380,7 @@ def claim_account(request, user_id: int, token: str):
     else:
         form = SetPasswordForm()
 
-    template = 'hr_access/claim/_claim_account.html' \
-        if http.is_htmx(request) \
-        else 'hr_access/claim/claim_account.html'
-
-    return render(request, template, {'form': form, 'shadow': shadow_user})
+    return render(request, 'hr_access/claim/_claim_account.html', {'form': form, 'shadow': shadow_user})
 
 
 @require_http_methods(['GET', 'POST'])
@@ -455,8 +405,7 @@ def claim_resend(request):
         return redirect('hr_access:login')
 
     # GET
-    template = 'hr_access/claim/_claim_resend.html' if http.is_htmx(request) else 'hr_access/claim/claim_resend.html'
-    return render(request, template)
+    return render(request, 'hr_access/claim/_claim_resend.html')
 
 
 # ==================================================================================================================
@@ -469,9 +418,7 @@ def orders(request):
     qs = (Order.objects.filter(user=request.user) | Order.objects.filter(email=email)).order_by('-created_at').distinct()
     ctx = {"orders": qs[:20], "has_more": qs.count() > 20}
 
-    template = 'hr_access/_orders_modal_body.html' if http.is_htmx(request) else 'hr_access/orders_page.html'
-
-    return render(request, template, ctx)
+    return render(request, 'hr_access/_orders_modal_body.html', ctx)
 
 
 # ==================================================================================================================
