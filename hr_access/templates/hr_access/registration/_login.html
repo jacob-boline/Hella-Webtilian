@@ -3,24 +3,45 @@
 {% load form_fields %}
 
 <div class="auth-modal checkout-details-modal">
-    <h2 class="sub-header">Sign In</h2>
+    <h2 class="modal-title">Sign In</h2>
 
     {% include 'hr_common/_non_field_errors.html' %}
 
     <form
-        id="login-form"
-        method="post"
-        action="{% url 'hr_access:login' %}"
-        hx-post="{% url 'hr_access:login' %}"
-        hx-target="#modal-content"
-        hx-swap="innerHTML"
-        novalidate>
+            id="login-form"
+            method="post"
+            action="{% url 'hr_access:login' %}"
+            hx-post="{% url 'hr_access:login' %}"
+            hx-target="#sidebar-access"
+            hx-swap="innerHTML"
+            novalidate>
 
         {% csrf_token %}
-        {% form_field form.username %}
-        {% form_field form.password %}
+        {#        {% form_field form.username %}#}
+        {#        {% form_field form.password %}#}
 
-        <div class="checkout-footer">
+        <div class="field-group">
+            <label class="field-label" for="login-username">Username</label>
+            <input
+                    id="login-username"
+                    name="username"
+                    type="text"
+                    autocomplete="username"
+                    required>
+        </div>
+
+        <div class="field-group">
+            <label class="field-label" for="login-password">Password</label>
+            <input
+                    id="login-password"
+                    name="password"
+                    type="password"
+                    autocomplete="current-password"
+                    required>
+        </div>
+
+
+        <div class="modal-actions">
             <button type="submit" class="card-btn buy-cyan">
                 Sign In
             </button>
@@ -33,13 +54,13 @@
             <button type="button"
                     class="link-btn"
                     hx-get="{% url 'password_reset' %}"
-                    hx-target="#nodal-content"
+                    hx-target="#modal-content"
                     hx-swap="innerHTML">
                 Forgot password?
             </button>
         </div>
 
-    {% include 'hr_access/_auth_alt_action.html' %}
+        {% include 'hr_access/_auth_alt_action.html' %}
 
     </form>
 </div>

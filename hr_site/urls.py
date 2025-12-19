@@ -16,5 +16,5 @@ urlpatterns = [
     # path("api/about/carousel", views.api_about_carousel, name="api_about_carousel"),
     # path("api/about/quotes", views.api_about_quotes, name="api_about_quotes"),
 
-    path("__reload__/", include("django_browser_reload.urls")),
+    # path("__reload__/", include("django_browser_reload.urls")),
 ]

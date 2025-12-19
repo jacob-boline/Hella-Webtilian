@@ -1,0 +1,223 @@
+/*
+    Auth Modal Styles
+    Extends checkout.css shared classes
+*/
+
+.auth-modal {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.auth-page-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+    padding: 1.5rem;
+}
+
+.auth-description {
+    margin: 0 0 1.25rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--muted-text);
+    text-align: center;
+}
+
+.auth-alt-action {
+    margin: 1.25rem 0 0;
+    font-size: 0.75rem;
+    color: var(--faint-text);
+    text-align: center;
+}
+
+.auth-links {
+    margin: 1.25rem 0 0;
+    text-align: center;
+}
+
+.link-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--neon-blue);
+    font-size: inherit;
+    font-family: inherit;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color .2s ease;
+}
+
+.link-btn:hover {
+    color: var(--text);
+    text-decoration: underline;
+}
+
+.link-btn:focus-visible {
+    outline: 2px solid var(--neon-blue);
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+.auth-state-success .checkout-state-icon {
+    color: var(--neon-green);
+}
+
+.auth-state-error .checkout-state-icon {
+    color: var(--neon-red);
+}
+
+.auth-modal .modal-helpbox,
+.auth-state-success .modal-helpbox {
+    margin: 1.25rem auto 0;
+    padding: 1.5rem;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    text-align: left;
+    max-width: 320px;
+}
+
+.auth-modal .modal-helpbox summary,
+.auth-state-success .modal-helpbox summary {
+    cursor: pointer;
+    font-size: 0.75rem;
+    color: var(--neon-blue);
+    font-weight: 500;
+}
+
+.auth-modal .modal-helpbox summary:hover,
+.auth-state-success .modal-helpbox summary:hover {
+    text-decoration: underline;
+}
+
+.auth-modal .modal-helpbox ul,
+.auth-state-success .modal-helpbox ul {
+    margin: 1.25rem 0 0;
+    padding-left: 1.5rem;
+    font-size: 0.75rem;
+    color: var(--faint-text);
+    line-height: 1.5;
+}
+
+.auth-modal .modal-helpbox li,
+.auth-state-success .modal-helpbox li {
+    margin-bottom: 0.25rem;
+}
+
+.auth-modal .form-errors {
+    margin: 0 0 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    background: rgba(255, 107, 107, 0.15);
+    border: 1px solid var(--neon-red);
+    color: #fecaca;
+    font-size: 0.75rem;
+}
+
+.auth-modal .form-errors p {
+    margin: 0;
+}
+
+.auth-modal .checkout-state {
+    padding: 0;
+}
+
+.auth-modal .password-requirements {
+    margin: 0 0 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    font-size: 0.75rem;
+    color: var(--faint-text);
+}
+
+.auth-modal .password-requirements ul {
+    margin: 0.5rem 0 0;
+    padding-left: 1.5rem;
+}
+
+
+/* ==========================================
+    Mobile adjustments
+   ========================================== */
+
+@media (max-width: 480px) {
+    .auth-page-container {
+        padding: 1rem;
+        min-height: auto;
+    }
+
+    .auth-modal {
+        max-width: 100%;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

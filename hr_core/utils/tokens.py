@@ -19,9 +19,7 @@ DEFAULT_TOKEN_MAX_AGE = 60 * 60
 
 def generate_checkout_email_token(
         email: str,
-        customer_id: int = None,
-        address_id: int = None,
-        note: str = None
+        draft_id: int
 ) -> str:
     """
     Generate a signed token for email confirmation during checkout.
@@ -30,26 +28,16 @@ def generate_checkout_email_token(
 
     Args:
         email: The email address to confirm
-        customer_id: Optional customer record ID
-        address_id: Optional shipping address ID
-        note: Optional order note
+        draft_id: Draft order record ID
 
     Returns:
         A URL-safe signed token string
     """
 
     payload = {
-        'email': normalize_email(email)
+        'email': normalize_email(email),
+        'draft_id': draft_id
     }
-
-    if customer_id is not None:
-        payload['cid'] = customer_id
-
-    if address_id is not None:
-        payload['aid'] = address_id
-
-    if note:
-        payload['note'] = note
 
     return signing.dumps(payload, salt=CHECKOUT_EMAIL_SALT)
 

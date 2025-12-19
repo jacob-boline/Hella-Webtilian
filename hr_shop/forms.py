@@ -1,8 +1,14 @@
 # hr_shop/forms.py
 
 from django import forms
+from phonenumber_field.formfields import PhoneNumberField
+import re
 from hr_shop.models import Product, ProductVariant, ProductOptionType, ProductOptionValue, OptionTypeTemplate
 from hr_common.models import BuildingType
+from hr_common.constants.us_states import US_STATES
+from hr_core.utils.email import normalize_email
+
+ZIP_RE = re,compile(r"^\d{5}(-\d{4})?$")
 
 
 class ProductAdminForm(forms.ModelForm):
@@ -10,7 +16,7 @@ class ProductAdminForm(forms.ModelForm):
         queryset=OptionTypeTemplate.objects.filter(active=True),
         required=False,
         label="Apply option templates",
-        help_text="[Select reusable option types to clone onto this product."
+        help_text="[Select reusable option types to clone onto this product.]"
     )
 
     class Meta:
@@ -77,7 +83,7 @@ class ProductVariantForm(forms.ModelForm):
 class CheckoutDetailsForm(forms.Form):
 
     email = forms.EmailField(required=True, label='Email')
-    phone = forms.CharField(required=False, max_length=50, label='Phone')
+    phone = PhoneNumberField(required=False, label='Phone', region='US')
 
     first_name = forms.CharField(required=True, max_length=100, label='First Name')
     middle_initial = forms.CharField(required=False, max_length=5, label='Middle Initial')
@@ -91,7 +97,31 @@ class CheckoutDetailsForm(forms.Form):
     unit = forms.CharField(required=False, max_length=64, label='Apt/Office/Unit')
 
     city = forms.CharField(required=True, max_length=255, label='City')
-    subdivision = forms.CharField(required=True, max_length=100, label='State')
+    # subdivision = forms.CharField(required=True, max_length=100, label='State')
+    subdivision = forms.ChoiceField(required=True, choices=US_STATES, label='State')
     postal_code = forms.CharField(required=True, max_length=25, label='Zip Code')
 
     note = forms.CharField(required=False, max_length=1000, widget=forms.Textarea(attrs={'rows': 8}), label='Note')
+
+    def clean(self):
+        cleaned = super().clean()
+        bt = cleaned.get('building_type')
+        unit = (cleaned.get('unit') or '').strip()
+
+        needs_unit = bt in ('apartment',)
+
+        if needs_unit and not unit:
+            self.add_error('unit', 'Unit is required for this building type.')
+        return cleaned
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        return normalize_email(email)
+
+    def clean_postal_code(self):
+        z = (self.cleaned_data['postal_code'] or "").strip()
+        if not ZIP_RE.match(z):
+            raise forms.ValidationError('Enter a valid ZIP code.')
+        return z
+
+

@@ -93,9 +93,7 @@ def increment_email_send_count(email: str) -> int:
 def send_checkout_confirmation_email(
         request,
         email: str,
-        customer_id: int = None,
-        address_id: int = None,
-        note: str = None,
+        draft_id: int
 ) -> str:
     """
     Send a confirmation email with a secure link.
@@ -103,6 +101,7 @@ def send_checkout_confirmation_email(
     Args:
         request: The HTTP request object (for building absolute URLs)
         email: The email address to send to
+        draft_id: The CheckoutDraft record ID to embed in token
         customer_id: Optional customer record ID to embed in token
         address_id: Optional address record ID to embed in token
         note: Optional order note to embed in token
@@ -128,9 +127,7 @@ def send_checkout_confirmation_email(
     # Generate token with all checkout state
     token = generate_checkout_email_token(
         email=normalized_email,
-        customer_id=customer_id,
-        address_id=address_id,
-        note=note
+        draft_id=draft_id
     )
 
     # Build confirmation URL

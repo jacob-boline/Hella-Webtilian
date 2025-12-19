@@ -3,24 +3,23 @@
   "version": "1.0.0",
   "description": "Hella Reptilian band site / Django SPA",
   "private": true,
-
   "scripts": {
     "django:run": "uv run manage.py runserver 0.0.0.0:8000",
-    "django:lr": "uv run manage.py livereload",
-    "dev": "concurrently -k -n DJANGO,LR -c green,magenta \"npm:django:run\" \"npm:django:lr\"",
+    "vite:dev": "vite",
+    "vite:build": "vite build",
+    "dev": "concurrently -k -n DJANGO,VITE -c magenta,cyan \"npm:django:run\" \"npm:vite:dev\"",
+    "build": "npm run vite:build",
     "lint:css": "stylelint \"**/*.css\"",
     "lint:css:fix": "stylelint \"**/*.css\" --fix"
-
   },
-
   "devDependencies": {
     "concurrently": "^9.2.1",
-
+    "vite": "^7.3.0",
     "stylelint": "^16.26.0",
-    "stylelint-order": "^7.0.0",
-    "stylelint-use-nesting": "^6.0.0",
-    "stylelint-plugin-defensive-css": "^1.0.4",
+    "stylelint-config-alphabetical-order": "^1.0.0",
     "stylelint-config-clean-order": "^8.0.0",
-    "stylelint-config-alphabetical-order": "^1.0.0"
+    "stylelint-order": "^7.0.0",
+    "stylelint-plugin-defensive-css": "^1.0.4",
+    "stylelint-use-nesting": "^6.0.0"
   }
 }

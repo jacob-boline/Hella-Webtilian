@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'phonenumber_field',
     'django_browser_reload',
     'imagekit',
+    'django_vite',
 ]
 
 MIDDLEWARE = [
@@ -144,3 +145,12 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')  # Mailjet API Key
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')  # Mailjet secret
 DEFAULT_FROM_EMAIL = 'Hella Reptilian <no-reply@hellareptilian.com>'
+
+DJANGO_VITE = {
+    "default": {
+        "dev_mode": DEBUG,
+        "dev_server_host": "127.0.0.1",
+        "dev_server_port": 5173,
+        "static_url_prefix": "/",
+    }
+}

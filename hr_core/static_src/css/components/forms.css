@@ -1,0 +1,101 @@
+/* components/forms.css */
+
+/* ---------- layout ---------- */
+
+.form {
+  text-align: left;
+  font-size: 0.85rem;
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+}
+
+.form-col {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.form-col-full {
+  flex: 1 1 100%;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- labels ---------- */
+
+.form-label {
+  margin-bottom: 0.25rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--neon-blue);
+}
+
+.form-required {
+  margin-left: 0.25rem;
+  font-size: 0.7rem;
+  color: var(--neon-red);
+}
+
+/* ---------- controls ---------- */
+
+.form-control {
+  width: 100%;
+  padding: 0.25rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background-color: rgba(0, 0, 0, 0.6);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.7rem;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.form-control:focus {
+  border-color: var(--neon-blue);
+  box-shadow: 0 0 0 1px rgba(0, 234, 255, 0.5);
+  background-color: rgba(0, 0, 0, 0.9);
+}
+
+textarea.form-control {
+  resize: vertical;
+  min-height: 4.5rem;
+}
+
+/* ---------- help & errors ---------- */
+
+.form-help {
+  margin-top: 0.25rem;
+  font-size: 0.7rem;
+  opacity: 0.8;
+}
+
+.form-error {
+  margin-top: 0.25rem;
+  font-size: 0.7rem;
+  color: #fecaca;
+}
+
+/* ---------- conditional groups ---------- */
+
+.form-group.is-hidden {
+  display: none;
+}
+
+/* ---------- mobile ---------- */
+
+@media (max-width: 640px) {
+  .form-col {
+    flex: 1 1 100%;
+  }
+}

@@ -43,7 +43,8 @@
                                     type="button"
                                     aria-label="Open details for {{ product.name }}{% if display_variant.name %} ({{ display_variant.name }}){% endif %}"
                                     hx-get="{% url "hr_shop:get_product_modal_partial" product_slug=product.slug %}"
-                                    hx-target="#modal-content">
+                                    hx-target="#modal-content"
+                                    hx-swap="innerHTML transition:true">
 
                                 {% if display_image %}
                                     <img src="{{ display_image.image.url }}"
@@ -70,7 +71,7 @@
                                         type="button"
                                         hx-get="{% url 'hr_shop:get_product_modal_partial' product_slug=product.slug %}"
                                         hx-target="#modal-content"
-                                        hx-swap="innerHTML">
+                                        hx-swap="innerHTML transition:true">
                                     <i class="fas fa-circle-info"></i> Details
                                 </button>
 

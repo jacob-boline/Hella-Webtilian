@@ -45,8 +45,9 @@ from functools import cached_property
 from django.conf import settings
 from django.core.validators import EmailValidator, MinValueValidator
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Min
 from django.utils import timezone
+from phonenumber_field.modelfields import PhoneNumberField
 
 from hr_common.models import Address
 from hr_core.utils.email import normalize_email
@@ -99,8 +100,7 @@ class Product(models.Model):
 
     @property
     def min_variant_price(self):
-        prices = [v.price for v in self.variants.all()]
-        return min(prices) if prices else None
+        return self.variants.aggregate(min_price=Min('price'))['min_price'] or None
 
 
 # ==========================
@@ -387,7 +387,7 @@ class ProductVariant(models.Model):
 
     def resolve_image(self):
         """
-        Return the best ProductImage for this variant, or None.w
+        Return the best ProductImage for this variant, or None.
         """
         if self.image:
             return self.image
@@ -453,31 +453,37 @@ class Customer(models.Model):
     email = models.EmailField(
         blank=False,
         null=False,
-        unique=False,
+        unique=True,
+        db_index=True,
         validators=[EmailValidator()]
     )
-    user = models.ForeignKey(
+    user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         blank=True,
         null=True,
-        related_name="customers",
+        related_name="customer",
         on_delete=models.SET_NULL
     )
     first_name = models.CharField(max_length=100, blank=True)
     last_name = models.CharField(max_length=100, blank=True)
     middle_initial = models.CharField(max_length=5, null=True, blank=True)
     suffix = models.CharField(max_length=20, null=True, blank=True)
-    phone = models.CharField(max_length=50, blank=True)
+    phone = PhoneNumberField(blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = [("email",)]
+        # unique_together = [("email",)]
         ordering = ["-created_at"]
 
     def __str__(self):
         label = f"{self.first_name} {self.last_name}".strip() or self.email
         return f"Customer {self.pk} - {label}"
+
+    def save(self, *args, **kwargs):
+        if self.email:
+            self.email = normalize_email(self.email)
+        super().save(*args, **kwargs)
 
     @property
     def full_name(self):
@@ -497,6 +503,24 @@ class CustomerAddress(models.Model):
     is_default_shipping = models.BooleanField(default=False)
     is_default_billing = models.BooleanField(default=False)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['customer', 'address'],
+                name='uq_customer_address'
+            ),
+            models.UniqueConstraint(
+                fields=['customer'],
+                condition=Q(is_default_shipping=True),
+                name='uq_one_default_shipping_per_customer'
+            ),
+            models.UniqueConstraint(
+                fields=['customer'],
+                condition=Q(is_default_billing=True),
+                name='uq_one_default_billing_per_customer'
+            )
+        ]
+
 
 class Order(models.Model):
     STATUS_CHOICES = [
@@ -508,25 +532,29 @@ class Order(models.Model):
 
     customer = models.ForeignKey(
         Customer,
-        null=True,
+        null=False,
         blank=False,
         on_delete=models.PROTECT,
         related_name="orders"
     )
-    stripe_checkout_session_id = models.CharField(max_length=255, unique=True, blank=True, null=True)
+    email = models.EmailField(
+        validators=[EmailValidator()],
+        db_index=True
+    )
+    stripe_checkout_session_id = models.CharField(
+        max_length=255,
+        unique=True,
+        blank=True,
+        null=True
+    )
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
         default="pending"
     )
-    email = models.EmailField(
-        null=False,
-        blank=False,
-        validators=[EmailValidator()]
-    )
     shipping_address = models.ForeignKey(
         Address,
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         null=True,
         blank=True
     )
@@ -535,17 +563,30 @@ class Order(models.Model):
         decimal_places=2,
         validators=[MinValueValidator(0)]
     )
-    note = models.CharField(max_length=1000, null=True, blank=True)
+    note = models.CharField(
+        max_length=1000,
+        null=True,
+        blank=True
+    )
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"Order {self.id} ({self.status})"
 
-    def save(self, *args, **kwargs):
-        if self.email:
-            self.email = self.email.strip().casefold()
-        super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     if self.email:
+    #         self.email = normalize_email(self.email)
+    #     super().save(*args, **kwargs)
+
+    def can_edit_shipping(self) -> bool:
+        return self.status in ('pending', 'failed')
+
+    def set_shipping_address(self, address: Address):
+        if not self.can_edit_shipping():
+            raise ValueError('Cannot change address for a non-editable order.')
+        self.shipping_address = address
+        self.save(update_fields=['shipping_address', 'updated_at'])
 
 
 class OrderItem(models.Model):
@@ -606,3 +647,42 @@ class ConfirmedEmail(models.Model):
         """Mark an email address as confirmed. Idempotent."""
         obj, _ = cls.objects.get_or_create(email=(normalize_email(email)))
         return obj
+
+
+# To store session state to restore from when a validation link is used from a browser without an active session
+# so users aren't redirected to an empty cart after validating.
+class CheckoutDraft(models.Model):
+    email = models.EmailField(db_index=True)
+    customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
+    address = models.ForeignKey(Address, on_delete=models.PROTECT)
+    note = models.CharField(max_length=1000, blank=True, null=True)
+    cart = models.JSONField(default=list)  # [{'variant_id': 123, 'qty': 2, 'unit_price': '19.99'}, ...]
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(db_index=True)
+    used_at = models.DateTimeField(null=True, blank=True)
+    order = models.OneToOneField(
+        'Order',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='checkout_draft'
+    )
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['email', 'used_at']),
+            models.Index(fields=['customer', 'used_at'])
+        ]
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=['customer'],
+                condition=Q(used_at__isnull=True),
+                name='uq_one_active_draft_per_customer',
+            )
+        ]
+
+    def is_valid(self):
+        return self.used_at is None and timezone.now() < self.expires_at
+
+

@@ -6,18 +6,23 @@ from django.views.decorators.http import require_POST
 
 from hr_shop.cart import get_cart, Cart, add_to_cart
 from hr_shop.models import Product
-from hr_core.utils import http
 
 
+def _parse_qty(request, default=1):
+    try:
+        q = int(request.POST.get('quantity', default))
+    except (TypeError, ValueError):
+        q = default
+    return max(q, 1)
+
+
+@require_POST
 def add_variant_to_cart(request, variant_slug):
-    quantity = request.POST.get('quantity', 1)
-
+    quantity = _parse_qty(request)
     cart, variant, line_qty = add_to_cart(request, variant_slug, quantity)
-
     item_count = len(cart)
 
     response = HttpResponse(status=204)
-
     response['HX-Trigger'] = json.dumps({
         'showMessage': {
             'message': f"Added {variant.product.name} x{line_qty} to cart"
@@ -56,15 +61,14 @@ def add_to_cart_by_options(request, product_slug):
         if key.startswith('opt_') and value:
             try:
                 selected_value_ids.append(int(value))
-            except ValueError:
+            except (TypeError, ValueError):
                 pass
 
     if not selected_value_ids:
         return HttpResponseBadRequest('No options selected')
 
     selected_set = set(selected_value_ids)
-
-    variants = product.variants.prefetch_related('option_values')
+    variants = product.variants.filter(active=True).prefetch_related('option_values')
 
     chosen_variant = None
     for variant in variants:
@@ -75,10 +79,8 @@ def add_to_cart_by_options(request, product_slug):
     if not chosen_variant:
         return HttpResponseBadRequest("No variant for selected options")
 
-    quantity = request.POST.get('quantity', 1)
-
+    quantity = _parse_qty(request)
     cart, variant, line_qty = add_to_cart(request, chosen_variant.slug, quantity)
-
     item_count = len(cart)
 
     response = HttpResponse(status=204)
@@ -102,16 +104,13 @@ def view_cart(request):
         'total': cart.total()
     }
 
-    if http.is_htmx(request):
-        return render(request, 'hr_shop/_view_cart.html', context)
-
-    return render(request, 'hr_shop/view_cart.html', context)
+    return render(request, 'hr_shop/_view_cart.html', context)
 
 
 @require_POST
 def set_cart_quantity(request, variant_id: int):
     cart = Cart(request)
-    quantity = request.POST.get('quantity', 1)
+    quantity = _parse_qty(request)
     cart.set_quantity(variant_id, quantity)
 
     return view_cart(request)

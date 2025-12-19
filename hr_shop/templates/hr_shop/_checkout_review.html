@@ -1,25 +1,11 @@
 {# hr_shop/templates/hr_shop/_checkout_review.html #}
-
-{# Modal partial for reviewing order before payment #}
-
 {% load static %}
 
 <div class="checkout-review-modal">
     <h2 class="review-title">Review Your Order</h2>
 
-    {# Customer & Address Summary #}
     {% if customer and address %}
         <div class="review-section shipping-review">
-{#            <div class="shipping-header-row">#}
-{##}
-{#                <button type="button"#}
-{#                        class="edit-details-btn"#}
-{#                        hx-get="{% url 'hr_shop:checkout_details' %}"#}
-{#                        hx-target="#modal-content"#}
-{#                        hx-swap="innerHTML">#}
-{#                </button>#}
-{#            </div>#}
-
             <div class="shipping-summary">
                 <div class="shipping-block">
                     <p class="review-section-title">Shipping Address</p>
@@ -32,6 +18,7 @@
                         {{ address.formatted }}
                     </p>
                 </div>
+
                 <div class="shipping-contact">
                     <p class="review-section-title">Contact</p>
                     <p class="customer-email customer-field">
@@ -47,9 +34,7 @@
         </div>
     {% endif %}
 
-    {# Order Items #}
     <div class="review-section">
-
         <h3 class="review-section-title">Items</h3>
 
         <div class="review-items">
@@ -70,7 +55,6 @@
         </div>
     </div>
 
-    {# Order Totals #}
     <div class="review-section review-totals">
         <div class="total-row">
             <span>Subtotal</span>
@@ -97,7 +81,6 @@
         </div>
     </div>
 
-    {# Special Instructions #}
     {% if note %}
         <div class="review-section">
             <p class="review-section-title">Special Instructions</p>
@@ -105,8 +88,7 @@
         </div>
     {% endif %}
 
-    {# Actions #}
-    <div class="review-actions">
+    <div class="review-actions modal-actions stack">
         <form method="post" action="{% url 'hr_shop:checkout_create_order' %}">
             {% csrf_token %}
             <button type="submit" class="card-btn buy-cyan">

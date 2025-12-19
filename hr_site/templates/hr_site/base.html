@@ -1,5 +1,6 @@
 {# hr_site/templates/hr_site/base.html #}
 
+{% load django_vite %}
 {% load django_browser_reload static %}
 
 <!DOCTYPE html>
@@ -9,13 +10,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Hella Reptilian{% endblock %}</title>
 
-    <link rel="icon" href="{% static 'hr_site/img/favicon/fav-icon-hr-green.png' %}">
+    <link rel="icon" type="image/svg+xml" href="{% vite_asset_url 'icons/favicon.svg' %}">
+    <link rel="icon" type="image/png" sizes="96x96" href="{% vite_asset_url 'icons/favicon-96x96.png' %}">
+    <link rel="apple-touch-icon" href="{% vite_asset_url 'icons/apple-touch-icon.png' %}">
+    <link rel="manifest" href="{% vite_asset_url 'icons/site.webmanifest' %}">
+
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Zilla+Slab+Highlight:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Syne+Mono&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="{% static 'hr_site/css/app.css' %}">
+    {% vite_asset 'js/main.js' %}
 
     <script src="https://unpkg.com/htmx.org@2.0.3" defer></script>
     <script src="https://js.stripe.com/v3" defer></script>
@@ -113,24 +119,10 @@
 <script src="https://unpkg.com/feather-icons"></script>
 <script>feather.replace();</script>
 
-<script src="{% static 'hr_site/js/core-utils.js' %}"></script>
-<script src="{% static 'hr_site/js/vh-fix.js' %}"></script>
-<script src="{% static 'hr_site/js/ui-global.js' %}"></script>
-<script src="{% static 'hr_site/js/htmx-csrf.js' %}"></script>
-<script src="{% static 'hr_access/js/access.js' %}"></script>
-<script src="{% static 'hr_site/js/banner.js' %}"></script>
-<script src="{% static 'hr_site/js/scroll-effects.js' %}"></script>
-<script src="{% static 'hr_live/js/neon-sequencer.js' %}"></script>
-<script src="{% static 'hr_shop/js/merch.js' %}"></script>
-<script src="{% static 'hr_shop/js/checkout.js' %}"></script>
-<script src="{% static 'hr_bulletin/js/bulletin.js' %}"></script>
-<script type="module" src="{% static 'hr_about/js/carousel.js' %}"></script>
-<script type="module" src="{% static 'hr_about/js/quotes.js' %}"></script>
-
-
-
 {# ---- page-specific scripts hook ---- #}
 {% block extra_scripts %}{% endblock %}
+
+{% django_browser_reload_script %}
 
 </body>
 </html>

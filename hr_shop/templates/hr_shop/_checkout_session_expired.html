@@ -1,11 +1,7 @@
 {# hr_shop/templates/hr_shop/_checkout_session_expired.html #}
-
-{# Modal partial shown when checkout session has expired #}
-
-
 {% load static %}
 
-<div class="checkout-session-expired checkout-state-center">
+<div class="checkout-session-expired modal-state">
 
     <div class="expired-icon">
         <i class="fas fa-clock"></i>
@@ -18,7 +14,7 @@
         Please re-enter your details to continue.
     </p>
 
-    <div class="checkout-actions">
+    <div class="modal-actions modal-actions uniform">
         <button type="button"
                 class="card-btn buy-cyan"
                 hx-get="{% url 'hr_shop:checkout_details' %}"

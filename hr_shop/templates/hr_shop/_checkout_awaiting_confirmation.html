@@ -1,12 +1,8 @@
 {# hr_shop/templates/hr_shop/_checkout_awaiting_confirmation.html #}
-
-{# Modal partial shown while waiting for email confirmation #}
-
-
 {% load static %}
 
 <div id="confirmation-waiting"
-     class="checkout-awaiting-confirmation .checkout-state-center"
+     class="checkout-awaiting-confirmation modal-state"
      {% if not rate_limited and not error %}
      hx-get="{% url 'hr_shop:check_email_confirmed' %}"
      hx-trigger="every 5s [pollCount < 720]"
@@ -41,7 +37,7 @@
         </p>
     {% endif %}
 
-    <div class="checkout-actions">
+    <div class="modal-actions modal-actions uniform">
         {% if not rate_limited %}
             <button type="button"
                     class="card-btn outline"
@@ -69,7 +65,7 @@
         </button>
     </div>
 
-    <details class="email-help">
+    <details class="modal-helpbox modal-helpbox">
         <summary>Didn't receive the email?</summary>
         <ul>
             <li>Check your spam or junk folder</li>
@@ -89,7 +85,6 @@
         </small>
     </p>
 
-    {# Hidden status announcer for screen readers #}
     <div role="status" aria-live="polite" class="sr-only" id="status-announcer">
         Waiting for email confirmation
     </div>

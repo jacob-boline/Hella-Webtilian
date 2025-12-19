@@ -1,8 +1,6 @@
 # hr_core/mixins.py
 
 
-from hr_core.utils import http
-
 class HtmxTemplateMixin:
     """
     Lets a CBV choose between a full-page template and an HTMX/modal partial.
@@ -15,9 +13,7 @@ class HtmxTemplateMixin:
     htmx_template_name = None
 
     def get_template_names(self):
-
-        request = getattr(self, 'request', None)
-        if request is not None and http.is_htmx(request) and self.htmx_template_name:
+        if self.htmx_template_name:
             return [self.htmx_template_name]
 
         return super().get_template_names()

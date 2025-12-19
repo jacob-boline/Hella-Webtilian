@@ -30,7 +30,6 @@ urlpatterns = [
     path('', include('hr_site.urls')),
     path('admin/', admin.site.urls),
     path('__debug__/', include('debug_toolbar.urls')),
-    path("favicon.ico", RedirectView.as_view(url=f"{settings.MEDIA_URL}favicon/fav-icon-hr-green.png", permanent=True)),
 
     path("password-reset/", auth_views.PasswordResetView.as_view(), name="password_reset"),
     path("password-reset/done/", auth_views.PasswordResetDoneView.as_view(), name="password_reset_done"),
@@ -41,3 +40,4 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += path('__reload__/', include('django_browser_reload.urls')),

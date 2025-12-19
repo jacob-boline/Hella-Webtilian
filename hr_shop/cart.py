@@ -1,6 +1,6 @@
 # hr_shop/cart.py
 
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 
 from django.shortcuts import get_object_or_404
 
@@ -10,19 +10,14 @@ from hr_shop.models import ProductVariant
 CART_SESSION_KEY = "hr_shop_cart"
 
 
-
-
-
 class Cart:
     """
     Session-backed cart.
-
     Session structure:
-
         request.session['hr_shop_cart'] = {
             "<variant_id>": {
                 "quantity": int,
-                "price": "9.99",           # string for JSON safety
+                "unit_price": "9.99",           # string for JSON safety
             },
             ...
         }
@@ -55,18 +50,32 @@ class Cart:
                 continue
 
             quantity = data.get("quantity", 0)
-            price = Decimal(data.get("price", "0.00"))
+
+            price_str = data.get('unit_price') or data.get('price') or '0.00'
+            try:
+                price = Decimal(price_str)
+            except (InvalidOperation, TypeError, ValueError):
+                price = Decimal("0.00")
+            # price = Decimal(data.get("price", "0.00"))
+
+            available = variant.active
+
             yield {
                 "variant": variant,
                 "product": variant.product,
                 "quantity": quantity,
                 "unit_price": price,
                 "subtotal": price * quantity,
+                "available": available
             }
 
     def __len__(self):
-        """Total quantity of items in the cart."""
+        """Total units in cart."""
         return sum(item["quantity"] for item in self.cart.values())
+
+    def distinct_count(self) -> int:
+        """Distinct variants in cart"""
+        return len(self.cart)
 
     def add(self, variant, quantity=1, override=False):
         """
@@ -143,7 +152,7 @@ def add_to_cart(request, variant_slug, quantity=1, *, override=False):
 
     Returns (cart, variant, line_quantity).
     """
-    variant = get_object_or_404(ProductVariant, slug=variant_slug)
+    variant = get_object_or_404(ProductVariant, slug=variant_slug, active=True)
     cart = Cart(request)
     cart.add(variant, quantity=quantity, override=override)
 
@@ -156,7 +165,8 @@ def get_cart(request) -> Cart:
     """
     Convenience helper, always returns a Cart instance for this request.
     """
-    return Cart(request)
+    cart = Cart(request)
+    return cart
 
 
 def get_cart_item_count(request) -> int:
@@ -166,18 +176,18 @@ def get_cart_item_count(request) -> int:
     return len(Cart(request))
 
 
-class CartItemExistsError(Exception):
-    def __init__(self, variant_id, message=None):
-        self.variant = ProductVariant.objects.get(id=variant_id)
-        self.message = (
-            message
-            or "You cannot add an already existing item this way. "
-               "Use <cart.set_quantity()> or <cart.add(override=True)> instead."
-        )
-        super().__init__(self.message)
-
-    def __str__(self):
-        return f"{self.variant} -> {self.message}"
+# class CartItemExistsError(Exception):
+#     def __init__(self, variant_id, message=None):
+#         self.variant = ProductVariant.objects.get(id=variant_id)
+#         self.message = (
+#             message
+#             or "You cannot add an already existing item this way. "
+#                "Use <cart.set_quantity()> or <cart.add(override=True)> instead."
+#         )
+#         super().__init__(self.message)
+#
+#     def __str__(self):
+#         return f"{self.variant} -> {self.message}"
 
 
 class CartItemNotFoundError(Exception):

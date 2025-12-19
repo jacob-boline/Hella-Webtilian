@@ -36,7 +36,6 @@ from hr_access.emails import send_claim_email
 from hr_access.forms import StaffForm, SetPasswordForm, CustomUserCreationForm
 from hr_access.models import User
 from hr_core.mixins import HtmxTemplateMixin
-from hr_core.utils import http
 from hr_core.utils.email import normalize_email
 from hr_shop.models import Order
 from hr_shop.services.customers import attach_customer_to_user
@@ -111,7 +110,6 @@ def signup(request):
             if UserModel.objects.filter(email=email, is_active=True).exists():
                 form.add_error('email', "An account already exists with this email.")
                 return render(request, 'hr_access/registration/_signup.html', {'form': form})
-
             user = form.save()
             login(request, user)
 
@@ -130,13 +128,7 @@ def signup(request):
         else:
             return render(request, 'hr_access/registration/_signup.html', {'form': form})
 
-    form = CustomUserCreationForm()
-    template = (
-        'hr_access/registration/_signup.html'
-        if http.is_htmx(request)
-        else 'hr_access/registration/signup.html'
-    )
-    return render(request, template, {'form': form})
+    return render(request, 'hr_access/registration/_signup.html', {'form': CustomUserCreationForm()})
 
 
 # ==================================================================================================================
@@ -159,28 +151,20 @@ def user_login(request):
             response = render(request, "hr_access/_sidebar_access.html")
             response.headers["HX-Trigger"] = json.dumps({
                 "accessChanged": None,
-                "showMessage": "Login successful",
+                "showMessage": "Login successful"
             })
             return response
 
         # ---- Invalid credentials ----
         response = render(request, "hr_access/_sidebar_access.html", {"authentication_form": form})
         response.headers["HX-Trigger"] = json.dumps({
-            "showMessage": "No match found for Username/Password",
+            "showMessage": "No match found for Username/Password"
         })
         return response
 
     # ------------------ GET ------------------
-    form = AuthenticationForm(request)
+    return render(request, "hr_access/_sidebar_access.html", {"authentication_form": AuthenticationForm(request)})
 
-    return render(request, "hr_access/_sidebar_access.html", {"authentication_form": form})
-
-
-# def login_success(request):
-#     template = (
-#         'hr_access/registration/_login_success.html'
-#     )
-#     return render(request, template)
 
 def login_success(request):
     headers_dict = {
@@ -226,26 +210,19 @@ def password_change(request):
             form.save()
             update_session_auth_hash(request, form.user)
 
-            if http.is_htmx(request):
-                headers = {
-                    'HX-Trigger': json.dumps({
-                        'closeModalShowGLobalMessage': {
-                            'message': "Your password has been changed"
-                        }
-                    })
-                }
-                return HttpResponse(status=204, headers=headers)
-
-            messages.success(request, "Your password has been changed.")
-            return redirect('hr_access:password_change_done')
+            headers = {
+                'HX-Trigger': json.dumps({
+                    'closeModalShowGLobalMessage': {
+                        'message': "Your password has been changed"
+                    }
+                })
+            }
+            return HttpResponse(status=204, headers=headers)
 
     # GET
     else:
         form = PasswordChangeForm(user=request.user)
-        template = 'hr_accees/registration/_password_change_form.html' \
-            if http.is_htmx(request) \
-            else 'hr_access/registration/password_change_form.html'
-
+        template = 'hr_accees/registration/_password_change_form.html'
         return render(request, template, {'form': form})
 
 
@@ -254,8 +231,7 @@ def password_change(request):
 # ==================================================================================================================
 
 class HRPasswordResetView(HtmxTemplateMixin, PasswordResetView):
-    template_name = 'hr_access/registration/password_reset_form.html'
-    htmx_template_name = 'hr_access/registration/_password_reset_form.html'
+    template_name = htmx_template_name = 'hr_access/registration/_password_reset_form.html'
 
     email_template_name = 'hr_access/registration/password_reset_email.txt'
     html_email_template_name = 'hr_access/registration/password_reset_email.html'
@@ -264,8 +240,7 @@ class HRPasswordResetView(HtmxTemplateMixin, PasswordResetView):
 
 
 class HRPasswordResetDoneView(HtmxTemplateMixin, PasswordResetDoneView):
-    template_name = 'hr_access/registration/password_reset_done.html'
-    htmx_template_name = 'hr_access/registration/_password_reset_done.html'
+    template_name = htmx_template_name = 'hr_access/registration/_password_reset_done.html'
 
 
 class HRPasswordResetConfirmView(HtmxTemplateMixin, PasswordResetConfirmView):
@@ -285,7 +260,7 @@ class HRPasswordResetCompleteView(HtmxTemplateMixin, PasswordResetCompleteView):
 
 @login_required
 def claim_modal(request):
-    template = 'hr_access/claim/_claim_modal.html' if http.is_htmx(request) else 'hr_access/claim/claim_modal.html'
+    template = 'hr_access/claim/_claim_modal.html'
     return render(request, template)
 
 
@@ -295,12 +270,9 @@ def claim_start(request):
 
     email = normalize_email(request.POST.get('email', ''))
     if not email:
-        if http.is_htmx(request):
-            return render(request, 'hr_access/claim/_claim_modal.html', {
-                'error': 'Please enter an email address'
-            })
-        messages.error(request, "Please enter an email address.")
-        return redirect('hr_access:claim_modal')
+        return render(request, 'hr_access/claim/_claim_modal.html', {
+            'error': 'Please enter an email address.'
+        })
 
     token = signer.sign(email)
     link = request.build_absolute_uri(
@@ -316,22 +288,16 @@ def claim_start(request):
         )
     except Exception as e:
         logger.error(f"Failed to send claim email: {e}")
-        if http.is_htmx(request):
-            return render(request, 'hr_access/claim/_claim_email_sent.html', {
-                'ok': False,
-                'message': "Could not send email. Please try again."
-            })
-        messages.error(request, "Could not send email. Please try again.")
-        return redirect('hr_access:claim_modal')
 
-    if http.is_htmx(request):
         return render(request, 'hr_access/claim/_claim_email_sent.html', {
-            'ok': True,
-            'email': email
+            'ok': False,
+            'message': "Could not send email. Please try again."
         })
 
-    messages.success(request, f'Verification email sent to {email}')
-    return redirect('hr_access:orders')
+    return render(request, 'hr_access/claim/_claim_email_sent.html', {
+        'ok': True,
+        'email': email
+    })
 
 
 @login_required
@@ -343,24 +309,14 @@ def claim_verify(request):
     try:
         email = signer.unsign(token, max_age=15 * 60)  # 15 minutes
     except (BadSignature, SignatureExpired):
-        if http.is_htmx(request):
-            return render(request, 'hr_access/claim/_claim_result.html', {'ok': False})
-        messages.error(request, "This link is invalid or has expired.")
-        return redirect('hr_access:orders')
+        return render(request, 'hr_access/claim/_claim_result.html', {'ok': False})
 
     # Link
     linked = (Order.objects
               .filter(user__isnull=True, email=normalize_email(email))
               .update(user=request.user))
 
-    if http.is_htmx(request):
-        return render(request, 'hr_access/claim/_claim_result.html', {'ok': True, 'count': linked})
-
-    if linked > 0:
-        messages.success(request, f"{linked} order(s) have been linked to your account.")
-    else:
-        messages.info(request, "No orders found to link with that email.")
-    return redirect('hr_access:orders')
+    return render(request, 'hr_access/claim/_claim_result.html', {'ok': True, 'count': linked})
 
 
 def claim_account(request, user_id: int, token: str):
@@ -368,7 +324,7 @@ def claim_account(request, user_id: int, token: str):
     shadow_user = get_object_or_404(get_user_model(), pk=user_id, is_active=False)
     if not default_token_generator.check_token(shadow_user, token):
         messages.error(request, "Invalid or expired claim link.")
-        return redirect("hr_shop:product_list")
+        return redirect("hr_shop:product_list")  # TO DO   switch to message?
 
     if request.method == "POST":
         form = SetPasswordForm(request.POST)
@@ -382,24 +338,18 @@ def claim_account(request, user_id: int, token: str):
             except (ObjectDoesNotExist, MultipleObjectsReturned, ValidationError, IntegrityError) as err:
                 logger.warning(f'Failed to attach guest orders for user {shadow_user.pk}: {err}')
 
-            if http.is_htmx(request):
-                return HttpResponse(status=204, headers={
-                    'HX-Trigger': json.dumps({
-                        'accessChanged': None,
-                        'modalSuccess': {'message': 'Your account is ready!'}
-                    })
+            return HttpResponse(status=204, headers={
+                'HX-Trigger': json.dumps({
+                    'accessChanged': None,
+                    'modalSuccess': {'message': 'Your account is ready!'}
                 })
-            messages.success(request, "Your account is ready.")
-            return redirect("hr_access:orders")
+            })
+
     # GET
     else:
         form = SetPasswordForm()
-
-    template = 'hr_access/claim/_claim_account.html' \
-        if http.is_htmx(request) \
-        else 'hr_access/claim/claim_account.html'
-
-    return render(request, template, {'form': form, 'shadow': shadow_user})
+        template = 'hr_access/claim/_claim_account.html'
+        return render(request, template, {'form': form, 'shadow': shadow_user})
 
 
 @require_http_methods(['GET', 'POST'])
@@ -412,7 +362,6 @@ def claim_resend(request):
         if shadow_user:
             send_claim_email(request, shadow_user)
 
-        if http.is_htmx(request):
             return HttpResponse(status=204, headers={
                 'HX-Trigger': json.dumps({
                     'modalSuccess': {
@@ -420,11 +369,9 @@ def claim_resend(request):
                     }
                 })
             })
-        messages.info(request, "If a pending account exists for that email, a link has been sent..")
-        return redirect('hr_access:login')
 
     # GET
-    template = 'hr_access/claim/_claim_resend.html' if http.is_htmx(request) else 'hr_access/claim/claim_resend.html'
+    template = 'hr_access/claim/_claim_resend.html'
     return render(request, template)
 
 
@@ -436,10 +383,9 @@ def claim_resend(request):
 def orders(request):
     email = normalize_email(getattr(request.user, 'email', ''))
     qs = (Order.objects.filter(user=request.user) | Order.objects.filter(email=email)).order_by('-created_at').distinct()
-    ctx = {"orders": qs[:20], "has_more": qs.count() > 20}
-
-    template = 'hr_access/_orders_modal_body.html' if http.is_htmx(request) else 'hr_access/orders_page.html'
-
+    order_list = list(qs[:21])
+    ctx = {"orders": orders[:20], "has_more": len(order_list) > 20}
+    template = 'hr_access/_orders_modal_body.html'
     return render(request, template, ctx)
 
 
@@ -507,7 +453,7 @@ def get_message_confirm_superuser_removal(request, user_id):
         confirm_method='post',
         confirm_label='Yes, remove privileges',
         cancel_url=reverse('hr_access:cancel_superuser_removal', args=[target.pk]),
-        cancel_label='Cancel',
+        cancel_label='Cancel'
     )
 
 

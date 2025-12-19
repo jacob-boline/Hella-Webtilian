@@ -2,6 +2,7 @@
 
 
 from django import template
+from django.forms import BoundField
 
 register = template.Library()
 
@@ -25,6 +26,24 @@ def form_field(
         - validation state classes
         - basic aria attributes
     """
+
+    if not isinstance(field, BoundField):
+        return {
+            'field': None,
+            'rendered_field': '',
+            'label': label or '',
+            'required': False,
+            'help': help or '',
+            'wrapper_classes': wrapper_classes,
+            'group_classes': group_classes,
+            'subdivision': 'error',
+            'has_errors': True,
+            'field_id': '',
+            'help_id': '',
+            'error_id': '',
+            'debug_error': f'form_field expected BoundField, got {type(field).__name__}: {repr(field)}',
+        }
+
     # Defaukt: use Django's label
     label_text = label or field.label
 
@@ -80,5 +99,6 @@ def form_field(
         'has_errors': has_errors,
         'field_id': field_id,
         'help_id': help_id,
-        'error_id': error_id
+        'error_id': error_id,
+        'debug_error': '',
     }

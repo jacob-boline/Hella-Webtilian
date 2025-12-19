@@ -1,15 +1,16 @@
 # hr_access/urls.py
 
-from django.contrib.auth.views import PasswordChangeDoneView
+from django.contrib.auth.views import (
+    PasswordChangeDoneView,
+    PasswordResetView,
+    PasswordResetDoneView,
+    PasswordResetConfirmView,
+    PasswordResetCompleteView
+)
 from django.urls import path
 
 from hr_access import views
-from hr_access.views import (
-    HRPasswordResetView,
-    HRPasswordResetDoneView,
-    HRPasswordResetConfirmView,
-    HRPasswordResetCompleteView
-)
+
 
 app_name = 'hr_access'
 
@@ -31,10 +32,10 @@ urlpatterns = [
     path('password/change/done/', PasswordChangeDoneView.as_view(template_name="hr_access/registration/password_change_done.html"),name='password_change_done'),
 
     # Password reset
-    path('password/reset/', HRPasswordResetView.as_view(), name='password_reset'),
-    path('password/reset/done/', HRPasswordResetDoneView.as_view(), name='password_reset_done'),
-    path('password/reset/<uidb64>/<token>/', HRPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
-    path('password/reset/complete/', HRPasswordResetCompleteView.as_view(), name='password_reset_complete'),
+    path('password/reset/', PasswordResetView.as_view(template_name='hr_access/registration/_password_reset_form.html'), name='password_reset'),
+    path('password/reset/done/', PasswordResetDoneView.as_view(template_name='hr_access/registration/_password_reset_done.html'), name='password_reset_done'),
+    path('password/reset/<uidb64>/<token>/', PasswordResetConfirmView.as_view(template_name='hr_access/registration/_password_reset_confirm.html'), name='password_reset_confirm'),
+    path('password/reset/complete/', PasswordResetCompleteView.as_view(template_name='hr_access/registration/_password_reset_complete.html'), name='password_reset_complete'),
 
     # # Password reset
     # path(

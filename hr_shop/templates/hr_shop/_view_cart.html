@@ -1,7 +1,8 @@
 {# hr_access/_view_cart.html #}
 
 <div class="view-cart-modal">
-    <h2 class="sub-header">Shopping Cart</h2>
+    <h2 class="sub-header modal-title">Shopping Cart</h2>
+
     {% if cart %}
         {% for item in cart %}
             <div class="cart-summary-card">
@@ -26,6 +27,7 @@
                 <div class="item-quantity">
                     <label for="qty-{{ item.variant.id }}">Qty:</label>
                     <input
+                        class="control-compact"
                         id="qty-{{ item.variant.id }}"
                         type="number"
                         name="quantity"
@@ -50,11 +52,9 @@
                     </button>
                 </div>
             </div>
-
         {% endfor %}
 
-        <div class="cart-total">
-
+        <div class="modal-summary-row">
             <button class="card-btn buy-cyan checkout-btn" type="button"
                     hx-get="{% url 'hr_shop:checkout_details' %}"
                     hx-target="#modal-content"
@@ -62,12 +62,13 @@
                 Checkout
             </button>
 
-            <span>Total:</span>
-            <p class="cart-total-amount">${{ total }}</p>
+            <div class="modal-summary-block">
+                <span class="modal-summary-label">Total:</span>
+                <p class="modal-summary-amount">${{ total }}</p>
+            </div>
         </div>
 
     {% else %}
         <p>Your cart is empty.</p>
     {% endif %}
-
 </div>

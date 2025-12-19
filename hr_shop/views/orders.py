@@ -2,12 +2,29 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404
 
-from hr_shop.models import Order
-from hr_core.utils import http
+from hr_shop.models import Order, Customer
 
 
 @login_required
 def orders(request):
+    email = (request.user.email or "").strip()
+
+    customer_ids = (
+        Customer.objects
+        .filter(Q(user=request.user) | Q(email__iexact=email))
+        .values_list('id', flat=True)
+    )
+
+    qs = (
+        Order.objects
+        .filter(customer_id__in=customer_ids)
+        .order_by('-created_at[')
+    )
+
+    orders
+
+
+
     qs = (Order.objects
           .filter(Q(email=request.user.email) | Q(user=request.user))
           .order_by('-created_at')
@@ -18,10 +35,7 @@ def orders(request):
         "has_more": qs.count() > 20
     }
 
-    template = "orders.html"
-
-    if http.is_htmx(request):
-        template = "_orders_modal.html"
+    template = "_orders_modal.html"
 
     return render(request, f"account/{template}", ctx)
 

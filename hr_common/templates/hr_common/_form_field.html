@@ -6,6 +6,10 @@
                 {% if state == 'error' %} field-group--error{% endif %}
                 {% if state == 'valid' %} field-group--valid{% endif %}">
 
+        {% if debug_error %}
+            <!-- {{ debug_error }} -->
+        {% endif %}
+
         {# LABEL #}
         <label for="{{ field_id }}">
             {{ label }}

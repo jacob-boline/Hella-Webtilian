@@ -1,9 +1,8 @@
 {# hr_shop/templates/hr_shop/_checkout_details.html #}
-
 {% load form_group %}
 
 <div class="view-cart-modal checkout-details-modal">
-    <h2 class="sub-header">Checkout Details</h2>
+    <h2 class="sub-header modal-title">Checkout Details</h2>
 
     {% if form.non_field_errors %}
         <div class="form-errors">
@@ -24,17 +23,13 @@
     >
         {% csrf_token %}
 
-        {# CONTACT #}
         <h3 class="group-title">Contact</h3>
-
         <div class="field-row field-row-two-cols">
             {% form_group form.email %}
             {% form_group form.phone %}
         </div>
 
-        {# NAME #}
         <h3 class="group-title">Name</h3>
-
         <div class="field-row field-row-two-cols">
             {% form_group form.first_name %}
             {% form_group form.middle_initial %}
@@ -45,7 +40,6 @@
             {% form_group form.suffix %}
         </div>
 
-        {# ADDRESS #}
         <h3 class="group-title">Shipping address</h3>
 
         <div class="field-row field-row-full">
@@ -58,10 +52,9 @@
 
         <div class="field-row field-row-two-cols">
             {% form_group form.building_type %}
-            {% form_group form.unit %}
+            {% form_group form.unit group_classes="field-group hidden" %}
         </div>
 
-        {# City/State/Zip stacked (left) + Note (right) #}
         <div class="field-row field-row-two-cols field-row-bottom-block">
             <div class="field-col-left">
                 {% form_group form.city %}
@@ -74,7 +67,7 @@
             </div>
         </div>
 
-        <div class="checkout-footer">
+        <div class="modal-actions modal-actions">
             <button type="submit" class="card-btn buy-cyan">
                 Continue
             </button>

@@ -10,7 +10,7 @@ urlpatterns = [
     # Products (front-end)
 
     path('<slug:product_slug>/modal/', products.get_product_modal_partial, name='get_product_modal_partial'),
-    path('merch/<slug:product_slug>/modal/', products.get_product_modal_partial, name='product_modal_partial'),
+    path('merchModule/<slug:product_slug>/modal/', products.get_product_modal_partial, name='product_modal_partial'),
     path('product/<slug:product_slug>/variant-preview', products.update_details_modal, name='update_details_modal'),
     path('product/<slug:product_slug>/image-for-selection/', products.product_image_for_selection, name='product_image_for_selection'),
 
