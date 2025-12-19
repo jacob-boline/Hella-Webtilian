@@ -30,8 +30,10 @@ class Command(BaseCommand):
         "hr_about",
         "hr_access",
         "hr_bulletin",
+        "hr_common",
         "hr_email",
         "hr_live",
+        "hr_payment",
         "hr_shop",
         "hr_payment",
     ]
@@ -123,12 +125,18 @@ class Command(BaseCommand):
         self.stdout.write("→ Wiping migrations…")
         for app in self.APPS_TO_WIPE:
             migrations_dir = base_dir / app / "migrations"
-            if not migrations_dir.exists():
-                self.stdout.write(
-                    self.style.WARNING(f"  • {app}: no migrations/ directory found; skipping.")
-                )
-                continue
 
+            # Ensure migrations package exists
+            if not migrations_dir.exists():
+                migrations_dir.mkdir(parents=True, exist_ok=True)
+                self.stdout.write(f"  • {app}: created migrations/ directory.")
+
+            init_py = migrations_dir / "__init__.py"
+            if not init_py.exists():
+                init_py.write_text("")
+                self.stdout.write(f"  • {app}: created migrations/__init__.py.")
+
+            # Remove migration files except __init__.py
             removed_any = False
             for f in migrations_dir.iterdir():
                 if f.is_file() and f.name != "__init__.py":

@@ -9,13 +9,13 @@ import logging
 
 from django.conf import settings
 from django.core.cache import cache
-from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
 
 from hr_core.utils.email import normalize_email
 from hr_core.utils.tokens import generate_checkout_email_token
+from hr_email.mailjet import MailjetSendError, send_mailjet_email
 from hr_shop.exceptions import RateLimitExceeded, EmailSendError
 from hr_shop.models import ConfirmedEmail
 
@@ -164,16 +164,15 @@ Hella Reptilian
 
     # Send the email
     try:
-        send_mail(
+        send_mailjet_email(
+            to=[{"Email": normalized_email, "Name": normalized_email.split("@")[0]}],
             subject=subject,
-            message=plain_message.strip(),
-            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@hellareptilian.com'),
-            recipient_list=[normalized_email],
-            html_message=html_message,
-            fail_silently=False
+            text_part=plain_message.strip(),
+            html_part=html_message,
+            custom_id=f"checkout_confirm_{draft_id}",
         )
 
-    except Exception as e:
+    except MailjetSendError as e:
         logger.error(f"Failed to send confirmation email to {normalized_email}: {e}")
         raise EmailSendError(
             "Could not send confirmation email. Please try again."

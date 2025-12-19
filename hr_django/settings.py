@@ -11,16 +11,38 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 import os
+from dotenv import load_dotenv
 from pathlib import Path
-from decouple import config
+
+from django.core.management.utils import get_random_secret_key
+
+load_dotenv()
+
+
+def _env_bool(name: str, default: bool = False) -> bool:
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    return str(value).strip().lower() in ('1', 'true', 'yes', 'on')
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-+l)g&&h6i^d1-hz^&6%3+kc@bgq0h!@272q5#svy1++)h%b8&f'
 
-DEBUG = config('DEBUG', default=False, cast=bool)
+SECRET_FILE = BASE_DIR / ".django_secret"
 
-ALLOWED_HOSTS = []
+if SECRET_FILE.exists():
+    SECRET_KEY = SECRET_FILE.read_text().strip()
+else:
+    SECRET_KEY = get_random_secret_key()
+    SECRET_FILE.write_text(SECRET_KEY)
+    SECRET_FILE.chmod(0o600)
+
+# SECRET_KEY = 'django-insecure-+l)g&&h6i^d1-hz^&6%3+kc@bgq0h!@272q5#svy1++)h%b8&f'
+
+DEBUG = _env_bool('DEBUG', False)
+
+ALLOWED_HOSTS = [h.strip() for h in os.environ.get('ALLOWED_HOSTS', '').split(',') if h.split()]
 
 INTERNAL_IPS = ['127.0.0.1', ]
 
@@ -135,22 +157,48 @@ STORAGES = {
     },
 }
 
-SHOP_PAYMENT_BACKEND = "mock_stripe"
+SHOP_PAYMENT_BACKEND = os.environ.get('SHOP_PAYMENT_BACKEND')
+#
+# from hr_email.provider_settings import get_email_config  # noqa: E402
+# _email_config = get_email_config(prefer_provider_specific=True)
 
-# DEFAULT_FROM_EMAIL = 'noreply@hellareptilian.com'
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'in-v3.mailjet.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')  # Mailjet API Key
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')  # Mailjet secret
-DEFAULT_FROM_EMAIL = 'Hella Reptilian <no-reply@hellareptilian.com>'
+EMAIL_PROVIDER = os.environ.get("EMAIL_PROVIDER", "mailjet").strip().lower()
+
+DEFAULT_FROM_EMAIL = os.environ.get(
+    "DEFAULT_FROM_EMAIL",
+    "Hella Reptilian <no-reply@hellareptilian.com>",
+)
+
+EMAIL_BACKEND = os.environ.get(
+    "EMAIL_BACKEND",
+    "django.core.mail.backends.smtp.EmailBackend",
+)
+
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "in-v3.mailjet.com")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
+EMAIL_USE_TLS = _env_bool("EMAIL_USE_TLS", True)
+EMAIL_USE_SSL = _env_bool("EMAIL_USE_SSL", False)
+
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+
+if not DEBUG:
+    if not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD:
+        raise RuntimeError("Email credentials must be set when DEBUG=False.")
+
+#
+# EMAIL_HOST = 'in-v3.mailjet.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')  # Mailjet API Key
+# EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')  # Mailjet secret
+# DEFAULT_FROM_EMAIL = 'Hella Reptilian <no-reply@hellareptilian.com>'
 
 DJANGO_VITE = {
     "default": {
         "dev_mode": DEBUG,
-        "dev_server_host": "127.0.0.1",
-        "dev_server_port": 5173,
+        "dev_server_host": os.environ.get('VITE_DEV_SERVER_HOST'),
+        "dev_server_port": os.environ.get('VITE_DEV_SERVER_PORT'),
         "static_url_prefix": "/",
     }
 }

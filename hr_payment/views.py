@@ -1,7 +1,6 @@
 import json
 import pprint
 
-import stripe
 from django.conf import settings
 from django.core.mail import send_mail
 from django.http import HttpResponse, JsonResponse
@@ -11,13 +10,14 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView
-from stripe.error import SignatureVerificationError
 
 from hr_payment.forms import PrePaymentEntryForm, PaymentEntryForm
+from hr_payment.stripe_client import get_signature_verification_error, get_stripe_client
 from hr_shop.cart import Cart
 from hr_shop.models import Price, Product
 
-stripe.api_key = settings.STRIPE_API_KEY
+stripe = get_stripe_client()
+SignatureVerificationError = get_signature_verification_error()
 
 
 @require_POST
@@ -118,17 +118,17 @@ class StripeIntentView(View):
 
 class CreateCheckoutSessionView(View):
     def post(self, request, *args, **kwargs):
-        if build_cart_line_items:
-            checkout_session = stripe.checkout.Session.create(
-                payment_method_types=['card'],
-                line_items=request.session.line_items,
-                mode='payment',
-                success_url=reverse('checkout_success'),
-                cancel_url=reverse('checkout_cancel'),
-            )
-            return redirect(checkout_session.url)
-        else:
-            raise AttributeError
+        line_items = request.session.get('line-items') or []
+        if not line_items:
+            return HttpResponse(status=400)
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=request.session.line_items,
+            mode='payment',
+            success_url=reverse('checkout_success'),
+            cancel_url=reverse('checkout_cancel'),
+        )
+        return redirect(checkout_session.url)
 
 
 class SuccessView(TemplateView):

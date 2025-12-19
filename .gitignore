@@ -20,3 +20,4 @@ node_modules
 /hr_django/.env
 */.env
 .env
+.django-secret

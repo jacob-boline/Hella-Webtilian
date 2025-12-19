@@ -8,7 +8,7 @@ from hr_common.models import BuildingType
 from hr_common.constants.us_states import US_STATES
 from hr_core.utils.email import normalize_email
 
-ZIP_RE = re,compile(r"^\d{5}(-\d{4})?$")
+ZIP_RE = re.compile(r"^\d{5}(-\d{4})?$")
 
 
 class ProductAdminForm(forms.ModelForm):
@@ -123,5 +123,3 @@ class CheckoutDetailsForm(forms.Form):
         if not ZIP_RE.match(z):
             raise forms.ValidationError('Enter a valid ZIP code.')
         return z
-
-
