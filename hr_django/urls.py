@@ -26,6 +26,7 @@ urlpatterns = [
     path('user/', include('hr_access.urls')),
     path('bulletin/', include('hr_bulletin.urls')),
     path('live/', include('hr_live.urls')),
+    path('payment/', include('hr_payment.urls')),
     path('shop/', include('hr_shop.urls')),
     path('', include('hr_site.urls')),
     path('admin/', admin.site.urls),

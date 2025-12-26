@@ -3,19 +3,46 @@
 import { initCarousel } from './modules/carousel.js';
 import { initQuotes } from './modules/quotes.js';
 import { initMerch } from './modules/merch.js';
-import { initCheckout } from './modules/checkout.js';
+import { initCheckoutModule } from './modules/checkout.js';
 import { initBulletin } from './modules/bulletin.js';
 import { initUIText } from './modules/ui-text.js';
+import { initAutoAdvance } from './modules/auto-advance.js';
+import { initTabHandoff } from './modules/tab-handoff.js';
 
 // Registry for optional HX-Trigger "initModules"
 const MODULES = {
     carouselModule: initCarousel,
     quotesModule: initQuotes,
     merchModule: initMerch,
-    checkoutModule: initCheckout,
+    checkoutModule: initCheckoutModule,
     bulletinModule: initBulletin,
-    textModule:initUIText
+    textModule: initUIText,
+    autoAdvanceModule: initAutoAdvance,
+    tabHandoff: initTabHandoff
 };
+
+function reflowParallaxNow() {
+    if (window.hrSite?.reflowParallax) window.hrSite.reflowParallax();
+}
+
+/**
+ * "Settle" pass:
+ * - wait for layout/styles to settle (especially after hash jumps and modal open)
+ * - then reflow parallax
+ * - then force a scroll event so wipe logic updates even if user didn't scroll
+ */
+function settleParallaxAndWipe() {
+    if (!window.hrSite?.reflowParallax) return;
+
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            window.hrSite.reflowParallax();
+
+            // If wipe/parallax state is scroll-driven, this ensures a recompute
+            window.dispatchEvent(new Event('scroll'));
+        });
+    });
+}
 
 function runAll(root = document) {
     // Idempotent init calls
@@ -23,12 +50,13 @@ function runAll(root = document) {
     initCarousel(root);
     initQuotes(root);
     initMerch(root);
-    initCheckout(root);
+    initCheckoutModule(root);
     initBulletin(root);
+    initAutoAdvance(root);
+    initTabHandoff(root);
 
-
-    // one reflow after feature init
-    if (window.hrSite?.reflowParallax) window.hrSite.reflowParallax();
+    // Keep this immediate reflow (useful for many swaps)
+    reflowParallaxNow();
 }
 
 function shouldReinit(target) {
@@ -47,17 +75,28 @@ function shouldReinit(target) {
     );
 }
 
+function isModalTarget(target) {
+    if (!target) return false;
+    return target.id === 'modal-content' || target.closest?.('#modal');
+}
+
 /*
 |--------------------------------------------------------------------------
 | Initial load
 |--------------------------------------------------------------------------
 */
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => runAll(document));
-} else {
+function initialBoot() {
     runAll(document);
+
+    // Critical: hash jumps + vh shims + parallax measurements need a settle pass
+    settleParallaxAndWipe();
 }
 
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => initialBoot());
+} else {
+    initialBoot();
+}
 
 /*
 |--------------------------------------------------------------------------
@@ -67,13 +106,23 @@ if (document.readyState === 'loading') {
 document.addEventListener('htmx:afterSwap', (e) => {
     const target = e.target;
     if (!shouldReinit(target)) return;
+
     runAll(target);
+
+    // If we swapped into the modal, do a settle pass.
+    // Modal open often changes layout (scrollbar, focus, vh shims), which breaks wipe math.
+    if (isModalTarget(target)) {
+        settleParallaxAndWipe();
+    }
 });
 
 document.addEventListener('htmx:afterSettle', (e) => {
     const target = e.target;
     if (!shouldReinit(target)) return;
-    if (window.hrSite?.reflowParallax) window.hrSite.reflowParallax();
+
+    // Keep this, but for modal swaps we already did a settle pass above.
+    // Still safe to reflow; just don't rely on it alone.
+    reflowParallaxNow();
 });
 
 /*
@@ -98,7 +147,8 @@ document.body.addEventListener('initModules', (e) => {
         fn(document);
     });
 
-    if (detail.reflow !== false && window.hrSite?.reflowParallax) {
-        window.hrSite.reflowParallax();
+    if (detail.reflow !== false) {
+        // Prefer settle pass here too, because HX-triggered updates often occur mid-layout
+        settleParallaxAndWipe();
     }
 });

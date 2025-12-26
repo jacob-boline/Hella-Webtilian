@@ -26,7 +26,7 @@
     <div class="modal-actions">
         {% if ok %}
             <a href="{% url 'hr_access:orders' %}"
-               class="card-btn buy-cyan"
+               class="card-btn btn-neon btn-green"
                hx-get="{% url 'hr_access:orders' %}"
                hx-target="#modal-content"
                hx-swap="innerHTML">
@@ -34,14 +34,14 @@
             </a>
         {% else %}
             <button type="button"
-                    class="card-btn buy-cyan"
+                    class="card-btn btn-neon btn-green"
                     hx-get="{% url 'hr_access:claim_modal' %}"
                     hx-target="#modal-content"
                     hx-swap="innerHTML">
                 Try Again
             </button>
         {% endif %}
-        <button type="button" class="card-btn outline" data-modal-close>
+        <button type="button" class="card-btn btn-neon btn-blue" data-modal-close>
             Close
         </button>
     </div>

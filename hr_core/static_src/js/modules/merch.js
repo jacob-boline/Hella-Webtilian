@@ -7,7 +7,7 @@ export function initMerch(root = document) {
 
     // Mark the clicked thumbnail as active
     document.addEventListener('click', (event) => {
-        const btn = event.target.closest('button.merch-img, .merch-actions .card-btn.outline');
+        const btn = event.target.closest('button.merch-img, .merch-actions .card-btn.btn-blue');
         if (!btn) return;
 
         const card = btn.closest('.merch-card');

@@ -57,7 +57,7 @@ def sync_slug_from_source(instance, source_value: str, *, slug_field_name: str =
             setattr(instance, slug_field_name, generate_unique_slug(instance, source_value, slug_field_name, max_length))
         return
 
-    #UPDDATE
+    # UPDDATE
     ModelClass = instance.__class__
     try:
         original = ModelClass.objects.only(slug_field_name).get(pk=instance.pk)

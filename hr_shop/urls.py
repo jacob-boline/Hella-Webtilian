@@ -34,20 +34,17 @@ urlpatterns = [
 
 
     # Admin: OptionValue CRUD
-
     path('manage/option-type/<int:option_type_pk>/value/create/', manage.create_option_value, name='create_option_value'),
     path('manage/option-value/<int:pk>/update/', manage.update_option_value, name='update_option_value'),
     path('manage/option-value/<int:pk>/delete/', manage.delete_option_value, name='delete_option_value'),
 
 
     # Admin: Variant CRUD
-
     path('manage/product/<int:product_pk>/variant/create/', manage.create_variant, name='create_variant'),
     path('manage/variant/<int:pk>/delete/', manage.delete_variant, name='delete_variant'),
 
 
     # Cart
-
     path('cart/add/<slug:variant_slug>/', cart.add_variant_to_cart, name='add_to_cart'),
     path('cart/add/by-options/<slug:product_slug>/', cart.add_to_cart_by_options, name='add_to_cart_by_options'),
     path('cart/update/<int:variant_id>/', cart.set_cart_quantity, name='set_cart_quantity'),
@@ -56,20 +53,20 @@ urlpatterns = [
 
 
     # Checkout flow
-
     path('checkout/details/', checkout.checkout_details, name='checkout_details'),
     path('checkout/details/submit', checkout.checkout_details_submit, name='checkout_details_submit'),
     path('checkout/review/', checkout.checkout_review, name='checkout_review'),
     path('checkout/create/', checkout.checkout_create_order, name='checkout_create_order'),
+    path('checkout/resume/', checkout.checkout_resume, name='checkout_resume'),
     path('order/<int:order_id>/thank-you/', checkout.order_thank_you, name='order_thank_you'),
 
+    path('checkout/pay/<int:order_id>/', checkout.checkout_pay, name='checkout_pay'),
+
     # Email confirmation
-
-    path('checkout/confirm/<str:token>/', checkout.confirm_checkout_email, name='confirm_checkout_email'),
-    path('checkout/check-confirmed/', checkout.check_email_confirmed, name='check_email_confirmed'),
-    path('checkout/resend_confirmation/', checkout.resend_checkout_confirmation, name='resend_checkout_confirmation'),
-
-
+    path('checkout/confirm/<str:token>/', checkout.email_confirmation_process_response, name='email_confirmation_process_response'),
+    path('checkout/check-confirmed/', checkout.email_confirmation_status, name='email_confirmation_status'),
+    path('checkout/resend_confirmation/', checkout.email_confirmation_resend, name='email_confirmation_resend'),
+    path('checkout/email_confirmation_success/', checkout.email_confirmation_success, name='email_confirmation_success'),
 
     # -------------------------------------------------------------------------
     # Legacy / commented routes below still reference `views.*` but are commented

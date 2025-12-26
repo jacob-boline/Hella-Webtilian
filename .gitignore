@@ -17,7 +17,7 @@ node_modules
 /dataSources.local.xml
 # Zeppelin ignored files
 /ZeppelinRemoteNotebooks/
-/hr_django/.env
-*/.env
+/.env
+.env
 .env
 .django-secret

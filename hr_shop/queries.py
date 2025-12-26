@@ -1,4 +1,6 @@
-from django.db.models import Prefetch, Q
+# hr_shop/queries.py
+
+from django.db.models import Prefetch
 from hr_shop.models import Product, ProductVariant, ProductOptionType, ProductOptionValue
 
 
@@ -7,7 +9,7 @@ active_option_values_qs = (
     .filter(
         active=True,
         option_type__active=True,
-        variants__active=True,            # only values used by at least one active variant
+        variants__active=True             # only values used by at least one active variant
     )
     .select_related("option_type")        # FK "upstream" → use select_related
     .distinct()
@@ -20,7 +22,7 @@ active_variants_qs = (
         Prefetch(
             "option_values",
             queryset=active_option_values_qs,
-            to_attr="active_option_values",   # optional: stash on a custom attribute
+            to_attr="active_option_values"   #stash on a custom attribute
         )
     )
 )
@@ -31,13 +33,13 @@ active_option_types_qs = (
     .filter(
         active=True,
         values__active=True,
-        values__variants__active=True,
+        values__variants__active=True
     )
     .prefetch_related(
         Prefetch(
             "values",
             queryset=active_option_values_qs,
-            to_attr="active_values",
+            to_attr="active_values"
         )
     )
     .distinct()
@@ -52,12 +54,12 @@ def get_active_product_tree():
             Prefetch(
                 "variants",
                 queryset=active_variants_qs,
-                to_attr="active_variants",
+                to_attr="active_variants"
             ),
             Prefetch(
                 "option_types",
                 queryset=active_option_types_qs,
-                to_attr="active_option_types",
-            ),
+                to_attr="active_option_types"
+            )
         )
     )

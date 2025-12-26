@@ -1,0 +1,15 @@
+{% block content %}
+    <section class="order-thank-you">
+    <h1>Thank you for your order!</h1>
+        <p>Your order <strong>#{{ order.id }}</strong> has been received.</p>
+
+        {% if order.email %}
+            <p>We'll send a confirmation to <strong>{{ order.email }}</strong> with your order details.</p>
+        {% endif %}
+
+        {% if order.total %}
+            <p class="order-total">Order total: ${{ order.html }}</p>
+        {% endif %}
+
+    </section>
+{% endblock %}

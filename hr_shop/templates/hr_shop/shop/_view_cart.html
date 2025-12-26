@@ -55,8 +55,8 @@
         {% endfor %}
 
         <div class="modal-summary-row">
-            <button class="card-btn buy-cyan checkout-btn" type="button"
-                    hx-get="{% url 'hr_shop:checkout_details' %}"
+            <button class="card-btn btn-neon btn-green checkout-btn" type="button"
+                    hx-get="{% url 'hr_shop:checkout_resume' %}"
                     hx-target="#modal-content"
                     hx-swap="innerHTML transition:true">
                 Checkout

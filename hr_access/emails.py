@@ -7,6 +7,7 @@ from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 
+
 def send_claim_email(request, user):
     """
     Sends a magic link to activate the shadow account of an email and set the password.

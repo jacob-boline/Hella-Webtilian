@@ -1,119 +1,92 @@
 """
-Helpers for deriving SMTP settings from the environment.
+Email provider configuration.
 
-Originally designed for multiple providers.
+Goal: the rest of the app asks "who is the provider?" and sends through one
+unified service layer, instead of mixing SMTP/REST calls everywhere.
 """
 
-import os
-from typing import Dict, Iterable, Optional
+from __future__ import annotations
+
+from typing import Dict, Optional
+
 from django.conf import settings
 
-# load_dotenv()
-#
-# DEFAULT_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-# DEFAULT_SENDER = os.environ.get('DEFAULT_FROM_EMAIL')
-# EMAIL_PROVIDER = os.environ.get('EMAIL_PROVIDER')
-# EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-# EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-# DEBUG = os.environ.get('DEBUG').strip().lower() in {'1', 'true', 'yes', 'on'}
-#
-# if not DEBUG:
-#     if not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD:
-#         raise RuntimeError('Email credentials must be set in production.')
 
 PROVIDER_DEFAULTS: Dict[str, Dict[str, object]] = {
+    # Mailjet: prefer REST for sending; SMTP config still exists as a fallback option.
     "mailjet": {
-        "backend": "django.core.mail.backends.smtp.EmailBackend",
-        "host": "in-v3.mailjet.com",
-        "port": 587,
-        "use_tls": True,
-        "use_ssl": False,
-        "user": settings.EMAIL_HOST_USER,
-        "password": settings.EMAIL_HOST_PASSWORD,
-        "from_email": settings.DEFAULT_FROM_EMAIL,
-    }
+        "smtp_backend": "django.core.mail.backends.smtp.EmailBackend",
+        "smtp_host": "in-v3.mailjet.com",
+        "smtp_port": 587,
+        "smtp_use_tls": True,
+        "smtp_use_ssl": False,
+        "send_via": "rest",  # "rest" or "smtp"
+    },
+
+    # Example future provider; keep for when you re-enable Zoho:
+    # "zoho": {
+    #     "smtp_backend": "django.core.mail.backends.smtp.EmailBackend",
+    #     "smtp_host": "smtp.zoho.com",
+    #     "smtp_port": 465,
+    #     "smtp_use_tls": False,
+    #     "smtp_use_ssl": True,
+    #     "send_via": "smtp",
+    # },
 }
 
 AVAILABLE_PROVIDERS = tuple(PROVIDER_DEFAULTS.keys())
 
 
-def _first_env(keys: Iterable[str]) -> Optional[str]:
-    for key in keys:
-        value = os.environ.get(key)
-        if value not in (None, ""):
-            return value
-    return None
-
-
-def _parse_bool(value: Optional[str], default: bool) -> bool:
-    if value is None:
-        return default
-    return value.strip().lower() in {"1", "true", "yes", "on"}
-
-
-def _parse_int(value: Optional[str], default: int) -> int:
-    if value is None:
-        return default
-    try:
-        return int(value)
-    except (TypeError, ValueError):
-        return default
-
-
-def _resolve_provider(provider_override: Optional[str] = None) -> str:
-    provider = (provider_override or os.environ.get("EMAIL_PROVIDER") or "mailjet").strip().lower()
+def get_provider(provider_override: Optional[str] = None) -> str:
+    provider = (provider_override or getattr(settings, "EMAIL_PROVIDER", None) or "mailjet").strip().lower()
     return provider if provider in PROVIDER_DEFAULTS else "mailjet"
 
 
-def get_email_config():
+def get_provider_send_mode(provider_override: Optional[str] = None) -> str:
+    """
+    Returns "rest" or "smtp" based on provider defaults (and optional override in settings).
+    """
+    provider = get_provider(provider_override)
+    # Allow explicit override in settings if you ever need it:
+    # EMAIL_SEND_MODE="smtp" to force SMTP even for mailjet.
+    forced = getattr(settings, "EMAIL_SEND_MODE", None)
+    if forced:
+        forced = str(forced).strip().lower()
+        if forced in {"rest", "smtp"}:
+            return forced
+    return str(PROVIDER_DEFAULTS[provider].get("send_via", "smtp")).strip().lower()
+
+
+def get_smtp_email_config(provider_override: Optional[str] = None) -> dict:
+    """
+    SMTP config used by Django's email system for SMTP-based providers,
+    and as a fallback for providers that support both.
+
+    Settings can override host/port/tls/ssl/backend if you want.
+    """
+    provider = get_provider(provider_override)
+    defaults = PROVIDER_DEFAULTS[provider]
+
+    backend = getattr(settings, "EMAIL_BACKEND", defaults["smtp_backend"])
+    host = getattr(settings, "EMAIL_HOST", defaults["smtp_host"])
+    port = getattr(settings, "EMAIL_PORT", defaults["smtp_port"])
+    use_tls = getattr(settings, "EMAIL_USE_TLS", defaults["smtp_use_tls"])
+    use_ssl = getattr(settings, "EMAIL_USE_SSL", defaults["smtp_use_ssl"])
+
     return {
-        "provider": getattr(settings, "EMAIL_PROVIDER", "mailjet"),
-        "backend": settings.EMAIL_BACKEND,
-        "host": settings.EMAIL_HOST,
-        "port": settings.EMAIL_PORT,
-        "use_tls": settings.EMAIL_USE_TLS,
-        "use_ssl": getattr(settings, "EMAIL_USE_SSL", False),
-        "user": settings.EMAIL_HOST_USER,
-        "password": settings.EMAIL_HOST_PASSWORD,
-        "from_email": settings.DEFAULT_FROM_EMAIL,
+        "provider": provider,
+        "backend": backend,
+        "host": host,
+        "port": port,
+        "use_tls": use_tls,
+        "use_ssl": use_ssl,
+        "user": getattr(settings, "EMAIL_HOST_USER", None),
+        "password": getattr(settings, "EMAIL_HOST_PASSWORD", None),
+        "from_email": getattr(settings, "DEFAULT_FROM_EMAIL", None),
     }
 
-# def get_email_config(provider_override: Optional[str] = None, prefer_provider_specific: bool = False) -> Dict[str, object]:
-#     """
-#     Build a Django email configuration dictionary.
-#
-#     provider_override: force a specific provider (mailjet/zoho)
-#     prefer_provider_specific: check for PROVIDER_EMAIL_* variables before
-#                               falling back to global EMAIL_* values.
-#     """
-#     provider = _resolve_provider(provider_override)
-#     defaults = PROVIDER_DEFAULTS[provider]
-#     prefix = provider.upper()
-#
-#     def env_keys(base: str):
-#         keys = []
-#         if prefer_provider_specific:
-#             keys.append(f"{prefix}_EMAIL_{base}")
-#         keys.append(f"EMAIL_{base}")
-#         return keys
-#
-#     backend = _first_env(["EMAIL_BACKEND"]) or defaults["backend"]
-#     host = _first_env(env_keys("HOST")) or defaults["host"]
-#     port = _parse_int(_first_env(env_keys("PORT")), defaults["port"])
-#     use_tls = _parse_bool(_first_env(env_keys("USE_TLS")), bool(defaults["use_tls"]))
-#     use_ssl = _parse_bool(_first_env(env_keys("USE_SSL")), bool(defaults["use_ssl"]))
-#     user = _first_env(env_keys("HOST_USER")) or defaults.get("user")
-#     password = _first_env(env_keys("HOST_PASSWORD")) or defaults.get("password")
-#     from_email = _first_env(["DEFAULT_FROM_EMAIL"]) or defaults.get("from_email") or DEFAULT_SENDER
-#
-#     return {
-#         "provider": provider,
-#         "backend": backend,
-#         "host": host,
-#         "port": port,
-#         "use_tls": use_tls,
-#         "use_ssl": use_ssl,
-#         "user": user,
-#         "password": password,
-#         "from_email": from_email,
-#     }
+
+def get_mailjet_rest_enabled() -> bool:
+    api_key = getattr(settings, "MAILJET_API_KEY", None)
+    api_secret = getattr(settings, "MAILJET_API_SECRET", None)
+    return bool(api_key and api_secret)

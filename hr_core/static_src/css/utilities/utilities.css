@@ -2,6 +2,12 @@
 
 
 /* ---- Layout & display ---- */
+
+.center-block {
+  display: block;
+  margin-inline: auto;
+}
+
 .flex {
   display: flex;
 }

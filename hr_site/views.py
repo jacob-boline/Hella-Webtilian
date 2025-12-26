@@ -12,11 +12,13 @@ def index(request):
     slides = CarouselSlide.objects.filter(is_active=True).order_by('order', 'id')
     quotes = PullQuote.objects.filter(is_active=True).order_by("order", "id")
     shows = Show.objects.filter(status='published', date__gte=today).select_related('venue').prefetch_related('lineup').order_by('date', 'time', 'id')[:5]
+    modal = (request.GET.get('modal') or '').strip()
     return render(request, "hr_site/index.html", {
         'products': products,
         'slides': slides,
         'quotes': quotes,
         'shows': shows,
+        'landing_modal': modal
     })
 
 

@@ -5,6 +5,14 @@
     margin-top: 3rem;
 }
 
+#sidebar-access h2 {
+    margin-bottom: 1rem;
+}
+
+#login-form .field-group {
+    margin-bottom: 1rem;
+}
+
 /* ===========================
    Audio / Banner hook
    =========================== */
@@ -30,7 +38,7 @@
 
     display:          flex;
     flex-direction:   column;
-    align-items:      flex-start;
+    align-items:      center;
 
     width:            100vw;
     height:           calc(var(--vh) * 100);
@@ -94,20 +102,14 @@
 #nav-close-btn {
     background-color: transparent;
     border:           none;
-    margin-top: 0.5rem;
-    margin-left: 0.0625rem;
-    /*margin-top:       calc(1.75rem);*/
-    /*margin-left:      32px;*/
+    margin-top:       0.5rem;
+    margin-left:      0.0625rem;
+    align-self:       start;
 }
-
-/*#nav-close-btn:hover {*/
-/*    color: aquamarine;*/
-/*}*/
 
 #nav-close-btn,
 #nav-open-btn {
     margin-bottom: 0.5rem;
-
     border:        none;
     font-size:     1.25rem;
     color:         #FFF;

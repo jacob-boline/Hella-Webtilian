@@ -99,6 +99,22 @@
         </iframe>
     </div>
 
+    {# ---- Global Cart Icon w/ Item Counter #}
+    <button
+        id="floating-cart-btn"
+        class="floating-cart-btn {% if cart_item_count|default:0 <= 0 %}is-hidden{% endif %}"
+        type="button"
+        aria-label="Open cart"
+        hx-get="{% url 'hr_shop:checkout_resume' %}"
+        hx-target="#modal-content"
+        hx-swap="innerHTML transition:true"
+    >
+        <i class="fa fa-shopping-cart" aria-hidden="true"></i>
+        <span id="floating-cart-count" class="floating-cart-count">
+            {{ cart_item_count }}
+        </span>
+    </button>
+
     {# ---- Global modal shell ---- #}
     <div id="modal" class="modal hidden product-modal" aria-hidden="true">
         <div class="modal-backdrop" data-modal-close></div>
@@ -111,6 +127,16 @@
 
     {# ---- Page Content ---- #}
     {% block content %}{% endblock %}
+
+
+    <div
+      id="modal-loader"
+      hidden
+      hx-trigger="hr:loadModal"
+      hx-target="#modal-content"
+      hx-swap="innerHTML transition:true"
+    ></div>
+
 
 </div>
 

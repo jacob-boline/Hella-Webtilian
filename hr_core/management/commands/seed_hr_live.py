@@ -5,7 +5,6 @@ from datetime import date as Date, time as Time
 
 import yaml
 from django.conf import settings
-from django.core.files import File
 from django.core.management.base import BaseCommand
 
 from hr_common.models import Address
@@ -462,3 +461,41 @@ class Command(BaseCommand):
             #                 f"      (Show image '{image_name}' not found in {images_dir}.)"
             #             )
             #         )
+
+
+
+#  6484997495
+#  ID=6484997558, DNSID=4759284676
+#
+# 'DKIMRecordName': 'mailjet._domainkey.hellareptilian.com.',  -- name for DNS txt record for DKIM conf -> the value if the field below
+# 'DKIMRecordValue': 'k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2cbx9x3OCtbbPZIN9OeYg1kHqBjiV2cVK1qIcsGbCvPtNE/XZ5ykenufeEKoXstx8nmCLNJ7rxSr/SXR9Ruy1E2GbGFwvASmg6ebzdyQJ7shGygoo/kmLufNlZiZjvA6l+N1XE0CToHmpEfewJf0yI78kXFpoB6EGt8qH9hmiE+Ten+HuytiOAkIVqpi8i0lqDuXHSfx0bpAV/7D6LdkMkKnoICbumU37qd34RUcArqFGsCGbUTdRBDrRXz9r04TMkh9Ox+vSMdwfV9pd+1cO7SydHDpFqB5R1KGNR244v951LKEaf0qNoW+jWH3PVsPhEimKswDSgFSWglipOjc2QIDAQAB',
+# 'DKIMStatus': 'OK',
+# 'Domain': 'hellareptilian.com',
+# 'ID': 4759284676,
+# 'IsCheckInProgress': False,
+# 'LastCheckAt': '2025-12-19T21:59:53Z',
+# 'OwnerShipToken': 'b7cc432c564c666ea20c3586b719e790', --value
+# 'OwnerShipTokenRecordName': 'mailjet._b7cc432c.hellareptilian.com.',  --host
+# 'SPFRecordValue': 'v=spf1 include:spf.mailjet.com ?all',
+# 'SPFStatus': 'OK'
+#
+
+# 'DKIMErrors': [],
+# 'DKIMRecordCurrentValue': 'k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA2cbx9x3OCtbbPZIN9OeYg1kHqBjiV2cVK1qIcsGbCvPtNE/XZ5ykenufeEKoXstx8nmCLNJ7rxSr/SXR9Ruy1E2GbGFwvASmg6ebzdyQJ7shGygoo/kmLufNlZiZjvA6l+N1XE0CToHmpEfewJf0yI78kXFpoB6EGt8qH9hmiE+Ten+HuytiOAkIVqpi8i0lqDuXHSfx0bpAV/7D6LdkMkKnoICbumU37qd34RUcArqFGsCGbUTdRBDrRXz9r04TMkh9Ox+vSMdwfV9pd+1cO7SydHDpFqB5R1KGNR244v951LKEaf0qNoW+jWH3PVsPhEimKswDSgFSWglipOjc2QIDAQAB',
+# 'DKIMStatus': 'OK',
+# 'SPFErrors': [],
+# 'SPFRecordsCurrentValues': ['v=spf1 include:_spf.porkbun.com include:spf.mailjet.com ~all'],
+# 'SPFStatus': 'OK'
+#
+# data = {
+#     "Messages": [
+#         {
+#             "From": {"Email": "mail@hellareptilian.com", "Name": "Hella Reptilian!"},
+#             "To": [{"Email": "jacob.boline.mn@gmail.com", "Name": "Jacob Boline"}],
+#             "Subject": "Email HealthcheckTest",
+#             "TextPart": "Test TextPart",
+#             "HTMLPart": "<p>Hi!</p>"
+#         }
+#     ],
+#     "SandboxMode": False
+# }

@@ -76,5 +76,5 @@ def create_message_with_attachment(sender, to, subject, message_text):
 def sending_message(msgto, subject, message):
     service = get_service()
     user_id = 'me'
-    msg = create_message_with_attachment('Admin: <admin@hellareptilian.com>', msgto, subject, message)
+    msg = create_message_with_attachment('Admin: <mail@hellareptilian.com>', msgto, subject, message)
     send_message(service, user_id, msg)

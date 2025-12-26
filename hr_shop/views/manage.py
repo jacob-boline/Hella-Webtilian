@@ -11,7 +11,7 @@ def product_manager(request):
     """
     Main management UI shell. HTMX fills product list, product panel, and option type panel.
     """
-    return render(request, 'hr_shop/manage_products.html')
+    return render(request, 'hr_shop/manage/manage_products.html')
 
 
 @staff_member_required
@@ -24,7 +24,7 @@ def get_manage_product_panel_partial(request, pk):
     variant_form = ProductVariantForm()
     option_type_form = ProductOptionTypeForm()
 
-    return render(request, 'hr_shop/_pm_product_panel_partial.html', {
+    return render(request, 'hr_shop/manage/_pm_product_panel_partial.html', {
         'product': product,
         'option_types': option_types,
         'variants': variants,
@@ -40,7 +40,7 @@ def get_manage_product_list_partial(request):
     form = ProductQuickForm()
     return render(
         request,
-        'hr_shop/_pm_product_list.html', {
+        'hr_shop/manage/_pm_product_list.html', {
             'products': products,
             'form': form
         }
@@ -55,7 +55,7 @@ def get_manage_option_type_panel_partial(request, pk):
 
     return render(
         request,
-        'hr_shop/_pm_option_type_panel_partial.html',
+        'hr_shop/manage/_pm_option_type_panel_partial.html',
         {
             'option_type': opt_type,
             'values': values,
@@ -75,11 +75,11 @@ def create_product(request):
 
     products = Product.objects.all().order_by('name')
     form = ProductQuickForm()
-    return render(request,'hr_shop/_pm_product_list.html', {
+    return render(request, 'hr_shop/manage/_pm_product_list.html', {
             'products': products,
             'form': form
         }
-    )
+                  )
 
 
 @staff_member_required

@@ -1,206 +1,326 @@
-import json
-import pprint
+# hr_payment/views.py
+
+import stripe
 
 from django.conf import settings
-from django.core.mail import send_mail
+from django.db import transaction
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import redirect, render
-from django.urls import reverse
-from django.views import View
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from django.views.generic import TemplateView
 
-from hr_payment.forms import PrePaymentEntryForm, PaymentEntryForm
-from hr_payment.stripe_client import get_signature_verification_error, get_stripe_client
-from hr_shop.cart import Cart
-from hr_shop.models import Price, Product
-
-stripe = get_stripe_client()
-SignatureVerificationError = get_signature_verification_error()
+from hr_shop.models import Order, PaymentStatus
+from hr_payment.models import WebhookEvent, PaymentAttempt, PaymentAttemptStatus
 
 
 @require_POST
-def create_payment_intent(request) -> JsonResponse:
-    cart = Cart(request)
-    cart_subtotal = cart.get_cart_subtotal()
+def checkout_stripe_session(request, order_id: int):
+    """
+    Called by JS to get a client secret for Embedded Checkout.
 
-    try:
-        data = json.loads(request.body)
+    Idempotent:
+      - If an existing open session exists for this order, reuse it.
+      - Otherwise create a new PaymentAttempt and a new embedded Checkout session.
+    """
+    stripe.api_key = settings.STRIPE_SECRET_KEY
 
-        print('in create_payment_intent')
-        print(f'data = {data}')
+    order = get_object_or_404(Order, pk=order_id)
 
-        intent = stripe.PaymentIntent.create(
-            amount=cart_subtotal,
-            currency='usd',
-            automatic_payment_methods={
-                'enabled': True,
-            },
+    if order.payment_status == PaymentStatus.PAID:
+        return JsonResponse({"error": "Order already paid."}, status=409)
+
+    if not order.total or order.total <= 0:
+        return JsonResponse({"error": "Order total must be > 0."}, status=400)
+
+    # 1) Reuse existing open session from the *latest non-final* attempt if possible
+    existing_attempt = (
+        PaymentAttempt.objects
+        .filter(
+            order=order,
+            status__in=[PaymentAttemptStatus.CREATED, PaymentAttemptStatus.PENDING],
+            provider="stripe",
         )
-        return JsonResponse({
-            'clientSecret': intent['client_Secret']
-        })
-    except Exception as e:
-        return JsonResponse({}, error=str(e), status=403)
-
-
-def pre_payment_entry(request, cart):
-    if request.method == 'POST':
-        form = PrePaymentEntryForm(request.POST)
-        if form.is_valid():
-            shipping_address = form.extract_address()
-            email = form.confirmed_email()
-            payment_intent = stripe.PaymentIntent.create(
-                amount=cart.get_cart_subtotal(),
-                currency='usd',
-                automatic_payment_methods={
-                    'enabled': True,
-                },
-                payment_method_types=['card', ],
-                receipt_email=email,
-                shipping={
-                    'address': {
-                        'city': shipping_address.city,
-                        'country': shipping_address.country,
-                        'line1': shipping_address.street_address,
-                        'line2': shipping_address.unit,
-                        'postal_code': shipping_address.index,
-                        'subdivision': shipping_address.subdivision
-                    },
-                    'name': form.compile_name()
-                }
-            )
-            if payment_intent:
-                form = PaymentEntryForm()
-                client_secret = payment_intent['client_secret']
-                return redirect(request, 'payment_entry', {'form': form, 'client_secret': client_secret, 'cart': cart})
-
-        if request.method == 'GET':
-            form = PrePaymentEntryForm()
-            return render(request, 'hr_payment/pre_payment_entry.html', {'form': form})
-
-
-def payment_entry(request, cart):
-    cart_subtotal = cart.get_cart_subtotal()
-    payment_intent = stripe.PaymentIntent.create(
-        amount=cart_subtotal,
-        currency='usd',
-        automatic_payment_methods={
-            'enabled': True,
-        },
-        payment_method_types=['card', ]
+        .order_by("-created_at")
+        .first()
     )
-    if payment_intent:
-        clientSecret = payment_intent['client_secret']
 
-
-class StripeIntentView(View):
-    def post(self, request, *args, **kwargs):
+    if existing_attempt and existing_attempt.provider_session_id:
         try:
-            req_json = json.loads(request.body)
-            customer = stripe.Customer.create(email=req_json['email'])
-            price = Price.objects.get(id=self.kwargs['pk'])
-            intent = stripe.PaymentIntent.create(
-                amount=price.price,
-                currency='usd',
-                customer=customer['id'],
-                metadata={
-                    'price_id': price.id
-                }
-            )
-            return JsonResponse({
-                'clientSecret': intent['client_scret']
-            })
-        except Exception as e:
-            return JsonResponse({'error': str(e)})
+            sess = stripe.checkout.Session.retrieve(existing_attempt.provider_session_id)
+            if sess and sess.get("status") == "open" and sess.get("client_secret"):
+                # keep our attempt fresh (optional)
+                if existing_attempt.client_secret != sess.get("client_secret"):
+                    existing_attempt.client_secret = sess.get("client_secret")
+                    existing_attempt.raw = sess
+                    existing_attempt.status = PaymentAttemptStatus.PENDING
+                    existing_attempt.save(update_fields=["client_secret", "raw", "status", "updated_at"])
 
+                # Keep pointer on order (optional but handy)
+                if order.stripe_checkout_session_id != sess.get("id"):
+                    order.stripe_checkout_session_id = sess.get("id")
+                    if order.payment_status != PaymentStatus.PENDING:
+                        order.payment_status = PaymentStatus.PENDING
+                    order.save(update_fields=["stripe_checkout_session_id", "payment_status", "updated_at"])
 
-class CreateCheckoutSessionView(View):
-    def post(self, request, *args, **kwargs):
-        line_items = request.session.get('line-items') or []
-        if not line_items:
-            return HttpResponse(status=400)
-        checkout_session = stripe.checkout.Session.create(
-            payment_method_types=['card'],
-            line_items=request.session.line_items,
-            mode='payment',
-            success_url=reverse('checkout_success'),
-            cancel_url=reverse('checkout_cancel'),
+                return JsonResponse({
+                    "clientSecret": sess["client_secret"],
+                    "sessionId": sess["id"],
+                    "reused": True,
+                })
+        except Exception:
+            # If retrieval fails, we fall through and create a fresh attempt/session
+            pass
+
+    # 2) Create a new attempt + session (atomic so attempt definitely exists for webhook mapping)
+    amount_cents = int(order.total * 100)
+
+    with transaction.atomic():
+        attempt = PaymentAttempt.objects.create(
+            order=order,
+            provider="stripe",
+            status=PaymentAttemptStatus.CREATED,
+            amount_cents=amount_cents,
+            currency="usd",
         )
-        return redirect(checkout_session.url)
 
+        # Create embedded checkout session
+        return_url = settings.SITE_URL + f"/shop/order/thank-you/{order.id}/"  # or reverse
 
-class SuccessView(TemplateView):
-    template_name = "hr_payment/success.html"
+        sess = stripe.checkout.Session.create(
+            ui_mode="embedded",
+            mode="payment",
+            payment_method_types=["card"],
+            line_items=[{
+                "price_data": {
+                    "currency": "usd",
+                    "product_data": {"name": f"Hella Reptilian Order #{order.id}"},
+                    "unit_amount": amount_cents,
+                },
+                "quantity": 1,
+            }],
+            metadata={
+                "order_id": str(order.id),
+                "payment_attempt_id": str(attempt.id),
+            },
+            return_url=return_url,
+        )
 
+        attempt.provider_session_id = sess.get("id")
+        attempt.client_secret = sess.get("client_secret")
+        attempt.raw = sess
+        attempt.status = PaymentAttemptStatus.PENDING
+        attempt.save(update_fields=["provider_session_id", "client_secret", "raw", "status", "updated_at"])
 
-class CancelView(TemplateView):
-    template_name = 'hr_payment/cancel.html'
+        # Keep fast pointers on Order (Order remains the "summary", PaymentAttempt is the audit trail)
+        order.stripe_checkout_session_id = sess.get("id")
+        if order.payment_status != PaymentStatus.PENDING:
+            order.payment_status = PaymentStatus.PENDING
+        order.save(update_fields=["stripe_checkout_session_id", "payment_status", "updated_at"])
+
+        return JsonResponse({
+            "clientSecret": sess.get("client_secret"),
+            "sessionId": sess.get("id"),
+            "reused": False,
+        })
 
 
 @csrf_exempt
+@require_POST
 def stripe_webhook(request):
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+
     payload = request.body
-    sig_header = request.META['HTTP_STRIPE_SIGNATURE']
-    event = None
+    sig_header = request.META.get("HTTP_STRIPE_SIGNATURE", "")
 
     try:
         event = stripe.Webhook.construct_event(
-            payload, sig_header, settings.DJSTRIPE_WEBHOOK_SECRET
+            payload=payload,
+            sig_header=sig_header,
+            secret=settings.STRIPE_WEBHOOK_SECRET,
         )
-    except ValueError:
+    except Exception:
         return HttpResponse(status=400)
 
-    except SignatureVerificationError:
-        return HttpResponse(status=400)
+    # idempotency/audit
+    obj, created = WebhookEvent.objects.get_or_create(
+        event_id=event["id"],
+        defaults={
+            "type": event.get("type", ""),
+            "payload": event,
+        },
+    )
+    if not created and obj.ok:
+        return HttpResponse(status=200)
 
-    if event['type'] == 'checkout.session.completed':
-        session = event['data']['object']
-        customer_email = session['customer_details']['email']
-        line_items = stripe.checkout.Session.list_line_items(session['id'])
-        pprint.pprint(line_items)
+    try:
+        with transaction.atomic():
+            _process_stripe_event(event)
 
-        stripe_price_id = line_items['data'][0]['price']['id']
-        price = Price.objects.get(stripe_price_id=stripe_price_id)
-        product = price.product
+        obj.ok = True
+        obj.processed_at = timezone.now()
+        obj.error = None
+        obj.save(update_fields=["ok", "processed_at", "error"])
+    except Exception as e:
+        obj.ok = False
+        obj.processed_at = timezone.now()
+        obj.error = str(e)
+        obj.save(update_fields=["ok", "processed_at", "error"])
+        return HttpResponse(status=500)
 
-        send_mail(
-            subject="Your Purchase from Hella Reptilian!",
-            message=f"Thank you for supporting the Reptilian Leadership of Today's Tomorrow with your recent purchase. Cold Blood Reigns! Download Link - {product.url}",
-            recipient_list=[customer_email],
-            from_email='foobar.zan'
-        )
-    elif event['type'] == 'payment_intent.succeeded':
-        intent = event['data']['object']
-        stripe_customer_id = intent['customer']
-        stripe_customer = stripe.Customer.retrieve(stripe_customer_id)
-        customer_email = stripe_customer['email']
-        price_id = intent['metadata']['price_id']
-        price = Price.objects.get(id=price_id)
-        product = price.product
-
-        send_mail(
-            subject='Here is your product',
-            message=f"Aye, a good trade. Have this link: {product.url}",
-            recipient_list=[customer_email],
-            from_email='admin@hellareptilian.com'
-        )
     return HttpResponse(status=200)
 
 
-class CustomPaymentView(TemplateView):
+def _process_stripe_event(event: dict) -> None:
+    etype = event.get("type")
+    data_obj = (event.get("data") or {}).get("object") or {}
 
-    template_name = "hr_payment/custom_payment.html"
+    if etype == "checkout.session.completed":
+        _handle_checkout_session_completed(data_obj)
+        return
 
-    def get_context_data(self, **kwargs):
-        product = Product.objects.get(name="Test Product")
-        prices = Price.objects.filter(product=product)
-        context = super(CustomPaymentView, self).get_context_data(**kwargs)
-        context.update({
-            'product': product,
-            'prices': prices,
-            'STRIPE_PUBLIC_KEY': settings.STRIPE_TEST_PUBLIC_KEY
-        })
-        return context
+    if etype == "checkout.session.expired":
+        _handle_checkout_session_expired(data_obj)
+        return
 
+    if etype == "payment_intent.succeeded":
+        _handle_payment_intent_succeeded(data_obj)
+        return
+
+    if etype == "payment_intent.payment_failed":
+        _handle_payment_intent_failed(data_obj)
+        return
+
+    if etype == "payment_intent.canceled":
+        _handle_payment_intent_canceled(data_obj)
+        return
+
+    # ignore others for now
+
+
+def _find_attempt_for_session(session: dict) -> PaymentAttempt | None:
+    metadata = session.get("metadata") or {}
+    attempt_id = metadata.get("payment_attempt_id")
+
+    if attempt_id:
+        a = PaymentAttempt.objects.select_for_update().filter(pk=int(attempt_id)).first()
+        if a:
+            return a
+
+    sid = session.get("id")
+    if sid:
+        return PaymentAttempt.objects.select_for_update().filter(provider_session_id=sid).first()
+
+    return None
+
+
+def _handle_checkout_session_completed(session: dict) -> None:
+    metadata = session.get("metadata") or {}
+    order_id = metadata.get("order_id")
+
+    if not order_id:
+        return
+
+    order = Order.objects.select_for_update().get(pk=int(order_id))
+
+    sid = session.get("id")
+    pi = session.get("payment_intent")
+
+    if sid:
+        order.stripe_checkout_session_id = sid
+    if pi:
+        order.stripe_payment_intent_id = pi
+
+    order.payment_status = PaymentStatus.PAID
+    order.save(update_fields=[
+        "stripe_checkout_session_id",
+        "stripe_payment_intent_id",
+        "payment_status",
+        "updated_at",
+    ])
+
+    attempt = _find_attempt_for_session(session)
+    if attempt:
+        if sid:
+            attempt.provider_session_id = sid
+        if pi:
+            attempt.provider_payment_intent_id = pi
+        attempt.client_secret = session.get("client_secret") or attempt.client_secret
+        attempt.raw = session
+        attempt.save(update_fields=["provider_session_id", "provider_payment_intent_id", "client_secret", "raw", "updated_at"])
+        attempt.mark_final(PaymentAttemptStatus.SUCCEEDED)
+
+
+def _handle_checkout_session_expired(session: dict) -> None:
+    attempt = _find_attempt_for_session(session)
+    if attempt and attempt.status not in (PaymentAttemptStatus.SUCCEEDED, PaymentAttemptStatus.FAILED):
+        attempt.raw = session
+        attempt.save(update_fields=["raw", "updated_at"])
+        attempt.mark_final(PaymentAttemptStatus.EXPIRED)
+    # Do NOT update order.payment_status here.
+
+
+def _handle_payment_intent_succeeded(pi: dict) -> None:
+    pid = pi.get("id")
+    if not pid:
+        return
+
+    attempt = PaymentAttempt.objects.select_for_update().filter(provider_payment_intent_id=pid).first()
+    order = attempt.order if attempt else Order.objects.select_for_update().filter(stripe_payment_intent_id=pid).first()
+    if not order:
+        return
+
+    order.stripe_payment_intent_id = pid
+    order.payment_status = PaymentStatus.PAID
+    order.save(update_fields=["stripe_payment_intent_id", "payment_status", "updated_at"])
+
+    if attempt and attempt.status != PaymentAttemptStatus.SUCCEEDED:
+        attempt.raw = pi
+        attempt.save(update_fields=["raw", "updated_at"])
+        attempt.mark_final(PaymentAttemptStatus.SUCCEEDED)
+
+
+def _handle_payment_intent_failed(pi: dict) -> None:
+    pid = pi.get("id")
+    if not pid:
+        return
+
+    attempt = PaymentAttempt.objects.select_for_update().filter(provider_payment_intent_id=pid).first()
+    order = attempt.order if attempt else Order.objects.select_for_update().filter(stripe_payment_intent_id=pid).first()
+    if not order:
+        return
+
+    order.stripe_payment_intent_id = pid
+    order.payment_status = PaymentStatus.FAILED
+    order.save(update_fields=["stripe_payment_intent_id", "payment_status", "updated_at"])
+
+    if attempt and attempt.status != PaymentAttemptStatus.SUCCEEDED:
+        last_err = pi.get("last_payment_error") or {}
+        attempt.raw = pi
+        attempt.save(update_fields=["raw", "updated_at"])
+        attempt.mark_final(
+            PaymentAttemptStatus.FAILED,
+            code=(last_err.get("code") or None),
+            msg=(last_err.get("message") or None),
+        )
+
+
+def _handle_payment_intent_canceled(pi: dict) -> None:
+    pid = pi.get("id")
+    if not pid:
+        return
+
+    attempt = PaymentAttempt.objects.select_for_update().filter(provider_payment_intent_id=pid).first()
+    order = attempt.order if attempt else Order.objects.select_for_update().filter(stripe_payment_intent_id=pid).first()
+    if not order:
+        return
+
+    # Canceled is "not paid", but not "failed" either.
+    if order.payment_status != PaymentStatus.PAID:
+        order.payment_status = PaymentStatus.UNPAID
+        order.save(update_fields=["payment_status", "updated_at"])
+
+    if attempt and attempt.status not in (PaymentAttemptStatus.SUCCEEDED, PaymentAttemptStatus.FAILED):
+        attempt.raw = pi
+        attempt.save(update_fields=["raw", "updated_at"])
+        attempt.mark_final(PaymentAttemptStatus.CANCELED)

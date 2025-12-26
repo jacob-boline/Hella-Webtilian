@@ -10,6 +10,7 @@ from django.contrib.auth.views import (
 from django.urls import path
 
 from hr_access import views
+from hr_shop.views import orders
 
 
 app_name = 'hr_access'
@@ -71,6 +72,10 @@ urlpatterns = [
     path('account/claim/verify/', views.claim_verify, name='claim_verify'),
     path('account/claim/resend/', views.claim_resend, name='claim_resend'),
     path('account/claim/<int:user_id>/<slug:token>/', views.claim_account, name='claim_account'),
+
+    path("orders/page/<int:n>/", orders.orders_page, name="orders_page"),
+    path("orders/", views.orders, name="orders"),
+    path("orders/<int:order_id>/", orders.order_detail_modal, name="order_detail_modal"),
 
     # path("account/claim/<slug:uidb64>/<slug:token>/", views.claim_account, name="claim_account"),
     # path("account/claim/resend/", views.claim_resend, name="claim_resend"),  # POST (email)

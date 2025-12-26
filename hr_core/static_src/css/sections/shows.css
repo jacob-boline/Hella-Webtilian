@@ -1285,7 +1285,7 @@
         justify-content: flex-start;
     }
 
-    .card-btn.directions-btn:not(.outline):not(.buy-cyan) {
+    .card-btn.directions-btn:not(.btn-blue):not(.btn-green) {
         justify-content: center;
         width:           100%;
     }

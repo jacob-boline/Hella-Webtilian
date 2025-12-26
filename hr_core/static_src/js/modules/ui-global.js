@@ -42,7 +42,7 @@
             if (modalContent) modalContent.replaceChildren();
             if (modalMsg) modalMsg.replaceChildren();
         }
-
+        
         // Backdrop close
         if (modalEl) {
             document.addEventListener('click', (e) => {
@@ -62,28 +62,39 @@
         }
 
         // Modal open on swap
-        if (modalEl && modalContent) {
+        if (modalEl && (modalContent || modalMsg)) {
+            function isModalSwapTarget(target) {
+                // HTMX event target is the swap target element
+                return (
+                    target === modalContent ||
+                    target === modalMsg ||
+                    target?.id === 'modal-content' ||
+                    target?.id === 'modal-message-box'
+                );
+            }
+
             document.addEventListener('htmx:afterSwap', (e) => {
                 const target = e.target;
                 if (!target) return;
 
-                if (
-                    target === modalContent ||
-                    target === modalMsg ||
-                    target.id === 'modal-content' ||
-                    target.id === 'modal-message-box'
-                ) {
-                    openModal();
-                }
+                // Only open when modal's swap targets get content
+                if (!isModalSwapTarget(target)) return;
+
+                openModal();
             });
 
-            // Cancel swap for empty/204 responses into modal-content
+            // Cancel swap for empty/204 responses ONLY when swapping into modal-content/message-box
             document.addEventListener('htmx:beforeSwap', (e) => {
                 const target = e.target;
-                if (target !== modalContent) return;
+                if (!target) return;
+
+                if (!isModalSwapTarget(target)) return;
 
                 const detail = e.detail || {};
                 const xhr = detail.xhr;
+
+                // If swap is already disabled (hx-swap="none"), don't touch anything
+                if (detail.shouldSwap === false) return;
 
                 const isEmpty =
                     (xhr && xhr.status === 204) ||
@@ -91,11 +102,24 @@
                     detail.serverResponse.trim() === '';
 
                 if (isEmpty) {
-                    hideModal();
+                    // Important: cancel the swap, but DON'T auto-close the modal
+                    // Empty responses can be legit "no change" signals.
                     detail.shouldSwap = false;
+                    return;
                 }
+
+                modalEl.classList.add('is-swapping');
+            });
+
+            document.addEventListener('htmx:afterSettle', (e) => {
+                const target = e.target;
+                if (!target) return;
+
+                if (!isModalSwapTarget(target)) return;
+                modalEl.classList.remove('is-swapping');
             });
         }
+
 
         // Drawer navigation
         function initDrawer() {

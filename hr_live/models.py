@@ -318,7 +318,7 @@ def show_image_storage(instance, filename):
 class Show(models.Model):
     STATUS_CHOICES = [
         ('draft', 'Draft'),
-        ('published', 'Published'),
+        ('published', 'Published')
     ]
 
     date = models.DateField(null=True, blank=False, default=None, verbose_name="Date")

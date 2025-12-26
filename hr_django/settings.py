@@ -16,7 +16,9 @@ from pathlib import Path
 
 from django.core.management.utils import get_random_secret_key
 
-load_dotenv()
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+load_dotenv(BASE_DIR/'.env')
 
 
 def _env_bool(name: str, default: bool = False) -> bool:
@@ -24,9 +26,6 @@ def _env_bool(name: str, default: bool = False) -> bool:
     if value is None:
         return default
     return str(value).strip().lower() in ('1', 'true', 'yes', 'on')
-
-
-BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 SECRET_FILE = BASE_DIR / ".django_secret"
@@ -112,6 +111,10 @@ TEMPLATES = [
     },
 ]
 
+TEMPLATES[0]["OPTIONS"]["context_processors"] += [
+    "hr_shop.context_processors.cart_context",
+]
+
 WSGI_APPLICATION = 'hr_django.wsgi.application'
 
 DATABASES = {
@@ -157,7 +160,14 @@ STORAGES = {
     },
 }
 
-SHOP_PAYMENT_BACKEND = os.environ.get('SHOP_PAYMENT_BACKEND')
+
+SHOP_PAYMENT_BACKEND = os.environ.get('SHOP_PAYMENT_BACKEND', 'mock_stripe')
+
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', '')
+STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', '')
+STRIPE_PUBLIC_KEY = os.getenv('STRIPE_PUBLIC_KEY', '')
+
+SITE_URL = os.getenv('SITE_URL', 'http://localhost:8000')
 #
 # from hr_email.provider_settings import get_email_config  # noqa: E402
 # _email_config = get_email_config(prefer_provider_specific=True)
@@ -166,7 +176,7 @@ EMAIL_PROVIDER = os.environ.get("EMAIL_PROVIDER", "mailjet").strip().lower()
 
 DEFAULT_FROM_EMAIL = os.environ.get(
     "DEFAULT_FROM_EMAIL",
-    "Hella Reptilian <no-reply@hellareptilian.com>",
+    "Hella Reptilian <mail@hellareptilian.com>",
 )
 
 EMAIL_BACKEND = os.environ.get(
@@ -181,6 +191,8 @@ EMAIL_USE_SSL = _env_bool("EMAIL_USE_SSL", False)
 
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+MAILJET_API_KEY = os.environ.get("MAILJET_API_KEY") or EMAIL_HOST_USER
+MAILJET_API_SECRET = os.environ.get("MAILJET_API_SECRET") or EMAIL_HOST_PASSWORD
 
 if not DEBUG:
     if not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD:

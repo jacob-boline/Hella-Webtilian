@@ -1,86 +1,91 @@
-import uuid
+# hr_payment/models.py
 
-from django.core.validators import MinValueValidator, MaxValueValidator
+from __future__ import annotations
+
 from django.db import models
-
-from hr_shop.models import Product
-
-
-class AddressUsage(models.TextChoices):
-    BILLING = 'Billing'
-    SHIPPING = 'Shipping'
-    RETURN = 'Return'
-    RECEIVE = 'Receive'
+from django.db.models import Q
+from django.utils import timezone
 
 
-class Address(models.Model):
-    recipient = models.CharField(max_length=150, blank=False, null=False)
-    street_number = models.CharField(max_length=150, blank=False, null=False)
-    unit = models.CharField(max_length=10, blank=True, null=True)
-    city = models.CharField(max_length=100, blank=False, null=False)
-    subdivision = models.CharField(max_length=100, blank=False, null=False)
-    index = models.CharField(max_length=50, null=False, blank=False, verbose_name="Zip Code")
-    country = models.CharField(max_length=3, null=False, blank=False, verbose_name="3 Letter ISO Country Code")
+class PaymentAttemptStatus(models.TextChoices):
+    CREATED = "created"
+    PENDING = "pending"       # session created, waiting for outcome
+    SUCCEEDED = "succeeded"
+    FAILED = "failed"
+    EXPIRED = "expired"
+    CANCELED = "canceled"
+
+
+class PaymentAttempt(models.Model):
+    order = models.ForeignKey(
+        "hr_shop.Order",
+        on_delete=models.PROTECT,
+        related_name="payment_attempts",
+    )
+
+    provider = models.CharField(max_length=32, default="stripe")
+
+    # Stripe checkout session
+    provider_session_id = models.CharField(max_length=255, null=True, blank=True)
+    client_secret = models.CharField(max_length=255, null=True, blank=True)
+
+    # Stripe payment intent (often available at completion)
+    provider_payment_intent_id = models.CharField(max_length=255, null=True, blank=True)
+
+    amount_cents = models.PositiveIntegerField(default=0)
+    currency = models.CharField(max_length=10, default="usd")
+
+    status = models.CharField(
+        max_length=20,
+        choices=PaymentAttemptStatus.choices,
+        default=PaymentAttemptStatus.CREATED,
+        db_index=True,
+    )
+
+    failure_code = models.CharField(max_length=100, null=True, blank=True)
+    failure_message = models.TextField(null=True, blank=True)
+
+    raw = models.JSONField(null=True, blank=True)
+
+    created_at = models.DateTimeField(default=timezone.now, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    finalized_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        abstract = True
-        ordering = ('-pk',)
+        indexes = [
+            models.Index(fields=["order", "created_at"]),
+            models.Index(fields=["provider_session_id"]),
+            models.Index(fields=["provider_payment_intent_id"]),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["provider_session_id"],
+                condition=Q(provider_session_id__isnull=False),
+                name="uq_paymentattempt_provider_session_id_not_null",
+            ),
+            models.UniqueConstraint(
+                fields=["provider_payment_intent_id"],
+                condition=Q(provider_payment_intent_id__isnull=False),
+                name="uq_paymentattempt_payment_intent_id_not_null",
+            ),
+        ]
 
-    def __str__(self):
-        pass
-
-
-class BillingAddress(Address):
-
-    def __str__(self):
-        return f"{self.recipient}\n{self.street_number} {self.city}, {self.subdivision}\n {self.index} {self.country}"
-
-
-class MailingAddress(Address):
-
-    def __str__(self):
-        return f"{self.recipient}\n{self.street_number} {self.city}, {self.subdivision}\n {self.index} {self.country}"
-
-
-class OrderStatus(models.TextChoices):
-    PROCESSING = 'Processing'
-    CANCELLED = 'Cancelled'
-    SHIPPED = 'Shipped'
-    RETURNED = 'Returned'
-    COMPLETE = 'Complete'
-
-
-class Order(models.Model):
-    cart_id = models.CharField(unique=True, blank=False, null=False, max_length=255)
-    order_id = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-    mailing_address = models.ForeignKey(MailingAddress, on_delete=models.PROTECT)
-    billing_address = models.ForeignKey(BillingAddress, blank=True, null=True, on_delete=models.PROTECT)
-    status = models.CharField(choices=OrderStatus.choices, max_length=50)
-    subtotal = models.PositiveIntegerField(validators=[MinValueValidator(50), MaxValueValidator(999999)])
-    tax = models.PositiveIntegerField(validators=[MinValueValidator(0), MaxValueValidator(999999)])
-    grand_total = models.PositiveIntegerField(blank=False, null=False, validators=[MinValueValidator(50), ])
-    date_created = models.DateTimeField(auto_now_add=True)
-    last_updated = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f'<Order: {self.order_id}'
-
-    def update_status(self, new_status):
-        if new_status in OrderStatus.choices:
-            self.status = new_status
-            message = f'Order status updated to {self.status}'
-            return message
+    def mark_final(self, new_status: str, *, code: str | None = None, msg: str | None = None):
+        self.status = new_status
+        self.failure_code = code
+        self.failure_message = msg
+        self.finalized_at = timezone.now()
+        self.save(update_fields=["status", "failure_code", "failure_message", "finalized_at", "updated_at"])
 
 
-class OrderLine(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name='order_lines')
-    order = models.ForeignKey(Order, on_delete=models.PROTECT, related_name='items')
-    standing_unit_price = models.PositiveIntegerField(verbose_name="Price at time of order")
-    quantity = models.PositiveSmallIntegerField()
-
-    def __str__(self):
-        return f'<OrderLine: {self.product.name} (x{self.quantity}) @ ${self.standing_unit_price/100}, Order ID: {self.order.id}>'
-
-    @property
-    def subtotal(self):
-        return self.standing_unit_price * self.quantity
+class WebhookEvent(models.Model):
+    """
+    Idempotency + audit log for inbound webhook payloads.
+    """
+    event_id = models.CharField(max_length=255, unique=True)
+    type = models.CharField(max_length=255, db_index=True)
+    payload = models.JSONField()
+    received_at = models.DateTimeField(default=timezone.now)
+    processed_at = models.DateTimeField(null=True, blank=True)
+    ok = models.BooleanField(default=False)
+    error = models.TextField(null=True, blank=True)

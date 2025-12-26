@@ -232,7 +232,6 @@ def password_change(request):
 
 class HRPasswordResetView(HtmxTemplateMixin, PasswordResetView):
     template_name = htmx_template_name = 'hr_access/registration/_password_reset_form.html'
-
     email_template_name = 'hr_access/registration/password_reset_email.txt'
     html_email_template_name = 'hr_access/registration/password_reset_email.html'
     subject_template_name = 'hr_access/registration/password_reset_subject.txt'
@@ -283,7 +282,7 @@ def claim_start(request):
         send_mail(
             "Confirm your order claim",
             f"Click to link orders: {link}",
-            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@hellareptilian.com'),
+            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'mail@hellareptilian.com'),
             recipient_list=[email]
         )
     except Exception as e:

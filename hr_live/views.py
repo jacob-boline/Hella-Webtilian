@@ -1,11 +1,8 @@
 # hr_live/views.py
 
-#from datetime import datetime
 from typing import Dict, Any
 
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-#from django.http import JsonResponse, HttpResponse
-from django.shortcuts import  render #, get_object_or_404
+from django.shortcuts import render
 from django.utils import timezone
 
 from hr_core.utils.pagination import paginate
@@ -18,6 +15,7 @@ from hr_live.models import Show
 
 def _get_today():
     return timezone.localdate()
+
 
 def _serialize_show(show: Show) -> Dict[str, Any]:
     """
@@ -72,10 +70,9 @@ def live_past_list(request):
 
     return render(request, 'hr_live/past_list.html', context)
 
-
-#----------------------------------------------------------------------------------------------------#
+# ---------------------------------------------------------------------------------------------------#
 #                        BELOW IS NOT FOR MVP - COMMENTED UNTIL NEEDED                               #
-#----------------------------------------------------------------------------------------------------#
+# ---------------------------------------------------------------------------------------------------#
 
 #
 # # -------------------------------------------------------------------

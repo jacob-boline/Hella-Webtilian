@@ -1,6 +1,6 @@
 # hr_about/views.py
 
-from django.http import request, response
+
 from django.shortcuts import render
 from hr_about.models import CarouselSlide, PullQuote
 

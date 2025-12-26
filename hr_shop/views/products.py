@@ -51,7 +51,7 @@ def get_product_modal_partial(request, product_slug):
         'variants_json': json.dumps(variants_data)
     }
 
-    return render(request, 'hr_shop/_product_detail_modal.html', context)
+    return render(request, 'hr_shop/shop/_product_detail_modal.html', context)
 
 
 @require_POST

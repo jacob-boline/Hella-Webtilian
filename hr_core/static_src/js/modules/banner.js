@@ -31,6 +31,7 @@
         };
 
         const navOpenBtn = document.getElementById('nav-open-btn');
+        const floatingCartBtn = document.getElementById('floating-cart-btn');
 
         let recolorObserver = null;
 
@@ -130,14 +131,16 @@
 
             banner.style.opacity = opacity.toFixed(3);
 
-            if (navOpenBtn) {
+            if (navOpenBtn || floatingCartBtn) {
                 const btnOpacity = 1 - opacity;
 
-                navOpenBtn.style.opacity = btnOpacity.toFixed(3);
+                if (navOpenBtn) {
+                    navOpenBtn.style.opacity = btnOpacity.toFixed(3);
+                }
 
-                // if (btnOpacity < 0.05) {
-                //     navOpenBtn.style.pointerEvents = 'none';
-                // }
+                if (floatingCartBtn) {
+                    floatingCartBtn.style.opacity = btnOpacity.toFixed(3);
+                }
             }
         }
 

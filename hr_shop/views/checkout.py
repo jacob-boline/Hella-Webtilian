@@ -1,13 +1,14 @@
 # hr_shop/views/checkout.py
 
-
 import logging
 from datetime import timedelta
 from decimal import Decimal
 from typing import Dict, Any
 
+from django.conf import settings
 from django.contrib import messages
-from django.http import HttpResponse
+from django.core.cache import cache
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -17,25 +18,63 @@ from django.db import transaction, IntegrityError
 from hr_common.models import Address
 from hr_core.utils.email import normalize_email
 from hr_core.utils.tokens import verify_checkout_email_token
-from hr_payment.providers import get_payment_provider
 from hr_shop.cart import get_cart, Cart, CART_SESSION_KEY
 from hr_shop.exceptions import EmailSendError, RateLimitExceeded
 from hr_shop.forms import CheckoutDetailsForm
 from hr_shop.models import (
     Customer, Order, OrderItem, ProductVariant,
     ConfirmedEmail, CheckoutDraft, CustomerAddress,
+    PaymentStatus, OrderStatus
 )
 from hr_shop.services.email_confirmation import (
     is_email_confirmed_for_checkout,
     send_checkout_confirmation_email,
 )
 
-logger = logging.getLogger(__name__)
+from hr_shop.views.cart import view_cart
 
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
+def _get_last_confirmation_sent_at(email: str):
+    return cache.get(("checkout_confirm_sent_at", normalize_email(email)))
+
+
+def _render_checkout_awaiting_confirmation(
+        request,
+        *,
+        email: str,
+        message: str,
+        rate_limited: bool = False,
+        sent_at=None,
+        error: bool = False
+):
+    if sent_at is None and not error:
+        sent_at = _get_last_confirmation_sent_at(email)
+
+    return render(request, 'hr_shop/checkout/_checkout_awaiting_confirmation.html', {
+        'email': email,
+        'message': message,
+        'rate_limited': bool(rate_limited),
+        'sent_at': sent_at,
+        'error': bool(error)
+    })
+
+
+def _latest_draft_for_customer(customer: Customer) -> CheckoutDraft | None:
+    if not customer:
+        return None
+    return (
+        CheckoutDraft.objects
+        .filter(customer=customer)
+        .select_related('order')
+        .order_by('-created_at')
+        .first()
+    )
+
 
 def _get_existing_customer_for_user(user):
     if not user or not user.is_authenticated:
@@ -67,7 +106,6 @@ def _get_or_create_address_from_form(form: CheckoutDetailsForm) -> Address:
         postal_code=form.cleaned_data["postal_code"].strip(),
         country="United States",
     )
-    # Requires AddressManager.get_or_create_by_components + fingerprint field on Address
     address, _created = Address.objects.get_or_create_by_components(**components)
     return address
 
@@ -81,7 +119,7 @@ def _get_or_create_customer(email: str, user, form: CheckoutDetailsForm) -> Cust
             "middle_initial": form.cleaned_data.get("middle_initial", "").strip() or None,
             "last_name": form.cleaned_data["last_name"].strip(),
             "suffix": form.cleaned_data.get("suffix", "").strip() or None,
-            "phone": form.cleaned_data.get("phone", "").strip() or None,
+            "phone": form.cleaned_data.get("phone") or None,
         },
     )
 
@@ -92,7 +130,7 @@ def _get_or_create_customer(email: str, user, form: CheckoutDetailsForm) -> Cust
         middle_initial = form.cleaned_data.get("middle_initial", "").strip() or None
         last_name = form.cleaned_data["last_name"].strip()
         suffix = form.cleaned_data.get("suffix", "").strip() or None
-        phone = form.cleaned_data.get("phone", "").strip() or None
+        phone = form.cleaned_data.get("phone", "") or None
 
         if first_name and customer.first_name != first_name:
             customer.first_name = first_name
@@ -160,7 +198,7 @@ def _render_checkout_review(request):
     customer = Customer.objects.filter(pk=customer_id).first() if customer_id else None
     address = Address.objects.filter(pk=address_id).first() if address_id else None
 
-    return render(request, "hr_shop/_checkout_review.html", {
+    return render(request, "hr_shop/checkout/_checkout_review.html", {
         "items": items,
         "subtotal": subtotal,
         "tax": tax,
@@ -235,8 +273,6 @@ def _get_or_create_active_draft(*, customer, email, address, note, cart_payload)
             )
             return draft
     except IntegrityError:
-        # Rare race: two requests create at the same time, one loses.
-        # Just fetch the winner and update it.
         with transaction.atomic():
             draft = CheckoutDraft.objects.select_for_update().get(
                 customer=customer,
@@ -251,61 +287,49 @@ def _get_or_create_active_draft(*, customer, email, address, note, cart_payload)
 # Views
 # ---------------------------------------------------------------------------
 
-
 @require_GET
 def checkout_details(request):
-    user = getattr(request, "user", None)
+    ctx = _get_checkout_context(request)
+    customer = None
+    addr = None
+    note = ""
+
+    if ctx:
+        customer = ctx["customer"]
+        addr = ctx["address"]
+        note = ctx.get("note") or ""
+    else:
+        user = getattr(request, "user", None)
+        if user and user.is_authenticated:
+            customer = _get_existing_customer_for_user(user)
+            addr = _get_most_recent_address_for_customer(customer)
 
     initial: Dict[str, Any] = {
-        "email": "",
-        "phone": "",
-        "first_name": "",
-        "middle_initial": "",
-        "last_name": "",
-        "suffix": "",
-        "street_address": "",
-        "street_address_line2": "",
-        "building_type": "single_family",
-        "unit": "",
-        "city": "",
-        "subdivision": "",
-        "postal_code": "",
-        "note": "",
+        "email": (getattr(customer, "email", None) or getattr(getattr(request, "user", None), "email", "") or ""),
+        "phone": getattr(customer, "phone", "") or "",
+        "first_name": (getattr(customer, "first_name", None) or getattr(getattr(request, "user", None), "first_name", "") or ""),
+        "middle_initial": getattr(customer, "middle_initial", "") or "",
+        "last_name": (getattr(customer, "last_name", None) or getattr(getattr(request, "user", None), "last_name", "") or ""),
+        "suffix": getattr(customer, "suffix", "") or "",
+        "street_address": getattr(addr, "street_address", "") or "",
+        "street_address_line2": getattr(addr, "street_address_line2", "") or "",
+        "building_type": getattr(addr, "building_type", None) or "single_family",
+        "unit": getattr(addr, "unit", "") or "",
+        "city": getattr(addr, "city", "") or "",
+        "subdivision": getattr(addr, "subdivision", "") or "",
+        "postal_code": getattr(addr, "postal_code", "") or "",
+        "note": note
     }
 
-    customer = _get_existing_customer_for_user(user)
-    if customer:
-        initial["email"] = customer.email
-        initial["phone"] = customer.phone or ""
-        initial["first_name"] = customer.first_name
-        initial["middle_initial"] = customer.middle_initial or ""
-        initial["last_name"] = customer.last_name
-        initial["suffix"] = customer.suffix or ""
-
-        addr = _get_most_recent_address_for_customer(customer)
-        if addr:
-            initial["street_address"] = addr.street_address
-            initial["street_address_line2"] = addr.street_address_line2
-            initial["building_type"] = addr.building_type
-            initial["unit"] = addr.unit
-            initial["city"] = addr.city
-            initial["subdivision"] = addr.subdivision
-            initial["postal_code"] = addr.postal_code
-
-    elif user and user.is_authenticated:
-        initial["email"] = user.email or ""
-        initial["first_name"] = getattr(user, "first_name", "") or ""
-        initial["last_name"] = getattr(user, "last_name", "") or ""
-
     form = CheckoutDetailsForm(initial=initial)
-    return render(request, "hr_shop/_checkout_details.html", {"form": form})
+    return render(request, "hr_shop/checkout/_checkout_details.html", {"form": form})
 
 
 @require_POST
 def checkout_details_submit(request):
     form = CheckoutDetailsForm(request.POST)
     if not form.is_valid():
-        return render(request, "hr_shop/_checkout_details.html", {"form": form})
+        return render(request, "hr_shop/checkout/_checkout_details.html", {"form": form})
 
     user = getattr(request, "user", None)
     email = form.cleaned_data["email"].strip()
@@ -313,31 +337,26 @@ def checkout_details_submit(request):
     if user and user.is_authenticated:
         if normalize_email(email) != normalize_email(user.email):
             form.add_error("email", "Please use the email address associated with your account.")
-            return render(request, "hr_shop/_checkout_details.html", {"form": form})
+            return render(request, "hr_shop/checkout/_checkout_details.html", {"form": form})
 
     customer = _get_or_create_customer(email, user, form)
     address = _get_or_create_address_from_form(form)
     note = (form.cleaned_data.get("note") or "").strip()
 
-    # Save checkout context in session
     request.session["checkout_customer_id"] = customer.id
     request.session["checkout_address_id"] = address.id
     request.session["checkout_note"] = note
     request.session.modified = True
 
-    # Update customer default shipping link atomically
     with transaction.atomic():
         CustomerAddress.objects.select_for_update().filter(customer=customer)
-
         CustomerAddress.objects.filter(customer=customer, is_default_shipping=True).update(is_default_shipping=False)
-
         CustomerAddress.objects.update_or_create(
             customer=customer,
             address=address,
             defaults={"is_default_shipping": True},
         )
 
-    # Create/update an active draft using your is_valid() semantics
     draft = _get_or_create_active_draft(
         customer=customer,
         email=customer.email,
@@ -353,10 +372,10 @@ def checkout_details_submit(request):
         send_checkout_confirmation_email(
             request=request,
             email=email,
-            draft_id=draft.id,  # requires token/service support
+            draft_id=draft.id,
         )
     except RateLimitExceeded:
-        return render(request, "hr_shop/_checkout_awaiting_confirmation.html", {
+        return render(request, "hr_shop/checkout/_checkout_awaiting_confirmation.html", {
             "email": email,
             "message": "Too many confirmation emails sent. Please check your inbox (including spam folder) or try again in an hour.",
             "rate_limited": True,
@@ -364,18 +383,18 @@ def checkout_details_submit(request):
         })
     except EmailSendError:
         messages.error(request, "Could not send confirmation email. Please try again.")
-        return render(request, "hr_shop/_checkout_details.html", {"form": form})
+        return render(request, "hr_shop/checkout/_checkout_details.html", {"form": form})
 
-    return render(request, "hr_shop/_checkout_awaiting_confirmation.html", {
+    return render(request, "hr_shop/checkout/_checkout_awaiting_confirmation.html", {
         "email": email,
         "message": "We've sent a confirmation link to your email. Please check your inbox and click the link to continue.",
         "rate_limited": False,
-        "sent_at": timezone.now(),
+        "sent_at": timezone.now()
     })
 
 
 @require_GET
-def confirm_checkout_email(request, token: str):
+def email_confirmation_process_response(request, token: str):
     payload = verify_checkout_email_token(token)
     if not payload:
         messages.error(request, "This confirmation link is invalid or has expired.")
@@ -403,63 +422,58 @@ def confirm_checkout_email(request, token: str):
             messages.warning(request, "That checkout session no longer exists. Please restart checkout.")
             return redirect("hr_shop:checkout_details")
 
-        # Optional but strongly recommended: prevent token reuse across emails
         if normalize_email(draft.email) != norm_email:
             messages.error(request, "This confirmation link does not match your checkout email.")
             return redirect("hr_shop:checkout_details")
 
         if not draft.is_valid():
-            # If an order already exists, don't block: take them to receipt.
             if draft.order_id:
-                return redirect("hr_shop:order_receipt", order_id=draft.order_id)
+                return redirect("hr_shop:order_thank_you", order_id=draft.order_id)
 
             messages.warning(request, "This checkout link expired. Please restart checkout.")
             return redirect("hr_shop:checkout_details")
 
-        # Mark confirmed AFTER we know draft is legit and email matches it
         ConfirmedEmail.mark_confirmed(norm_email)
 
-        # Idempotent mark-used
         if draft.used_at is None:
             draft.used_at = now
             draft.save(update_fields=["used_at"])
 
-        # If they already made an order, this click should just send them there.
         if draft.order_id:
-            return redirect("hr_shop:order_receipt", order_id=draft.order_id)
+            return redirect("hr_shop:order_thank_you", order_id=draft.order_id)
 
-        # Restore session context
         request.session["checkout_customer_id"] = draft.customer_id
         request.session["checkout_address_id"] = draft.address_id
         request.session["checkout_note"] = draft.note or ""
         request.session.modified = True
 
-        # Restore cart only if empty
         existing_cart = request.session.get(CART_SESSION_KEY) or {}
         if not existing_cart:
-            _restore_cart_from_draft(request, draft, wipe_first=True)
+            _restore_cart_from_draft(request, draft)
 
-    return render(request, "hr_shop/_email_confirmed.html", {
-        "redirect_url": reverse("hr_shop:checkout_review"),
-        "redirect_delay": 3,
-    })
+    success_url = reverse('hr_shop:email_confirmation_success')
+    url = reverse('index')
+    return redirect(f'{url}?modal=email_confirmed&handoff=email_confirmed&modal_url={success_url}#parallax-section-merch')
 
 
 @require_GET
-def check_email_confirmed(request):
+def email_confirmation_status(request):
     ctx = _get_checkout_context(request)
     if not ctx:
-        return render(request, "hr_shop/_checkout_session_expired.html")
+        return render(request, "hr_shop/checkout/_checkout_session_expired.html")
 
-    # Use the same rules as checkout (authenticated users count too)
     if is_email_confirmed_for_checkout(request, ctx["customer"].email):
         return _render_checkout_review(request)
 
     return HttpResponse(status=204)
 
 
+def email_confirmation_success(request):
+    return render(request, 'hr_shop/checkout/_email_confirmation_success.html')
+
+
 @require_POST
-def resend_checkout_confirmation(request):
+def email_confirmation_resend(request):
     ctx = _get_checkout_context(request)
     if not ctx:
         messages.error(request, "Your session is invalid or has expired. Please try again.")
@@ -467,14 +481,8 @@ def resend_checkout_confirmation(request):
 
     customer = ctx["customer"]
 
-    # Keep naming consistent (snapshot not snapshop)
     cart_payload = _cart_snapshot(request)
 
-    # Try to re-use a valid draft if it exists, else create a fresh one
-    # This helper should:
-    # - update cart/address/note to current values
-    # - bump expires_at
-    # - ensure only one active draft exists (atomic)
     draft = _get_or_create_active_draft(
         customer=customer,
         email=customer.email,
@@ -489,7 +497,7 @@ def resend_checkout_confirmation(request):
             email=customer.email,
             draft_id=draft.id,
         )
-        return render(request, "hr_shop/_checkout_awaiting_confirmation.html", {
+        return render(request, "hr_shop/checkout/_checkout_awaiting_confirmation.html", {
             "email": customer.email,
             "message": "We've sent another confirmation link. Please check your inbox.",
             "rate_limited": False,
@@ -497,7 +505,7 @@ def resend_checkout_confirmation(request):
         })
 
     except RateLimitExceeded:
-        return render(request, "hr_shop/_checkout_awaiting_confirmation.html", {
+        return render(request, "hr_shop/checkout/_checkout_awaiting_confirmation.html", {
             "email": customer.email,
             "message": "Too many emails sent. Please check your inbox (including spam folder) or try again later.",
             "rate_limited": True,
@@ -505,7 +513,7 @@ def resend_checkout_confirmation(request):
         })
 
     except EmailSendError:
-        return render(request, "hr_shop/_checkout_awaiting_confirmation.html", {
+        return render(request, "hr_shop/checkout/_checkout_awaiting_confirmation.html", {
             "email": customer.email,
             "message": "Could not send email. Please try again.",
             "rate_limited": False,
@@ -548,23 +556,22 @@ def checkout_create_order(request):
         messages.error(request, "Please confirm your email address before placing an order.")
         return redirect("hr_shop:checkout_review")
 
-    now = timezone.now()
-
     with transaction.atomic():
-        # Lock the most recent usable draft for this customer
         draft = (
             CheckoutDraft.objects
             .select_for_update()
             .select_related("order")
-            .filter(customer=customer)
+            .filter(
+                customer=customer,
+                used_at__isnull=True,
+                expires_at__gt=timezone.now()
+            )
             .order_by("-created_at")
             .first()
         )
 
-        # If you want to be stricter, require draft.is_valid() here.
         if draft and draft.order_id:
-            # idempotent: same checkout attempt, same order
-            redirect_url = reverse("hr_shop:order_receipt", args=[draft.order_id])
+            redirect_url = reverse("hr_shop:order_thank_you", args=[draft.order_id])
             return HttpResponse(status=204, headers={"HX-Redirect": redirect_url})
 
         order = Order.objects.create(
@@ -572,7 +579,8 @@ def checkout_create_order(request):
             email=normalize_email(customer.email),
             shipping_address=shipping_address,
             total=Decimal("0.00"),
-            status="pending",
+            order_status=OrderStatus.RECEIVED,
+            payment_status=PaymentStatus.UNPAID,
             note=note or None,
         )
 
@@ -596,20 +604,71 @@ def checkout_create_order(request):
         order.total = subtotal + tax + shipping
         order.save(update_fields=["total", "updated_at"])
 
-        # Link the draft to the order for idempotency
         if draft:
             draft.order = order
-            # draft.used_at can remain as-is; some flows mark it at confirm time
-            draft.save(update_fields=["order"])
+            draft.used_at = timezone.now()
+            draft.save(update_fields=["order", "used_at"])
 
-    provider = get_payment_provider()
-    session = provider.create_checkout_session(order)
-    redirect_url = session.get("url") or reverse("hr_shop:order_thank_you", args=[order.id])
+    # IMPORTANT:
+    # Do NOT create a Stripe session here.
+    # Embedded Checkout session creation is done by hr_payment.checkout_stripe_session
+    # (called by the pay modal JS). That endpoint is idempotent and will reuse/open sessions.
+    pay_url = reverse('hr_shop:checkout_pay', args=[order.id])
 
-    return HttpResponse(status=204, headers={"HX-Redirect": redirect_url})
+    if request.headers.get('HX-Request') == 'true':
+        return HttpResponse(status=204, headers={'HX-Redirect': pay_url})
+    return redirect(pay_url)
 
 
 @require_GET
 def order_thank_you(request, order_id: int):
     order = get_object_or_404(Order, pk=order_id)
-    return render(request, "hr_shop/order_thank_you.html", {"order": order})
+
+    if order.payment_status == PaymentStatus.PAID:
+        _clear_cart(request)
+        for k in ('checkout_customer_id', 'checkout_address_id', 'checkout_note'):
+            request.session.pop(k, None)
+        request.session.modified = True
+
+    return render(request, "hr_shop/checkout/_order_thank_you.html", {"order": order})
+
+
+@require_GET
+def checkout_resume(request):
+    cart = get_cart(request)
+    if not cart or len(cart) == 0:
+        return view_cart(request)
+
+    ctx = _get_checkout_context(request)
+    if not ctx:
+        return checkout_details(request)
+
+    customer = ctx['customer']
+    email = customer.email
+    latest_draft = _latest_draft_for_customer(customer)
+
+    if latest_draft and latest_draft.order_id:
+        return redirect('hr_shop:order_thank_you', order_id=latest_draft.order_id)
+
+    if not is_email_confirmed_for_checkout(request, email):
+        return _render_checkout_awaiting_confirmation(
+            request,
+            email=email,
+            message='Please confirm your email to continue.',
+            rate_limited=False,
+            sent_at=None,
+            error=False
+        )
+
+    return _render_checkout_review(request)
+
+
+@require_GET
+def checkout_pay(request, order_id: int):
+    order = get_object_or_404(Order, pk=order_id)
+
+    return render(request, 'hr_shop/checkout/_checkout_pay.html', {
+        'order': order,
+        'stripe_publishable_key': settings.STRIPE_PUBLIC_KEY,
+        'client_secret': ''
+    })

@@ -31,6 +31,15 @@
                     {% endif %}
                 </div>
             </div>
+            <button
+                    id="edit-shipping-btn"
+                    type="button"
+                    class="card-btn btn-neon btn-yellow btn-sm center-block"
+                    hx-get="{% url 'hr_shop:checkout_details' %}"
+                    hx-target="#modal-content"
+                    hx-swap="innerHTML transition:true">
+                Edit Shipping Info
+            </button>
         </div>
     {% endif %}
 
@@ -89,15 +98,15 @@
     {% endif %}
 
     <div class="review-actions modal-actions stack">
-        <form method="post" action="{% url 'hr_shop:checkout_create_order' %}">
-            {% csrf_token %}
-            <button type="submit" class="card-btn buy-cyan">
-                <i class="fas fa-lock"></i> Proceed to Payment
-            </button>
-        </form>
+        <button
+            type="button"
+            class="card-btn btn-neon btn-green"
+            hx-post="{% url 'hr_shop:checkout_create_order' %}">
+            <i class="fas fa-lock"></i> Proceed to Payment
+        </button>
 
         <button type="button"
-                class="card-btn outline"
+                class="card-btn btn-neon btn-blue"
                 hx-get="{% url 'hr_shop:view_cart' %}"
                 hx-target="#modal-content"
                 hx-swap="innerHTML">

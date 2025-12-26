@@ -4,7 +4,7 @@
 <div id="confirmation-waiting"
      class="checkout-awaiting-confirmation modal-state"
      {% if not rate_limited and not error %}
-     hx-get="{% url 'hr_shop:check_email_confirmed' %}"
+     hx-get="{% url 'hr_shop:email_confirmation_status' %}"
      hx-trigger="every 5s [pollCount < 720]"
      hx-on::before-request="this.pollCount = (this.pollCount || 0) + 1"
      hx-swap="innerHTML"
@@ -40,8 +40,8 @@
     <div class="modal-actions modal-actions uniform">
         {% if not rate_limited %}
             <button type="button"
-                    class="card-btn outline"
-                    hx-post="{% url 'hr_shop:resend_checkout_confirmation' %}"
+                    class="card-btn btn-neon btn-blue"
+                    hx-post="{% url 'hr_shop:email_confirmation_resend' %}"
                     hx-target="#modal-content"
                     hx-swap="innerHTML"
                     hx-indicator="#resend-spinner"
@@ -57,7 +57,7 @@
         {% endif %}
 
         <button type="button"
-                class="card-btn outline"
+                class="card-btn btn-neon btn-blue"
                 hx-get="{% url 'hr_shop:checkout_details' %}"
                 hx-target="#modal-content"
                 hx-swap="innerHTML">
@@ -70,7 +70,7 @@
         <ul>
             <li>Check your spam or junk folder</li>
             <li>Make sure you entered the correct email address</li>
-            <li>Add orders@hellareptilian.com to your contacts</li>
+            <li>Add mail@hellareptilian.com to your contacts</li>
             <li>Try the resend button above</li>
             <li>Wait a few minutes - emails can sometimes be delayed</li>
         </ul>

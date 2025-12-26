@@ -72,7 +72,7 @@
                 {% endif %}
             </span>
 
-            <button class="card-btn buy-cyan"
+            <button class="card-btn btn-neon btn-green"
                     type="button"
                     {% if display_variant %}
                         hx-post="{% url 'hr_shop:add_to_cart' variant_slug=display_variant.slug %}"
@@ -82,7 +82,7 @@
                 <i class="fas fa-cart-plus"></i> Add
             </button>
 
-            <button class="card-btn outline" type="button" data-modal-close>
+            <button class="card-btn btn-neon btn-blue" type="button" data-modal-close>
                 Close
             </button>
         </div>

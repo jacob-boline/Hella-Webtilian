@@ -86,9 +86,9 @@ class OrderItemInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'customer', 'email', 'status', 'total', 'created_at')
+    list_display = ('id', 'customer', 'email', 'order_status', 'payment_status','total', 'created_at')
     list_display_links = ('customer',)
-    list_filter = ('status', 'created_at')
+    list_filter = ('payment_status', 'order_status', 'created_at')
     search_fields = ('email', 'customer__email', 'customer__first_name', 'customer__last_name')
     readonly_fields = ('created_at', 'updated_at', 'stripe_checkout_session_id')
     ordering = ('-created_at',)

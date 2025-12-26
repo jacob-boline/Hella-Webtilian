@@ -194,6 +194,11 @@
     background: transparent;
 }
 
+.checkout-review-modal .review-section.shipping-review {
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
 .checkout-review-modal .review-section-title {
     margin: 0;
     font-size: 0.85rem;
@@ -210,6 +215,7 @@
     row-gap: 0.5rem;
     font-size: 1rem;
     line-height: 1.5;
+    margin-bottom: 0.75rem;
 }
 
 .checkout-review-modal .customer-name {
@@ -264,6 +270,7 @@
     align-items: baseline;
     gap: 0.5rem;
     font-size: 0.7rem;
+    margin-top: 0.25rem;
 }
 
 .checkout-review-modal .item-variant,
@@ -329,3 +336,127 @@
         justify-content: center;
     }
 }
+
+
+/* ===========================
+   Orders modal
+   =========================== */
+
+.orders-modal {
+  text-align: left;
+  color: var(--text);
+}
+
+/* list container */
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* row card (mirrors cart-summary-card vibe but simpler) */
+.orders-summary-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.orders-summary-card:last-of-type {
+  border-bottom: none;
+}
+
+.orders-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.orders-title {
+  margin: 0;
+  font-weight: 600;
+  color: var(--neon-blue);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.orders-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  font-size: 0.75rem;
+  color: var(--muted-text);
+}
+
+.orders-status {
+  color: var(--accent);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.orders-total {
+  margin: 0;
+  font-weight: 600;
+  color: var(--accent);
+  font-size: 0.85rem;
+}
+
+.orders-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.orders-empty {
+  margin: 0.75rem 0 0;
+  color: var(--muted-text);
+  font-style: italic;
+}
+
+/* responsive */
+@media (max-width: 640px) {
+  .orders-summary-card {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .orders-actions {
+    justify-content: flex-start;
+  }
+}
+
+/* ===========================
+   Order detail item layout
+   =========================== */
+
+.order-item-row {
+  align-items: center;
+}
+
+.order-item-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.order-item-thumb {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  object-fit: cover;
+  flex: 0 0 auto;
+}
+
+.order-item-text {
+  min-width: 0;
+}
+
+

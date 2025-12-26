@@ -45,18 +45,45 @@
 
 
     // ------------------------------
-    // 4) updateCart -> badge count
+    // 4) updateCart -> badge count(s)
     // ------------------------------
     document.body.addEventListener('updateCart', (event) => {
         const detail = getDetail(event);
         const count = Number(detail.item_count ?? detail.count ?? 0);
 
-        const badge = document.getElementById('cart-count');
-        if (!badge) return;
+        // Sidebar badge (authenticated panel)
+        const sidebarBadge = document.getElementById('cart-count');
+        if (sidebarBadge) {
+            sidebarBadge.textContent = String(count);
+            sidebarBadge.style.display = count > 0 ? 'inline-flex' : 'none';
+        }
 
-        badge.textContent = String(count);
-        badge.style.display = count > 0 ? 'inline-flex' : 'none';
+        // Floating cart button (global, guests + users)
+        const floatingBtn = document.getElementById('floating-cart-btn');
+        const floatingBadge = document.getElementById('floating-cart-count');
+
+        if (floatingBadge) floatingBadge.textContent = String(count);
+
+        if (floatingBtn) {
+            // Prefer class-based hiding
+            floatingBtn.classList.toggle('is-hidden', count <= 0);
+        }
     });
+
+
+    // // ------------------------------
+    // // 4) updateCart -> badge count
+    // // ------------------------------
+    // document.body.addEventListener('updateCart', (event) => {
+    //     const detail = getDetail(event);
+    //     const count = Number(detail.item_count ?? detail.count ?? 0);
+    //
+    //     const badge = document.getElementById('cart-count');
+    //     if (!badge) return;
+    //
+    //     badge.textContent = String(count);
+    //     badge.style.display = count > 0 ? 'inline-flex' : 'none';
+    // });
 
     // ------------------------------
     // 5) variantPreviewUpdated -> update modal image/price/buy button

@@ -2,19 +2,20 @@
 
 <div class="user-panel">
 
+    <!-- Cart -->
     <button
         id="cart-button"
+        class="cart-btn"
         hx-get="{% url 'hr_shop:view_cart' %}"
         hx-target="#modal-content"
-        hx-swap="innerHTML"
-{#        onclick="document.getElementById('modal').classList.remove('hidden')"#}
-        class="cart-btn">
+        hx-swap="innerHTML transition:true"
+    >
         <i class="fa fa-shopping-cart" aria-hidden="true"></i>
         <span class="cart-label">View Cart</span>
         <span id="cart-count" class="cart-count-badge">0</span>
     </button>
 
-
+    <!-- User info -->
     <div class="user-info">
         <strong>{{ request.user.username }}</strong>
         <div class="small">{{ request.user.email }}</div>
@@ -22,46 +23,34 @@
 
     <hr>
 
-    <!-- Account settings (modal) -->
+    <!-- Account settings -->
     <button
+        class="sidebar-btn"
         hx-get="{% url 'hr_access:password_change' %}"
         hx-target="#modal-content"
-        hx-swap="innerHTML"
-{#        onclick="document.getElementById('modal').classList.remove('hidden')"#}
-        class="sidebar-btn"
+        hx-swap="innerHTML transition:true"
     >
         Account Settings
     </button>
 
     <!-- Orders -->
     <button
+        class="sidebar-btn"
         hx-get="{% url 'hr_access:orders' %}"
         hx-target="#modal-content"
-        hx-swap="innerHTML"
-{#        onclick="document.getElementById('modal').classList.remove('hidden')"#}
-        class="sidebar-btn">
-        Orders
-    </button>
-
-    <!-- Password Change -->
-    <button
-        hx-get="{% url 'hr_access:password_change' %}"
-        hx-target="#modal-content"
-        hx-swap="innerHTML"
-{#        onclick="document.getElementById('modal').classList.remove('hidden')"#}
-        class="sidebar-btn"
+        hx-swap="innerHTML transition:true"
     >
-        Change Password
+        Orders
     </button>
 
     <hr>
 
     <!-- Logout -->
     <button
+        class="sidebar-btn"
         hx-post="{% url 'hr_access:logout' %}"
         hx-target="#sidebar-access"
         hx-swap="innerHTML"
-        class="sidebar-btn"
     >
         Log out
     </button>

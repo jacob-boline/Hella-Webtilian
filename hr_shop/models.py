@@ -55,8 +55,7 @@ from hr_core.utils.slug import sync_slug_from_source
 
 
 def max_per_purchase(product):
-    # NOTE: This helper expects `product.on_hand`, which does not exist on Product.
-    # Kept for backwards compatibility; consider deleting or refactoring.
+    # NOTE: This helper expects `product.on_hand`, which does not exist on Product yet
     if getattr(product, "on_hand", 0) >= 10:
         return 10
     return max(getattr(product, "on_hand", 0), 0)
@@ -71,9 +70,6 @@ class Product(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=220, unique=True, blank=True)
     description = models.TextField(blank=True, null=True)
-    # Still present for now as a hero image / legacy fallback.
-    # You can safely deprecate/remove later once everything uses variant images.
-    # image = models.ImageField(upload_to="products/hero/", blank=True, null=True)
     active = models.BooleanField(default=False)
 
     def __str__(self):
@@ -112,7 +108,6 @@ class ProductOptionType(models.Model):
     """
     Per-product attribute type: e.g. Size, Color, Format.
     """
-
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
@@ -123,7 +118,7 @@ class ProductOptionType(models.Model):
     position = models.PositiveIntegerField(default=0)
     active = models.BooleanField(default=True)
 
-    # NEW: does this option affect imagery?
+    # does this option affect the display image?
     drives_image = models.BooleanField(
         default=False,
         help_text=(
@@ -132,7 +127,7 @@ class ProductOptionType(models.Model):
         )
     )
 
-    # Optional: default selection to pre-populate selects in the UI
+    # default selection to pre-populate selects in the UI
     default_value = models.ForeignKey(
         "ProductOptionValue",
         null=True,
@@ -169,7 +164,6 @@ class ProductOptionValue(models.Model):
     """
     Per-product value for a given option type: e.g. Black, Purple, XL, Vinyl.
     """
-
     option_type = models.ForeignKey(
         ProductOptionType,
         on_delete=models.CASCADE,
@@ -214,7 +208,6 @@ class OptionTypeTemplate(models.Model):
     Reusable option type definition, e.g. 'Size', 'Color', 'Cut'.
     Not tied to a product. Use active=True to show it in the template picker.
     """
-
     name = models.CharField(max_length=50)
     code = models.SlugField()
     position = models.PositiveIntegerField(default=0)
@@ -273,7 +266,6 @@ class OptionValueTemplate(models.Model):
     Reusable option value definition, e.g. 'S', 'M', 'L', 'Black', 'Purple'.
     Tied to an OptionTypeTemplate.
     """
-
     option_type = models.ForeignKey(
         OptionTypeTemplate,
         on_delete=models.CASCADE,
@@ -301,7 +293,6 @@ class ProductImage(models.Model):
     """
     A reusable image. One ProductImage can be shared by many variants.
     """
-
     image = models.ImageField(upload_to="products/")
     alt_text = models.CharField(max_length=255, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -473,7 +464,6 @@ class Customer(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        # unique_together = [("email",)]
         ordering = ["-created_at"]
 
     def __str__(self):
@@ -522,13 +512,25 @@ class CustomerAddress(models.Model):
         ]
 
 
+# Not currently used, but would like to replace STATUS_CHOICES with this.
+class OrderStatus(models.TextChoices):
+    RECEIVED = 'received'
+    PROCESSING = 'processing'
+    SHIPPED = 'shipped'
+    DELIVERED = 'delivered'
+    CANCELLED = 'cancelled'
+    RETURNED = 'returned'
+
+
+class PaymentStatus(models.TextChoices):
+    PENDING = 'pending'
+    UNPAID = 'unpaid'
+    PAID = 'paid'
+    FAILED = 'failed'
+    REFUNDED = 'refunded'
+
+
 class Order(models.Model):
-    STATUS_CHOICES = [
-        ("pending", "Pending"),
-        ("paid", "Paid"),
-        ("failed", "Failed"),
-        ("refunded", "Refunded")
-    ]
 
     customer = models.ForeignKey(
         Customer,
@@ -537,20 +539,33 @@ class Order(models.Model):
         on_delete=models.PROTECT,
         related_name="orders"
     )
+
     email = models.EmailField(
         validators=[EmailValidator()],
         db_index=True
     )
     stripe_checkout_session_id = models.CharField(
         max_length=255,
-        unique=True,
         blank=True,
         null=True
     )
-    status = models.CharField(
+
+    stripe_payment_intent_id = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True
+    )
+
+    payment_status = models.CharField(
         max_length=20,
-        choices=STATUS_CHOICES,
-        default="pending"
+        choices=PaymentStatus.choices,
+        default=PaymentStatus.UNPAID
+    )
+
+    order_status = models.CharField(
+        max_length=20,
+        choices=OrderStatus.choices,
+        default=OrderStatus.RECEIVED
     )
     shipping_address = models.ForeignKey(
         Address,
@@ -571,16 +586,28 @@ class Order(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def __str__(self):
-        return f"Order {self.id} ({self.status})"
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['stripe_checkout_session_id'],
+                condition=Q(stripe_checkout_session_id__isnull=False),
+                name='uniq_order_stripe_checkout_session_id_not_null'
+            ),
+            models.UniqueConstraint(
+                fields=['stripe_payment_intent_id'],
+                condition=Q(stripe_payment_intent_id__isnull=False),
+                name='uniq_order_stripe_payment_intent_id_not_null'
+            )
+        ]
 
-    # def save(self, *args, **kwargs):
-    #     if self.email:
-    #         self.email = normalize_email(self.email)
-    #     super().save(*args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def __str__(self):
+        return f"Order {self.id} ({self.order_status})"
 
     def can_edit_shipping(self) -> bool:
-        return self.status in ('pending', 'failed')
+        return self.payment_status in (PaymentStatus.PENDING, PaymentStatus.FAILED, PaymentStatus.UNPAID)
 
     def set_shipping_address(self, address: Address):
         if not self.can_edit_shipping():
@@ -607,18 +634,10 @@ class OrderItem(models.Model):
         return f"{self.quantity} x {self.variant.sku}"
 
 
-class WebhookEvent(models.Model):
-    event_id = models.CharField(max_length=255, unique=True)
-    type = models.CharField(max_length=255)
-    payload = models.JSONField()
-    received_at = models.DateTimeField(default=timezone.now)
-    processed_at = models.DateTimeField(null=True, blank=True)
-    ok = models.BooleanField(default=False)
-
-
 # ==========================
 # Email Confirmation
 # ==========================
+
 
 class ConfirmedEmail(models.Model):
     """
@@ -684,5 +703,3 @@ class CheckoutDraft(models.Model):
 
     def is_valid(self):
         return self.used_at is None and timezone.now() < self.expires_at
-
-

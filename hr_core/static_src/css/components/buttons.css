@@ -1,0 +1,186 @@
+/* ======================================================================
+   buttons.css
+   Neon button system
+   ====================================================================== */
+
+/* ----------------------------------------------------------------------
+   Button material + lighting tokens (theme-level, NOT variants)
+   ---------------------------------------------------------------------- */
+
+:root {
+    /* structural */
+    --btn-border-base: #000;
+
+    /* neumorphic lighting */
+    --btn-shadow-lo: #131313;
+    --btn-shadow-hi: #2F2F2F;
+
+    --btn-inset-dark: rgba(0, 0, 0, 0.25);
+
+    /* hover glass */
+    --btn-hover-bg: rgba(0, 0, 0, 0.72);
+
+    /* generic highlights */
+    --btn-text-glow: rgba(255, 255, 255, 1);
+    --btn-focus-ring: rgba(255, 255, 255, 0.2);
+}
+
+/* ----------------------------------------------------------------------
+   Base neon button (NO palette decisions here)
+   ---------------------------------------------------------------------- */
+
+.btn-neon {
+    position: relative;
+
+    /*display: inline-flex;*/
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--btn-border-base);
+    border-radius: 0.75rem;
+
+    font-family: "Quantico", sans-serif;
+    font-weight: 700;
+    font-size: 0.7rem;
+
+    color: var(--btn-text);
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.125rem;
+
+    background: linear-gradient(180deg, var(--btn-fill1), var(--btn-fill2));
+    background-clip: padding-box;
+
+    box-shadow:
+        0 0 1rem var(--btn-glow-outer-base),
+        4px 4px 8px var(--btn-shadow-lo),
+        -4px -4px 8px var(--btn-shadow-hi),
+        inset 0 -2px 0 var(--btn-inset-dark);
+
+    transition:
+        transform 0.125s ease,
+        filter 0.125s ease,
+        box-shadow 0.125s ease,
+        background 0.125s ease,
+        color 0.125s ease;
+
+    cursor: pointer;
+    user-select: none;
+    text-decoration: none;
+}
+
+.btn-neon::after {
+    pointer-events: none;
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 2px var(--btn-ring);
+    transition: box-shadow 0.125s ease;
+}
+
+.btn-neon:hover {
+    transform: translateY(-2px);
+
+    border-color: var(--btn-ring-strong);
+
+    color: var(--btn-hover-text);
+    text-shadow:
+        0 0 8px var(--btn-text-glow),
+        0 0 16px var(--btn-icon-glow);
+
+    background: var(--btn-hover-bg);
+
+    box-shadow:
+        inset 4px 4px 8px var(--btn-shadow-lo),
+        inset -4px -4px 8px var(--btn-shadow-hi),
+        0 0 24px var(--btn-glow-outer-hover),
+        4px 4px 16px var(--btn-shadow-lo),
+        -4px -4px 16px var(--btn-shadow-hi);
+}
+
+.btn-neon:hover::after {
+    box-shadow: inset 0 0 0 2px var(--btn-ring-strong);
+}
+
+.btn-neon:active {
+    transform: translateY(0);
+    box-shadow:
+        inset 4px 4px 8px var(--btn-shadow-lo),
+        inset -4px -4px 8px var(--btn-shadow-hi);
+}
+
+.btn-neon:focus-visible {
+    outline: none;
+    box-shadow:
+        0 0 0 4px var(--btn-focus-ring),
+        0 0 0 8px var(--btn-focus-glow);
+}
+
+/* ----------------------------------------------------------------------
+   Size modifiers
+   ---------------------------------------------------------------------- */
+
+.btn-sm {
+    font-size: 0.62rem;
+    padding: 0.35rem 0.7rem;
+    border-radius: 0.65rem;
+    letter-spacing: 0.11rem;
+}
+
+/* ----------------------------------------------------------------------
+   Variants (PALETTE ONLY — no structure, no lighting)
+   ---------------------------------------------------------------------- */
+
+/* BLUE (old .outline) */
+.btn-blue {
+    --btn-fill1:            #00F2FE;
+    --btn-fill2:            #00D4FF;
+    --btn-text:             #06171A;
+
+    --btn-ring:             rgba(0, 245, 255, 0.45);
+    --btn-ring-strong:      rgba(0, 245, 255, 0.70);
+
+    --btn-glow-outer-base:  rgba(0, 245, 255, 0.22);
+    --btn-glow-outer-hover: rgba(0, 245, 255, 0.35);
+
+    --btn-hover-text:       #E9FDFF;
+    --btn-focus-glow:       rgba(0, 245, 255, 0.22);
+    --btn-icon-glow:        rgba(0, 245, 255, 0.95);
+}
+
+/* GREEN (old .buy-cyan) */
+.btn-green {
+    --btn-fill1:            #B8FF5E;
+    --btn-fill2:            #39FF14;
+    --btn-text:             #071300;
+
+    --btn-ring:             rgba(57, 255, 20, 0.40);
+    --btn-ring-strong:      rgba(57, 255, 20, 0.80);
+
+    --btn-glow-outer-base:  rgba(57, 255, 20, 0.22);
+    --btn-glow-outer-hover: rgba(57, 255, 20, 0.35);
+
+    --btn-hover-text:       #EEFFEE;
+    --btn-focus-glow:       rgba(57, 255, 20, 0.22);
+    --btn-icon-glow:        rgba(57, 255, 20, 0.95);
+}
+
+/* YELLOW / GOLD */
+.btn-yellow {
+    --btn-fill1:            var(--glow);   /* #FD6 */
+    --btn-fill2:            var(--gold);   /* #FFA500 */
+    --btn-text:             #1B1200;
+
+    --btn-ring:             rgba(255, 170, 0, 0.35);
+    --btn-ring-strong:      rgba(255, 170, 0, 0.70);
+
+    --btn-glow-outer-base:  rgba(255, 221, 102, 0.18);
+    --btn-glow-outer-hover: rgba(255, 221, 102, 0.30);
+
+    --btn-hover-text:       #FFF4D6;
+    --btn-focus-glow:       rgba(255, 221, 102, 0.18);
+    --btn-icon-glow:        rgba(255, 170, 0, 0.95);
+}

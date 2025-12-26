@@ -34,3 +34,47 @@
         --no-npm   (skips 'npm run dev' which runs the app with livereload)
 
         --no-seed  (skips seeding/populating the DB)
+
+ ==========================================================================================================
+
+
+# Hella Webtilian developer notes
+
+==========================
+==========================
+## SMTP configuration
+
+- **Default provider:** Mailjet. Switch to Zoho with `EMAIL_PROVIDER=zoho`.
+- **Global overrides:** `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_USE_TLS`, `EMAIL_USE_SSL`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `DEFAULT_FROM_EMAIL`.
+- **Provider-specific overrides (checked first by the health check):**
+  - Mailjet: `MAILJET_EMAIL_HOST`, `MAILJET_EMAIL_PORT`, `MAILJET_EMAIL_USE_TLS`, `MAILJET_EMAIL_USE_SSL`, `MAILJET_EMAIL_HOST_USER`, `MAILJET_EMAIL_HOST_PASSWORD`.
+  - Zoho: `ZOHO_EMAIL_HOST`, `ZOHO_EMAIL_PORT`, `ZOHO_EMAIL_USE_TLS`, `ZOHO_EMAIL_USE_SSL`, `ZOHO_EMAIL_HOST_USER`, `ZOHO_EMAIL_HOST_PASSWORD`.
+- **Health check recipient:** `EMAIL_HEALTHCHECK_RECIPIENT` (or pass `--to`).
+
+
+==========================
+==========================
+## SMTP health check
+
+Send a disposable test email through every configured provider:
+
+```bash
+python manage.py send_email_healthcheck --to someone+test@example.com
+```
+
+You can target one backend with `--provider mailjet` or `--provider zoho`. The command uses provider-prefixed environment variables first, then falls back to global `EMAIL_*` values.
+
+==========================
+==========================
+## Checkout email flow verification
+
+- Run tests for the email provider parsing and checkout confirmation flow:
+
+```bash
+python manage.py test hr_email hr_shop
+```
+
+- When exercising the flow manually, watch the server logs for rate-limit warnings emitted from `hr_shop/services/email_confirmation.py` if you trigger multiple sends in a short window.
+
+ ==========================================================================================================
+
