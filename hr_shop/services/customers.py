@@ -1,8 +1,7 @@
 # hr_shop/services/customerw.py
 
 from django.db import transaction
-from django.contrib.auth import get_user_model
-from hr_shop.models import Order, Customer
+from hr_shop.models import Customer
 
 
 def _norm_email(s:str) -> str:

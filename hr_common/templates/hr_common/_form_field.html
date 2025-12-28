@@ -3,8 +3,8 @@
 
 <div class="{{ wrapper_classes }} field-row--{{ state|default:'neutral' }}">
     <div class="{{ group_classes }}
-                {% if state == 'error' %} field-group--error{% endif %}
-                {% if state == 'valid' %} field-group--valid{% endif %}">
+        {% if state == 'error' %} field-group--error{% endif %}
+        {% if state == 'valid' %} field-group--valid{% endif %}">
 
         {% if debug_error %}
             <!-- {{ debug_error }} -->
@@ -25,10 +25,6 @@
         {% if help %}
             <div id="{{ help_id }}" class="field-help">
                 {{ help }}
-            </div>
-        {% elif field.help_text %}
-            <div id="{{ help_id }}" class="field-help">
-                {{ field.help_text }}
             </div>
         {% endif %}
 

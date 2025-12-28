@@ -1,66 +1,59 @@
-{#  hr_accesstemplates/hr_access//registration/_login.html #}
+{# hr_access/templates/hr_access/registration/_login.html #}
+{% load form_group %}
 
-{% load form_fields %}
+<div class="sidebar-panel sidebar-auth">
+    <h2 class="sub-header modal-title">Sign In</h2>
 
-<div class="auth-modal checkout-details-modal">
-    <h2 class="modal-title">Sign In</h2>
-
-    {% include 'hr_common/_non_field_errors.html' %}
+    {% if form.non_field_errors %}
+        <div class="form-errors">
+            {% for e in form.non_field_errors %}
+                <p>{{ e }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
 
     <form
-            id="login-form"
             method="post"
-            action="{% url 'hr_access:login' %}"
-            hx-post="{% url 'hr_access:login' %}"
+            action="{% url 'hr_access:auth_login' %}"
+            hx-post="{% url 'hr_access:auth_login' %}"
             hx-target="#sidebar-access"
-            hx-swap="innerHTML"
-            novalidate>
-
+            hx-swap="innerHTML transition:true"
+            class="form"
+    >
         {% csrf_token %}
-        {#        {% form_field form.username %}#}
-        {#        {% form_field form.password %}#}
 
-        <div class="field-group">
-            <label class="field-label" for="login-username">Username</label>
-            <input
-                    id="login-username"
-                    name="username"
-                    type="text"
-                    autocomplete="username"
-                    required>
+        <h3 class="group-title">Account</h3>
+
+        <div>
+            <div>
+                {% form_group form.username group_classes='form-control' placeholder='Username' label='' %}
+            </div>
         </div>
 
-        <div class="field-group">
-            <label class="field-label" for="login-password">Password</label>
-            <input
-                    id="login-password"
-                    name="password"
-                    type="password"
-                    autocomplete="current-password"
-                    required>
+        <div class="form-row">
+            <div class="form-col form-group">
+                {% form_group form.password group_classes='form-control' placeholder='Password' label='' %}
+            </div>
         </div>
 
-
-        <div class="modal-actions">
-            <button type="submit" class="card-btn btn-neon btn-green">
+        <div class="modal-actions stack uniform">
+            <button type="submit" class="card-btn btn-neon btn-green btn-sm">
                 Sign In
             </button>
-            <button type="button" class="card-btn btn-neon btn-blue" data-modal-close>
+
+            <button
+                    type="button"
+                    class="card-btn btn-neon btn-blue btn-sm"
+                    hx-get="{% url 'hr_access:account_signup' %}"
+                    hx-target="#modal-content"
+                    hx-swap="innerHTML transition:true"
+            >
+                Create Account
+            </button>
+
+            <button type="button" class="card-btn btn-neon btn-yellow btn-sm" data-modal-close>
                 Cancel
             </button>
         </div>
-
-        <div class="auth-links">
-            <button type="button"
-                    class="link-btn"
-                    hx-get="{% url 'password_reset' %}"
-                    hx-target="#modal-content"
-                    hx-swap="innerHTML">
-                Forgot password?
-            </button>
-        </div>
-
-        {% include 'hr_access/_auth_alt_action.html' %}
-
     </form>
 </div>

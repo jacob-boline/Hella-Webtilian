@@ -1,10 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{# hr_access/templates/hr_access/registration/_signup.html #}
+{% load form_group %}
 
-</body>
-</html>
+
+<h2 class="sub-header modal-title">Create Account</h2>
+
+{% include 'hr_common/_non_field_errors.html' %}
+
+<form
+        method="post"
+        action="{% url 'hr_access:account_signup' %}"
+        hx-post="{% url 'hr_access:account_signup' %}"
+        hx-target="#modal-content"
+        hx-swap="innerHTML transition:true"
+        class="form"
+>
+    {% csrf_token %}
+
+    {% form_group form.email placeholder='email' label='' %}
+    {% form_group form.username placeholder='username' label='' %}
+    {% form_group form.password placeholder='password' label='' %}
+
+    <div class="modal-actions stack uniform">
+        <button type="submit" class="card-btn btn-neon btn-green">
+            Create Account
+        </button>
+
+        <button type="button" class="card-btn btn-neon btn-blue" data-modal-close>
+            Cancel
+        </button>
+    </div>
+</form>
+

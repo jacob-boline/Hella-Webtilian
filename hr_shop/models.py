@@ -462,9 +462,18 @@ class Customer(models.Model):
     phone = PhoneNumberField(blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
+    stripe_customer_id = models.CharField(max_length=255, blank=True, null=True, db_index=True)
+    wants_saved_info = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['stripe_customer_id'],
+                condition=Q(stripe_customer_id__isnull=False),
+                name='uniq_customer_stripe_customer_id_not_null'
+            )
+        ]
 
     def __str__(self):
         label = f"{self.first_name} {self.last_name}".strip() or self.email
@@ -537,7 +546,17 @@ class Order(models.Model):
         null=False,
         blank=False,
         on_delete=models.PROTECT,
-        related_name="orders"
+        related_name="account_get_orders"
+    )
+
+    # Order.user is the per-order ownership field (separate from Customer.user),
+    # so users can claim or ignore older guest account_get_orders tied to the same email.
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="account_get_orders"
     )
 
     email = models.EmailField(

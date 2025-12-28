@@ -1,0 +1,135 @@
+# hr_access/views/account_get_orders.py
+
+from __future__ import annotations
+
+from django.contrib.auth.decorators import login_required
+from django.db.models import Prefetch
+from django.shortcuts import get_object_or_404, render
+from django.views.decorators.http import require_GET, require_POST
+from django.http import HttpResponse
+from django.db import transaction
+
+from hr_core.utils.email import normalize_email
+from hr_shop.models import Order, OrderItem
+
+
+@login_required
+@require_GET
+def account_get_orders(request):
+    email = normalize_email(getattr(request.user, "email", "") or "")
+
+    base_qs = (
+        Order.objects
+        .filter(user=request.user)
+        .select_related("shipping_address", "customer")
+        .prefetch_related(
+            Prefetch(
+                "items",
+                queryset=OrderItem.objects.select_related("variant", "variant__product"),
+            )
+        )
+        .order_by("-created_at")
+    )
+
+    order_list = list(base_qs[:21])
+
+    ctx = {
+        "account_get_orders": order_list[:20],
+        "has_more": len(order_list) > 20,
+        "unclaimed_count": (
+            Order.objects.filter(user__isnull=True, email__iexact=email).count()
+            if email else 0
+        ),
+    }
+
+    return render(request, "hr_access/orders/_orders_modal_body.html", ctx)
+
+
+@login_required
+@require_GET
+def account_get_order_receipt(request, order_id: int):
+    order = get_object_or_404(
+        Order.objects.select_related("customer", "shipping_address"),
+        id=order_id,
+        user=request.user,
+    )
+
+    items = order.items.select_related("variant", "variant__product").all()
+
+    return render(request, "hr_shop/checkout/_order_receipt_modal.html", {
+        "order": order,
+        "items": items,
+        "customer": order.customer,
+        "address": order.shipping_address,
+        "is_guest": False,
+    })
+
+
+@login_required
+@require_GET
+def account_get_unclaimed_orders(request):
+    email = normalize_email(getattr(request.user, "email", "") or "")
+
+    if not email:
+        return render(request, "hr_access/orders/_unclaimed_orders_modal.html", {
+            "email": "",
+            "account_get_orders": [],
+            "error": "No email address is associated with your account.",
+        })
+
+    unclaimed_orders = (
+        Order.objects
+        .filter(user__isnull=True, email__iexact=email)
+        .order_by("-created_at")[:50]
+    )
+
+    return render(request, "hr_access/orders/_unclaimed_orders_modal.html", {
+        "email": email,
+        "account_get_orders": unclaimed_orders,
+        "error": None,
+    })
+
+
+@login_required
+@require_POST
+def account_submit_claim_unclaimed_orders(request):
+    email = normalize_email(getattr(request.user, "email", "") or "")
+    if not email:
+        return HttpResponse(status=400)
+
+    raw_ids = request.POST.getlist("order_ids")
+    order_ids = [int(x) for x in raw_ids if str(x).isdigit()]
+
+    if not order_ids:
+        remaining = (
+            Order.objects
+            .filter(user__isnull=True, email__iexact=email)
+            .order_by("-created_at")[:50]
+        )
+        return render(request, "hr_access/orders/_unclaimed_orders_modal.html", {
+            "email": email,
+            "account_get_orders": remaining,
+            "error": "Select at least one order to claim.",
+            "claimed_count": 0,
+        })
+
+    with transaction.atomic():
+        qs = (
+            Order.objects
+            .select_for_update()
+            .filter(id__in=order_ids, user__isnull=True, email__iexact=email)
+        )
+        claimed_count = qs.update(user=request.user)
+
+    remaining = (
+        Order.objects
+        .filter(user__isnull=True, email__iexact=email)
+        .order_by("-created_at")[:50]
+    )
+
+    return render(request, "hr_access/orders/_unclaimed_orders_modal.html", {
+        "email": email,
+        "account_get_orders": remaining,
+        "error": None,
+        "claimed_count": claimed_count,
+    })

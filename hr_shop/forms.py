@@ -97,11 +97,13 @@ class CheckoutDetailsForm(forms.Form):
     unit = forms.CharField(required=False, max_length=64, label='Apt/Office/Unit')
 
     city = forms.CharField(required=True, max_length=255, label='City')
-    # subdivision = forms.CharField(required=True, max_length=100, label='State')
     subdivision = forms.ChoiceField(required=True, choices=US_STATES, label='State')
     postal_code = forms.CharField(required=True, max_length=25, label='Zip Code')
 
     note = forms.CharField(required=False, max_length=1000, widget=forms.Textarea(attrs={'rows': 8}), label='Note')
+
+    save_info_for_next_time = forms.BooleanField(required=False, initial=False, label='Save info for faster checkouts in the future')
+
 
     def clean(self):
         cleaned = super().clean()

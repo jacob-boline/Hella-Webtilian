@@ -1,8 +1,0 @@
-<button type="button"
-        class="btn btn-sm btn-danger"
-        hx-get="{% url 'hr_access:confirm_superuser_removal' user_id=user.id %}"
-        hx-target="#message-box-modal"
-        hx-swap="innerHTML"
-        hx-trigger="click">
-    Demote
-</button>

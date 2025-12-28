@@ -26,7 +26,7 @@
     <!-- Account settings -->
     <button
         class="sidebar-btn"
-        hx-get="{% url 'hr_access:password_change' %}"
+        hx-get="{% url 'hr_access:account_change_password' %}"
         hx-target="#modal-content"
         hx-swap="innerHTML transition:true"
     >
@@ -36,7 +36,7 @@
     <!-- Orders -->
     <button
         class="sidebar-btn"
-        hx-get="{% url 'hr_access:orders' %}"
+        hx-get="{% url 'hr_access:account_get_orders' %}"
         hx-target="#modal-content"
         hx-swap="innerHTML transition:true"
     >
@@ -48,7 +48,7 @@
     <!-- Logout -->
     <button
         class="sidebar-btn"
-        hx-post="{% url 'hr_access:logout' %}"
+        hx-post="{% url 'hr_access:auth_logout' %}"
         hx-target="#sidebar-access"
         hx-swap="innerHTML"
     >

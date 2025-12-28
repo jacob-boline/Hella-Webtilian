@@ -1,0 +1,73 @@
+{# hr_access/templates/hr_access/_orders_modal_body.html #}
+{# Partial: rendered into #modal-message-box via HTMX #}
+
+<div class="modal-panel orders-modal">
+  <h2 class="sub-header modal-title">My Orders</h2>
+
+  {% if unclaimed_count %}
+    <p class="orders-unclaimed-note">
+      <a
+        href="#"
+        class="orders-unclaimed-link"
+        hx-get="{% url 'hr_access:account_get_unclaimed_orders' %}"
+        hx-target="#modal-content"
+        hx-swap="innerHTML transition:true"
+        onclick="return false;">
+        There are unclaimed orders associated with this email.
+      </a>
+    </p>
+  {% endif %}
+
+  {% if orders %}
+    <div class="orders-list">
+      {% for order in orders %}
+        <article class="orders-summary-card">
+          <div class="orders-main">
+            <p class="orders-title">
+              Order #{{ order.id }}
+            </p>
+
+            <div class="orders-meta">
+              <span>{{ order.created_at|date:"M j, Y · g:i A" }}</span>
+              <span class="orders-status">{{ order.payment_status }}</span>
+              <span class="orders-status">{{ order.order_status }}</span>
+            </div>
+
+            {% if order.shipping_address %}
+              <p class="modal-text-faint">
+                Shipping to: {{ order.shipping_address }}
+              </p>
+            {% endif %}
+          </div>
+
+          <<div class="orders-actions">
+              <p class="orders-total">${{ order.total|floatformat:2 }}</p>
+
+              <button
+                type="button"
+                class="card-btn btn-neon btn-blue btn-sm"
+                hx-get="{% url 'hr_access:account_get_order_receipt' order.id %}"
+                hx-target="#modal-content"
+                hx-swap="innerHTML transition:true">
+                View
+              </button>
+            </div>
+        </article>
+      {% endfor %}
+    </div>
+
+    {% if has_more %}
+      <p class="modal-text-faint" style="margin-top: 0.75rem;">
+        Showing the 20 most recent orders.
+      </p>
+    {% endif %}
+  {% else %}
+    <p class="orders-empty">You don’t have any orders yet.</p>
+  {% endif %}
+
+  <div class="modal-actions stack uniform" style="margin-top: 1rem;">
+    <button type="button" class="card-btn btn-neon btn-blue" data-modal-close>
+      Close
+    </button>
+  </div>
+</div>

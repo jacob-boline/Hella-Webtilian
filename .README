@@ -10,9 +10,9 @@
 
  Bulletin: list (HTMX infinite) + detail
 
- Accounts: login (or magic link) + auto-link orders by email
+ Accounts: login (or magic link) + auto-link account_get_orders by email
 
- Dual-render helper + orders modal wired
+ Dual-render helper + account_get_orders modal wired
 
  Tests: the 6–8 listed
 

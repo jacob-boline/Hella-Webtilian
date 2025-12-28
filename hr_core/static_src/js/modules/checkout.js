@@ -1,12 +1,12 @@
 // hr_core/static_src/js/modules/checkout.js
 //
-// Checkout UI helpers:
+// Checkout UI helpers (single-provider Stripe Embedded Checkout):
 //  - checkout details form: show/hide unit field based on building type
-//  - checkout pay page: mount Stripe Embedded Checkout (when present)
+//  - checkout pay: mount Stripe Embedded Checkout when #checkout-pay-root exists
 //
 // Notes:
 //  - Safe to call repeatedly (idempotent guards).
-//  - Stripe globals are loaded on-demand if needed.
+//  - Stripe.js is loaded on-demand.
 
 /* global Stripe */
 
@@ -54,6 +54,7 @@ export function initCheckout(root = document) {
 
   if (!buildingSelect || !unitInput) return;
 
+  // unit input rendered by Django form_group -> wrapper is the field-group div
   const unitGroup = unitInput.closest(".field-group");
   if (!unitGroup) return;
 
@@ -84,7 +85,7 @@ export function initCheckout(root = document) {
  *        data-stripe-publishable-key="pk_..."
  *        data-client-secret=""  (optional)
  *        data-session-endpoint="/payment/checkout/stripe/session/<order_id>/">
- *     <div id="embedded-checkout"></div>
+ *     <div id="embedded-checkout" data-embedded-checkout></div>
  *   </div>
  *
  * Safe to call repeatedly; mounts once per pay root.
@@ -98,7 +99,7 @@ export async function initCheckoutPay(root = document) {
 
   if (!payRoot) return;
 
-  // If we've already mounted once, don't do it again.
+  // idempotent guard per pay root
   if (payRoot._checkoutPayInitDone) return;
   payRoot._checkoutPayInitDone = true;
 
@@ -111,38 +112,37 @@ export async function initCheckoutPay(root = document) {
     return;
   }
 
+  // Ensure mount node exists inside this root (avoid mounting into stale/global nodes)
   const mountEl =
-    payRoot.querySelector?.("#embedded-checkout") ||
-    payRoot.querySelector?.("[data-embedded-checkout]");
+    payRoot.querySelector?.("[data-embedded-checkout]") ||
+    payRoot.querySelector?.("#embedded-checkout");
 
   if (!mountEl) {
-    console.warn("checkout-pay: missing #embedded-checkout mount element");
+    console.warn("checkout-pay: missing embedded checkout mount element");
     return;
   }
 
-  // If we already mounted UI into this element somehow, stop.
-  // (Prevents weird remounts when modal open/close does not swap content.)
+  // If we already mounted into this element, stop.
   if (mountEl.dataset.stripeMounted === "1") return;
 
   try {
     await loadStripeJs();
   } catch (e) {
     console.error("checkout-pay: failed to load Stripe.js", e);
-    mountEl.innerHTML =
-      "<p class='muted'>Payment UI failed to load. Please refresh.</p>";
+    mountEl.innerHTML = "<p class='muted'>Payment UI failed to load. Please refresh.</p>";
     return;
   }
 
   const StripeCtor = window.Stripe;
   if (typeof StripeCtor !== "function") {
     console.warn("checkout-pay: Stripe.js loaded but window.Stripe is not a function");
-    mountEl.innerHTML =
-      "<p class='muted'>Payment UI failed to load. Please refresh.</p>";
+    mountEl.innerHTML = "<p class='muted'>Payment UI failed to load. Please refresh.</p>";
     return;
   }
 
   const stripe = StripeCtor(pk);
 
+  // Stripe recommends fetchClientSecret so it can refetch when needed.
   const fetchClientSecret = async () => {
     if (existingClientSecret) return existingClientSecret;
 
@@ -182,29 +182,10 @@ export async function initCheckoutPay(root = document) {
 
 /**
  * Convenience init for meta-init: runs BOTH checkout details + checkout pay behavior.
+ * Safe to call repeatedly; each sub-init has its own guards.
  */
 export function initCheckoutModule(root = document) {
   initCheckout(root);
+  // don't await; it is internally guarded and will self-handle load timing
   initCheckoutPay(root);
-
-  // Optional: if ui-global exposes hrModal.close, clear mount guards on modal close.
-  // This helps if you close the modal without swapping (some flows do).
-  // Safe no-op if hrSite/hrModal isn't present.
-  if (!window.hrSite) window.hrSite = {};
-  if (!window.hrSite._checkoutModalHooked) {
-    window.hrSite._checkoutModalHooked = true;
-
-    document.addEventListener("click", (e) => {
-      const closer = e.target.closest?.("[data-modal-close], .modal-backdrop");
-      if (!closer) return;
-
-      const pr = document.getElementById("checkout-pay-root");
-      if (pr) {
-        // allow re-init if reopened without fresh swap
-        delete pr._checkoutPayInitDone;
-        const mount = pr.querySelector?.("#embedded-checkout");
-        if (mount) mount.dataset.stripeMounted = "0";
-      }
-    });
-  }
 }

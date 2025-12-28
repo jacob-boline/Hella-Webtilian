@@ -1,3 +1,5 @@
+# hr_payment/apps.py
+
 from django.apps import AppConfig
 
 

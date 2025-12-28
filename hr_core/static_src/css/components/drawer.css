@@ -1,8 +1,24 @@
 /* hr_site/static/drawer.css */
 
 
+/* ===========================
+   Sidebar access container
+   =========================== */
+
 #sidebar-access {
-    margin-top: 3rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+
+    /* This is the big fix: allow the flex child to shrink so overflow works */
+    flex: 1 1 auto;
+    min-height: fit-content;
+
+    overflow-x: hidden;
+
+    /* Don't "push down" the whole panel with margin, use padding instead */
+    margin-top: 0;
+    padding-top: 1rem;
 }
 
 #sidebar-access h2 {
@@ -12,6 +28,7 @@
 #login-form .field-group {
     margin-bottom: 1rem;
 }
+
 
 /* ===========================
    Audio / Banner hook
@@ -24,6 +41,7 @@
     background-color: transparent;
     transition:       all 2s ease-in-out;
 }
+
 
 /* ===========================
    Drawer navigation panel
@@ -38,7 +56,15 @@
 
     display:          flex;
     flex-direction:   column;
-    align-items:      center;
+
+    /* IMPORTANT: make it a real sidebar, not centered "cards" */
+    align-items:      stretch;
+    justify-content:  flex-start;
+
+    box-sizing:       border-box;
+
+    /* IMPORTANT: keeps the drawer stable and lets #sidebar-access scroll */
+    overflow:         hidden;
 
     width:            100vw;
     height:           calc(var(--vh) * 100);
@@ -70,10 +96,19 @@
     transform: translateX(0);
 }
 
+/* Bandcamp iframe: give it a predictable slot, don't let it dominate */
 #drawer-navigation iframe {
-  width: auto;
-  height: 100%;
+    width: 100%;
+    max-width: 100%;
+    flex: 0 0 auto;
+
+    height: auto;
+    /*max-height: 45vh;*/
+
+    border: 0;
+    margin-top: 5vh;
 }
+
 
 /* ===========================
    Drawer / open-button controls
@@ -104,7 +139,15 @@
     border:           none;
     margin-top:       0.5rem;
     margin-left:      0.0625rem;
-    align-self:       start;
+
+    /* IMPORTANT: keep it in the drawer flow and aligned left */
+    align-self:       flex-start;
+    flex:             0 0 auto;
+
+    /* Optional: pin it while sidebar scrolls */
+    position:         sticky;
+    top:              0.5rem;
+    z-index:          2;
 }
 
 #nav-close-btn,
@@ -118,11 +161,10 @@
                    color 0.2s ease,
                    opacity 1s ease-in;
     border-radius: 50%;
-    padding:     1.5rem;
+    padding:       1.5rem;
 }
 
 #nav-open-btn {
-
     opacity:     0;
     transition:  opacity 1s ease-in;
     margin-top:  calc(1.5rem + 12px);
@@ -143,21 +185,16 @@
 
 /* honour dark mode – keep the same hover behaviour there */
 @media (prefers-color-scheme: dark) {
-    /*#drawer-navigation button {*/
-    /*    color: #FFF;*/
-    /*    transition: color 0.125s ease-in-out;*/
-    /*}*/
-
-    /*#drawwer-navigation button:hover {*/
-    /*    color: aquamarine;*/
-    /*    transition: color 0.125s ease-in-out;*/
-    /*}*/
-
      #drawer-navigation .sidebar-btn:hover {
          color: darkorange;
          transition: all 0.125s ease-in-out;
      }
 }
+
+
+/* ===========================
+   Cart button inside drawer
+   =========================== */
 
 .card-count-badge {
     background: #00eaff;
@@ -177,6 +214,7 @@
 /*    background-color: transparent;*/
 /*    color: white;*/
 /*}*/
+
 .cart-btn {
     display: inline-flex;
     align-items: center;
@@ -220,7 +258,6 @@
     background-color: rgba(0, 0, 0, 0.75);
 }
 
-
 /* neon count badge */
 .cart-count-badge {
     background: #00eaff;
@@ -237,5 +274,3 @@
 
     display: none; /* JS will flip to inline-flex when count > 0 */
 }
-
-

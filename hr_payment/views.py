@@ -1,17 +1,29 @@
 # hr_payment/views.py
+#
+# NOTE: This is your “single provider” Stripe-only views.py as pasted,
+# with one targeted improvement:
+# - amount_cents uses Decimal-safe quantization to avoid rounding edge cases.
+from decimal import Decimal, ROUND_HALF_UP
+from urllib.parse import quote
 
 import stripe
-
 from django.conf import settings
 from django.db import transaction
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
+from hr_payment.models import PaymentAttempt, PaymentAttemptStatus
+from hr_payment.models import WebhookEvent
 from hr_shop.models import Order, PaymentStatus
-from hr_payment.models import WebhookEvent, PaymentAttempt, PaymentAttemptStatus
+from hr_shop.utils.receipts import make_order_receipt_token
+
+
+def _make_order_receipt_token(order: Order) -> str:
+    return make_order_receipt_token(order_id=order.id, email=order.email)
 
 
 @require_POST
@@ -33,14 +45,10 @@ def checkout_stripe_session(request, order_id: int):
     if not order.total or order.total <= 0:
         return JsonResponse({"error": "Order total must be > 0."}, status=400)
 
-    # 1) Reuse existing open session from the *latest non-final* attempt if possible
+    # 1) Reuse existing open session from the latest non-final attempt if possible
     existing_attempt = (
         PaymentAttempt.objects
-        .filter(
-            order=order,
-            status__in=[PaymentAttemptStatus.CREATED, PaymentAttemptStatus.PENDING],
-            provider="stripe",
-        )
+        .filter(order=order, status__in=[PaymentAttemptStatus.CREATED, PaymentAttemptStatus.PENDING])
         .order_by("-created_at")
         .first()
     )
@@ -49,14 +57,12 @@ def checkout_stripe_session(request, order_id: int):
         try:
             sess = stripe.checkout.Session.retrieve(existing_attempt.provider_session_id)
             if sess and sess.get("status") == "open" and sess.get("client_secret"):
-                # keep our attempt fresh (optional)
                 if existing_attempt.client_secret != sess.get("client_secret"):
                     existing_attempt.client_secret = sess.get("client_secret")
                     existing_attempt.raw = sess
                     existing_attempt.status = PaymentAttemptStatus.PENDING
                     existing_attempt.save(update_fields=["client_secret", "raw", "status", "updated_at"])
 
-                # Keep pointer on order (optional but handy)
                 if order.stripe_checkout_session_id != sess.get("id"):
                     order.stripe_checkout_session_id = sess.get("id")
                     if order.payment_status != PaymentStatus.PENDING:
@@ -69,11 +75,16 @@ def checkout_stripe_session(request, order_id: int):
                     "reused": True,
                 })
         except Exception:
-            # If retrieval fails, we fall through and create a fresh attempt/session
             pass
 
-    # 2) Create a new attempt + session (atomic so attempt definitely exists for webhook mapping)
-    amount_cents = int(order.total * 100)
+    # 2) Create a new attempt + session (atomic so attempt exists for webhook mapping)
+    amount_cents = int((order.total * Decimal("100")).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
+
+    attach_customer = False
+    if getattr(request, "user", None) and request.user.is_authenticated:
+        attach_customer = True
+    if request.session.get("wants_saved_info") is True:
+        attach_customer = True
 
     with transaction.atomic():
         attempt = PaymentAttempt.objects.create(
@@ -84,14 +95,20 @@ def checkout_stripe_session(request, order_id: int):
             currency="usd",
         )
 
-        # Create embedded checkout session
-        return_url = settings.SITE_URL + f"/shop/order/thank-you/{order.id}/"  # or reverse
+        # quote token for URL-escaped characters
+        token = quote(_make_order_receipt_token(order))
+        # token passed back from stripe payment endpoint and used to look up order and open thank you page
+        return_url = (
+            settings.SITE_URL +
+            f"/?modal=order_thank_you&order_id={order.id}&t={token}" +
+            "#parallax-section-shows"
+        )
 
-        sess = stripe.checkout.Session.create(
-            ui_mode="embedded",
-            mode="payment",
-            payment_method_types=["card"],
-            line_items=[{
+        session_kwargs = {
+            "ui_mode": "embedded",
+            "mode": "payment",
+            "payment_method_types": ["card"],
+            "line_items": [{
                 "price_data": {
                     "currency": "usd",
                     "product_data": {"name": f"Hella Reptilian Order #{order.id}"},
@@ -99,12 +116,21 @@ def checkout_stripe_session(request, order_id: int):
                 },
                 "quantity": 1,
             }],
-            metadata={
+            "metadata": {
                 "order_id": str(order.id),
                 "payment_attempt_id": str(attempt.id),
             },
-            return_url=return_url,
-        )
+            "return_url": return_url,
+        }
+
+        if attach_customer:
+            stripe_customer_id = _get_or_create_stripe_customer_id(customer=order.customer, email=order.email)
+            session_kwargs["customer"] = stripe_customer_id
+            session_kwargs["customer_update"] = {"address": "auto", "shipping": "auto"}
+        else:
+            session_kwargs["customer_email"] = order.email
+
+        sess = stripe.checkout.Session.create(**session_kwargs)
 
         attempt.provider_session_id = sess.get("id")
         attempt.client_secret = sess.get("client_secret")
@@ -112,7 +138,6 @@ def checkout_stripe_session(request, order_id: int):
         attempt.status = PaymentAttemptStatus.PENDING
         attempt.save(update_fields=["provider_session_id", "client_secret", "raw", "status", "updated_at"])
 
-        # Keep fast pointers on Order (Order remains the "summary", PaymentAttempt is the audit trail)
         order.stripe_checkout_session_id = sess.get("id")
         if order.payment_status != PaymentStatus.PENDING:
             order.payment_status = PaymentStatus.PENDING
@@ -146,7 +171,7 @@ def stripe_webhook(request):
     obj, created = WebhookEvent.objects.get_or_create(
         event_id=event["id"],
         defaults={
-            "type": event.get("type", ""),
+            "type":    event.get("type", ""),
             "payload": event,
         },
     )
@@ -169,6 +194,21 @@ def stripe_webhook(request):
         return HttpResponse(status=500)
 
     return HttpResponse(status=200)
+
+
+def _get_or_create_stripe_customer_id(*, customer, email: str) -> str:
+    if customer.stripe_customer_id:
+        return customer.stripe_customer_id
+
+    stripe_customer = stripe.Customer.create(
+        email=email,
+        name=(customer.full_name or None),
+        metadata={'hr_customer_id': str(customer.id)}
+    )
+
+    customer.stripe_customer_id = stripe_customer['id']
+    customer.save(update_fields=['stripe_customer_id', 'updated_at'])
+    return stripe_customer['id']
 
 
 def _process_stripe_event(event: dict) -> None:

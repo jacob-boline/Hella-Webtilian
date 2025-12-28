@@ -1,0 +1,52 @@
+{# hr_access/templates/hr_access/post_purchase/_post_purchase_account_form.html #}
+{% load form_group %}
+
+<div id="post-purchase-account" class="post-purchase-account">
+    <div class="modal-state">
+        <h3 class="modal-title">Create your account</h3>
+        <p class="modal-text-muted">
+            Your purchase will be listed under Orders in your new account.
+        </p>
+
+        {# Email is locked to the order email for this flow. Show it as text, not an editable field. #}
+{#        <div class="field-group">#}
+{#            <label class="field-label">Email</label>#}
+{#            <span class="field-readonly">#}
+{#                <strong>{{ order.email }}</strong>#}
+{#            </span>#}
+{#            <p class="field-help">#}
+{#                This email is already tied to this order and can’t be changed here.#}
+{#            </p>#}
+{#        </div>#}
+
+        <form
+            method="post"
+            class="form"
+            hx-post="{% url 'hr_access:account_submit_post_purchase_create_account' order.id %}"
+            hx-target="#modal-content"
+            hx-swap="innerHTML transition:true">
+
+            {% csrf_token %}
+
+            {% include 'hr_common/_non_field_errors.html' %}
+
+            {# Keep email in the form for validation plumbing, but don’t render it as an input. #}
+            {# If your form_group helper supports hidden fields, this is safe. Otherwise just render {{ form.email.as_hidden }}. #}
+            {% if form.email %}
+                {{ form.email.as_hidden }}
+            {% endif %}
+
+            {% form_group form.username label='Username' %}
+            {% form_group form.password label='Password' %}
+
+            <div class="modal-actions stack uniform">
+                <button type="submit" class="card-btn btn-neon btn-green">
+                    Create Account
+                </button>
+                <button type="button" class="card-btn btn-neon btn-yellow" data-modal-close>
+                    Not now
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

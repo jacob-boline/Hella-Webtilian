@@ -27,6 +27,9 @@ ORDER_RECEIPT_SALT = "order-receipt"
 DEFAULT_CHECKOUT_TOKEN_MAX_AGE = 60 * 60           # 1 hour
 DEFAULT_RECEIPT_TOKEN_MAX_AGE = 60 * 60 * 24 * 14  # 14 days
 
+ACCOUNT_SIGNUP_SALT = 'account-signup-confirmation'
+DEFAULT_ACCOUNT_SIGNUP_TOKEN_MAX_AGE = 60 * 60 * 24
+
 
 # ============================================================
 # Internal helpers (shared engine)
@@ -53,6 +56,32 @@ def _verify_token(token: str, *, salt: str, max_age: int) -> dict | None:
 # ============================================================
 # Checkout email confirmation tokens
 # ============================================================
+
+
+def generate_account_signup_token(user_id: int, email: str) -> str:
+    payload = {
+        "user_id": int(user_id),
+        "email": normalize_email(email),
+    }
+    return _generate_token(payload, salt=ACCOUNT_SIGNUP_SALT)
+
+
+def verify_account_signup_token(
+    token: str,
+    max_age: int = DEFAULT_ACCOUNT_SIGNUP_TOKEN_MAX_AGE,
+) -> dict | None:
+    data = _verify_token(
+        token,
+        salt=ACCOUNT_SIGNUP_SALT,
+        max_age=max_age,
+    )
+    if not data:
+        return None
+    if "user_id" not in data or "email" not in data:
+        return None
+    return data
+
+
 
 def generate_checkout_email_token(email: str, draft_id: int) -> str:
     """

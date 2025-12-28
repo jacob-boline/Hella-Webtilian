@@ -1,15 +1,38 @@
-{% block content %}
-    <section class="order-thank-you">
-    <h1>Thank you for your order!</h1>
-        <p>Your order <strong>#{{ order.id }}</strong> has been received.</p>
+{# hr_shop/templates/hr_shop/checkout/_order_thank_you.html #}
 
-        {% if order.email %}
-            <p>We'll send a confirmation to <strong>{{ order.email }}</strong> with your order details.</p>
-        {% endif %}
 
-        {% if order.total %}
-            <p class="order-total">Order total: ${{ order.html }}</p>
-        {% endif %}
+<div class="modal-state order-thank-you">
+    <h1 class="modal-title">Thank you for your order!</h1>
 
-    </section>
-{% endblock %}
+    <p class="modal-text-muted">
+        Your order has been received.
+    </p>
+
+    {% if order.email %}
+        <p class="modal-text-muted">
+            We’ll send a confirmation to <strong>{{ order.email }}</strong> with your order details.
+        </p>
+    {% endif %}
+
+    {% if order.total %}
+        <p class="orders-total">
+            Order total: ${{ order.total|floatformat:2 }}
+        </p>
+    {% endif %}
+
+    {% if not request.user.is_authenticated %}
+        <div id="post-purchase-account" class="post-purchase-account">
+            <div class="modal-actions stack uniform">
+                <button
+                        type="button"
+                        class="card-btn btn-neon btn-blue btn-sm"
+                        hx-get="{% url 'hr_access:account_get_post_purchase_create_account' order.id %}"
+                        hx-target="#modal-content"
+                        hx-swap="outerHTML transition:true">
+                    Create Account
+                </button>
+            </div>
+        </div>
+    {% endif %}
+</div>
+

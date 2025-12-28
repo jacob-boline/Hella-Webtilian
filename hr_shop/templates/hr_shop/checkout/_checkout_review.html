@@ -101,7 +101,9 @@
         <button
             type="button"
             class="card-btn btn-neon btn-green"
-            hx-post="{% url 'hr_shop:checkout_create_order' %}">
+            hx-post="{% url 'hr_shop:checkout_create_order' %}"
+            hx-target="#modal-content"
+            hx-swap="innerHTML transition:true">
             <i class="fas fa-lock"></i> Proceed to Payment
         </button>
 

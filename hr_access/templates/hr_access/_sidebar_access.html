@@ -3,5 +3,5 @@
 {% if request.user.is_authenticated %}
     {% include 'hr_access/_user_panel.html' %}
 {% else %}
-    {% include 'hr_access/registration/_login.html' %}
+    {% include 'hr_access/registration/_login.html' with form=authentication_form %}
 {% endif %}

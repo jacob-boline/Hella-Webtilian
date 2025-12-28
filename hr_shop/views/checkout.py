@@ -1,5 +1,11 @@
 # hr_shop/views/checkout.py
-
+#
+# NOTE: This is your file with ONLY the “single provider” simplification applied:
+# - Removed hr_payment.providers import + usage
+# - Stopped creating Stripe sessions during order creation
+#
+# Everything else is preserved as-is from what you pasted.
+import json
 import logging
 from datetime import timedelta
 from decimal import Decimal
@@ -8,7 +14,7 @@ from typing import Dict, Any
 from django.conf import settings
 from django.contrib import messages
 from django.core.cache import cache
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -32,12 +38,14 @@ from hr_shop.services.email_confirmation import (
 )
 
 from hr_shop.views.cart import view_cart
+from hr_shop.utils.receipts import verify_order_receipt_token
 
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _get_last_confirmation_sent_at(email: str):
     return cache.get(("checkout_confirm_sent_at", normalize_email(email)))
@@ -52,6 +60,7 @@ def _render_checkout_awaiting_confirmation(
         sent_at=None,
         error: bool = False
 ):
+    # Check cache for last-known timestamp if caller didn't pass sent_at
     if sent_at is None and not error:
         sent_at = _get_last_confirmation_sent_at(email)
 
@@ -106,6 +115,7 @@ def _get_or_create_address_from_form(form: CheckoutDetailsForm) -> Address:
         postal_code=form.cleaned_data["postal_code"].strip(),
         country="United States",
     )
+    # Requires AddressManager.get_or_create_by_components + fingerprint field on Address
     address, _created = Address.objects.get_or_create_by_components(**components)
     return address
 
@@ -120,6 +130,7 @@ def _get_or_create_customer(email: str, user, form: CheckoutDetailsForm) -> Cust
             "last_name": form.cleaned_data["last_name"].strip(),
             "suffix": form.cleaned_data.get("suffix", "").strip() or None,
             "phone": form.cleaned_data.get("phone") or None,
+            "wants_saved_info": form.cleaned_data["save_info_for_next_time"]
         },
     )
 
@@ -273,6 +284,8 @@ def _get_or_create_active_draft(*, customer, email, address, note, cart_payload)
             )
             return draft
     except IntegrityError:
+        # Rare race: two requests create at the same time, one loses.
+        # Just fetch the winner and update it.
         with transaction.atomic():
             draft = CheckoutDraft.objects.select_for_update().get(
                 customer=customer,
@@ -283,12 +296,15 @@ def _get_or_create_active_draft(*, customer, email, address, note, cart_payload)
             draft.save(update_fields=list(defaults.keys()))
             return draft
 
+
 # ---------------------------------------------------------------------------
 # Views
 # ---------------------------------------------------------------------------
 
+
 @require_GET
 def checkout_details(request):
+
     ctx = _get_checkout_context(request)
     customer = None
     addr = None
@@ -298,6 +314,7 @@ def checkout_details(request):
         customer = ctx["customer"]
         addr = ctx["address"]
         note = ctx.get("note") or ""
+
     else:
         user = getattr(request, "user", None)
         if user and user.is_authenticated:
@@ -343,11 +360,14 @@ def checkout_details_submit(request):
     address = _get_or_create_address_from_form(form)
     note = (form.cleaned_data.get("note") or "").strip()
 
+    # Save checkout context in session
     request.session["checkout_customer_id"] = customer.id
     request.session["checkout_address_id"] = address.id
     request.session["checkout_note"] = note
+    request.session["wants_saved_info"] = customer.wants_saved_info
     request.session.modified = True
 
+    # Update customer default shipping link atomically
     with transaction.atomic():
         CustomerAddress.objects.select_for_update().filter(customer=customer)
         CustomerAddress.objects.filter(customer=customer, is_default_shipping=True).update(is_default_shipping=False)
@@ -357,6 +377,7 @@ def checkout_details_submit(request):
             defaults={"is_default_shipping": True},
         )
 
+    # Create/update an active draft
     draft = _get_or_create_active_draft(
         customer=customer,
         email=customer.email,
@@ -372,7 +393,7 @@ def checkout_details_submit(request):
         send_checkout_confirmation_email(
             request=request,
             email=email,
-            draft_id=draft.id,
+            draft_id=draft.id,  # requires token/service support
         )
     except RateLimitExceeded:
         return render(request, "hr_shop/checkout/_checkout_awaiting_confirmation.html", {
@@ -427,26 +448,32 @@ def email_confirmation_process_response(request, token: str):
             return redirect("hr_shop:checkout_details")
 
         if not draft.is_valid():
+            # If an order already exists, don't block: take them to receipt.
             if draft.order_id:
                 return redirect("hr_shop:order_thank_you", order_id=draft.order_id)
 
             messages.warning(request, "This checkout link expired. Please restart checkout.")
             return redirect("hr_shop:checkout_details")
 
+        # Mark confirmed AFTER we know draft is legit and email matches it
         ConfirmedEmail.mark_confirmed(norm_email)
 
+        # Idempotent mark-used
         if draft.used_at is None:
             draft.used_at = now
             draft.save(update_fields=["used_at"])
 
+        # If they already made an order, this click should just send them there.
         if draft.order_id:
             return redirect("hr_shop:order_thank_you", order_id=draft.order_id)
 
+        # Restore session context
         request.session["checkout_customer_id"] = draft.customer_id
         request.session["checkout_address_id"] = draft.address_id
         request.session["checkout_note"] = draft.note or ""
         request.session.modified = True
 
+        # Restore cart only if empty
         existing_cart = request.session.get(CART_SESSION_KEY) or {}
         if not existing_cart:
             _restore_cart_from_draft(request, draft)
@@ -462,6 +489,7 @@ def email_confirmation_status(request):
     if not ctx:
         return render(request, "hr_shop/checkout/_checkout_session_expired.html")
 
+    # Use the same rules as checkout (authenticated users count too)
     if is_email_confirmed_for_checkout(request, ctx["customer"].email):
         return _render_checkout_review(request)
 
@@ -557,6 +585,7 @@ def checkout_create_order(request):
         return redirect("hr_shop:checkout_review")
 
     with transaction.atomic():
+        # Lock the most recent usable draft for this customer
         draft = (
             CheckoutDraft.objects
             .select_for_update()
@@ -575,6 +604,7 @@ def checkout_create_order(request):
             return HttpResponse(status=204, headers={"HX-Redirect": redirect_url})
 
         order = Order.objects.create(
+            user=request.user if request.user.is_authenticated else None,
             customer=customer,
             email=normalize_email(customer.email),
             shipping_address=shipping_address,
@@ -604,37 +634,67 @@ def checkout_create_order(request):
         order.total = subtotal + tax + shipping
         order.save(update_fields=["total", "updated_at"])
 
+        # Link the draft to the order for idempotency
         if draft:
             draft.order = order
             draft.used_at = timezone.now()
             draft.save(update_fields=["order", "used_at"])
 
-    # IMPORTANT:
-    # Do NOT create a Stripe session here.
-    # Embedded Checkout session creation is done by hr_payment.checkout_stripe_session
-    # (called by the pay modal JS). That endpoint is idempotent and will reuse/open sessions.
+    # IMPORTANT: Do NOT create Stripe sessions here.
+    # Embedded Checkout session creation is driven by the pay UI via:
+    #   POST hr_payment:checkout_stripe_session(order.id)
+
     pay_url = reverse('hr_shop:checkout_pay', args=[order.id])
 
     if request.headers.get('HX-Request') == 'true':
-        return HttpResponse(status=204, headers={'HX-Redirect': pay_url})
-    return redirect(pay_url)
+        return render(request, 'hr_shop/checkout/_checkout_pay.html', {
+            'order': order,
+            'stripe_publishable_key': settings.STRIPE_PUBLIC_KEY,
+            'client_secret': ''
+        })
+    return redirect(pay_url, order.id)
 
 
 @require_GET
 def order_thank_you(request, order_id: int):
     order = get_object_or_404(Order, pk=order_id)
 
+    # Authorization
+    if request.user.is_authenticated and getattr(order, 'user_id', None) == request.user.id:
+        allowed = True
+    else:
+        token = request.GET.get('t') or ""
+        allowed = verify_order_receipt_token(token, order_id=order.id, email=order.email)
+
+    if not allowed:
+        return HttpResponse("Not authorized to view this receipt.", status=403)
+
+    cart_was_cleared = False
+
+    # Only clear cart + checkout session keys once payment is actually PAID
     if order.payment_status == PaymentStatus.PAID:
         _clear_cart(request)
-        for k in ('checkout_customer_id', 'checkout_address_id', 'checkout_note'):
+        for k in ('checkout_customer_id', 'checkout_address_id', 'checkout_auto'):
             request.session.pop(k, None)
         request.session.modified = True
+        cart_was_cleared = True
 
-    return render(request, "hr_shop/checkout/_order_thank_you.html", {"order": order})
+    response = render(request, 'hr_shop/checkout/_order_thank_you.html', {'order': order})
+
+    # If this is being loaded via HTMX into the modal, update cart badges everywhere.
+    # (events.js listens for "updateCart" on document.body and updates both sidebar + floating badge.)
+    if cart_was_cleared:
+        response.headers['HX-Trigger'] = json.dumps({
+            "updateCart": {"count": 0}
+        })
+
+    return response
 
 
 @require_GET
 def checkout_resume(request):
+    """When a user clicks on the cart button, identify the user's current point in the checkout flow and load the corresponding modal"""
+
     cart = get_cart(request)
     if not cart or len(cart) == 0:
         return view_cart(request)

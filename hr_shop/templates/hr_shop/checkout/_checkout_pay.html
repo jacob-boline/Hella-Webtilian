@@ -1,8 +1,5 @@
 {# hr_shop/templates/hr_shop/checkout/_checkout_pay.html #}
-
 <div class="checkout-pay-modal">
-  <h2 class="review-title">Payment</h2>
-
   <div id="checkout-pay-root"
        data-stripe-publishable-key="{{ stripe_publishable_key }}"
        data-session-endpoint="{% url 'hr_payment:checkout_stripe_session' order.id %}"

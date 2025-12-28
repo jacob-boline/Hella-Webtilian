@@ -1,4 +1,4 @@
-# hr_access/views/orders.py
+# hr_access/views/account_get_orders.py
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
@@ -14,7 +14,7 @@ PER_PAGE = 20
 
 def _orders_queryset_for_user(user):
     """
-    Return a queryset of orders visible to this authenticated user.
+    Return a queryset of account_get_orders visible to this authenticated user.
 
     Visibility rule:
     - Orders tied to any Customer rows related to the user OR matching email
@@ -52,24 +52,24 @@ def _paginate(qs, *, page: int, per: int):
 @login_required
 def orders(request):
     """
-    First page of orders, rendered into a modal partial.
+    First page of account_get_orders, rendered into a modal partial.
     """
     qs = _orders_queryset_for_user(request.user)
 
     rows, has_more = _paginate(qs, page=1, per=PER_PAGE)
 
     ctx = {
-        "orders": rows,
+        "account_get_orders": rows,
         "has_more": has_more,
         "page": 1
     }
-    return render(request, "hr_access/_orders_modal.html", ctx)
+    return render(request, "hr_access/orders/_orders_modal.html", ctx)
 
 
 @login_required
 def orders_page(request, n: int):
     """
-    Subsequent pages of orders.
+    Subsequent pages of account_get_orders.
     """
     qs = _orders_queryset_for_user(request.user)
 
@@ -77,11 +77,11 @@ def orders_page(request, n: int):
     rows, has_more = _paginate(qs, page=page, per=PER_PAGE)
 
     ctx = {
-        "orders": rows,
+        "account_get_orders": rows,
         "has_more": has_more,
         "page": page
     }
-    return render(request, "hr_access/_orders_modal.html", ctx)
+    return render(request, "hr_access/orders/_orders_modal.html", ctx)
 
 
 @login_required
@@ -100,7 +100,7 @@ def order_detail_modal(request, order_id: int):
 
     order = get_object_or_404(qs, pk=order_id)
 
-    return render(request, "hr_access/_order_detail_modal.html", {"order": order})
+    return render(request, "hr_access/orders/_order_detail_modal.html", {"order": order})
 
 
 def order_receipt_view(request, token: str):

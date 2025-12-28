@@ -1,180 +1,268 @@
 // hr_site/static/hr_site/js/ui-global.js
 //
-// UI primitives (things that directly implement that bavior of UI components) -- modal, messages, drawer,etc.
+// UI primitives (things that directly implement the behavior of UI components) -- modal, messages, drawer, etc.
+//
+// Also includes "Option A" landing-modal bootstrapping:
+//   - /?modal=email_confirmed -> loads email confirmation success partial into modal
+//   - /?modal=order_thank_you&order_id=...&t=... -> loads thank-you partial into modal
+//
+// Option B (recommended long-term; implementation notes):
+//   Instead of encoding modal intent into query params, do a "hash route" + single loader:
+//
+//     1) Stripe return_url -> SITE_URL + "/#thank-you?order_id=123&t=SIGNED"
+//     2) On page load, ui-global.js checks location.hash, parses #thank-you,
+//        then sets hx-get on #modal-loader and triggers hr:loadModal.
+//     3) After load, clean the hash with history.replaceState to avoid re-trigger on refresh.
+//
+//   Pros:
+//     - avoids query-string collisions with other links
+//     - keeps "modal routing" in one predictable place (hash)
+//     - generally friendlier to caching/CDNs and "shareable" URLs
+//
+// Cart badge updates:
+//   - The server is the authority. When order_thank_you clears cart, it should set:
+//       HX-Trigger: {"updateCart": {"count": 0}}
+//     events.js already listens for updateCart and updates both sidebar + floating badge.
+//   - Client does NOT guess cart state; it only reacts to server events.
 
 (function () {
-    function initGlobalUI() {
-        const modalEl = document.getElementById('modal');
-        const modalContent = document.getElementById('modal-content');
-        const modalMsg = document.getElementById('modal-message-box');
+  function initGlobalUI() {
+    const modalEl = document.getElementById("modal");
+    const modalContent = document.getElementById("modal-content");
+    const modalMsg = document.getElementById("modal-message-box");
 
-        const messageBar = document.getElementById('global-message-bar');
-        const messageText = document.getElementById('global-message-content');
+    const messageBar = document.getElementById("global-message-bar");
+    const messageText = document.getElementById("global-message-content");
 
-        function showGlobalMessage(text, timeoutMs = 1000) {
-            if (!messageBar || !messageText) return;
+    function showGlobalMessage(text, timeoutMs = 1000) {
+      if (!messageBar || !messageText) return;
 
-            messageText.textContent = text || '';
-            messageBar.classList.add('is-visible');
+      messageText.textContent = text || "";
+      messageBar.classList.add("is-visible");
 
-            window.setTimeout(() => {
-                messageBar.classList.remove('is-visible');
-            }, timeoutMs);
-        }
-
-        function openModal() {
-            if (!modalEl) return;
-            modalEl.classList.remove('hidden');
-            modalEl.setAttribute('aria-hidden', 'false');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function hideModal() {
-            if (!modalEl) return;
-
-            const navOpenBtn = document.getElementById('nav-open-btn');
-            if (navOpenBtn) navOpenBtn.classList.remove('hidden');
-
-            modalEl.classList.add('hidden');
-            modalEl.setAttribute('aria-hidden', 'true');
-            document.body.style.overflow = '';
-
-            if (modalContent) modalContent.replaceChildren();
-            if (modalMsg) modalMsg.replaceChildren();
-        }
-        
-        // Backdrop close
-        if (modalEl) {
-            document.addEventListener('click', (e) => {
-                const backdrop = e.target.closest('.modal-backdrop');
-                const closer = e.target.closest('[data-modal-close]');
-                if (!backdrop && !closer) return;
-
-                e.preventDefault();
-                hideModal();
-            });
-
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && !modalEl.classList.contains('hidden')) {
-                    hideModal();
-                }
-            });
-        }
-
-        // Modal open on swap
-        if (modalEl && (modalContent || modalMsg)) {
-            function isModalSwapTarget(target) {
-                // HTMX event target is the swap target element
-                return (
-                    target === modalContent ||
-                    target === modalMsg ||
-                    target?.id === 'modal-content' ||
-                    target?.id === 'modal-message-box'
-                );
-            }
-
-            document.addEventListener('htmx:afterSwap', (e) => {
-                const target = e.target;
-                if (!target) return;
-
-                // Only open when modal's swap targets get content
-                if (!isModalSwapTarget(target)) return;
-
-                openModal();
-            });
-
-            // Cancel swap for empty/204 responses ONLY when swapping into modal-content/message-box
-            document.addEventListener('htmx:beforeSwap', (e) => {
-                const target = e.target;
-                if (!target) return;
-
-                if (!isModalSwapTarget(target)) return;
-
-                const detail = e.detail || {};
-                const xhr = detail.xhr;
-
-                // If swap is already disabled (hx-swap="none"), don't touch anything
-                if (detail.shouldSwap === false) return;
-
-                const isEmpty =
-                    (xhr && xhr.status === 204) ||
-                    !detail.serverResponse ||
-                    detail.serverResponse.trim() === '';
-
-                if (isEmpty) {
-                    // Important: cancel the swap, but DON'T auto-close the modal
-                    // Empty responses can be legit "no change" signals.
-                    detail.shouldSwap = false;
-                    return;
-                }
-
-                modalEl.classList.add('is-swapping');
-            });
-
-            document.addEventListener('htmx:afterSettle', (e) => {
-                const target = e.target;
-                if (!target) return;
-
-                if (!isModalSwapTarget(target)) return;
-                modalEl.classList.remove('is-swapping');
-            });
-        }
-
-
-        // Drawer navigation
-        function initDrawer() {
-            const drawer = document.getElementById('drawer-navigation');
-            const openBtn = document.getElementById('nav-open-btn');
-            const closeBtn = document.getElementById('nav-close-btn');
-
-            if (!drawer || !openBtn) return;
-
-            const openDrawer = () => {
-                drawer.classList.add('show');
-                openBtn.classList.add('hidden');
-            };
-
-            const closeDrawer = () => {
-                drawer.classList.remove('show');
-                openBtn.classList.remove('hidden');
-            };
-
-            openBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                openDrawer();
-            });
-
-            if (closeBtn) {
-                closeBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    closeDrawer();
-                });
-            }
-
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') closeDrawer();
-            });
-
-            document.addEventListener('click', (e) => {
-                if (!drawer.classList.contains('show')) return;
-                const clickedInside = drawer.contains(e.target);
-                const clickedOpenBtn = openBtn.contains(e.target);
-                if (!clickedInside && !clickedOpenBtn) closeDrawer();
-            });
-        }
-
-        initDrawer();
-
-        window.hrSite = window.hrSite || {};
-        window.hrSite.hideModal = hideModal;
-        window.hrSite.showGlobalMessage = showGlobalMessage;
-
-        window.hrModal = { open: openModal, close: hideModal };
+      window.setTimeout(() => {
+        messageBar.classList.remove("is-visible");
+      }, timeoutMs);
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initGlobalUI);
-    } else {
-        initGlobalUI();
+    function openModal() {
+      if (!modalEl) return;
+      modalEl.classList.remove("hidden");
+      modalEl.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
     }
+
+    function hideModal() {
+      if (!modalEl) return;
+
+      const navOpenBtn = document.getElementById("nav-open-btn");
+      if (navOpenBtn) navOpenBtn.classList.remove("hidden");
+
+      modalEl.classList.add("hidden");
+      modalEl.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+
+      if (modalContent) modalContent.replaceChildren();
+      if (modalMsg) modalMsg.replaceChildren();
+    }
+
+    // ------------------------------
+    // Modal close behavior
+    // ------------------------------
+    if (modalEl) {
+      document.addEventListener("click", (e) => {
+        const backdrop = e.target.closest(".modal-backdrop");
+        const closer = e.target.closest("[data-modal-close]");
+        if (!backdrop && !closer) return;
+
+        e.preventDefault();
+        hideModal();
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && !modalEl.classList.contains("hidden")) {
+          hideModal();
+        }
+      });
+    }
+
+    // ------------------------------
+    // Modal open + swap guards (HTMX)
+    // ------------------------------
+    if (modalEl && (modalContent || modalMsg)) {
+      function isModalSwapTarget(target) {
+        return (
+          target === modalContent ||
+          target === modalMsg ||
+          target?.id === "modal-content" ||
+          target?.id === "modal-message-box"
+        );
+      }
+
+      document.addEventListener("htmx:afterSwap", (e) => {
+        const target = e.target;
+        if (!target) return;
+        if (!isModalSwapTarget(target)) return;
+        openModal();
+      });
+
+      document.addEventListener("htmx:beforeSwap", (e) => {
+        const target = e.target;
+        if (!target) return;
+        if (!isModalSwapTarget(target)) return;
+
+        const detail = e.detail || {};
+        const xhr = detail.xhr;
+
+        if (detail.shouldSwap === false) return;
+
+        const isEmpty =
+          (xhr && xhr.status === 204) ||
+          !detail.serverResponse ||
+          detail.serverResponse.trim() === "";
+
+        if (isEmpty) {
+          // cancel swap into modal targets for empty responses
+          detail.shouldSwap = false;
+          return;
+        }
+
+        modalEl.classList.add("is-swapping");
+      });
+
+      document.addEventListener("htmx:afterSettle", (e) => {
+        const target = e.target;
+        if (!target) return;
+        if (!isModalSwapTarget(target)) return;
+        modalEl.classList.remove("is-swapping");
+      });
+    }
+
+    // ------------------------------
+    // Drawer navigation
+    // ------------------------------
+    function initDrawer() {
+      const drawer = document.getElementById("drawer-navigation");
+      const openBtn = document.getElementById("nav-open-btn");
+      const closeBtn = document.getElementById("nav-close-btn");
+
+      if (!drawer || !openBtn) return;
+
+      const openDrawer = () => {
+        drawer.classList.add("show");
+        openBtn.classList.add("hidden");
+      };
+
+      const closeDrawer = () => {
+        drawer.classList.remove("show");
+        openBtn.classList.remove("hidden");
+      };
+
+      openBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openDrawer();
+      });
+
+      if (closeBtn) {
+        closeBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          closeDrawer();
+        });
+      }
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeDrawer();
+      });
+
+      document.addEventListener("click", (e) => {
+        if (!drawer.classList.contains("show")) return;
+        const clickedInside = drawer.contains(e.target);
+        const clickedOpenBtn = openBtn.contains(e.target);
+        if (!clickedInside && !clickedOpenBtn) closeDrawer();
+      });
+    }
+
+    // ------------------------------
+    // Landing modal bootstrap (query params)
+    // ------------------------------
+    function bootstrapLandingModalFromUrl() {
+      const loader = document.getElementById("modal-loader");
+      if (!loader) return false;
+
+      const params = new URLSearchParams(window.location.search);
+      const modal = (params.get("modal") || "").trim();
+      if (!modal) return false;
+
+      if (!window.htmx) return false;
+
+      let hxGet = null;
+      let shouldZeroCart = false;
+
+      if (modal === "email_confirmed") {
+        hxGet = "/shop/email-confirmation/success/";
+      } else if (modal === "order_thank_you") {
+        const orderId = (params.get("order_id") || "").trim();
+        const token = (params.get("t") || "").trim();
+        if (!orderId || !token) return false;
+
+        hxGet = `/shop/order/${encodeURIComponent(orderId)}/thank-you/?t=${encodeURIComponent(token)}`;
+        shouldZeroCart = true;
+      } else {
+        // unknown modal key -> don't do anything (but also don't keep re-trying)
+        return true;
+      }
+
+      loader.setAttribute("hx-get", hxGet);
+      window.htmx.process(loader);
+      window.htmx.trigger(loader, "hr:loadModal");
+
+      if (shouldZeroCart) {
+        document.body.dispatchEvent(new CustomEvent('updateCart', { detail: { count: 0 } }));
+      }
+
+      // Clean the URL so refresh doesn't re-open.
+      // (Preserve pathname + hash only; drop query string.)
+      window.setTimeout(() => {
+        try {
+          const cleanParams = new URLSearchParams(window.location.search);
+          cleanParams.delete('modal');
+          cleanParams.delete('order_id');
+          cleanParams.delete('t');
+
+          const qs = cleanParams.toString();
+          const clean =
+              window.location.pathname +
+              (qs ? `?${qs}` : "") +
+              window.location.hash;
+          window.history.replaceState({}, "", clean);
+        } catch (e) { }
+      }, 0);
+      return true;
+    }
+
+    function tryBootstrapLandingModal() {
+      return bootstrapLandingModalFromUrl();
+    }
+
+    // Try immediately; if HTMX isn't ready, try once on htmx:load + one small retry.
+    if (!tryBootstrapLandingModal()) {
+      document.addEventListener("htmx:load", () => tryBootstrapLandingModal(), { once: true });
+      window.setTimeout(tryBootstrapLandingModal, 50);
+    }
+
+    initDrawer();
+
+    // Expose a small API surface
+    window.hrSite = window.hrSite || {};
+    window.hrSite.hideModal = hideModal;
+    window.hrSite.showGlobalMessage = showGlobalMessage;
+
+    window.hrModal = { open: openModal, close: hideModal };
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initGlobalUI);
+  } else {
+    initGlobalUI();
+  }
 })();

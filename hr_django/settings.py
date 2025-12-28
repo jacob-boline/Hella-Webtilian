@@ -45,6 +45,10 @@ ALLOWED_HOSTS = [h.strip() for h in os.environ.get('ALLOWED_HOSTS', '').split(',
 
 INTERNAL_IPS = ['127.0.0.1', ]
 
+AUTHENTICATION_BACKENDS = [
+    'hr_access.auth_backend.CustomBackend',
+]
+
 INSTALLED_APPS = [
     # ------------------------------------ #
     #       This block must be first       #
@@ -160,8 +164,6 @@ STORAGES = {
     },
 }
 
-
-SHOP_PAYMENT_BACKEND = os.environ.get('SHOP_PAYMENT_BACKEND', 'mock_stripe')
 
 STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', '')
 STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', '')
