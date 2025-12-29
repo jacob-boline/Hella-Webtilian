@@ -103,36 +103,4 @@ def order_detail_modal(request, order_id: int):
     return render(request, "hr_access/orders/_order_detail_modal.html", {"order": order})
 
 #
-# def order_receipt_view(request, token: str):
-#     claims = verify_order_receipt_token(token)
-#     if not claims:
-#         return HttpResponseForbidden(
-#             "This receipt link is invalid or has expired."
-#         )
-#
-#     order = get_object_or_404(
-#         Order.objects
-#         .select_related(
-#             "customer",
-#             "shipping_address"
-#         )
-#         .prefetch_related(
-#             "items",
-#             "items__variant",
-#             "items__variant__product"
-#         ),
-#         pk=claims["order_id"],
-#         email__iexact=normalize_email(claims["email"])
-#     )
-#
-#     return render(
-#         request,
-#         "hr_shop/checkout/_order_receipt_modal.html",
-#         {
-#             "order": order,
-#             "items": order.items.all(),
-#             "address": order.shipping_address,
-#             "customer": order.customer,
-#             "is_guest": not request.user.is_authenticated
-#         }
-#     )
+# (Legacy guest receipt view removed; receipt access now handled in checkout views.)
