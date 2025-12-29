@@ -3,6 +3,7 @@
 import json
 import logging
 import time
+from urllib.parse import quote
 from datetime import timedelta
 from decimal import Decimal
 from typing import Dict, Any, Optional, Tuple
@@ -17,11 +18,15 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
+from django.template.loader import render_to_string
 
 from hr_common.models import Address
 from hr_core.utils.email import normalize_email
-from hr_core.utils.tokens import verify_checkout_email_token
-from hr_core.utils.tokens import verify_order_receipt_token
+from hr_core.utils.tokens import (
+    generate_order_receipt_token,
+    verify_checkout_email_token,
+    verify_order_receipt_token,
+)
 from hr_shop.cart import get_cart, Cart, CART_SESSION_KEY
 from hr_shop.exceptions import EmailSendError, RateLimitExceeded
 from hr_shop.forms import CheckoutDetailsForm
@@ -36,6 +41,7 @@ from hr_shop.services.email_confirmation import (
 )
 # from hr_shop.utils.receipts import verify_order_receipt_token
 from hr_shop.views.cart import view_cart
+from hr_email.service import EmailProviderError, send_app_email
 
 logger = logging.getLogger(__name__)
 
@@ -428,9 +434,36 @@ def order_send_receipt_email(request, order_id: int):
             'HX-Trigger': json.dumps({'showMessage': "Please wait a moment before resending the receipt."})
         })
 
+    receipt_token = generate_order_receipt_token(order.id, order.email)
+    receipt_url = (
+        settings.SITE_URL +
+        f"/?modal=order_payment_result&order_id={order.id}&t={quote(receipt_token)}#parallax-section-shows"
+    )
+
+    subject = f"Hella Reptilian Order #{order.id} receipt"
+    html_body = render_to_string("hr_shop/emails/order_receipt.html", {
+        "order": order,
+        "receipt_url": receipt_url,
+    })
+
     try:
-        #  TODO wire email send
-        logger.info("Receipt email requested for order %s to %s", order_id, order.email)
+        send_app_email(
+            to_emails=[order.email],
+            subject=subject,
+            html_body=html_body,
+            custom_id=f"order_receipt_{order.id}",
+        )
+        logger.info("Receipt email sent for order %s to %s", order_id, order.email)
+
+        return HttpResponse(status=204, headers={
+            'HX-Trigger': json.dumps({'showMessage': 'Receipt email sent.'})
+        })
+
+    except EmailProviderError as exc:
+        logger.exception("Failed sending receipt for order %s: %s", order.id, exc)
+        return HttpResponse(status=500, headers={
+            'HX-Trigger': json.dumps({'showMessage': 'Receipt email failed to send. Try again shortly.'})
+        })
 
     # EmailSendError, requests.RequestException
     except Exception as e:
@@ -876,15 +909,6 @@ def order_payment_result(request, order_id: int):
         response.headers["HX-Trigger"] = json.dumps({"updateCart": {"count": 0}})
 
     return response
-
-# def order_send_receipt(request, order_id: int, is_resend: bool = False):
-#     order = Order.objects.filter(pk=order_id).first()
-#     addon = " to be sent again" if is_resend else None
-#     return HttpResponse(status=204, headers={
-#         'HX-Trigger': json.dumps({
-#             'showMessage': f"Request for emailed receipt{addon} to {order.customer.email}"
-#         })
-#     })
 
 
 @require_GET

@@ -1,0 +1,14 @@
+{# hr_shop/templates/hr_shop/emails/order_receipt.html #}
+
+<p>Thanks for your order with Hella Reptilian!</p>
+
+<p>
+  Your receipt for Order #{{ order.id }} is available here:<br>
+  <a href="{{ receipt_url }}">{{ receipt_url }}</a>
+</p>
+
+{% if order.total %}
+  <p><strong>Order total:</strong> ${{ order.total }}</p>
+{% endif %}
+
+<p>If you did not place this order, you can ignore this email.</p>
