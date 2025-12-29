@@ -141,7 +141,7 @@
 
 body {
     font-family: "Space Grotesk", sans-serif;
-    color: #F0F0F0;
+    color: var(--text);
     background-color: var(--bg-dark);
 }
 

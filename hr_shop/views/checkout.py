@@ -1,29 +1,27 @@
 # hr_shop/views/checkout.py
-#
-# NOTE: This is your file with ONLY the “single provider” simplification applied:
-# - Removed hr_payment.providers import + usage
-# - Stopped creating Stripe sessions during order creation
-#
-# Everything else is preserved as-is from what you pasted.
+
 import json
 import logging
+import time
 from datetime import timedelta
 from decimal import Decimal
-from typing import Dict, Any
+from typing import Dict, Any, Optional, Tuple
 
+import stripe
 from django.conf import settings
 from django.contrib import messages
 from django.core.cache import cache
+from django.db import transaction, IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
-from django.db import transaction, IntegrityError
 
 from hr_common.models import Address
 from hr_core.utils.email import normalize_email
 from hr_core.utils.tokens import verify_checkout_email_token
+from hr_core.utils.tokens import verify_order_receipt_token
 from hr_shop.cart import get_cart, Cart, CART_SESSION_KEY
 from hr_shop.exceptions import EmailSendError, RateLimitExceeded
 from hr_shop.forms import CheckoutDetailsForm
@@ -36,11 +34,12 @@ from hr_shop.services.email_confirmation import (
     is_email_confirmed_for_checkout,
     send_checkout_confirmation_email,
 )
-
+# from hr_shop.utils.receipts import verify_order_receipt_token
 from hr_shop.views.cart import view_cart
-from hr_shop.utils.receipts import verify_order_receipt_token
 
 logger = logging.getLogger(__name__)
+
+_RECEIPT_RESEND_COOLDOWN_SECONDS = 30
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -296,6 +295,149 @@ def _get_or_create_active_draft(*, customer, email, address, note, cart_payload)
             draft.save(update_fields=list(defaults.keys()))
             return draft
 
+
+def _stripe_session_payment_intent_id(session_id: str) -> str or None:
+    if not session_id:
+        return None
+
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+    try:
+        sess = stripe.checkout.Session.retrieve(session_id)
+    except stripe.error.StripeError:
+        return None
+
+    return sess.get('payment_intent_id')
+
+
+def _stripe_session_result(session_id: str | None) -> Tuple[str, Optional[str], Optional[str]]:
+    """
+    Returns: (payment_result, failure_reason, failure_code)
+
+    payment_result in:
+      - "paid"
+      - "pending"   (session open / still processing)
+      - "failed"
+      - "canceled"
+      - "expired"
+      - "unknown"
+    """
+    if not session_id:
+        return "unknown", "Missing checkout session id for this order.", "missing_session_id"
+
+    try:
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        sess = stripe.checkout.Session.retrieve(session_id)
+
+        sess_status = (sess.get("status") or "").lower()            # open, complete, expired
+        pay_status = (sess.get("payment_status") or "").lower()     # paid, unpaid, no_payment_required
+        pi_id = sess.get("payment_intent")
+
+        if pay_status == "paid":
+            return "paid", None, None
+
+        # still open => pending
+        if sess_status == "open":
+            return "pending", None, None
+
+        if sess_status == "expired":
+            return "expired", "The checkout session expired before payment completed.", "session_expired"
+
+        # complete but unpaid / unknown -> try PI for error detail
+        if pi_id:
+            try:
+                pi = stripe.PaymentIntent.retrieve(pi_id)
+                pi_status = (pi.get("status") or "").lower()
+
+                if pi_status == "succeeded":
+                    return "paid", None, None
+
+                if pi_status == "canceled":
+                    return "canceled", "The payment was canceled.", "payment_intent_canceled"
+
+                last_err = pi.get("last_payment_error") or {}
+                reason = last_err.get("message") or None
+                code = last_err.get("code") or None
+
+                if pi_status in ("requires_payment_method", "requires_action", "requires_confirmation"):
+                    # usually means it failed or needs another attempt
+                    return "failed", reason, code or "requires_payment_method"
+
+                return "unknown", reason, code
+            except Exception:
+                pass
+
+        # fallback
+        return "unknown", None, None
+
+    except stripe.error.InvalidRequestError:
+        return "unknown", "Checkout session not found.", "invalid_session"
+    except stripe.error.AuthenticationError:
+        return "unknown", "Payment provider misconfigured.", "stripe_auth_error"
+    except stripe.error.APIConnectionError:
+        return "unknown", "Could not reach payment provider. Try again.", "stripe_connection_error"
+    except stripe.error.RateLimitError:
+        return "unknown", "Payment provider is busy. Try again.", "stripe_rate_limited"
+    except stripe.error.StripeError:
+        return "unknown", "Payment provider error. Try again.", "stripe_error"
+
+
+def _is_allowed_to_email_receipt(request, order: Order) -> bool:
+    if request.user.is_authenticated and getattr(order, 'user_id', None) == request.user.id:
+        return True
+
+    token = (request.POST.get('t') or request.GET.get('t') or '').strip()
+    claims = verify_order_receipt_token(token)
+    if not claims:
+        return False
+
+    try:
+        if int(claims.get('order_id')) != int(order.id):
+            return False
+    except Exception:
+        return False
+
+    claim_email = normalize_email(claims.get('email') or "")
+    return claim_email and claim_email == normalize_email(order.email or "")
+
+
+def _rate_limit_ok(request, *, key:str, cooldown_s: int) -> bool:
+    now = int(time.time())
+    last = int(request.session.get(key) or 0)
+    if last and (now - last) < cooldown_s:
+        return False
+    request.session[key] = now
+    request.session.modified = True
+    return True
+
+
+@require_POST
+def order_send_receipt_email(request, order_id: int):
+    order = get_object_or_404(Order, pk=order_id)
+
+    if not _is_allowed_to_email_receipt(request, order):
+        return HttpResponse(status=403)
+
+    if not order.email:
+        return HttpResponse(status=400, headers={
+            'HX-Trigger': json.dumps({'showMessage': 'No email address is associated with this order.'})
+        })
+
+    rl_key = f"receipt_resend:{order.id}"
+    if not _rate_limit_ok(request, key=rl_key, cooldown_s=_RECEIPT_RESEND_COOLDOWN_SECONDS):
+        return HttpResponse(status=429, headers={
+            'HX-Trigger': json.dumps({'showMessage': "Please wait a moment before resending the receipt."})
+        })
+
+    try:
+        #  TODO wire email send
+        logger.info("Receipt email requested for order %s to %s", order_id, order.email)
+
+    # EmailSendError, requests.RequestException
+    except Exception as e:
+        logger.exception("Failed sending receipt for order %s: %s", order.id, e)
+        return HttpResponse(status=500, headers={
+            'HX-Trigger': json.dumps({'showMessage': 'Receipt email failed to send. Try again shortly.'})
+        })
 
 # ---------------------------------------------------------------------------
 # Views
@@ -656,39 +798,93 @@ def checkout_create_order(request):
 
 
 @require_GET
-def order_thank_you(request, order_id: int):
-    order = get_object_or_404(Order, pk=order_id)
+def order_payment_result(request, order_id: int):
+    """
+    Landing-modal entry point from Stripe return_url:
+      /shop/order/<id>/payment-result/?t=<signed_token>
 
-    # Authorization
-    if request.user.is_authenticated and getattr(order, 'user_id', None) == request.user.id:
+    Renders:
+      hr_shop/checkout/_order_payment_result.html
+    """
+    order = get_object_or_404(
+        Order.objects.select_related("customer", "shipping_address"),
+        pk=order_id,
+    )
+
+    token = (request.GET.get('t') or "").strip()
+
+    # Authorization (token for guests, ownership for logged-in)
+    allowed = False
+    if request.user.is_authenticated and getattr(order, "user_id", None) == request.user.id:
         allowed = True
     else:
-        token = request.GET.get('t') or ""
-        allowed = verify_order_receipt_token(token, order_id=order.id, email=order.email)
+        token = (request.GET.get("t") or "").strip()
+        claims = verify_order_receipt_token(token)
+        if claims and int(claims.get("order_id", -1)) == order.id:
+            allowed = normalize_email(claims.get("email", "")) == normalize_email(order.email or "")
 
     if not allowed:
         return HttpResponse("Not authorized to view this receipt.", status=403)
 
-    cart_was_cleared = False
+    # Determine payment result:
+    # DB is truth if already PAID, otherwise ask Stripe for best-effort detail.
+    if order.payment_status == PaymentStatus.PAID:
+        payment_result, failure_reason, failure_code = "paid", None, None
+    else:
+        payment_result, failure_reason, failure_code = _stripe_session_result(
+            getattr(order, "stripe_checkout_session_id", None)
+        )
 
-    # Only clear cart + checkout session keys once payment is actually PAID
+        # If Stripe says paid but webhook lagged, persist here.
+        if payment_result == "paid":
+            Order.objects.filter(pk=order.pk).update(payment_status=PaymentStatus.PAID)
+            order.payment_status = PaymentStatus.PAID
+
+    # Clear cart/session only once actually paid
+    cart_was_cleared = False
     if order.payment_status == PaymentStatus.PAID:
         _clear_cart(request)
-        for k in ('checkout_customer_id', 'checkout_address_id', 'checkout_auto'):
+        for k in ("checkout_customer_id", "checkout_address_id", "checkout_auto"):
             request.session.pop(k, None)
         request.session.modified = True
         cart_was_cleared = True
 
-    response = render(request, 'hr_shop/checkout/_order_thank_you.html', {'order': order})
+    items = (
+        OrderItem.objects
+        .select_related("variant", "variant__product")
+        .filter(order_id=order.id)
+        .all()
+    )
 
-    # If this is being loaded via HTMX into the modal, update cart badges everywhere.
-    # (events.js listens for "updateCart" on document.body and updates both sidebar + floating badge.)
+    is_guest = not (getattr(request, "user", None) and request.user.is_authenticated)
+
+    response = render(request, "hr_shop/checkout/_order_payment_result.html", {
+        "order": order,
+        "items": items,
+        "customer": getattr(order, "customer", None),
+        "address": getattr(order, "shipping_address", None),
+        "is_guest": is_guest,
+
+        "payment_result": payment_result,
+        "payment_failure_reason": failure_reason,
+        "payment_failure_code": failure_code,
+
+        "receipt_token": token,
+    })
+
     if cart_was_cleared:
-        response.headers['HX-Trigger'] = json.dumps({
-            "updateCart": {"count": 0}
-        })
+        response.headers["HX-Trigger"] = json.dumps({"updateCart": {"count": 0}})
 
     return response
+
+# def order_send_receipt(request, order_id: int, is_resend: bool = False):
+#     order = Order.objects.filter(pk=order_id).first()
+#     addon = " to be sent again" if is_resend else None
+#     return HttpResponse(status=204, headers={
+#         'HX-Trigger': json.dumps({
+#             'showMessage': f"Request for emailed receipt{addon} to {order.customer.email}"
+#         })
+#     })
 
 
 @require_GET

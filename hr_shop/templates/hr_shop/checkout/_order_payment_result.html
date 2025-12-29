@@ -1,0 +1,233 @@
+{#hr_shop/templates/hr_shop/checkout/_order_payment_result.html#}
+
+{#  this is meant to combine/replace   #}
+{#     _order_thank_you,               #}
+{#     _order_payment_incomplete,      #}
+{#     _order_receipt_modal            #}
+
+{# hr_shop/templates/hr_shop/checkout/_order_payment_result.html #}
+{% load humanize %}
+
+<div class="checkout-review-modal order-payment-result">
+
+    {# ========================= #}
+    {#  Title (varies by result) #}
+    {# ========================= #}
+    {% if payment_result == "paid" %}
+        <h2 class="review-title">Payment Successful</h2>
+    {% elif payment_result == "pending" %}
+        <h2 class="review-title">Payment Processing</h2>
+    {% elif payment_result in "failed,canceled,expired" %}
+        <h2 class="review-title">Payment Not Completed</h2>
+    {% else %}
+        <h2 class="review-title">Payment Status Unknown</h2>
+    {% endif %}
+
+    {# ========================= #}
+    {# Result message            #}
+    {# ========================= #}
+    <div class="review-section">
+        {% if payment_result == "paid" %}
+            <p class="modal-text-muted">
+                Thank you. Your payment was received and your order is confirmed.
+            </p>
+        {% elif payment_result == "pending" %}
+            <p class="modal-text-muted">
+                Your payment is still processing. If you just paid, give it a moment and refresh this receipt.
+            </p>
+        {% elif payment_result == "expired" %}
+            <p class="modal-text-muted">
+                The checkout session expired before payment completed.
+            </p>
+        {% elif payment_result == "canceled" %}
+            <p class="modal-text-muted">
+                The payment was canceled.
+            </p>
+        {% elif payment_result == "failed" %}
+            <p class="modal-text-muted">
+                The payment failed and your order is not confirmed.
+            </p>
+        {% else %}
+            <p class="modal-text-muted">
+                We couldn’t confirm the payment status for this order yet.
+            </p>
+        {% endif %}
+
+        {% if payment_failure_reason %}
+            <div class="form-errors" style="margin-top: .75rem;">
+                <p><strong>Details:</strong> {{ payment_failure_reason }}</p>
+            </div>
+        {% endif %}
+
+        {% if payment_failure_code %}
+            <p class="modal-text-muted" style="margin-top: .5rem;">
+                <strong>Code:</strong> {{ payment_failure_code }}
+            </p>
+        {% endif %}
+    </div>
+
+    {#  =========================  #}
+    {#   Guest CTA (paid + guest)  #}
+    {#  =========================  #}
+    {% if payment_result == "paid" and is_guest %}
+        <div id="post-purchase-account" class="review-section post-purchase-account">
+            <p class="review-section-title">Save your details?</p>
+            <p class="modal-text-muted">
+                Create an account to track orders, save addresses, and check out faster next time.
+            </p>
+
+            <div class="modal-actions stack uniform">
+                <button
+                        type="button"
+                        class="card-btn btn-neon btn-green btn-sm"
+                        hx-get="{% url 'hr_access:account_get_post_purchase_create_account' order.id %}"
+                        hx-target="#post-purchase-account"
+                        hx-swap="outerHTML transition:true"
+                >
+                    Yes, create an account
+                </button>
+
+                <button
+                        type="button"
+                        class="card-btn btn-neon btn-blue btn-sm"
+                        data-modal-close
+                >
+                    No thanks
+                </button>
+            </div>
+        </div>
+    {% endif %}
+
+    {#  ================================================================================== #}
+    {#   Receipt + resend (always show if we have an email, regardless of payment result)  #}
+    {#  ================================================================================== #}
+    <div class="review-section">
+        <p class="review-section-title">Receipt</p>
+
+        {% if order.email %}
+            {% if payment_result == "paid" %}
+                <p class="modal-text-muted">
+                    Your receipt will be sent to <strong>{{ order.email }}</strong>.
+                </p>
+            {% else %}
+                <p class="modal-text-muted">
+                    If payment completes, we’ll send a receipt to <strong>{{ order.email }}</strong>.
+                </p>
+            {% endif %}
+        {% endif %}
+
+        <div class="modal-actions stack uniform" style="margin-top:.75rem;">
+            <form hx-post="{% url 'hr_shop:order_send_receipt_email' order.id %}"
+                  hx-swap="none"
+                  method="post">
+                {% csrf_token %}
+                {% if receipt_token %}
+                    <input type="hidden" name="t" value="{{ receipt_token }}">
+                {% endif %}
+
+                <button type="submit" class="card-btn btn-neon btn-yellow btn-sm">
+                    Resend Receipt
+                </button>
+            </form>
+        </div>
+    </div>
+
+    {# ============================================ #}
+    {#  Expandable order details (always available) #}
+    {# ============================================ #}
+    <details class="review-section" {% if payment_result == "paid" %}open{% endif %}>
+        <summary class="review-section-title" style="cursor:pointer;">
+            View order details
+        </summary>
+
+        <div class="review-section" style="margin-top: .75rem;">
+            <p class="customer-field"><strong>Order #:</strong> {{ order.id }}</p>
+            <p class="customer-field"><strong>Date:</strong> {{ order.created_at|date:"M j, Y · g:i A" }}</p>
+            <p class="customer-field"><strong>Order status:</strong> {{ order.order_status|capfirst }}</p>
+            <p class="customer-field"><strong>Payment status:</strong> {{ order.payment_status|capfirst }}</p>
+        </div>
+
+        {% if address %}
+            <div class="review-section shipping-review">
+                <div class="shipping-summary">
+                    <div class="shipping-block">
+                        <p class="review-section-title">Shipping Address</p>
+                        <p class="shipping-address customer-field" style="white-space: pre-wrap;">
+                            {{ address.formatted }}
+                        </p>
+                    </div>
+
+                    {% if customer %}
+                        <div class="shipping-contact">
+                            <p class="review-section-title">Contact</p>
+                            {% if customer.email %}
+                                <p class="customer-email customer-field">{{ customer.email }}</p>
+                            {% endif %}
+                            {% if customer.phone %}
+                                <p class="customer-phone customer-field">{{ customer.phone }}</p>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="review-section">
+            <h3 class="review-section-title">Items</h3>
+
+            <div class="review-items">
+                {% for item in items %}
+                    <div class="review-item">
+                        <div class="item-info">
+                            <span class="item-name">{{ item.variant.product.name }}</span>
+                            <div class="item-meta">
+                                {% if item.variant.name %}
+                                    <span class="item-variant">{{ item.variant.name }}</span>
+                                {% endif %}
+                                <span class="item-qty">Qty: {{ item.quantity }}</span>
+                            </div>
+                        </div>
+                        <span class="item-price">${{ item.unit_price|floatformat:2 }}</span>
+                    </div>
+                {% empty %}
+                    <p class="modal-text-muted">No items found for this order.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="review-section review-totals">
+            {% if order.subtotal %}
+                <div class="total-row">
+                    <span>Subtotal</span>
+                    <span>${{ order.subtotal|floatformat:2 }}</span>
+                </div>
+            {% endif %}
+
+            {% if order.tax %}
+                <div class="total-row">
+                    <span>Tax</span>
+                    <span>${{ order.tax|floatformat:2 }}</span>
+                </div>
+            {% endif %}
+
+            {% if order.shipping %}
+                <div class="total-row">
+                    <span>Shipping</span>
+                    <span>${{ order.shipping|floatformat:2 }}</span>
+                </div>
+            {% endif %}
+
+            <div class="total-row total-final">
+                <span>Total</span>
+                <span>${{ order.total|floatformat:2 }}</span>
+            </div>
+        </div>
+    </details>
+
+    <div class="review-actions modal-actions stack">
+        <button type="button" class="card-btn btn-neon btn-blue" data-modal-close>
+            Close
+        </button>
+    </div>
+
+</div>

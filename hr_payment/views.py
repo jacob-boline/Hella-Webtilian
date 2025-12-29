@@ -100,7 +100,7 @@ def checkout_stripe_session(request, order_id: int):
         # token passed back from stripe payment endpoint and used to look up order and open thank you page
         return_url = (
             settings.SITE_URL +
-            f"/?modal=order_thank_you&order_id={order.id}&t={token}" +
+            f"/?modal=order_payment_result&order_id={order.id}&t={token}" +
             "#parallax-section-shows"
         )
 

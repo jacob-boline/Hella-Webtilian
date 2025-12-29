@@ -28,7 +28,7 @@
                         class="card-btn btn-neon btn-blue btn-sm"
                         hx-get="{% url 'hr_access:account_get_post_purchase_create_account' order.id %}"
                         hx-target="#modal-content"
-                        hx-swap="outerHTML transition:true">
+                        hx-swap="innerHTML transition:true">
                     Create Account
                 </button>
             </div>
