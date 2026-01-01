@@ -1,0 +1,10 @@
+Hello {{ username }},
+
+You requested to update your Hella Reptilian account email to {{ email }}.
+
+Confirm the change here:
+{{ confirm_url }}
+
+If you didn't request this, you can ignore this email.
+
+— Hella Reptilian

@@ -1,15 +1,15 @@
 # hr_access/urls.py
 
-from django.contrib.auth.views import (
-    PasswordChangeDoneView,
-    PasswordResetView,
-    PasswordResetDoneView,
-    PasswordResetConfirmView,
-    PasswordResetCompleteView
-)
+from django.contrib.auth.views import PasswordChangeDoneView
 from django.urls import path
 
 from hr_access.views import orders, admin, auth, account
+from hr_access.views.password_reset import (
+    AccountPasswordResetView,
+    AccountPasswordResetDoneView,
+    AccountPasswordResetConfirmView,
+    AccountPasswordResetCompleteView,
+)
 from hr_shop.views.orders import order_detail_modal, orders_page
 
 app_name = 'hr_access'
@@ -27,14 +27,22 @@ urlpatterns = [
     path('logout/', auth.auth_logout, name='auth_logout'),
 
     # Password change
+    path('account/settings/', account.account_settings, name='account_settings'),
     path('password/change/', account.account_change_password, name='account_change_password'),
     path('password/change/done/', PasswordChangeDoneView.as_view(template_name="hr_access/registration/_password_change_done.html"),name='password_change_done'),
+    path('account/email/change/', account.account_change_email, name='account_change_email'),
+    path('account/email/change/confirm/', account.account_change_email_confirm, name='account_change_email_confirm'),
+    path('account/email/change/success/', account.account_email_change_success, name='account_email_change_success'),
+    path('account/security/logout-all/confirm/', account.account_logout_all_confirm, name='account_logout_all_confirm'),
+    path('account/security/logout-all/', account.account_logout_all_sessions, name='account_logout_all_sessions'),
+    path('account/delete/confirm/', account.account_delete_confirm, name='account_delete_confirm'),
+    path('account/delete/', account.account_delete_account, name='account_delete_account'),
 
     # Password reset
-    path('password/reset/', PasswordResetView.as_view(template_name='hr_access/password_reset/_password_reset_form.html'), name='password_reset'),
-    path('password/reset/done/', PasswordResetDoneView.as_view(template_name='hr_access/password_reset/_password_reset_done.html'), name='password_reset_done'),
-    path('password/reset/<uidb64>/<token>/', PasswordResetConfirmView.as_view(template_name='hr_access/password_reset/_password_reset_confirm.html'), name='password_reset_confirm'),
-    path('password/reset/complete/', PasswordResetCompleteView.as_view(template_name='hr_access/password_reset/_password_reset_complete.html'), name='password_reset_complete'),
+    path('password/reset/', AccountPasswordResetView.as_view(), name='password_reset'),
+    path('password/reset/done/', AccountPasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('password/reset/<uidb64>/<token>/', AccountPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('password/reset/complete/', AccountPasswordResetCompleteView.as_view(), name='password_reset_complete'),
 
     # Orders (modal vs full page handled inside view)
     path('account_get_orders/', orders.account_get_orders, name='account_get_orders'),
