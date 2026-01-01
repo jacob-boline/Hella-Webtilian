@@ -36,6 +36,18 @@
             </div>
         </div>
 
+        <div class="small">
+            <button
+                type="button"
+                class="link-btn"
+                hx-get="{% url 'hr_access:password_reset' %}"
+                hx-target="#modal-content"
+                hx-swap="innerHTML transition:true"
+            >
+                Forgot password?
+            </button>
+        </div>
+
         <div class="modal-actions stack uniform">
             <button type="submit" class="card-btn btn-neon btn-green btn-sm">
                 Sign In

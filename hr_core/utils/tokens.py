@@ -29,6 +29,8 @@ DEFAULT_RECEIPT_TOKEN_MAX_AGE = 60 * 60 * 24 * 14  # 14 days
 
 ACCOUNT_SIGNUP_SALT = 'account-signup-confirmation'
 DEFAULT_ACCOUNT_SIGNUP_TOKEN_MAX_AGE = 60 * 60 * 24
+EMAIL_CHANGE_SALT = "account-email-change"
+DEFAULT_EMAIL_CHANGE_TOKEN_MAX_AGE = 60 * 60 * 24
 
 
 # ============================================================
@@ -73,6 +75,30 @@ def verify_account_signup_token(
     data = _verify_token(
         token,
         salt=ACCOUNT_SIGNUP_SALT,
+        max_age=max_age,
+    )
+    if not data:
+        return None
+    if "user_id" not in data or "email" not in data:
+        return None
+    return data
+
+
+def generate_email_change_token(user_id: int, new_email: str) -> str:
+    payload = {
+        "user_id": int(user_id),
+        "email": normalize_email(new_email),
+    }
+    return _generate_token(payload, salt=EMAIL_CHANGE_SALT)
+
+
+def verify_email_change_token(
+    token: str,
+    max_age: int = DEFAULT_EMAIL_CHANGE_TOKEN_MAX_AGE,
+) -> dict | None:
+    data = _verify_token(
+        token,
+        salt=EMAIL_CHANGE_SALT,
         max_age=max_age,
     )
     if not data:
