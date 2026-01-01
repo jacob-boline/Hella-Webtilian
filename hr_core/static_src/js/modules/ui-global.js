@@ -34,6 +34,18 @@
         const messageBar = document.getElementById("global-message-bar");
         const messageText = document.getElementById("global-message-content");
 
+        const floatingCart = document.querySelector('.floating-cart-btn');
+
+        function hideFloatingCart() {
+            if (!floatingCart) return;
+            floatingCart.classList.add('is-hidden');
+        }
+
+        function showFloatingCart() {
+            if (!floatingCart) return;
+            floatingCart.classList.remove('is-hidden');
+        }
+
         function showGlobalMessage (text, timeoutMs = 1000) {
             if (!messageBar || !messageText) return;
 
@@ -45,26 +57,67 @@
             }, timeoutMs);
         }
 
+        // function openModal () {
+        //     if (!modalEl) return;
+        //     modalEl.classList.remove("hidden");
+        //     modalEl.setAttribute("aria-hidden", "false");
+        //     document.body.style.overflow = "hidden";
+        //
+        //     hideFloatingCart();
+        // }
+
+
         function openModal () {
             if (!modalEl) return;
-            modalEl.classList.remove("hidden");
-            modalEl.setAttribute("aria-hidden", "false");
-            document.body.style.overflow = "hidden";
+
+            const scrollY = window.scrollY;
+            modalEl.dataset.scrollY = scrollY;
+
+            modalEl.classList.remove('hidden');
+            modalEl.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+            window.scrollTo(0, scrollY);
+
+            hideFloatingCart();
         }
+
 
         function hideModal () {
             if (!modalEl) return;
 
-            const navOpenBtn = document.getElementById("nav-open-btn");
-            if (navOpenBtn) navOpenBtn.classList.remove("hidden");
+            const navOpenBtn = document.getElementById('nav-open-btn');
+            if (navOpenBtn) navOpenBtn.classList.remove('hidden');
 
-            modalEl.classList.add("hidden");
-            modalEl.setAttribute("aria-hidden", "true");
-            document.body.style.overflow = "";
+            const scrollY = parseInt(modalEl.dataset.scrollY || '0');
+
+            modalEl.classList.add('hidden');
+            modalEl.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+
+            window.scrollTo(0, scrollY);
 
             if (modalContent) modalContent.replaceChildren();
             if (modalMsg) modalMsg.replaceChildren();
+
+            showFloatingCart()
         }
+
+
+        // function hideModal () {
+        //     if (!modalEl) return;
+        //
+        //     const navOpenBtn = document.getElementById("nav-open-btn");
+        //     if (navOpenBtn) navOpenBtn.classList.remove("hidden");
+        //
+        //     modalEl.classList.add("hidden");
+        //     modalEl.setAttribute("aria-hidden", "true");
+        //     document.body.style.overflow = "";
+        //
+        //     if (modalContent) modalContent.replaceChildren();
+        //     if (modalMsg) modalMsg.replaceChildren();
+        //
+        //     showFloatingCart();
+        // }
 
         // ------------------------------
         // Modal close behavior
@@ -106,6 +159,23 @@
                 openModal();
             });
 
+            // document.addEventListener('htmx:beforeSwap', (e) => {
+            //     const target = e.target;
+            //     if (!shouldReinit(target)) return;
+            //
+            //     const detail = e.detail || {};
+            //
+            //     if (isModalTarget(target)) {
+            //         const scrollY = window.scrollY;
+            //
+            //         requestAnimationFrame(() => {
+            //             if (window.scrollY !== scrollY) {
+            //                 window.scrollTo(0, scrollY);
+            //             }
+            //         });
+            //     }
+            // });
+
             document.addEventListener("htmx:beforeSwap", (e) => {
                 const target = e.target;
                 if (!target) return;
@@ -137,6 +207,37 @@
                 modalEl.classList.remove("is-swapping");
             });
         }
+
+        // ------------------------------
+        // Post-purchase CTA dismiss animation hook (HTMX)
+        // ------------------------------
+        // Note: We add a one-shot bypass flag on the button so re-triggering the click
+        // doesn't get re-intercepted and loop forever.
+        document.body.addEventListener("htmx:beforeRequest", (e) => {
+            const src = e.target;
+            const btn = src?.closest?.("[data-cta-dismiss]");
+            if (!btn) return;
+
+            // bypass for the re-fired click
+            if (btn.dataset.ctaDismissBypass === "1") {
+                delete btn.dataset.ctaDismissBypass;
+                return;
+            }
+
+            const wrap = btn.closest("#post-purchase-account");
+            if (!wrap) return;
+
+            wrap.classList.add("is-dismissing");
+
+            // delay the request just a hair
+            btn.dataset.ctaDismissBypass = "1";
+            e.preventDefault();
+
+            window.setTimeout(() => {
+                if (!window.htmx) return;
+                window.htmx.trigger(btn, "click");
+            }, 200);
+        }, true);
 
         // ------------------------------
         // Drawer navigation
@@ -198,7 +299,7 @@
             let hxGet = null;
 
             if (modal === "email_confirmed") {
-                hxGet = "/shop/email-confirmation/success/";
+                hxGet = "/shop/checkout/email-confirmation/success/";
             } else if (modal === "order_payment_result") {
                 const orderId = (params.get("order_id") || "").trim();
                 const token = (params.get("t") || "").trim();
@@ -218,9 +319,9 @@
             window.setTimeout(() => {
                 try {
                     const cleanParams = new URLSearchParams(window.location.search);
-                    cleanParams.delete('modal');
-                    cleanParams.delete('order_id');
-                    cleanParams.delete('t');
+                    cleanParams.delete("modal");
+                    cleanParams.delete("order_id");
+                    cleanParams.delete("t");
 
                     const qs = cleanParams.toString();
                     const clean =
@@ -239,7 +340,7 @@
 
         // Try immediately; if HTMX isn't ready, try once on htmx:load + one small retry.
         if (!tryBootstrapLandingModal()) {
-            document.addEventListener("htmx:load", () => tryBootstrapLandingModal(), {once: true});
+            document.addEventListener("htmx:load", () => tryBootstrapLandingModal(), { once: true });
             window.setTimeout(tryBootstrapLandingModal, 50);
         }
 
@@ -250,7 +351,7 @@
         window.hrSite.hideModal = hideModal;
         window.hrSite.showGlobalMessage = showGlobalMessage;
 
-        window.hrModal = {open: openModal, close: hideModal};
+        window.hrModal = { open: openModal, close: hideModal };
     }
 
     if (document.readyState === "loading") {

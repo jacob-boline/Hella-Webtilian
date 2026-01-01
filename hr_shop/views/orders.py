@@ -101,6 +101,3 @@ def order_detail_modal(request, order_id: int):
     order = get_object_or_404(qs, pk=order_id)
 
     return render(request, "hr_access/orders/_order_detail_modal.html", {"order": order})
-
-#
-# (Legacy guest receipt view removed; receipt access now handled in checkout views.)

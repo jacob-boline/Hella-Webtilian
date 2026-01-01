@@ -58,8 +58,10 @@ urlpatterns = [
     path('checkout/review/', checkout.checkout_review, name='checkout_review'),
     path('checkout/create/', checkout.checkout_create_order, name='checkout_create_order'),
     path('checkout/resume/', checkout.checkout_resume, name='checkout_resume'),
-    path('order/<int:order_id>/paymend-result/', checkout.order_payment_result, name='order_payment_result'),
+    path('order/<int:order_id>/payment-result/', checkout.order_payment_result, name='order_payment_result'),
     path('order/<int:order_id>/receipt/send/', checkout.order_send_receipt_email, name='order_send_receipt_email'),
+    path("order/<int:order_id>/post-purchase-cta/acknowledged/", checkout.dismiss_post_purchase_cta, name="dismiss_post_purchase_cta"),
+
 
     path('checkout/pay/<int:order_id>/', checkout.checkout_pay, name='checkout_pay'),
 

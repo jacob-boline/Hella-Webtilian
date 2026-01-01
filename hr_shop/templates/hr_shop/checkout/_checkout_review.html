@@ -34,7 +34,7 @@
             <button
                     id="edit-shipping-btn"
                     type="button"
-                    class="card-btn btn-neon btn-yellow btn-sm center-block"
+                    class="card-btn btn-neon btn-yellow btn-sm center-block mx-auto"
                     hx-get="{% url 'hr_shop:checkout_details' %}"
                     hx-target="#modal-content"
                     hx-swap="innerHTML transition:true">
@@ -97,10 +97,10 @@
         </div>
     {% endif %}
 
-    <div class="review-actions modal-actions stack">
+    <div class="review-actions modal-actions inline uniform">
         <button
             type="button"
-            class="card-btn btn-neon btn-green"
+            class="card-btn btn-neon btn-green btn-sm"
             hx-post="{% url 'hr_shop:checkout_create_order' %}"
             hx-target="#modal-content"
             hx-swap="innerHTML transition:true">
@@ -108,7 +108,7 @@
         </button>
 
         <button type="button"
-                class="card-btn btn-neon btn-blue"
+                class="card-btn btn-neon btn-blue btn-sm"
                 hx-get="{% url 'hr_shop:view_cart' %}"
                 hx-target="#modal-content"
                 hx-swap="innerHTML">

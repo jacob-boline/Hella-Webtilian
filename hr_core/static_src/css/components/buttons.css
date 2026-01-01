@@ -25,6 +25,43 @@
     --btn-focus-ring: rgba(255, 255, 255, 0.2);
 }
 
+
+
+/* Engraved character style */
+.btn-char {
+    display: inline-block;
+    font-family: "Bungee Hairline", sans-serif;
+    color: #BFBFBF;
+    text-shadow:
+        -4px -4px 4px rgba(0, 0, 0, 0.9),
+        1px 1px 2px rgba(255, 255, 255, 0.25);
+}
+
+/* Card button base */
+.card-btn {
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    padding: 0.45rem 0.7rem;
+}
+
+ /*CTA buttons same line, same width */
+.inline.uniform {
+    display:         flex;
+    gap:             0.75rem;
+    justify-content: center;
+    align-items:     stretch;
+    flex-wrap:       nowrap;
+}
+
+.inline.uniform > * {
+    flex:      1 1 0;
+    min-width: 0;
+}
+
+
 /* ----------------------------------------------------------------------
    Base neon button (NO palette decisions here)
    ---------------------------------------------------------------------- */
@@ -32,7 +69,7 @@
 .btn-neon {
     position: relative;
 
-    /*display: inline-flex;*/
+    display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
@@ -183,4 +220,40 @@
     --btn-hover-text:       #FFF4D6;
     --btn-focus-glow:       rgba(255, 221, 102, 0.18);
     --btn-icon-glow:        rgba(255, 170, 0, 0.95);
+}
+
+
+/*!* RED / DANGER *!*/
+/*.btn-red {*/
+/*    --btn-fill1:            #FF5A5A;*/
+/*    --btn-fill2:            #FF1F1F;*/
+/*    --btn-text:             #1A0202;*/
+
+/*    --btn-ring:             rgba(255, 64, 64, 0.40);*/
+/*    --btn-ring-strong:      rgba(255, 64, 64, 0.75);*/
+
+/*    --btn-glow-outer-base:  rgba(255, 64, 64, 0.22);*/
+/*    --btn-glow-outer-hover: rgba(255, 64, 64, 0.36);*/
+
+/*    --btn-hover-text:       #FFECEC;*/
+/*    --btn-focus-glow:       rgba(255, 64, 64, 0.22);*/
+/*    --btn-icon-glow:        rgba(255, 64, 64, 0.95);*/
+/*}*/
+
+
+/* RED */
+.btn-red {
+    --btn-fill1:            #D83A3A;
+    --btn-fill2:            #A80F0F;
+    --btn-text:             #1A0202;
+
+    --btn-ring:             rgba(200, 48, 48, 0.35);
+    --btn-ring-strong:      rgba(220, 64, 64, 0.65);
+
+    --btn-glow-outer-base:  rgba(180, 40, 40, 0.18);
+    --btn-glow-outer-hover: rgba(220, 64, 64, 0.28);
+
+    --btn-hover-text:       #FFEAEA;
+    --btn-focus-glow:       rgba(200, 48, 48, 0.18);
+    --btn-icon-glow:        rgba(255, 90, 90, 0.85);
 }

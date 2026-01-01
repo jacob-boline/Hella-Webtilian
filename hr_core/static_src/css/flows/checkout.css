@@ -4,9 +4,9 @@
 
 /* Icons are checkout-specific flavor */
 .checkout-awaiting-confirmation .confirmation-icon {
-    font-size: 3rem;
+    font-size:     3rem;
     margin-bottom: 1.25rem;
-    color: var(--neon-blue);
+    color:         var(--neon-blue);
 }
 
 .checkout-awaiting-confirmation .confirmation-icon .fa-exclamation-triangle {
@@ -18,34 +18,34 @@
 }
 
 .checkout-session-expired .expired-icon {
-    font-size: 3rem;
+    font-size:     3rem;
     margin-bottom: 1.5rem;
-    color: var(--gold);
+    color:         var(--gold);
 }
 
 /* Title + message blocks (could be generalized later, keeping for now) */
 .checkout-title {
-    margin: 0 0 1.25rem;
-    font-family: "Exo 2", sans-serif;
-    font-weight: 600;
-    color: var(--text);
-    font-size: 1.5rem;
+    margin:         0 0 1.25rem;
+    font-family:    "Exo 2", sans-serif;
+    font-weight:    600;
+    color:          var(--text);
+    font-size:      1.5rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
 }
 
 .checkout-message {
-    margin: 0 0 1.25rem;
-    font-size: 1rem;
+    margin:      0 0 1.25rem;
+    font-size:   1rem;
     line-height: 1.5;
-    color: var(--muted-text);
-    max-width: 32ch;
+    color:       var(--muted-text);
+    max-width:   32ch;
 }
 
 .checkout-awaiting-confirmation .email-sent-to {
-    margin: 0 0 0.5rem;
+    margin:    0 0 0.5rem;
     font-size: 1rem;
-    color: var(--neon-blue);
+    color:     var(--neon-blue);
 }
 
 .checkout-awaiting-confirmation .email-sent-to strong {
@@ -53,15 +53,15 @@
 }
 
 .checkout-awaiting-confirmation .email-sent-at {
-    margin: 0 0 1.25rem;
+    margin:    0 0 1.25rem;
     font-size: 0.85rem;
-    color: var(--faint-text);
+    color:     var(--faint-text);
 }
 
 .checkout-awaiting-confirmation .confirmation-note {
-    margin: 0;
-    font-size: 0.85rem;
-    color: var(--faint-text);
+    margin:      0;
+    font-size:   0.85rem;
+    color:       var(--faint-text);
     line-height: 1.5;
 }
 
@@ -89,21 +89,21 @@
 
 .checkout-details-modal {
     text-align: left;
-    font-size: 0.85rem;
+    font-size:  0.85rem;
 }
 
 .checkout-details-modal .checkout-section-title.small {
     margin-top: 0;
-    font-size: 0.85rem;
-    opacity: 0.8;
+    font-size:  0.85rem;
+    opacity:    0.8;
 }
 
 /* Rows / columns (these are arguably global “form grid” primitives,
    but we’ll keep them here until you extract a form-ui.css) */
 .checkout-details-modal .field-row {
-    display: flex;
+    display:   flex;
     flex-wrap: wrap;
-    gap: 0.85rem;
+    gap:       0.85rem;
 }
 
 .checkout-details-modal .field-row-two-cols .field-group,
@@ -117,49 +117,49 @@
 
 .checkout-details-modal .field-col-left,
 .checkout-details-modal .field-col-right {
-    flex: 1 1 0;
+    flex:      1 1 0;
     min-width: 0;
 }
 
 .checkout-details-modal .field-group {
-    display: flex;
+    display:        flex;
     flex-direction: column;
 }
 
 /* Labels + required star.
    Consider extracting later if your other modals use the same label style. */
 .checkout-details-modal label {
-    font-size: 0.7rem;
+    font-size:      0.7rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    margin-top: 0.5rem;
-    margin-bottom: 0.25rem;
-    color: var(--neon-blue);
+    margin-top:     0.5rem;
+    margin-bottom:  0.25rem;
+    color:          var(--neon-blue);
 }
 
 .checkout-details-modal .required-star {
-    color: var(--neon-red);
-    font-size: 0.7rem;
+    color:       var(--neon-red);
+    font-size:   0.7rem;
     margin-left: 0.25rem;
 }
 
 /* Textarea specifics only (base textarea styles now in modal-ui.css) */
 .checkout-details-modal textarea {
-    resize: vertical;
+    resize:     vertical;
     min-height: 4.5rem;
 }
 
 /* Error + help (these might also become generic later) */
 .checkout-details-modal .field-error {
     margin-top: 0.25rem;
-    font-size: 0.7rem;
-    color: #fecaca;
+    font-size:  0.7rem;
+    color:      #FECACA;
 }
 
 .checkout-details-modal .field-help {
     margin-top: 0.25rem;
-    font-size: 0.7rem;
-    opacity: 0.8;
+    font-size:  0.7rem;
+    opacity:    0.8;
 }
 
 
@@ -169,60 +169,70 @@
 
 .checkout-review-modal {
     text-align: left;
-    padding: 1.5rem;
-    color: var(--text);
+    padding:    1.5rem;
+    color:      var(--text);
+    /*max-width:  min(800px, 80vw);*/
+    width: 80vw;
+}
+
+.checkout-review-modal:not(.order-payment-result) {
+    width: max-content;
+}
+
+.modal-actions.stack.uniform {
+    margin-top: 0.75rem;
 }
 
 .checkout-review-modal .review-title {
-    text-align: center;
-    margin-bottom: 0.5rem;
-    margin-top: -1.5rem;
+    text-align:     center;
+    margin-bottom:  0.5rem;
+    margin-top:     -1.5rem;
 
-    font-family: "Exo 2", sans-serif;
-    font-weight: 600;
-    font-size: 1.25rem;
+    font-family:    "Exo 2", sans-serif;
+    font-weight:    600;
+    font-size:      1.25rem;
     letter-spacing: 0.125em;
     text-transform: uppercase;
-    color: var(--text);
+    color:          var(--text);
 }
 
 .checkout-review-modal .review-section {
-    position: relative;
+    position:      relative;
     margin-bottom: 0.5rem;
-    padding: 1rem;
+    padding:       1rem;
     border-radius: 0;
     border-bottom: none;
-    background: transparent;
+    background:    transparent;
 }
 
 .checkout-review-modal .review-section.shipping-review {
-    margin-bottom: 0;
+    margin-bottom:  0;
     padding-bottom: 0;
 }
 
 .checkout-review-modal .review-section-title {
-    margin: 0;
-    font-size: 0.85rem;
+    margin:         0;
+    font-size:      0.85rem;
     letter-spacing: 0.125em;
     text-transform: uppercase;
-    font-weight: 600;
-    color: var(--neon-red);
+    font-weight:    600;
+    color:          var(--neon-red);
 }
 
 .checkout-review-modal .shipping-summary {
-    display: grid;
+    display:               grid;
     grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
-    column-gap: 1.25rem;
-    row-gap: 0.5rem;
-    font-size: 1rem;
-    line-height: 1.5;
-    margin-bottom: 0.75rem;
+    column-gap:            1.25rem;
+    row-gap:               0.5rem;
+    font-size:             1rem;
+    line-height:           1.5;
+    margin-bottom:         0.75rem;
 }
 
 .checkout-review-modal .customer-name {
     font-weight: 600;
-    color: var(--text);
-    font-size: 0.7rem;
+    color:       var(--text);
+    font-size:   0.7rem;
 }
 
 .checkout-review-modal .customer-email,
@@ -233,23 +243,23 @@
 
 .checkout-review-modal .customer-field {
     font-size: 0.7rem;
-    margin: 0 0 0.25rem;
+    margin:    0 0 0.25rem;
 }
 
 .checkout-review-modal .review-items {
-    display: flex;
+    display:        flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap:            0.5rem;
 }
 
 .checkout-review-modal .review-item {
-    display: grid;
+    display:               grid;
     grid-template-columns: minmax(0, 1.6fr) auto;
-    column-gap: 1rem;
-    row-gap: 0.25rem;
-    align-items: baseline;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    column-gap:            1rem;
+    row-gap:               0.25rem;
+    align-items:           baseline;
+    padding:               0.5rem 0;
+    border-bottom:         1px solid rgba(255, 255, 255, 0.12);
 }
 
 .checkout-review-modal .review-item:last-child {
@@ -257,65 +267,65 @@
 }
 
 .checkout-review-modal .item-name {
-    font-weight: 600;
-    margin: 0;
-    white-space: nowrap;
-    overflow: hidden;
+    font-weight:   600;
+    margin:        0;
+    white-space:   nowrap;
+    overflow:      hidden;
     text-overflow: ellipsis;
-    color: var(--neon-blue);
-    font-size: 0.85rem;
+    color:         var(--neon-blue);
+    font-size:     0.85rem;
 }
 
 .checkout-review-modal .item-meta {
-    display: flex;
+    display:     flex;
     align-items: baseline;
-    gap: 0.5rem;
-    font-size: 0.7rem;
-    margin-top: 0.25rem;
+    gap:         0.5rem;
+    font-size:   0.7rem;
+    margin-top:  0.25rem;
 }
 
 .checkout-review-modal .item-variant,
 .checkout-review-modal .item-qty {
-    color: var(--muted-text);
+    color:   var(--muted-text);
     opacity: 0.85;
 }
 
 .checkout-review-modal .item-price {
     font-weight: 600;
     white-space: nowrap;
-    color: var(--accent);
-    font-size: 0.85rem;
+    color:       var(--accent);
+    font-size:   0.85rem;
 }
 
 /* Totals block for review stays checkout-specific for now */
 .checkout-review-modal .review-totals {
-    background: rgba(0, 0, 0, 0.45);
-    padding: 0.25rem;
+    background:    rgba(0, 0, 0, 0.45);
+    padding:       0.25rem;
     border-radius: 16px;
-    margin: 0 auto;
-    max-width: 420px;
-    font-size: 0.85rem;
+    margin:        0 auto;
+    max-width:     420px;
+    font-size:     0.85rem;
 }
 
 .checkout-review-modal .total-row {
-    display: flex;
+    display:         flex;
     justify-content: space-between;
-    padding: 0.25rem 0;
-    color: var(--muted-text);
+    padding:         0.25rem 0;
+    color:           var(--muted-text);
 }
 
 .checkout-review-modal .total-final {
-    margin-top: 0.5rem;
+    margin-top:  0.5rem;
     padding-top: 0.5rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    border-top:  1px solid rgba(255, 255, 255, 0.2);
     font-weight: 700;
-    color: var(--neon-green);
+    color:       var(--neon-green);
 }
 
 .checkout-review-modal .review-note {
-    font-size: 0.85rem;
+    font-size:   0.85rem;
     line-height: 1.5;
-    margin: 0.5rem 0 0.25rem;
+    margin:      0.5rem 0 0.25rem;
 }
 
 .checkout-review-modal .review-actions form {
@@ -333,7 +343,7 @@
 
 @media (min-width: 480px) {
     .checkout-review-modal .review-actions {
-        flex-direction: row;
+        flex-direction:  row;
         justify-content: center;
     }
 }
@@ -344,120 +354,386 @@
    =========================== */
 
 .orders-modal {
-  text-align: left;
-  color: var(--text);
+    text-align: left;
+    color:      var(--text);
 }
 
 /* list container */
 .orders-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+    display:        flex;
+    flex-direction: column;
+    gap:            0.5rem;
 }
 
 /* row card (mirrors cart-summary-card vibe but simpler) */
 .orders-summary-card {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 1rem;
+    display:               grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items:           center;
+    gap:                   1rem;
 
-  padding: 1rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding:               1rem 0;
+    border-bottom:         1px solid rgba(255, 255, 255, 0.2);
 }
 
 .orders-summary-card:last-of-type {
-  border-bottom: none;
+    border-bottom: none;
 }
 
 .orders-main {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  min-width: 0;
+    display:        flex;
+    flex-direction: column;
+    gap:            0.25rem;
+    min-width:      0;
 }
 
 .orders-title {
-  margin: 0;
-  font-weight: 600;
-  color: var(--neon-blue);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+    margin:        0;
+    font-weight:   600;
+    color:         var(--neon-blue);
+    white-space:   nowrap;
+    overflow:      hidden;
+    text-overflow: ellipsis;
 }
 
 .orders-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+    display:   flex;
+    flex-wrap: wrap;
+    gap:       0.5rem;
 
-  font-size: 0.75rem;
-  color: var(--muted-text);
+    font-size: 0.75rem;
+    color:     var(--muted-text);
 }
 
 .orders-status {
-  color: var(--accent);
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+    color:          var(--accent);
+    font-weight:    600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
 }
 
 .orders-total {
-  margin: 0;
-  font-weight: 600;
-  color: var(--accent);
-  font-size: 0.85rem;
+    margin:      0;
+    font-weight: 600;
+    color:       var(--accent);
+    font-size:   0.85rem;
 }
 
 .orders-actions {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
+    display:         flex;
+    justify-content: flex-end;
+    align-items:     center;
 }
 
 .orders-empty {
-  margin: 0.75rem 0 0;
-  color: var(--muted-text);
-  font-style: italic;
+    margin:     0.75rem 0 0;
+    color:      var(--muted-text);
+    font-style: italic;
 }
 
 /* responsive */
 @media (max-width: 640px) {
-  .orders-summary-card {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-  }
+    .orders-summary-card {
+        grid-template-columns: 1fr;
+        gap:                   0.75rem;
+    }
 
-  .orders-actions {
-    justify-content: flex-start;
-  }
+    .orders-actions {
+        justify-content: flex-start;
+    }
 }
+
 
 /* ===========================
    Order detail item layout
    =========================== */
 
 .order-item-row {
-  align-items: center;
+    align-items: center;
 }
 
 .order-item-head {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  min-width: 0;
+    display:     flex;
+    align-items: center;
+    gap:         0.75rem;
+    min-width:   0;
 }
 
 .order-item-thumb {
-  width: 64px;
-  height: 64px;
-  border-radius: 16px;
-  object-fit: cover;
-  flex: 0 0 auto;
+    width:         64px;
+    height:        64px;
+    border-radius: 16px;
+    object-fit:    cover;
+    flex:          0 0 auto;
 }
 
 .order-item-text {
-  min-width: 0;
+    min-width: 0;
+}
+
+/* subtle CTA entrance (reused) */
+.cta-fadein {
+    opacity:   0;
+    transform: translateY(4px);
+    animation: ctaFadeIn 220ms ease-out forwards;
+}
+
+@keyframes ctaFadeIn {
+    to {
+        opacity:   1;
+        transform: translateY(0);
+    }
+}
+
+/* exit (your JS adds .is-dismissing) */
+.post-purchase-account.is-dismissing {
+    opacity:    0;
+    transform:  translateY(2px);
+    transition: opacity 1000ms ease, transform 1000ms ease;
 }
 
 
+/* ===========================
+   Order payment result polish
+   =========================== */
+
+/* Center the modal overall */
+.order-payment-result {
+    text-align: center;
+    width: clamp(15rem, 45rem, 80vw);
+}
+
+/* Keep only “detail-y” stuff left aligned */
+.order-payment-result .order-details > :not(summary),
+.order-payment-result .order-details > :not(summary) * ,
+.order-payment-result .order-details-grid,
+.order-payment-result .details-panel,
+.order-payment-result .review-items,
+.order-payment-result .review-item,
+.order-payment-result .review-totals {
+    text-align: left;
+}
+
+.order-payment-result .order-details {
+    overflow-x: auto;
+    scrollbar-gutter: stable;
+}
+
+.order-payment-result .order-details p,
+.order-payment-result .order-details .customer-field,
+.order-payment-result .order-details .shipping-address {
+    white-space: nowrap;
+}
+
+/*.order-payment-result .customer-field.shipping-address {*/
+/*    white-space: pre-wrap;*/
+/*}*/
+
+.order-payment-result .order-details p {
+    text-wrap: none;
+}
+
+.order-payment-result .order-details > summary {
+    text-align: center;
+}
+
+/* tighten the top-right X a bit (Option A) */
+.order-payment-result .order-payment-close {
+    position:        absolute;
+    top:             0.75rem;
+    right:           0.75rem;
+    line-height:     1;
+    width:           2.25rem;
+    height:          2.25rem;
+    display:         inline-flex;
+    align-items:     center;
+    justify-content: center;
+}
+
+/* CTA outlined panel */
+.order-payment-result .cta-panel {
+    max-width:     560px;
+    margin:        0.9rem auto 0;
+    padding:       1rem;
+
+    border-radius: 14px;
+    background:    rgba(0, 0, 0, 0.35);
+    border:        1px solid rgba(255, 255, 255, 0.16);
+    box-shadow:    0 0 18px rgba(0, 234, 255, 0.10);
+}
+
+/*!* CTA buttons same line, same width *!*/
+/*.order-payment-result .modal-actions.inline.uniform {*/
+/*    display:         flex;*/
+/*    gap:             0.75rem;*/
+/*    justify-content: center;*/
+/*    align-items:     stretch;*/
+/*    flex-wrap:       nowrap;*/
+/*}*/
+
+/*.order-payment-result .modal-actions.inline.uniform > * {*/
+/*    flex:      1 1 0;*/
+/*    min-width: 0;*/
+/*}*/
+
+/* Collapse to stack on small screens */
+
+.order-payment-result .modal-actions.inline.uniform {
+    margin-top: 0.85rem;
+}
+
+@media (max-width: 520px) {
+    .order-payment-result .modal-actions.inline.uniform {
+        flex-wrap: wrap;
+    }
+
+    .order-payment-result .modal-actions.inline.uniform > * {
+        flex: 1 1 100%;
+    }
+}
+
+/* Receipt block stays compact */
+.order-payment-result .receipt-block {
+    max-width: 100%;
+    margin:    0.5rem 0;
+}
+
+/* ---------------------------
+   Details toggle (chevron!)
+   --------------------------- */
+
+/* Make summary look like a toggle, not a subsection header */
+.order-payment-result summary.order-details-toggle {
+    list-style:     none;
+    user-select:    none;
+    cursor:         pointer;
+
+    /*display:        inline-flex;*/
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+    align-items:    center;
+    gap:            0.55rem;
+
+    color:          var(--neon-red);
+    font-size:      0.80rem;
+    letter-spacing: 0.125em;
+    text-transform: uppercase;
+    font-weight:    600;
+    opacity:        0.95;
+}
+
+/* Hide default marker */
+.order-payment-result summary.order-details-toggle::-webkit-details-marker {
+    display: none;
+}
+
+/* Rotating chevron */
+.order-payment-result summary.order-details-toggle::after {
+    content:     "▸";
+    display:     inline-block;
+    line-height: 1;
+    transform:   rotate(0deg);
+    transition:  transform 160ms ease;
+    opacity:     0.95;
+}
+
+/* Rotate when open */
+.order-payment-result details[open] > summary.order-details-toggle::after {
+    transform: rotate(90deg);
+}
+
+/* Subsection titles inside details: smaller + different color than toggle */
+.order-payment-result .details-subtitle {
+    margin:         0 0 0.5rem;
+    font-size:      0.7rem;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color:          var(--neon-blue);
+    opacity:        0.95;
+}
+
+/*!* 3-up details grid *!*/
+/*.order-payment-result .order-details-grid {*/
+/*    display:               grid;*/
+/*    grid-template-columns: repeat(3, minmax(12rem, 1fr));*/
+/*    gap:                   1rem;*/
+/*    min-width: max-content;*/
+/*}*/
+
+/* desktop */
+.order-payment-result .order-details-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+/* tablets / smaller laptops */
+@media (max-width: 1199.98px) {
+  .order-payment-result .order-details-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* mobile + narrow modal */
+@media (max-width: 991.98px) {
+  .order-payment-result .order-details-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Panels inside the grid */
+.order-payment-result .details-panel {
+    min-width:     12rem;
+    padding:       0.85rem;
+    border-radius: 14px;
+    background:    rgba(0, 0, 0, 0.25);
+    border:        1px solid rgba(255, 255, 255, 0.10);
+    margin-top:    1rem;
+}
+
+.order-payment-result .details-panel p {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.order-payment-result .details-panel .shipping-address {
+  white-space: pre-wrap;
+}
+
+
+/*!* Mobile: stack the grid *!*/
+/*@media (max-width: 640px) {*/
+/*    .order-payment-result .order-details-grid {*/
+/*        grid-template-columns: 1fr;*/
+/*    }*/
+/*}*/
+
+/* Make this specific modal scroll instead of overflowing the viewport */
+.checkout-review-modal.order-payment-result {
+    max-height:                 75vh;
+    overflow-y:                 auto;
+    overflow-x:                 hidden;
+    overscroll-behavior:        contain;
+    /*padding-right:              1.25rem;*/
+    -webkit-overflow-scrolling: touch;
+    padding: 1.25rem -1.25rem;
+}
+
+/* Optional: keep the top-right X visible while scrolling */
+.order-payment-result .order-payment-close {
+    position:    sticky;
+    top:         0.75rem;
+    margin-left: auto;
+    z-index:     5;
+}
+
+.order-payment-msg .form-errors {
+    margin-top: 0.75rem;
+}
+
+.order-payment-msg .modal-text-muted {
+    margin-top: 0.5rem;
+}

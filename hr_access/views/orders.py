@@ -34,7 +34,7 @@ def account_get_orders(request):
     order_list = list(base_qs[:21])
 
     ctx = {
-        "account_get_orders": order_list[:20],
+        "orders": order_list[:20],
         "has_more": len(order_list) > 20,
         "unclaimed_count": (
             Order.objects.filter(user__isnull=True, email__iexact=email).count()
@@ -85,7 +85,7 @@ def account_get_unclaimed_orders(request):
 
     return render(request, "hr_access/orders/_unclaimed_orders_modal.html", {
         "email": email,
-        "account_get_orders": unclaimed_orders,
+        "unclaimed_orders": unclaimed_orders,
         "error": None,
     })
 
@@ -101,16 +101,16 @@ def account_submit_claim_unclaimed_orders(request):
     order_ids = [int(x) for x in raw_ids if str(x).isdigit()]
 
     if not order_ids:
-        remaining = (
+        unclaimed_orders = (
             Order.objects
             .filter(user__isnull=True, email__iexact=email)
             .order_by("-created_at")[:50]
         )
         return render(request, "hr_access/orders/_unclaimed_orders_modal.html", {
             "email": email,
-            "account_get_orders": remaining,
+            "unclaimed_orders": unclaimed_orders,
             "error": "Select at least one order to claim.",
-            "claimed_count": 0,
+            "claimed_count": 0
         })
 
     with transaction.atomic():
@@ -129,7 +129,7 @@ def account_submit_claim_unclaimed_orders(request):
 
     return render(request, "hr_access/orders/_unclaimed_orders_modal.html", {
         "email": email,
-        "account_get_orders": remaining,
+        "unclaimed_orders": remaining,
         "error": None,
-        "claimed_count": claimed_count,
+        "claimed_count": claimed_count
     })

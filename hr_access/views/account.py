@@ -8,20 +8,103 @@ from logging import getLogger
 from django.contrib.auth import login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned, ValidationError
-from django.db import IntegrityError, transaction
+from django.core.cache import cache
+from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
+from django.template.loader import render_to_string
+from django.urls import reverse
+from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 
 from hr_access.forms import AccountCreationForm
 from hr_access.models import User
 from hr_core.utils.email import normalize_email
+from hr_core.utils.tokens import verify_account_signup_token, generate_account_signup_token
+from hr_shop.exceptions import RateLimitExceeded, EmailSendError
 from hr_shop.models import Order
 from hr_shop.services.customers import attach_customer_to_user
-from utils.tokens import verify_checkout_email_token
+from hr_email.service import EmailProviderError, send_app_email
 
 logger = getLogger()
+
+SIGNUP_RATE_LIMIT_MAX_EMAILS = 3
+SIGNUP_RATE_LIMIT_WINDOW_SECONDS = 3600
+SIGNUP_SENT_AT_KEY = "account_signup_confirm_sent_at:{email}"
+SIGNUP_COUNT_KEY = "account_signup_email_count:{email}"
+
+
+def _increment_signup_email_count(email:str) -> int:
+    normalized = normalize_email(email)
+    key = SIGNUP_COUNT_KEY.format(email=normalized)
+    count = cache.get(key, 0) + 1
+    cache.set(key, count, timeout=SIGNUP_RATE_LIMIT_WINDOW_SECONDS)
+    return count
+
+
+def _can_send_signup_email(email: str) -> bool:
+    normalized = normalize_email(email)
+    key = SIGNUP_COUNT_KEY.format(email=normalized)
+    return cache.get(key, 0) < SIGNUP_RATE_LIMIT_MAX_EMAILS
+
+
+def _get_last_signup_confirmation_sent_at(email: str):
+    return cache.get(SIGNUP_SENT_AT_KEY.format(email=normalize_email(email)))
+
+
+def send_account_verify_email(request, user: User) -> str:
+    """
+    Send a confirmation email for new account signups.
+    Mirrors the checkout confirmation flow (rate limiting + cache tracking)
+    """
+    if not user.email:
+        raise ValueError("User email is required for signup verification.")
+
+    if not _can_send_signup_email(user.email):
+        raise RateLimitExceeded("Too many confirmation emails sent. Please check your inbox or try again.")
+
+    token = generate_account_signup_token(user_id=user.id, email=user.email)
+    confirm_url = request.build_absolute_uri(
+        f"{reverse('hr_access:account_signup_confirm')}?u={user.id}&t={token}"
+    )
+
+    subject = "Confirm your Hella Reptilian! account"
+    html_body = render_to_string(
+        "hr_access/registration/signup_confirmation_email.html",
+        {
+            "confirm_url": confirm_url,
+            "email": normalize_email(user.email),
+            "year": timezone.now().year
+        }
+    )
+    text_body = (
+        f"Please confirm your email to activate your account.\n\n"
+        f"Confirm here: {confirm_url}\n"
+        "This link expires in 1 hour.\n\n"
+        "If you didn't sign up, you can ignore this email.\n\n"
+        "---\nHella Reptilian!"
+    )
+
+    try:
+        send_app_email(
+            to_emails=[user.email],
+            subject=subject,
+            text_body=text_body,
+            html_body=html_body,
+            custom_id=f"account_signup_confirm_{user.id}"
+        )
+    except EmailProviderError as exc:
+        logger.error('Failed to send signup confirmation to %s: %s', user.email, exc)
+        raise EmailSendError("Could not send confirmation email. Please try again.") from exc
+
+    _increment_signup_email_count(user.email)
+    cache.set(
+        SIGNUP_SENT_AT_KEY.format(email=normalize_email(user.email)),
+        timezone.now(),
+        timeout=SIGNUP_RATE_LIMIT_WINDOW_SECONDS
+    )
+    logger.info("Signup confirmation email sent to %s", user.email)
+    return confirm_url
 
 
 def account_signup(request):
@@ -37,42 +120,39 @@ def account_signup(request):
 
         user = form.create_user(role=User.Role.USER, is_active=False)
 
-        send_account_verify_email(request, user)
-
-        response = render(request, 'hr_access/registration/_signup_check_email.html', {'email': user.email})
+        try:
+            send_account_verify_email(request, user)
+            context = {
+                'email': user.email,
+                'sent_at': _get_last_signup_confirmation_sent_at(user.email),
+                'rate_limited': False,
+                'error': False,
+                'message': "We've sent a confirmation link to your email. Please check your inbox."
+            }
+        except RateLimitExceeded:
+            context = {
+                'email':        user.email,
+                'sent_at':      _get_last_signup_confirmation_sent_at(user.email),
+                'rate_limited': True,
+                'error':        False,
+                'message':      "Too many confirmation emails sent. Please check your inbox or try again later.",
+            }
+        except EmailSendError:
+            context = {
+                'email':        user.email,
+                'sent_at':      _get_last_signup_confirmation_sent_at(user.email),
+                'rate_limited': False,
+                'error':        True,
+                'message':      "Could not send confirmation email. Please try again.",
+            }
+        response = render(request, 'hr_access/registration/_signup_check_email.html', context)
         response['HX-Trigger'] = json.dumps({
-            'showMessage': 'Check your email to confirm your account.',
+            'showMessage': context.get('message') or 'Check your email to confirm your account.'
         })
         return response
 
-        #
-        # login(request, user)
-        #
-        # try:
-        #     attach_customer_to_user(user)
-        # except (ObjectDoesNotExist, MultipleObjectsReturned, ValidationError, IntegrityError) as err:
-        #     logger.warning(f"Failed to attach guest account_get_orders for user {user.pk}: {err}")
-        #
-        # response = render(request, "hr_access/registration/_signup_success.html")
-        # response.headers["HX-Trigger"] = json.dumps({
-        #     "accessChanged": None,
-        #     "showMessage": "Welcome! Your account is ready.",
-        # })
-        # return response
-
+    # GET
     return render(request, "hr_access/registration/_signup.html", {"form": AccountCreationForm()})
-
-import json
-
-from django.contrib.auth import login
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
-from django.views.decorators.http import require_GET
-
-from hr_access.models import User
-from hr_shop.services.customers import attach_customer_to_user
-from hr_core.utils.email import normalize_email
-from hr_core.utils.tokens import verify_account_signup_token
 
 
 @require_GET
@@ -113,7 +193,6 @@ def account_signup_confirm(request):
             })
         },
     )
-
 
 
 @login_required

@@ -7,19 +7,19 @@
 @font-face {
     font-family: "Bungee Hairline";
     font-display: swap;
-    src: url("hr_core/static_src/fonts/BungeeHairline-Regular.ttf") format("truetype");
+    src: url("static/fonts/BungeeHairline-Regular.ttf") format("truetype");
 }
 
 @font-face {
     font-family: "Megrim";
     font-display: swap;
-    src: url("hr_core/static_src/fonts/Megrim-Regular.ttf") format("truetype");
+    src: url("static/fonts/Megrim-Regular.ttf") format("truetype");
 }
 
 @font-face {
     font-family: "Quantico";
     font-display: swap;
-    src: url("hr_core/static_src/fonts/Quantico-Regular.ttf") format("truetype");
+    src: url("static/fonts/Quantico-Regular.ttf") format("truetype");
     font-weight: 400;
     font-style: normal;
 }
@@ -27,7 +27,7 @@
 @font-face {
     font-family: "Quantico";
     font-display: swap;
-    src: url("hr_core/static_src/fonts/Quantico-Bold.ttf") format("truetype");
+    src: url("static/fonts/Quantico-Bold.ttf") format("truetype");
     font-weight: 700;
     font-style: normal;
 }
@@ -35,7 +35,7 @@
 @font-face {
     font-family: "Quantico";
     font-display: swap;
-    src: url("hr_core/static_src/fonts/Quantico-Italic.ttf") format("truetype");
+    src: url("static/fonts/Quantico-Italic.ttf") format("truetype");
     font-weight: 400;
     font-style: italic;
 }
@@ -43,7 +43,7 @@
 @font-face {
     font-family: "Quantico";
     font-display: swap;
-    src: url("hr_core/static_src/fonts/Quantico-BoldItalic.ttf") format("truetype");
+    src: url("static/fonts/Quantico-BoldItalic.ttf") format("truetype");
     font-weight: 700;
     font-style: italic;
 }
@@ -51,25 +51,25 @@
 @font-face {
     font-family: "KARNIVBL";
     font-display: swap;
-    src: url("hr_core/static_src/fonts/KARNIVBL.ttf") format("truetype");
+    src: url("static/fonts/KARNIVBL.ttf") format("truetype");
 }
 
 @font-face {
     font-family: "Tilt Prism";
     font-display: swap;
-    src: url("hr_core/static_src/fonts/TiltPrism-Regular.ttf") format("truetype");
+    src: url("static/fonts/TiltPrism-Regular.ttf") format("truetype");
 }
 
 @font-face {
     font-family: "Exo 2";
     font-display: swap;
-    src: url("hr_core/static_src/fonts/Exo2-VariableFont_wght.ttf") format("truetype");
+    src: url("static/fonts/Exo2-VariableFont_wght.ttf") format("truetype");
 }
 
 @font-face {
     font-family: "Syne Mono";
     font-display: swap;
-    src: url("hr_core/static_src/fonts/SyneMono-Regular.ttf") format("truetype");
+    src: url("static/fonts/SyneMono-Regular.ttf") format("truetype");
 }
 
 /* ===========================
@@ -149,7 +149,9 @@ body {
    Global navigation
    =========================== */
 
-nav.navbar { position: fixed; }
+nav.navbar {
+    position: fixed;
+}
 
 /* ===========================
    Global message bar
@@ -162,16 +164,12 @@ nav.navbar { position: fixed; }
     right: 0;
     left: 0;
     transform: translateY(-100%);
-
     padding: 0.75rem 1.25rem;
-
     font-size: 0.9rem;
     color: #F9FAFB;
     text-align: center;
-
     opacity: 0;
     background-color: #14532D;
-
     transition: transform 0.25s ease-out, opacity 0.25s ease-out;
 }
 
@@ -187,10 +185,8 @@ nav.navbar { position: fixed; }
 .parallax-content {
     position: relative;
     z-index: 10;
-
     min-width: 100vmin;
     min-height: calc(var(--vh) * 100);
-
     padding-top: var(--section-pad);
     padding-bottom: var(--section-pad);
 }
@@ -224,7 +220,6 @@ nav.navbar { position: fixed; }
 /* Generic section title */
 .section-title {
     margin: 0;
-
     font-family: "Exo 2", sans-serif;
     font-size: clamp(2rem, 4.5vmin, 3rem);
     font-weight: 700;
@@ -238,34 +233,12 @@ nav.navbar { position: fixed; }
     font-weight: 600;
     color: var(--gold);
     font-size: 0.7rem;
-
     letter-spacing: 0.08em;
     text-transform: uppercase;
 }
 
-/* Engraved character style */
-.btn-char {
-    display: inline-block;
-    font-family: "Bungee Hairline", sans-serif;
-    color: #BFBFBF;
-    text-shadow:
-        -4px -4px 4px rgba(0, 0, 0, 0.9),
-        1px 1px 2px rgba(255, 255, 255, 0.25);
-}
-
-/* Card button base */
-.card-btn {
-    display: inline-flex;
-    gap: 0.5rem;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.7rem;
-    padding: 0.45rem 0.7rem;
-}
-
 .parallax-section h1 {
     margin: 3rem 0 0.75rem;
-
     font-family: "Exo 2", sans-serif;
     font-size: clamp(3rem, 5vmin, 4rem);
     font-weight: 700;
@@ -278,7 +251,6 @@ nav.navbar { position: fixed; }
         0 0 24px rgba(200, 200, 255, 0.4);
     text-transform: uppercase;
     letter-spacing: 0.25em;
-
     animation: pulse-glow 2.5s infinite ease-in-out;
 }
 
@@ -290,7 +262,6 @@ nav.navbar { position: fixed; }
             0 0 0.75rem rgba(255, 255, 255, 0.4),
             0 0 1.5rem rgba(200, 200, 255, 0.4);
     }
-
     50% {
         text-shadow:
             0 0 0.75rem rgba(255, 255, 255, 0.8),
@@ -306,13 +277,18 @@ nav.navbar { position: fixed; }
 .modal {
     position: fixed;
     inset: 0;
-    z-index: 1000;
-
+    z-index: 1600;
+    font-size: 0.75rem;
     display: flex;
     align-items: center;
     justify-content: center;
-
     pointer-events: none;
+}
+
+#modal.modalinput:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):not([type="button"]):not([type="submit"]):not([type="reset"]),
+#modal.modal select,
+#modal.modal textarea {
+    font-size: 0.75rem;
 }
 
 .modal-backdrop {
@@ -336,14 +312,23 @@ nav.navbar { position: fixed; }
     position: relative;
     z-index: 1001;
     pointer-events: auto;
-    width: 100%;
     max-width: min(64rem, calc(100vw - 2 * var(--pad-inline)));
     max-height: min(95vh, calc(var(--vh) * 95));
     padding: 0 1.75rem 0.75rem;
-    /*padding: 0.25rem;*/
+    overflow: hidden;
 }
 
-#modal-content { view-transition-name: modal-content; }
+#modal-content {
+    view-transition-name: modal-content;
+    max-width: 100%;
+    width: 100%;
+    max-height: calc(min(95vh, calc(var(--vh) * 95)) - 3.5rem);
+    overflow: hidden;
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
 
 ::view-transition-old(modal-content),
 ::view-transition-new(modal-content) {
@@ -383,14 +368,13 @@ nav.navbar { position: fixed; }
     }
 }
 
-#modal-content { transition: opacity 200ms ease; }
+#modal-content {
+    transition: opacity 200ms ease;
+}
 
-.modal-is-swapping #modal-content { opacity: 0.85; }
-
-/*#modal-message-box + #modal-content,*/
-/*#modal-content {*/
-/*    margin-top: 0.25rem;*/
-/*}*/
+.modal-is-swapping #modal-content {
+    opacity: 0.85;
+}
 
 .modal.hidden {
     display: none;
@@ -415,23 +399,17 @@ nav.navbar { position: fixed; }
     top: calc(var(--vh) * 7);
     right: 1rem;
     z-index: 1500;
-
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-
     padding: 0.5rem 0.75rem;
     border-radius: 999px;
-
     border: 1px solid rgba(255, 255, 255, 0.18);
     background: rgba(0, 0, 0, 0.25);
     backdrop-filter: blur(10px);
-
     color: #FFF;
     cursor: pointer;
-
     box-shadow: 0 0 18px rgba(0, 234, 255, 0.15);
-
     transition: transform 0.2s ease, opacity 1s ease, background 0.2s ease;
 }
 
@@ -440,24 +418,24 @@ nav.navbar { position: fixed; }
     background: rgba(0, 0, 0, 0.4);
 }
 
-.floating-cart-btn:active { transform: translateY(0); }
+.floating-cart-btn:active {
+    transform: translateY(0);
+}
 
 .floating-cart-btn.is-hidden {
     opacity: 0;
     pointer-events: none;
     transform: translateY(-4px);
+    transition: opacity 200ms ease, transform 200ms ease;
 }
 
 .floating-cart-count {
     min-width: 1.5rem;
     height: 1.5rem;
-
     display: inline-flex;
     align-items: center;
     justify-content: center;
-
     border-radius: 999px;
-
     font-size: 0.75rem;
     font-weight: 700;
     line-height: 1;
@@ -476,7 +454,6 @@ nav.navbar { position: fixed; }
     display: flex;
     align-items: center;
     justify-content: center;
-
     padding-top: var(--page-pad-top);
     padding-bottom: var(--page-pad-bottom);
     padding-inline: var(--pad-inline);
@@ -537,7 +514,6 @@ nav.navbar { position: fixed; }
         padding: 1rem;
         border-radius: 0.75rem;
     }
-
     .modal-panel {
         width: 100vw;
         max-width: 100vw;
@@ -546,17 +522,14 @@ nav.navbar { position: fixed; }
     }
 }
 
+
 @media (min-width: 768px) and (max-width: 1279.98px) {
-    .modal-panel {
-        width: min(90vw, 960px);
-        padding-inline: 1.5rem;
-    }
+  .modal-panel {
+    width: auto; /* let max-width govern */
+    max-width: min(64rem, calc(100vw - 2 * var(--pad-inline)));
+    padding-inline: 1.5rem;
+  }
 }
 
-.field-help {
-    font-size: 0.75rem;
-    color: var(--faint-text);
-    margin-bottom: 1rem;
-    margin-top: 0.5rem;
-    justify-self: center;
-}
+
+

@@ -1,14 +1,11 @@
-{#hr_shop/templates/hr_shop/checkout/_order_payment_result.html#}
-
-{#  this is meant to combine/replace   #}
-{#     _order_thank_you,               #}
-{#     _order_payment_incomplete,      #}
-{#     _order_receipt_modal            #}
-
 {# hr_shop/templates/hr_shop/checkout/_order_payment_result.html #}
-{% load humanize %}
 
 <div class="checkout-review-modal order-payment-result">
+
+    {# Option A close button (top-right X) #}
+{#    <button type="button" class="modal-close-btn order-payment-close" data-modal-close aria-label="Close">#}
+{#        ×#}
+{#    </button>#}
 
     {# ========================= #}
     {#  Title (varies by result) #}
@@ -17,7 +14,7 @@
         <h2 class="review-title">Payment Successful</h2>
     {% elif payment_result == "pending" %}
         <h2 class="review-title">Payment Processing</h2>
-    {% elif payment_result in "failed,canceled,expired" %}
+    {% elif payment_result == "failed" or payment_result == "canceled" or payment_result == "expired" %}
         <h2 class="review-title">Payment Not Completed</h2>
     {% else %}
         <h2 class="review-title">Payment Status Unknown</h2>
@@ -26,7 +23,7 @@
     {# ========================= #}
     {# Result message            #}
     {# ========================= #}
-    <div class="review-section">
+    <div class="review-section order-payment-msg">
         {% if payment_result == "paid" %}
             <p class="modal-text-muted">
                 Thank you. Your payment was received and your order is confirmed.
@@ -54,29 +51,30 @@
         {% endif %}
 
         {% if payment_failure_reason %}
-            <div class="form-errors" style="margin-top: .75rem;">
+            <div class="form-errors">
                 <p><strong>Details:</strong> {{ payment_failure_reason }}</p>
             </div>
         {% endif %}
 
         {% if payment_failure_code %}
-            <p class="modal-text-muted" style="margin-top: .5rem;">
+            <p class="modal-text-muted">
                 <strong>Code:</strong> {{ payment_failure_code }}
             </p>
         {% endif %}
     </div>
 
-    {#  =========================  #}
-    {#   Guest CTA (paid + guest)  #}
-    {#  =========================  #}
-    {% if payment_result == "paid" and is_guest %}
-        <div id="post-purchase-account" class="review-section post-purchase-account">
+    {# ================================ #}
+    {# Guest CTA (paid + guest only)    #}
+    {# ================================ #}
+    {% if payment_result == "paid" and is_guest and not cta_dismissed %}
+        {# CHANGED: add cta-fadein so entrance animation actually runs #}
+        <div id="post-purchase-account" class="review-section post-purchase-account cta-panel cta-fadein">
             <p class="review-section-title">Save your details?</p>
             <p class="modal-text-muted">
                 Create an account to track orders, save addresses, and check out faster next time.
             </p>
 
-            <div class="modal-actions stack uniform">
+            <div class="modal-actions inline uniform">
                 <button
                         type="button"
                         class="card-btn btn-neon btn-green btn-sm"
@@ -84,13 +82,17 @@
                         hx-target="#post-purchase-account"
                         hx-swap="outerHTML transition:true"
                 >
-                    Yes, create an account
+                    Create Account
                 </button>
 
+                {# "Acknowledged" stub: just marks dismissal in-session and fades out #}
                 <button
                         type="button"
                         class="card-btn btn-neon btn-blue btn-sm"
-                        data-modal-close
+                        data-cta-dismiss
+                        hx-post="{% url 'hr_shop:dismiss_post_purchase_cta' order.id %}"
+                        hx-swap="outerHTML transition:true"
+                        hx-target="#post-purchase-account"
                 >
                     No thanks
                 </button>
@@ -98,79 +100,86 @@
         </div>
     {% endif %}
 
-    {#  ================================================================================== #}
-    {#   Receipt + resend (always show if we have an email, regardless of payment result)  #}
-    {#  ================================================================================== #}
-    <div class="review-section">
-        <p class="review-section-title">Receipt</p>
+    {# ============================================ #}
+    {# Receipt + resend (ONLY when paid)            #}
+    {# ============================================ #}
+    {% if payment_result == "paid" %}
+        <div class="review-section receipt-block">
+            <p class="review-section-title">Receipt</p>
 
-        {% if order.email %}
-            {% if payment_result == "paid" %}
+            {% if order.email %}
                 <p class="modal-text-muted">
-                    Your receipt will be sent to <strong>{{ order.email }}</strong>.
-                </p>
-            {% else %}
-                <p class="modal-text-muted">
-                    If payment completes, we’ll send a receipt to <strong>{{ order.email }}</strong>.
+                    A copy of your receipt has been sent to <strong>{{ order.email }}</strong>.
                 </p>
             {% endif %}
-        {% endif %}
 
-        <div class="modal-actions stack uniform" style="margin-top:.75rem;">
-            <form hx-post="{% url 'hr_shop:order_send_receipt_email' order.id %}"
-                  hx-swap="none"
-                  method="post">
-                {% csrf_token %}
-                {% if receipt_token %}
-                    <input type="hidden" name="t" value="{{ receipt_token }}">
-                {% endif %}
+            <div class="modal-actions stack uniform">
+                <form hx-post="{% url 'hr_shop:order_send_receipt_email' order.id %}"
+                      hx-swap="none"
+                      method="post">
+                    {% csrf_token %}
+                    {% if receipt_token %}
+                        <input type="hidden" name="t" value="{{ receipt_token }}">
+                    {% endif %}
 
-                <button type="submit" class="card-btn btn-neon btn-yellow btn-sm">
-                    Resend Receipt
-                </button>
-            </form>
+                    <button type="submit" class="card-btn btn-neon btn-yellow btn-sm justify-self-center">
+                        Resend Receipt
+                    </button>
+                </form>
+            </div>
         </div>
-    </div>
+    {% endif %}
 
     {# ============================================ #}
-    {#  Expandable order details (always available) #}
+    {# Expandable order details                     #}
     {# ============================================ #}
-    <details class="review-section" {% if payment_result == "paid" %}open{% endif %}>
-        <summary class="review-section-title" style="cursor:pointer;">
+    <details class="review-section order-details">
+        {# CHANGED: remove review-section-title from summary #}
+        <summary class="order-details-toggle">
             View order details
         </summary>
 
-        <div class="review-section" style="margin-top: .75rem;">
-            <p class="customer-field"><strong>Order #:</strong> {{ order.id }}</p>
-            <p class="customer-field"><strong>Date:</strong> {{ order.created_at|date:"M j, Y · g:i A" }}</p>
-            <p class="customer-field"><strong>Order status:</strong> {{ order.order_status|capfirst }}</p>
-            <p class="customer-field"><strong>Payment status:</strong> {{ order.payment_status|capfirst }}</p>
-        </div>
+        <div class="order-details-grid">
 
-        {% if address %}
-            <div class="review-section shipping-review">
-                <div class="shipping-summary">
-                    <div class="shipping-block">
-                        <p class="review-section-title">Shipping Address</p>
-                        <p class="shipping-address customer-field" style="white-space: pre-wrap;">
-                            {{ address.formatted }}
-                        </p>
-                    </div>
-
-                    {% if customer %}
-                        <div class="shipping-contact">
-                            <p class="review-section-title">Contact</p>
-                            {% if customer.email %}
-                                <p class="customer-email customer-field">{{ customer.email }}</p>
-                            {% endif %}
-                            {% if customer.phone %}
-                                <p class="customer-phone customer-field">{{ customer.phone }}</p>
-                            {% endif %}
-                        </div>
-                    {% endif %}
-                </div>
+            {# --- Order meta --- #}
+            <div class="details-panel">
+                <p class="details-subtitle">Order</p>
+                <p class="customer-field"><strong>Order #:</strong> {{ order.id }}</p>
+                <p class="customer-field"><strong>Date:</strong> {{ order.created_at|date:"M j, Y · g:i A" }}</p>
+                <p class="customer-field"><strong>Order status:</strong> {{ order.order_status|capfirst }}</p>
+                <p class="customer-field"><strong>Payment status:</strong> {{ order.payment_status|capfirst }}</p>
             </div>
-        {% endif %}
+
+            {# --- Shipping --- #}
+            <div class="details-panel">
+                <p class="details-subtitle">Shipping address</p>
+                {% if address %}
+                    <p class="shipping-address customer-field">{{ address.formatted.strip }}</p>
+                {% else %}
+                    <p class="modal-text-muted customer-field">No shipping address on file.</p>
+                {% endif %}
+            </div>
+
+            {# --- Contact --- #}
+            <div class="details-panel">
+                <p class="details-subtitle">Contact</p>
+                {% if customer %}
+                    {% if customer.email %}
+                        <p class="customer-email customer-field">{{ customer.email }}</p>
+                    {% endif %}
+                    {% if customer.phone %}
+                        <p class="customer-phone customer-field">{{ customer.phone }}</p>
+                    {% endif %}
+                {% else %}
+                    {% if order.email %}
+                        <p class="customer-email customer-field">{{ order.email }}</p>
+                    {% else %}
+                        <p class="modal-text-muted customer-field">No contact info on file.</p>
+                    {% endif %}
+                {% endif %}
+            </div>
+
+        </div>
 
         <div class="review-section">
             <h3 class="review-section-title">Items</h3>
@@ -196,27 +205,6 @@
         </div>
 
         <div class="review-section review-totals">
-            {% if order.subtotal %}
-                <div class="total-row">
-                    <span>Subtotal</span>
-                    <span>${{ order.subtotal|floatformat:2 }}</span>
-                </div>
-            {% endif %}
-
-            {% if order.tax %}
-                <div class="total-row">
-                    <span>Tax</span>
-                    <span>${{ order.tax|floatformat:2 }}</span>
-                </div>
-            {% endif %}
-
-            {% if order.shipping %}
-                <div class="total-row">
-                    <span>Shipping</span>
-                    <span>${{ order.shipping|floatformat:2 }}</span>
-                </div>
-            {% endif %}
-
             <div class="total-row total-final">
                 <span>Total</span>
                 <span>${{ order.total|floatformat:2 }}</span>
@@ -224,8 +212,8 @@
         </div>
     </details>
 
-    <div class="review-actions modal-actions stack">
-        <button type="button" class="card-btn btn-neon btn-blue" data-modal-close>
+    <div class="review-actions modal-actions">
+        <button type="button" class="card-btn btn-neon btn-blue btn-sm" data-modal-close>
             Close
         </button>
     </div>

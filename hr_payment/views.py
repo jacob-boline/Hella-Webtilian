@@ -16,14 +16,10 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
+from hr_core.utils.tokens import generate_order_receipt_token
 from hr_payment.models import PaymentAttempt, PaymentAttemptStatus
 from hr_payment.models import WebhookEvent
 from hr_shop.models import Order, PaymentStatus
-from hr_shop.utils.receipts import make_order_receipt_token
-
-
-def _make_order_receipt_token(order: Order) -> str:
-    return make_order_receipt_token(order_id=order.id, email=order.email)
 
 
 @require_POST
@@ -71,8 +67,8 @@ def checkout_stripe_session(request, order_id: int):
 
                 return JsonResponse({
                     "clientSecret": sess["client_secret"],
-                    "sessionId": sess["id"],
-                    "reused": True,
+                    "sessionId":    sess["id"],
+                    "reused":       True,
                 })
         except Exception:
             pass
@@ -96,31 +92,31 @@ def checkout_stripe_session(request, order_id: int):
         )
 
         # quote token for URL-escaped characters
-        token = quote(_make_order_receipt_token(order))
+        token = quote(generate_order_receipt_token(order.id, order.email), safe="")
         # token passed back from stripe payment endpoint and used to look up order and open thank you page
         return_url = (
-            settings.SITE_URL +
-            f"/?modal=order_payment_result&order_id={order.id}&t={token}" +
-            "#parallax-section-shows"
+                settings.SITE_URL +
+                f"/?modal=order_payment_result&order_id={order.id}&t={token}" +
+                "#parallax-section-shows"
         )
 
         session_kwargs = {
-            "ui_mode": "embedded",
-            "mode": "payment",
+            "ui_mode":              "embedded",
+            "mode":                 "payment",
             "payment_method_types": ["card"],
-            "line_items": [{
+            "line_items":           [{
                 "price_data": {
-                    "currency": "usd",
+                    "currency":     "usd",
                     "product_data": {"name": f"Hella Reptilian Order #{order.id}"},
-                    "unit_amount": amount_cents,
+                    "unit_amount":  amount_cents,
                 },
-                "quantity": 1,
+                "quantity":   1,
             }],
-            "metadata": {
-                "order_id": str(order.id),
+            "metadata":             {
+                "order_id":           str(order.id),
                 "payment_attempt_id": str(attempt.id),
             },
-            "return_url": return_url,
+            "return_url":           return_url,
         }
 
         if attach_customer:
@@ -145,8 +141,8 @@ def checkout_stripe_session(request, order_id: int):
 
         return JsonResponse({
             "clientSecret": sess.get("client_secret"),
-            "sessionId": sess.get("id"),
-            "reused": False,
+            "sessionId":    sess.get("id"),
+            "reused":       False,
         })
 
 

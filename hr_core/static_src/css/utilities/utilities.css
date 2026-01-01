@@ -229,3 +229,7 @@
 .py-vh-18 {
   padding-block: calc(var(--vh) * 18);
 }
+
+.justify-self-center {
+  justify-self: center;
+}
