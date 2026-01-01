@@ -1,0 +1,102 @@
+{# hr_access/templates/hr_access/account/_account_settings_modal.html #}
+
+<div class="auth-modal checkout-details-modal">
+    <h2 class="sub-header">Account Settings</h2>
+
+    <section class="modal-section">
+        <h3>Email</h3>
+        <div class="modal-row">
+            <div>
+                <div class="label">Current</div>
+                <div class="small">{{ request.user.email }}</div>
+            </div>
+            <div>
+                <button
+                    class="card-btn btn-neon btn-blue btn-sm"
+                    hx-get="{% url 'hr_access:account_change_email' %}"
+                    hx-target="#modal-content"
+                    hx-swap="innerHTML transition:true"
+                >
+                    Change email
+                </button>
+            </div>
+        </div>
+
+        <h3>Password</h3>
+        <div class="modal-row">
+            <div class="small">Update your account password.</div>
+            <div>
+                <button
+                    class="card-btn btn-neon btn-blue btn-sm"
+                    hx-get="{% url 'hr_access:account_change_password' %}"
+                    hx-target="#modal-content"
+                    hx-swap="innerHTML transition:true"
+                >
+                    Change password
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section class="modal-section">
+        <h3>Security</h3>
+        <ul class="modal-list">
+            <li>
+                <strong>Last login:</strong>
+                <span class="small">{{ last_login|date:"DATETIME_FORMAT"|default:"Not yet" }}</span>
+            </li>
+            <li>
+                <strong>Password last changed:</strong>
+                <span class="small">{{ password_changed_at|date:"DATETIME_FORMAT"|default:"Not yet" }}</span>
+            </li>
+        </ul>
+        <button
+            class="card-btn btn-neon btn-yellow btn-sm"
+            hx-get="{% url 'hr_access:account_logout_all_confirm' %}"
+            hx-target="#modal-content"
+            hx-swap="innerHTML transition:true"
+        >
+            Log out all sessions
+        </button>
+    </section>
+
+    <section class="modal-section">
+        <h3>Orders</h3>
+        <p class="small">
+            Orders are associated with: {{ request.user.email }}
+        </p>
+        <p class="small">
+            You have {{ unclaimed_count }} unclaimed orders.
+        </p>
+        <div class="modal-actions">
+            <button
+                class="card-btn btn-neon btn-green btn-sm"
+                hx-get="{% url 'hr_access:account_get_orders' %}"
+                hx-target="#modal-content"
+                hx-swap="innerHTML transition:true"
+            >
+                View orders
+            </button>
+            <button
+                class="card-btn btn-neon btn-blue btn-sm"
+                hx-get="{% url 'hr_access:account_get_unclaimed_orders' %}"
+                hx-target="#modal-content"
+                hx-swap="innerHTML transition:true"
+            >
+                Claim orders
+            </button>
+        </div>
+    </section>
+
+    <section class="modal-section">
+        <h3>Danger zone</h3>
+        <button
+            class="card-btn btn-neon btn-red btn-sm"
+            hx-get="{% url 'hr_access:account_delete_confirm' %}"
+            hx-target="#modal-content"
+            hx-swap="innerHTML transition:true"
+        >
+            Delete account
+        </button>
+    </section>
+</div>

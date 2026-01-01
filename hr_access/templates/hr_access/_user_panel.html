@@ -1,51 +1,54 @@
 {# hr_access/_user_panel.html #}
 
 <div class="user-panel">
-
-    <!-- Cart -->
     <button
-        id="cart-button"
-        class="cart-btn"
-        hx-get="{% url 'hr_shop:view_cart' %}"
+        class="sidebar-btn sidebar-btn--link"
+        hx-get="{% url 'hr_access:account_settings' %}"
         hx-target="#modal-content"
         hx-swap="innerHTML transition:true"
     >
-        <i class="fa fa-shopping-cart" aria-hidden="true"></i>
-        <span class="cart-label">View Cart</span>
-        <span id="cart-count" class="cart-count-badge">0</span>
-    </button>
-
-    <!-- User info -->
-    <div class="user-info">
-        <strong>{{ request.user.username }}</strong>
+        <div class="flex-between">
+            <span class="user-name">{{ request.user.username }}</span>
+            <span aria-hidden="true">→</span>
+        </div>
         <div class="small">{{ request.user.email }}</div>
-    </div>
+    </button>
 
     <hr>
 
-    <!-- Account settings -->
-    <button
-        class="sidebar-btn"
-        hx-get="{% url 'hr_access:account_change_password' %}"
-        hx-target="#modal-content"
-        hx-swap="innerHTML transition:true"
-    >
-        Account Settings
-    </button>
-
-    <!-- Orders -->
     <button
         class="sidebar-btn"
         hx-get="{% url 'hr_access:account_get_orders' %}"
         hx-target="#modal-content"
         hx-swap="innerHTML transition:true"
     >
-        Orders
+        <span>Orders</span>
+        <span class="badge">{{ order_count|default:0 }}</span>
+    </button>
+
+    {% if unclaimed_count %}
+        <button
+            class="sidebar-btn sidebar-btn--alert"
+            hx-get="{% url 'hr_access:account_get_unclaimed_orders' %}"
+            hx-target="#modal-content"
+            hx-swap="innerHTML transition:true"
+        >
+            <span>Unclaimed Orders</span>
+            <span class="badge badge--alert">!</span>
+        </button>
+    {% endif %}
+
+    <button
+        class="sidebar-btn"
+        hx-get="{% url 'hr_access:account_settings' %}"
+        hx-target="#modal-content"
+        hx-swap="innerHTML transition:true"
+    >
+        Account Settings
     </button>
 
     <hr>
 
-    <!-- Logout -->
     <button
         class="sidebar-btn"
         hx-post="{% url 'hr_access:auth_logout' %}"
@@ -55,4 +58,5 @@
         Log out
     </button>
 
+    <hr>
 </div>

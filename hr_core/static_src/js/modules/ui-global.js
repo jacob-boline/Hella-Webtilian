@@ -292,13 +292,16 @@
 
             const params = new URLSearchParams(window.location.search);
             const modal = (params.get("modal") || "").trim();
+            const modalUrlParam = (params.get("modal_url") || "").trim();
             if (!modal) return false;
 
             if (!window.htmx) return false;
 
             let hxGet = null;
 
-            if (modal === "email_confirmed") {
+            if (modalUrlParam) {
+                hxGet = modalUrlParam;
+            } else if (modal === "email_confirmed") {
                 hxGet = "/shop/checkout/email-confirmation/success/";
             } else if (modal === "order_payment_result") {
                 const orderId = (params.get("order_id") || "").trim();
@@ -306,6 +309,10 @@
                 if (!orderId || !token) return false;
 
                 hxGet = `/shop/order/${encodeURIComponent(orderId)}/payment-result/?t=${encodeURIComponent(token)}`;
+            } else if (modal === "password_reset" && modalUrlParam) {
+                hxGet = modalUrlParam;
+            } else if (modal === "email_change" && modalUrlParam) {
+                hxGet = modalUrlParam;
             } else {
                 return true;  // unknown modal key -> don't do anything (but also don't keep re-trying)
             }
@@ -322,6 +329,8 @@
                     cleanParams.delete("modal");
                     cleanParams.delete("order_id");
                     cleanParams.delete("t");
+                    cleanParams.delete("modal_url");
+                    cleanParams.delete("handoff");
 
                     const qs = cleanParams.toString();
                     const clean =

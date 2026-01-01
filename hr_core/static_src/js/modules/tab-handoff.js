@@ -41,7 +41,7 @@ export function initTabHandoff (root = document) {
                 if (el) el.scrollIntoView({behavior: 'smooth', block: 'start'});
             }
 
-            if (msg.payload.modal === 'email_confirmed') {
+            if (msg.payload.modal && msg.payload.url) {
                 const loader = document.getElementById('modal-loader');
                 if (!loader || !window.htmx) {
                     console.warn('[tab-handoff] modal-loader or htmx missing in receiving tab');
@@ -67,8 +67,18 @@ export function initTabHandoff (root = document) {
     bc.postMessage({kind: 'ping', pingId});
 
     const timer = setTimeout(() => {
-        // nobody answered, stay in this tab
-        if (!gotPong) cleanUrlKeepHash();
+        // nobody answered, stay in this tab and load modal here if available
+        if (!gotPong) {
+            if (payload.modal && payload.modalUrl && window.htmx) {
+                const loader = document.getElementById('modal-loader');
+                if (loader) {
+                    loader.setAttribute('hx-get', payload.modalUrl);
+                    htmx.process(loader);
+                    htmx.trigger(loader, 'hr:loadModal');
+                }
+            }
+            cleanUrlKeepHash();
+        }
     }, 250);
 
     const onMessage = (ev) => {

@@ -3,8 +3,9 @@
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.core.exceptions import ValidationError
-from django.db import models
 from django.core.validators import MinLengthValidator, RegexValidator
+from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from hr_access.constants import RESERVED_USERNAMES
@@ -33,6 +34,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    password_changed_at = models.DateTimeField(null=True, blank=True)
+    deleted_at = models.DateTimeField(null=True, blank=True)
 
     @property
     def is_site_admin(self):
@@ -78,4 +81,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         self.username = (self.username or "").strip()
         self.username_ci = self.username.casefold()
         super().save(*args, **kwargs)
+
+    def set_password(self, raw_password):
+        super().set_password(raw_password)
+        self.password_changed_at = timezone.now()
 

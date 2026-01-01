@@ -11,6 +11,8 @@ from django.shortcuts import render
 from django.views.decorators.http import require_GET, require_POST
 
 from hr_access.forms import AccountAuthenticationForm
+from hr_core.utils.email import normalize_email
+from hr_shop.models import Order
 
 logger = getLogger()
 
@@ -71,4 +73,14 @@ def account_get_user_panel(request):
     """
     User panel fragment (used by sidebar once authenticated).
     """
-    return render(request, "hr_access/_user_panel.html")
+    email = normalize_email(getattr(request.user, "email", "") or "")
+    order_count = Order.objects.filter(user=request.user).count()
+    unclaimed_count = (
+        Order.objects.filter(user__isnull=True, email__iexact=email).count()
+        if email else 0
+    )
+
+    return render(request, "hr_access/_user_panel.html", {
+        "order_count": order_count,
+        "unclaimed_count": unclaimed_count,
+    })

@@ -217,3 +217,47 @@ class AccountAdminChangeForm(AccountValidationMixin, UserChangeForm):
 
     def clean_username(self):
         return self._clean_username_common()
+
+
+# ------------------------------------------------------------
+# Account email change
+# ------------------------------------------------------------
+
+
+class AccountEmailChangeForm(AccountValidationMixin, forms.Form):
+    new_email = forms.EmailField(
+        label=_("New email"),
+        widget=forms.EmailInput(attrs={
+            "autocomplete": "email",
+            "placeholder": _("new email"),
+            "autocapitalize": "none",
+            "spellcheck": "false",
+            "inputmode": "email",
+        })
+    )
+    password = forms.CharField(
+        label=_("Current password"),
+        widget=forms.PasswordInput(attrs={
+            "autocomplete": "current-password",
+            "placeholder": _("current password"),
+        })
+    )
+
+    def __init__(self, user: User, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+        self.instance = user
+
+    def clean_new_email(self):
+        email = normalize_email(self.cleaned_data.get("new_email") or "")
+        if email == normalize_email(self.user.email or ""):
+            raise ValidationError(_("That's already your email address."))
+
+        self.cleaned_data["email"] = email
+        return self._clean_email_common()
+
+    def clean_password(self):
+        pw = self.cleaned_data.get("password") or ""
+        if not self.user.check_password(pw):
+            raise ValidationError(_("Incorrect password."))
+        return pw
