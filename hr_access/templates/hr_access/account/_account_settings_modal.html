@@ -2,7 +2,6 @@
 
 <div class="account-status-modal checkout-details-modal">
     <header class="account-status-header">
-        <p class="modal-kicker">Account status</p>
         <h2 class="sub-header modal-title">Account overview</h2>
         <p class="modal-text-muted">Manage sign-in details, security, and linked orders.</p>
     </header>
@@ -69,13 +68,13 @@
 
         <section class="account-status-panel account-status-panel--orders">
             <div class="account-status-panel-header">
-                <div>
+                <div class="account-status-panel-text">
                     <p class="modal-kicker">Orders</p>
                     <h3 class="panel-title">Linked to {{ request.user.email }}</h3>
                     <p class="modal-text-faint">{{ unclaimed_count }} unclaimed order{{ unclaimed_count|pluralize }}.</p>
                 </div>
 
-                <div class="account-status-actions">
+                <div class="account-status-actions account-status-actions--inline">
                     <button
                         class="card-btn btn-neon btn-green btn-sm"
                         hx-get="{% url 'hr_access:account_get_orders' %}"
@@ -97,23 +96,25 @@
         </section>
 
         <section class="account-status-panel account-status-panel--danger">
-            <div>
-                <p class="modal-kicker">Danger zone</p>
-                <h3 class="panel-title">Delete account</h3>
-                <p class="modal-text-faint">
-                    This will disable your account and log you out. You can contact support if you need help restoring access.
-                </p>
-            </div>
+            <div class="account-status-panel-header">
+                <div class="account-status-panel-text">
+                    <p class="modal-kicker">Danger zone</p>
+                    <h3 class="panel-title">Delete account</h3>
+                    <p class="modal-text-faint">
+                        This will disable your account and log you out. You can contact support if you need help restoring access.
+                    </p>
+                </div>
 
-            <div class="account-status-actions">
-                <button
-                    class="card-btn btn-neon btn-red btn-sm"
-                    hx-get="{% url 'hr_access:account_delete_confirm' %}"
-                    hx-target="#modal-content"
-                    hx-swap="innerHTML transition:true"
-                >
-                    Delete account
-                </button>
+                <div class="account-status-actions account-status-actions--inline">
+                    <button
+                        class="card-btn btn-neon btn-red btn-sm"
+                        hx-get="{% url 'hr_access:account_delete_confirm' %}"
+                        hx-target="#modal-content"
+                        hx-swap="innerHTML transition:true"
+                    >
+                        Delete account
+                    </button>
+                </div>
             </div>
         </section>
     </div>

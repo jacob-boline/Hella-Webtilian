@@ -6,6 +6,7 @@ register = template.Library()
 
 _UNSET = object()
 
+
 def _coerce_placeholder(value):
     if value is None:
         return None

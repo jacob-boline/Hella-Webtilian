@@ -287,6 +287,54 @@
     box-shadow: 0 0 12px rgba(255, 107, 107, 0.15);
 }
 
+
+/* ===========================
+   Account status panels: inline text + right-justified actions
+   (Orders + Danger)
+   =========================== */
+
+.account-status-panel-header {
+  display: flex;
+  align-items: center;          /* keeps buttons inline with the text block */
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+}
+
+.account-status-panel-text {
+  flex: 1 1 auto;
+  min-width: 0;                 /* prevents long email from breaking layout */
+}
+
+/* For panel headers, don't push actions down with margin-top */
+.account-status-panel-header .account-status-actions {
+  margin-top: 0;
+  justify-content: flex-end;
+  flex: 0 0 auto;
+  white-space: nowrap;          /* keeps buttons from breaking mid-word */
+}
+
+/* Optional helper class (you used it above) */
+.account-status-actions--inline {
+  align-items: center;
+}
+
+/* Responsive: stack, but keep actions right-aligned */
+@media (max-width: 640px) {
+  .account-status-panel-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .account-status-panel-header .account-status-actions {
+    justify-content: flex-end;  /* right justify even when stacked */
+    width: 100%;
+  }
+}
+
+
+
+
 @media (max-width: 640px) {
     .account-status-actions {
         width: 100%;
@@ -496,6 +544,9 @@
   backdrop-filter: blur(6px);
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
+    width: min(80%, 300px);
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .change-email-modal .modal-actions {
