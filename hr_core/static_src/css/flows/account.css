@@ -200,6 +200,9 @@
     background: rgba(0, 0, 0, 0.35);
     border: 1px solid rgba(255, 255, 255, 0.12);
     backdrop-filter: blur(6px);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
 }
 
 .account-status-label {
@@ -243,6 +246,11 @@
     flex-wrap: wrap;
     gap: 0.6rem;
     margin-top: 0.75rem;
+    justify-content: flex-end;
+}
+
+.account-status-card .account-status-actions {
+    margin-top: auto;
 }
 
 .account-status-panel {

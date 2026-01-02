@@ -214,7 +214,7 @@
     letter-spacing: 0.08em;
     color: var(--glow);
     text-shadow: 0 0 0.5rem darkorange;
-    transition: color .2s ease, text-shadow .2s ease;
+    transition: color .2s ease, text-shadow .2s ease, box-shadow .2s ease, transform .2s ease;
     position: relative;
     border: none;
     background: transparent;
