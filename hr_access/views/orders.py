@@ -55,13 +55,14 @@ def account_get_order_receipt(request, order_id: int):
     )
 
     items = order.items.select_related("variant", "variant__product").all()
+    is_guest = not (request.user.is_authenticated and getattr(order, "user_id", None) == request.user.id)
 
     return render(request, "hr_shop/checkout/_order_receipt_modal.html", {
         "order": order,
         "items": items,
         "customer": order.customer,
         "address": order.shipping_address,
-        "is_guest": False,
+        "is_guest": is_guest,
     })
 
 

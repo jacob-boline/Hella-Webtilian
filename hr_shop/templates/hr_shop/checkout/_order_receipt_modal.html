@@ -105,6 +105,17 @@
   {% endif %}
 
   <div class="review-actions modal-actions stack">
+    {% if not is_guest %}
+      <button
+        type="button"
+        class="card-btn btn-neon btn-blue"
+        hx-get="{% url 'hr_access:account_get_orders' %}"
+        hx-target="#modal-content"
+        hx-swap="innerHTML transition:true">
+        Back to Orders
+      </button>
+    {% endif %}
+
     <button type="button" class="card-btn btn-neon btn-blue" data-modal-close>
       Close
     </button>
