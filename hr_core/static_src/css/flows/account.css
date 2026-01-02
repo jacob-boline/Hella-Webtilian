@@ -155,6 +155,127 @@
 }
 
 /* ===========================
+   Account: Status modal
+   =========================== */
+
+.account-status-modal {
+    text-align: left;
+}
+
+.account-status-header {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-bottom: 1rem;
+}
+
+.modal-kicker {
+    margin: 0;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted-text);
+}
+
+.account-status-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    margin: 1rem 0 1.5rem;
+}
+
+.account-status-card {
+    padding: 1rem;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(6px);
+}
+
+.account-status-label {
+    margin: 0 0 0.35rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--neon-blue);
+}
+
+.account-status-value {
+    margin: 0;
+    font-weight: 700;
+    word-break: break-word;
+}
+
+.account-status-meta {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.meta-label {
+    display: block;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted-text);
+}
+
+.meta-value {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.account-status-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 0.75rem;
+}
+
+.account-status-panel {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.account-status-panel-header .panel-title,
+.account-status-panel .panel-title {
+    margin: 0 0 0.25rem;
+}
+
+.account-status-panel .modal-text-faint {
+    margin: 0;
+}
+
+.account-status-panel--danger {
+    border-color: rgba(255, 107, 107, 0.35);
+    box-shadow: 0 0 12px rgba(255, 107, 107, 0.15);
+}
+
+@media (max-width: 640px) {
+    .account-status-actions {
+        width: 100%;
+    }
+
+    .account-status-panel {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+/* ===========================
    Account: Order claim list
    =========================== */
 

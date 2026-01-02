@@ -1,12 +1,6 @@
 /* hr_site/static/drawer.css */
 
 
-.sidebar-btn.modal-title {
-    font-size: 1.5rem;
-    line-height: 1.65;
-    font-weight: 700;
-}
-
 /* ===========================
    Sidebar access container
    =========================== */
@@ -15,9 +9,14 @@
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
+
+    /* This is the big fix: allow the flex child to shrink so overflow works */
     flex: 1 1 auto;
     min-height: fit-content;
+
     overflow-x: hidden;
+
+    /* Don't "push down" the whole panel with margin, use padding instead */
     margin-top: 0;
     padding-top: 1rem;
 }
@@ -54,18 +53,28 @@
     top:              0;
     left:             0;
     transform:        translateX(-100%);
+
     display:          flex;
     flex-direction:   column;
+
+    /* IMPORTANT: make it a real sidebar, not centered "cards" */
     align-items:      stretch;
     justify-content:  flex-start;
+
     box-sizing:       border-box;
+
+    /* IMPORTANT: keeps the drawer stable and lets #sidebar-access scroll */
     overflow:         hidden;
+
     width:            100vw;
     height:           calc(var(--vh) * 100);
     padding:          1.5rem;
     border-right:     1pt solid rgba(255, 255, 255, 0.7);
+
     color:            #FFF;
+
     background-color: rgba(7, 21, 29, 0.9);
+
     transition:       transform 0.25s ease-in-out;
 }
 
@@ -87,11 +96,15 @@
     transform: translateX(0);
 }
 
+/* Bandcamp iframe: give it a predictable slot, don't let it dominate */
 #drawer-navigation iframe {
     width: 100%;
     max-width: 100%;
     flex: 0 0 auto;
+
     height: auto;
+    /*max-height: 45vh;*/
+
     border: 0;
     margin-top: 5vh;
 }
@@ -101,6 +114,7 @@
    Drawer / open-button controls
    =========================== */
 
+/*.user-panel,*/
 .user-panel hr {
     margin-top:    1rem;
     margin-bottom: 1rem;
@@ -114,44 +128,193 @@
     margin:     0.5rem auto;
     transition: color 0.125s ease-in-out;
     width:      100%;
+    display:    flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.sidebar-btn:hover {
+    color: aquamarine;
+}
+
+.sidebar-btn-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.sidebar-btn--with-count {
+    position: relative;
+}
+
+.sidebar-count-pill {
+    min-width: 1.5rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #111;
+    background: var(--glow);
+    box-shadow: 0 0 10px rgba(255, 221, 102, 0.35);
+    opacity: 0.9;
+}
+
+.sidebar-btn--alert .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 999px;
+    background: #f87171;
+    color: #0f0f0f;
+    font-weight: 800;
+    box-shadow: 0 0 10px rgba(248, 113, 113, 0.45);
+}
+
+#nav-open-btn-container {
+    position: fixed;
+    top:  calc(var(--vh) * 7);
+    left: 1rem;
+    z-index: 1500;
+}
+
+#nav-open-btn,
+#nav-close-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    font-size: 0.85rem;
+    color: #FFF;
+    background: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(10px);
+    transition: transform 0.2s ease,
+                background 0.2s ease,
+                color 0.2s ease,
+                opacity 1s ease-in;
+    border-radius: 999px;
+    padding: 0.5rem 0.75rem;
+    box-shadow: 0 0 18px rgba(0, 234, 255, 0.15);
+}
+
+#nav-open-btn {
+    position: relative;
+    opacity: 1;
 }
 
 #nav-close-btn {
-    background-color: transparent;
-    border:           none;
-    margin-top:       0.5rem;
-    margin-left:      0.0625rem;
-    align-self:       flex-start;
-    flex:             0 0 auto;
-    position:         sticky;
-    top:              0.5rem;
-    z-index:          2;
-}
-
-#nav-close-btn,
-#nav-open-btn {
-    margin-bottom: 0.5rem;
-    border:        none;
-    font-size:     1.25rem;
-    color:         #FFF;
-    background:    transparent;
-    transition:    background-color 0.2s ease,
-                   color 0.2s ease,
-                   opacity 1s ease-in;
-    border-radius: 50%;
-    padding:       1.5rem;
-}
-
-#nav-open-btn {
-    opacity:     0;
-    transition:  opacity 1s ease-in;
-    margin-top:  calc(1.5rem + 12px);
-    margin-left: 24px;
+    align-self: flex-end;
+    margin-left: auto;
+    position: sticky;
+    top: 1rem;
+    z-index: 2;
 }
 
 /* hover feedback for drawer buttons */
 #nav-open-btn:hover,
 #nav-close-btn:hover {
-    color:            aquamarine;
-    background-color: rgba(128, 128, 128, 0.3);
+    color: var(--glow);
+    background: rgba(0, 0, 0, 0.45);
+    transform: translateY(-1px);
+}
+
+/* icons inside drawer buttons */
+#drawer-navigation button svg {
+    /*fill: #fff;*/
+}
+
+/* honour dark mode – keep the same hover behaviour there */
+@media (prefers-color-scheme: dark) {
+     #drawer-navigation .sidebar-btn:hover {
+         color: darkorange;
+         transition: all 0.125s ease-in-out;
+     }
+}
+
+
+/* ===========================
+   Cart button inside drawer
+   =========================== */
+
+.card-count-badge {
+    background: #00eaff;
+    color: #000;
+    border-radius: 12px;
+    padding: 2px 6px;
+    margin-left: 6px;
+    font-weight: bold;
+    min-width: 20px;
+    display: inline-block;
+    text-align: center;
+}
+
+/*#cart-count,*/
+/*.cart-label,*/
+/*.fa.fa-shopping-cart {*/
+/*    background-color: transparent;*/
+/*    color: white;*/
+/*}*/
+
+.cart-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    margin-bottom: 2rem;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(6px);
+
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+
+    color: #fff;
+    cursor: pointer;
+
+    /* animate ALL the stuff we’re actually changing */
+    transition:
+        color 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease,
+        background-color 0.25s ease;
+}
+
+/* keep icon/text white by default */
+.cart-btn .fa-shopping-cart,
+.cart-btn .cart-label {
+    color: inherit;
+    background: transparent;
+}
+
+/* hover state */
+.cart-btn:hover {
+    color: aquamarine; /* text */
+    border-color: aquamarine;
+    box-shadow: 0 0 14px rgba(0, 234, 255, 0.9);
+    background-color: rgba(0, 0, 0, 0.75);
+}
+
+/* neon count badge */
+.cart-count-badge {
+    background: #00eaff;
+    color: #000;
+
+    border-radius: 999px;
+    padding: 2px 8px;
+    margin-left: 2px;
+
+    font-weight: 700;
+    min-width: 20px;
+    text-align: center;
+    line-height: 1;
+
+    display: none; /* JS will flip to inline-flex when count > 0 */
 }
