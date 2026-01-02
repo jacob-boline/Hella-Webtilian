@@ -9,6 +9,11 @@
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    padding-inline: 0.25rem;
 
     /* This is the big fix: allow the flex child to shrink so overflow works */
     flex: 1 1 auto;
@@ -23,6 +28,11 @@
 
 #sidebar-access h2 {
     margin-bottom: 1rem;
+}
+
+#sidebar-access > * {
+    width: 100%;
+    max-width: 32rem;
 }
 
 #login-form .field-group {
@@ -127,6 +137,16 @@
 .user-panel hr {
     margin-top:    .5rem;
     margin-bottom: .5rem;
+    width: 100%;
+}
+
+.user-panel {
+    width: 100%;
+    max-width: 32rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
 }
 
 .sidebar-btn {
@@ -138,10 +158,12 @@
     margin:     0.5rem auto;
     transition: color 0.125s ease-in-out;
     width:      100%;
+    max-width: 24rem;
     display:    flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     gap: 0.75rem;
+    text-align: center;
 }
 
 .sidebar-btn:hover {
@@ -192,16 +214,26 @@
     letter-spacing: 0.08em;
     color: var(--glow);
     text-shadow: 0 0 0.5rem darkorange;
-    transition: color .2s ease, text-shadow .2s ease;
+    transition: color .2s ease, text-shadow .2s ease, box-shadow .2s ease, transform .2s ease;
     position: relative;
     border: none;
     background: transparent;
     margin: 0.5rem auto;
     width: 100%;
+    max-width: 24rem;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.sidebar-menu-item:hover,
+.sidebar-menu-item:focus-visible {
+    color: #fff;
+    text-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 18px rgba(255, 255, 255, 0.25);
+    transform: translateY(-1px);
+    outline: none;
 }
 
 /*#nav-open-btn-container {*/
@@ -453,4 +485,55 @@ input:-webkit-autofill:focus {
 
 form.login-form div.form-control {
     margin: 0.5rem 0;
+}
+
+.user-profile-btn {
+    padding: 0.5rem 1rem;
+}
+
+.user-identity {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    width: 100%;
+    text-align: center;
+}
+
+.user-profile-btn {
+    border-radius: 14px;
+    transition: box-shadow 0.2s ease, transform 0.2s ease, color 0.2s ease;
+}
+
+.user-profile-btn:hover,
+.user-profile-btn:focus-visible {
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 0 18px rgba(255, 255, 255, 0.25);
+    transform: translateY(-1px);
+    outline: none;
+}
+
+.user-username {
+    font-family: "Exo 2", sans-serif;
+    font-size: clamp(2.25rem, 4vw, 2.75rem);
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #F5F5F5;
+    text-shadow:
+        0 0 0.35rem rgba(255, 255, 255, 0.6),
+        0 0 0.75rem rgba(255, 255, 255, 0.45),
+        0 0 1.5rem rgba(200, 200, 255, 0.35);
+    line-height: 1.1;
+}
+
+.user-email {
+    font-family: "Exo 2", sans-serif;
+    font-size: clamp(1.05rem, 2.6vw, 1.35rem);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    color: var(--text);
+    text-shadow: 0 0 0.4rem rgba(255, 255, 255, 0.25);
+    line-height: 1.2;
 }
