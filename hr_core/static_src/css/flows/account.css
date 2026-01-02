@@ -268,10 +268,6 @@
     width: 100%;
 }
 
-.account-status-panel .account-status-actions {
-    align-self: flex-end;
-}
-
 .account-status-panel-header .panel-title,
 .account-status-panel .panel-title {
     margin: 0 0 0.25rem;
@@ -294,7 +290,7 @@
 @media (max-width: 640px) {
     .account-status-actions {
         width: 100%;
-        justify-content: flex-start;
+        justify-content: center;
     }
 
     .account-status-panel {

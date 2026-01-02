@@ -68,29 +68,31 @@
         </div>
 
         <section class="account-status-panel account-status-panel--orders">
-            <div>
-                <p class="modal-kicker">Orders</p>
-                <h3 class="panel-title">Linked to {{ request.user.email }}</h3>
-                <p class="modal-text-faint">{{ unclaimed_count }} unclaimed order{{ unclaimed_count|pluralize }}.</p>
-            </div>
+            <div class="account-status-panel-header">
+                <div>
+                    <p class="modal-kicker">Orders</p>
+                    <h3 class="panel-title">Linked to {{ request.user.email }}</h3>
+                    <p class="modal-text-faint">{{ unclaimed_count }} unclaimed order{{ unclaimed_count|pluralize }}.</p>
+                </div>
 
-            <div class="account-status-actions">
-                <button
-                    class="card-btn btn-neon btn-green btn-sm"
-                    hx-get="{% url 'hr_access:account_get_orders' %}"
-                    hx-target="#modal-content"
-                    hx-swap="innerHTML transition:true"
-                >
-                    View orders
-                </button>
-                <button
-                    class="card-btn btn-neon btn-blue btn-sm"
-                    hx-get="{% url 'hr_access:account_get_unclaimed_orders' %}"
-                    hx-target="#modal-content"
-                    hx-swap="innerHTML transition:true"
-                >
-                    Claim orders
-                </button>
+                <div class="account-status-actions">
+                    <button
+                        class="card-btn btn-neon btn-green btn-sm"
+                        hx-get="{% url 'hr_access:account_get_orders' %}"
+                        hx-target="#modal-content"
+                        hx-swap="innerHTML transition:true"
+                    >
+                        View orders
+                    </button>
+                    <button
+                        class="card-btn btn-neon btn-blue btn-sm"
+                        hx-get="{% url 'hr_access:account_get_unclaimed_orders' %}"
+                        hx-target="#modal-content"
+                        hx-swap="innerHTML transition:true"
+                    >
+                        Claim orders
+                    </button>
+                </div>
             </div>
         </section>
 

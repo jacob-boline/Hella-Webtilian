@@ -227,15 +227,6 @@
     gap: 0.5rem;
 }
 
-.sidebar-menu-item:hover,
-.sidebar-menu-item:focus-visible {
-    color: #fff;
-    text-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
-    box-shadow: 0 0 18px rgba(255, 255, 255, 0.25);
-    transform: translateY(-1px);
-    outline: none;
-}
-
 /*#nav-open-btn-container {*/
 /*    position: fixed;*/
 /*    top:  calc(var(--vh) * 7);*/
@@ -498,20 +489,6 @@ form.login-form div.form-control {
     gap: 0.25rem;
     width: 100%;
     text-align: center;
-}
-
-.user-profile-btn {
-    border-radius: 14px;
-    transition: box-shadow 0.2s ease, transform 0.2s ease, color 0.2s ease;
-}
-
-.user-profile-btn:hover,
-.user-profile-btn:focus-visible {
-    color: #fff;
-    cursor: pointer;
-    box-shadow: 0 0 18px rgba(255, 255, 255, 0.25);
-    transform: translateY(-1px);
-    outline: none;
 }
 
 .user-username {
