@@ -17,13 +17,15 @@
     <hr>
 
     <button
-        class="sidebar-btn"
+        class="sidebar-btn sidebar-btn--with-count"
         hx-get="{% url 'hr_access:account_get_orders' %}"
         hx-target="#modal-content"
         hx-swap="innerHTML transition:true"
     >
-        <span>Orders</span>
-        <span class="badge">{{ order_count|default:0 }}</span>
+        <span class="sidebar-btn-label">Orders</span>
+        <span class="sidebar-count-pill" aria-label="Orders count">
+            {{ order_count|default:0 }}
+        </span>
     </button>
 
     {% if unclaimed_count %}

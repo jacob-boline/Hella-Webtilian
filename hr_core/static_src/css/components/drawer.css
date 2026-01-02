@@ -128,54 +128,98 @@
     margin:     0.5rem auto;
     transition: color 0.125s ease-in-out;
     width:      100%;
+    display:    flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
 }
 
 .sidebar-btn:hover {
     color: aquamarine;
 }
 
+.sidebar-btn-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.sidebar-btn--with-count {
+    position: relative;
+}
+
+.sidebar-count-pill {
+    min-width: 1.5rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #111;
+    background: var(--glow);
+    box-shadow: 0 0 10px rgba(255, 221, 102, 0.35);
+    opacity: 0.9;
+}
+
+.sidebar-btn--alert .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 999px;
+    background: #f87171;
+    color: #0f0f0f;
+    font-weight: 800;
+    box-shadow: 0 0 10px rgba(248, 113, 113, 0.45);
+}
+
+#nav-open-btn-container {
+    position: fixed;
+    top:  calc(var(--vh) * 7);
+    left: 1rem;
+    z-index: 1500;
+}
+
+#nav-open-btn,
 #nav-close-btn {
-    background-color: transparent;
-    border:           none;
-    margin-top:       0.5rem;
-    margin-left:      0.0625rem;
-
-    /* IMPORTANT: keep it in the drawer flow and aligned left */
-    align-self:       flex-start;
-    flex:             0 0 auto;
-
-    /* Optional: pin it while sidebar scrolls */
-    position:         sticky;
-    top:              0.5rem;
-    z-index:          2;
-}
-
-#nav-close-btn,
-#nav-open-btn {
-    margin-bottom: 0.5rem;
-    border:        none;
-    font-size:     1.25rem;
-    color:         #FFF;
-    background:    transparent;
-    transition:    background-color 0.2s ease,
-                   color 0.2s ease,
-                   opacity 1s ease-in;
-    border-radius: 50%;
-    padding:       1.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    font-size: 0.85rem;
+    color: #FFF;
+    background: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(10px);
+    transition: transform 0.2s ease,
+                background 0.2s ease,
+                color 0.2s ease,
+                opacity 1s ease-in;
+    border-radius: 999px;
+    padding: 0.5rem 0.75rem;
+    box-shadow: 0 0 18px rgba(0, 234, 255, 0.15);
 }
 
 #nav-open-btn {
-    opacity:     0;
-    transition:  opacity 1s ease-in;
-    margin-top:  calc(1.5rem + 12px);
-    margin-left: 24px;
+    position: relative;
+    opacity: 1;
+}
+
+#nav-close-btn {
+    align-self: flex-end;
+    margin-left: auto;
+    position: sticky;
+    top: 1rem;
+    z-index: 2;
 }
 
 /* hover feedback for drawer buttons */
 #nav-open-btn:hover,
 #nav-close-btn:hover {
-    color:            aquamarine;
-    background-color: rgba(128, 128, 128, 0.3);
+    color: var(--glow);
+    background: rgba(0, 0, 0, 0.45);
+    transform: translateY(-1px);
 }
 
 /* icons inside drawer buttons */

@@ -68,20 +68,21 @@
 
     {# ---- Sidebar / Drawer ---- #}
     <div id="open-nav-btn-container">
-        <button class="rounded-lg text-sm p-1.5 top-2.5 left-0 inline-flex items-center z-40 fixed"
-                id="nav-open-btn"
-                type="button"
-                data-drawer-target="drawer-navigation"
-                data-drawer-show="drawer-navigation">
+        <button
+            id="nav-open-btn"
+            type="button"
+            data-drawer-target="drawer-navigation"
+            data-drawer-show="drawer-navigation"
+        >
             <i class="fa-regular fa-square-caret-right"></i>
+            <span class="sr-only">Open navigation</span>
         </button>
     </div>
 
     <div id="drawer-navigation" tabindex="-1">
         <button type="button"
                 id="nav-close-btn"
-                data-drawer-close
-                class="rounded-lg text-sm p-1.5 top-2.5 right-2.5 inline-flex items-center relative">
+                data-drawer-close>
             <i class="fa-regular fa-circle-xmark"></i>
             <span class="sr-only">Close menu</span>
         </button>
