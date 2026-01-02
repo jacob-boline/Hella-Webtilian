@@ -4,13 +4,8 @@
 <div class="sidebar-panel sidebar-auth">
     <h2 class="sub-header modal-title">Sign In</h2>
 
-    {% if form.non_field_errors %}
-        <div class="form-errors">
-            {% for e in form.non_field_errors %}
-                <p>{{ e }}</p>
-            {% endfor %}
-        </div>
-    {% endif %}
+
+{% include 'hr_common/_non_field_errors.html' %}
 
     <form
             method="post"
@@ -18,11 +13,9 @@
             hx-post="{% url 'hr_access:auth_login' %}"
             hx-target="#sidebar-access"
             hx-swap="innerHTML transition:true"
-            class="form"
+            class="form login-form"
     >
         {% csrf_token %}
-
-        <h3 class="group-title">Account</h3>
 
         <div>
             <div>
@@ -61,10 +54,6 @@
                     hx-swap="innerHTML transition:true"
             >
                 Create Account
-            </button>
-
-            <button type="button" class="card-btn btn-neon btn-yellow btn-sm" data-modal-close>
-                Cancel
             </button>
         </div>
     </form>

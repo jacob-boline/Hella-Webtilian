@@ -4,6 +4,7 @@ from django import template
 
 register = template.Library()
 
+_UNSET = object()
 
 def _coerce_placeholder(value):
     if value is None:
@@ -27,14 +28,20 @@ def _field_state(bound_field):
 @register.inclusion_tag("hr_common/_form_group.html")
 def form_group(
     field,
-    label=None,
+    label=_UNSET,
     required=None,
     help=None,
     group_classes="field-group",
     placeholder=None,
     extra_attrs=None,
 ):
-    label_text = label or field.label
+    if label is _UNSET:
+        label_text = field.label
+    elif label is False or label == '':
+        label_text = None
+    else:
+        label_text = label
+
     required_flag = required if required is not None else field.field.required
 
     # Django's help_text is on field.field.help_text, not bound field

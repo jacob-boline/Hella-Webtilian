@@ -1,15 +1,25 @@
 {# hr_access/_user_panel.html #}
 
 <div class="user-panel">
-    <button
-        class="sidebar-btn sidebar-btn--link"
-        hx-get="{% url 'hr_access:account_settings' %}"
-        hx-target="#modal-content"
-        hx-swap="innerHTML transition:true"
-    >
+{#    <button#}
+{#        class="sidebar-btn section-title stack uniform sidebar-btn--link"#}
+{#        hx-get="{% url 'hr_access:account_settings' %}"#}
+{#        hx-target="#modal-content"#}
+{#        hx-swap="innerHTML transition:true"#}
+{#    >#}
+{#        <div class="user-name">{{ request.user.username }}</div>#}
+{#        <div class="small">{{ request.user.email }}</div>#}
+{#    </button>#}
+
+{#    <div class="sidebar-user-info stack uniform">#}
+{#        <p class="user-name section-title">{{request.user.username}}</p>#}
+{#        <p class="small">{{ request.user.email }}</p>#}
+{#    </div>#}
+    <button class="sidebar-btn sidebar-btn--link" hx-get="{% url 'hr_access:account_settings' %}"
+            hx-target="#modal-content"
+            hx-swap="innerHTML transition:true">
         <div class="flex-between">
             <span class="user-name">{{ request.user.username }}</span>
-            <span aria-hidden="true">→</span>
         </div>
         <div class="small">{{ request.user.email }}</div>
     </button>
@@ -17,20 +27,21 @@
     <hr>
 
     <button
-        class="sidebar-btn sidebar-btn--with-count"
+        class="sidebar-menu-item"
         hx-get="{% url 'hr_access:account_get_orders' %}"
         hx-target="#modal-content"
         hx-swap="innerHTML transition:true"
     >
-        <span class="sidebar-btn-label">Orders</span>
-        <span class="sidebar-count-pill" aria-label="Orders count">
-            {{ order_count|default:0 }}
-        </span>
+        Orders
+{#        <span class="sidebar-btn-label ">Orders</span>#}
+{#        <span class="sidebar-count-pill" aria-label="Orders count">#}
+{#            {{ order_count|default:0 }}#}
+{#        </span>#}
     </button>
 
     {% if unclaimed_count %}
         <button
-            class="sidebar-btn sidebar-btn--alert"
+            class="sidebar-menu-item sidebar-btn--alert"
             hx-get="{% url 'hr_access:account_get_unclaimed_orders' %}"
             hx-target="#modal-content"
             hx-swap="innerHTML transition:true"
@@ -41,18 +52,18 @@
     {% endif %}
 
     <button
-        class="sidebar-btn"
+        class="sidebar-menu-item"
         hx-get="{% url 'hr_access:account_settings' %}"
         hx-target="#modal-content"
         hx-swap="innerHTML transition:true"
     >
-        Account Settings
+        Account
     </button>
 
     <hr>
 
     <button
-        class="sidebar-btn"
+        class="sidebar-menu-item"
         hx-post="{% url 'hr_access:auth_logout' %}"
         hx-target="#sidebar-access"
         hx-swap="innerHTML"

@@ -1,14 +1,17 @@
 {# hr_common/templates/hr_common/_form_group.html #}
 
 <div class="{{ group_classes }}
-            {% if state == 'error' %} field-group--error{% endif %}
-            {% if state == 'valid' %} field-group--valid{% endif %}">
-    <label for="{{ field_id }}">
-        {{ label }}
-        {% if required %}
-            <span class="required-star">*</span>
-        {% endif %}
-    </label>
+    {% if state == 'error' %} field-group--error{% endif %}
+    {% if state == 'valid' %} field-group--valid{% endif %}">
+
+    {% if label %}
+        <label for="{{ field_id }}">
+            {{ label }}
+            {% if required %}
+                <span class="required-star">*</span>
+            {% endif %}
+        </label>
+    {% endif %}
 
     {{ rendered_field|safe }}
 
