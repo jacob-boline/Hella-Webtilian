@@ -15,13 +15,16 @@
 {#        <p class="user-name section-title">{{request.user.username}}</p>#}
 {#        <p class="small">{{ request.user.email }}</p>#}
 {#    </div>#}
-    <button class="sidebar-btn sidebar-btn--link" hx-get="{% url 'hr_access:account_settings' %}"
-            hx-target="#modal-content"
-            hx-swap="innerHTML transition:true">
-        <div class="flex-between">
-            <span class="user-name">{{ request.user.username }}</span>
+    <button
+        class="sidebar-btn sidebar-btn--link user-profile-btn"
+        hx-get="{% url 'hr_access:account_settings' %}"
+        hx-target="#modal-content"
+        hx-swap="innerHTML transition:true"
+    >
+        <div class="user-identity">
+            <span class="user-username">{{ request.user.username }}</span>
+            <span class="user-email">{{ request.user.email }}</span>
         </div>
-        <div class="small">{{ request.user.email }}</div>
     </button>
 
     <hr>
