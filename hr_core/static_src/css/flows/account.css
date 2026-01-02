@@ -146,7 +146,7 @@
     width: 100%;
 }
 
-.post-purchase-account .modal-state p {
+.post-purchase-account .flex-col-center p {
     margin: 1rem 0;
 }
 
@@ -336,4 +336,16 @@
   backdrop-filter: blur(6px);
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
+}
+
+.change-email-modal .modal-actions {
+    margin-top: 1.5rem;
+}
+
+.change-email-modal {
+    padding: 0 0 0.5rem;
+}
+
+.change-email-modal .auth-description {
+    padding: 0.5rem 0 0.5rem;
 }

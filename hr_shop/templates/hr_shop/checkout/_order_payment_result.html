@@ -25,27 +25,27 @@
     {# ========================= #}
     <div class="review-section order-payment-msg">
         {% if payment_result == "paid" %}
-            <p class="modal-text-muted">
+            <p class="text-muted">
                 Thank you. Your payment was received and your order is confirmed.
             </p>
         {% elif payment_result == "pending" %}
-            <p class="modal-text-muted">
+            <p class="text-muted">
                 Your payment is still processing. If you just paid, give it a moment and refresh this receipt.
             </p>
         {% elif payment_result == "expired" %}
-            <p class="modal-text-muted">
+            <p class="text-muted">
                 The checkout session expired before payment completed.
             </p>
         {% elif payment_result == "canceled" %}
-            <p class="modal-text-muted">
+            <p class="text-muted">
                 The payment was canceled.
             </p>
         {% elif payment_result == "failed" %}
-            <p class="modal-text-muted">
+            <p class="text-muted">
                 The payment failed and your order is not confirmed.
             </p>
         {% else %}
-            <p class="modal-text-muted">
+            <p class="text-muted">
                 We couldn’t confirm the payment status for this order yet.
             </p>
         {% endif %}
@@ -57,7 +57,7 @@
         {% endif %}
 
         {% if payment_failure_code %}
-            <p class="modal-text-muted">
+            <p class="text-muted">
                 <strong>Code:</strong> {{ payment_failure_code }}
             </p>
         {% endif %}
@@ -70,7 +70,7 @@
         {# CHANGED: add cta-fadein so entrance animation actually runs #}
         <div id="post-purchase-account" class="review-section post-purchase-account cta-panel cta-fadein">
             <p class="review-section-title">Save your details?</p>
-            <p class="modal-text-muted">
+            <p class="text-muted">
                 Create an account to track orders, save addresses, and check out faster next time.
             </p>
 
@@ -108,7 +108,7 @@
             <p class="review-section-title">Receipt</p>
 
             {% if order.email %}
-                <p class="modal-text-muted">
+                <p class="text-muted">
                     A copy of your receipt has been sent to <strong>{{ order.email }}</strong>.
                 </p>
             {% endif %}
@@ -156,7 +156,7 @@
                 {% if address %}
                     <p class="shipping-address customer-field">{{ address.formatted.strip }}</p>
                 {% else %}
-                    <p class="modal-text-muted customer-field">No shipping address on file.</p>
+                    <p class="text-muted customer-field">No shipping address on file.</p>
                 {% endif %}
             </div>
 
@@ -174,7 +174,7 @@
                     {% if order.email %}
                         <p class="customer-email customer-field">{{ order.email }}</p>
                     {% else %}
-                        <p class="modal-text-muted customer-field">No contact info on file.</p>
+                        <p class="text-muted customer-field">No contact info on file.</p>
                     {% endif %}
                 {% endif %}
             </div>
@@ -199,7 +199,7 @@
                         <span class="item-price">${{ item.unit_price|floatformat:2 }}</span>
                     </div>
                 {% empty %}
-                    <p class="modal-text-muted">No items found for this order.</p>
+                    <p class="text-muted">No items found for this order.</p>
                 {% endfor %}
             </div>
         </div>

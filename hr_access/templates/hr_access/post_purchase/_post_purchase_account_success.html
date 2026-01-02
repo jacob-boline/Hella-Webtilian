@@ -1,12 +1,12 @@
 {# hr_access/templates/hr_access/post_purchase/_post_purchase_account_success.html #}
 
 <div id="post-purchase-account" class="post-purchase-account">
-  <div class="modal-state">
+  <div class="flex-col-center">
     <h3 class="modal-title">Account created</h3>
-    <p class="modal-text-muted">This order is now linked to your account.</p>
+    <p class="text-muted">This order is now linked to your account.</p>
 
     {% if claimed_count %}
-      <p class="modal-text-faint">
+      <p class="text-faint">
         Claimed {{ claimed_count }} additional order{{ claimed_count|pluralize }}.
       </p>
     {% endif %}
@@ -50,7 +50,7 @@
         </div>
       </form>
     {% else %}
-      <p class="modal-text-faint">No other unlinked orders for this email.</p>
+      <p class="text-faint">No other unlinked orders for this email.</p>
 
       <div class="modal-actions stack uniform">
         <button type="button" class="card-btn btn-neon btn-blue" data-modal-close>

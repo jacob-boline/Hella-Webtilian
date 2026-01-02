@@ -4,15 +4,15 @@
     <h2 class="review-title">Confirm your email</h2>
 
     {% if rate_limited %}
-        <p class="modal-text-muted">
+        <p class="text-muted">
             Too many confirmation emails were requested. Please check your inbox (including spam) or try again in an hour.
         </p>
     {% elif error %}
-        <p class="modal-text-muted">
+        <p class="text-muted">
             {{ message|default:"Could not send confirmation email. Please try again." }}
         </p>
     {% else %}
-        <p class="modal-text-muted">
+        <p class="text-muted">
             {{ message|default:"We've sent a confirmation link to your email. Please check your inbox." }}
         </p>
     {% endif %}

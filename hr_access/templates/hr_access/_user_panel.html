@@ -7,17 +7,17 @@
         hx-target="#modal-content"
         hx-swap="innerHTML transition:true"
     >
-        <div class="flex-between">
+        <p class="flex-between section-title sidebar-title">
             <span class="user-name">{{ request.user.username }}</span>
-            <span aria-hidden="true">→</span>
-        </div>
-        <div class="small">{{ request.user.email }}</div>
+{#            <span aria-hidden="true">→</span>#}
+        </p>
+        <p class="small">{{ request.user.email }}</p>
     </button>
 
     <hr>
 
     <button
-        class="sidebar-btn"
+        class="sidebar-btn modal-title"
         hx-get="{% url 'hr_access:account_get_orders' %}"
         hx-target="#modal-content"
         hx-swap="innerHTML transition:true"
@@ -28,7 +28,7 @@
 
     {% if unclaimed_count %}
         <button
-            class="sidebar-btn sidebar-btn--alert"
+            class="sidebar-btn sidebar-btn--alert modal-title"
             hx-get="{% url 'hr_access:account_get_unclaimed_orders' %}"
             hx-target="#modal-content"
             hx-swap="innerHTML transition:true"
@@ -39,18 +39,18 @@
     {% endif %}
 
     <button
-        class="sidebar-btn"
+        class="sidebar-btn modal-title"
         hx-get="{% url 'hr_access:account_settings' %}"
         hx-target="#modal-content"
         hx-swap="innerHTML transition:true"
     >
-        Account Settings
+        Account
     </button>
 
     <hr>
 
     <button
-        class="sidebar-btn"
+        class="sidebar-btn modal-title"
         hx-post="{% url 'hr_access:auth_logout' %}"
         hx-target="#sidebar-access"
         hx-swap="innerHTML"

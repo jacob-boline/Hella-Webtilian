@@ -2,7 +2,7 @@
 {% load static %}
 
 <div id="confirmation-waiting"
-     class="checkout-awaiting-confirmation modal-state"
+     class="checkout-awaiting-confirmation flex-col-center"
      {% if not rate_limited and not error %}
      hx-get="{% url 'hr_shop:email_confirmation_status' %}"
      hx-trigger="every 5s [pollCount < 720]"

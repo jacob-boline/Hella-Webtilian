@@ -2,113 +2,125 @@
    Modal UI primitives
    =========================== */
 
-/* Modal header/title */
 .modal-title {
-  text-align: center;
-  margin-bottom: 0.5rem;
-  margin-top: -1.5rem;
-  font-size: 1.25rem;
+    text-align:     center;
+    margin:         0;
+    font-family:    "Megrim", cursive;
+    font-size:      1.75rem;
+    letter-spacing: 0.08em;
+    color:          var(--glow);
+    text-shadow:    0 0 0.5rem darkorange;
+    transition:     color 300ms ease,
+                    text-shadow 420ms ease;
+}
+
+.modal-title:hover {
+    color:       #FFF;
+    text-shadow: 0 0 0.45rem rgba(255, 255, 255, 0.9),
+                 0 0 0.9rem rgba(255, 255, 255, 0.6),
+                 0 0 1.8rem rgba(255, 220, 140, 0.35);
 }
 
 /* Generic centered state column (success/error/expired/awaiting/etc.) */
-.modal-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 1.5rem;
-  color: var(--text);
+.flex-col-center {
+    display:        flex;
+    flex-direction: column;
+    align-items:    center;
+    text-align:     center;
+    padding:        1.5rem;
+    color:          var(--text);
 }
 
-/* Text helpers (you repeat these in checkout/auth constantly) */
-.modal-text-muted { color: var(--muted-text); }
-.modal-text-faint { color: var(--faint-text); }
-.modal-text-center { text-align: center; }
+.text-muted {
+    color: var(--muted-text);
+}
+
+.text-faint {
+    color: var(--faint-text);
+}
+
+.text-center {
+    text-align: center;
+}
 
 /* ===========================
    Modal action rows
    =========================== */
 
 .modal-actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.85rem;
-  margin: 0.5rem 0 0.25rem;
+    display:         flex;
+    flex-wrap:       wrap;
+    justify-content: center;
+    gap:             0.85rem;
+    margin:          0.5rem 0 0.25rem;
 }
 
-/* Column stack variant (mobile-friendly button stacks) */
 .modal-actions.stack {
-  flex-direction: column;
-  align-items: stretch;
+    flex-direction: column;
+    align-items:    stretch;
 }
 
-/* Optional: force uniform button width in action rows */
 .modal-actions.uniform .card-btn {
-  min-width: 140px;
+    min-width: 140px;
 }
 
 /* ===========================
    Form controls inside modals
    =========================== */
 
-/* Base form controls inside modals */
 .modal input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):not([type="button"]):not([type="submit"]):not([type="reset"]),
 .modal select,
 .modal textarea {
-  width: 100%;
-  padding: 0.25rem;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  background-color: rgba(0, 0, 0, 0.6);
-  color: var(--text);
-  font-family: inherit;
-  font-size: 0.75rem;
-  outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    width:            100%;
+    padding:          0.25rem;
+    border-radius:    8px;
+    border:           1px solid rgba(255, 255, 255, 0.45);
+    background-color: rgba(0, 0, 0, 0.6);
+    color:            var(--text);
+    font-family:      inherit;
+    font-size:        0.75rem;
+    outline:          none;
+    transition:       border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
-/* Focus */
 .modal input:not([type="checkbox"]):not([type="radio"]):focus,
 .modal select:focus,
 .modal textarea:focus {
-  border-color: var(--neon-blue);
-  box-shadow: 0 0 0 1px rgba(0, 234, 255, 0.5);
-  background-color: rgba(0, 0, 0, 0.9);
+    border-color:     var(--neon-blue);
+    box-shadow:       0 0 0 1px rgba(0, 234, 255, 0.5);
+    background-color: rgba(0, 0, 0, 0.9);
 }
 
-/* Compact control (cart qty, etc.) */
 .modal input.control-compact,
 .modal select.control-compact,
 .modal textarea.control-compact {
-  width: 64px;
-  padding: 0.15rem 0.4rem;
-  border-radius: 6px;
-  font-size: 1rem;
+    width:         64px;
+    padding:       0.15rem 0.4rem;
+    border-radius: 6px;
+    font-size:     1rem;
 }
 
 /* Opt-out if needed */
 .modal .no-modal-style {
-  all: revert;
+    all: revert;
 }
 
 /* ===========================
    Form feedback blocks
    =========================== */
 
-/* Generic errors box (checkout/auth share this pattern) */
 .modal .form-errors {
-  margin: 0 0 1rem;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  background: rgba(255, 107, 107, 0.15);
-  border: 1px solid var(--neon-red);
-  color: #fecaca;
-  font-size: 0.85rem;
+    margin:        0 0 1rem;
+    padding:       0.75rem 1rem;
+    border-radius: 8px;
+    background:    rgba(255, 107, 107, 0.15);
+    border:        1px solid var(--neon-red);
+    color:         #FECACA;
+    font-size:     0.85rem;
 }
 
 .modal .form-errors p {
-  margin: 0;
+    margin: 0;
 }
 
 /* ===========================
@@ -116,35 +128,35 @@
    =========================== */
 
 .modal-helpbox {
-  margin: 0 0 1.25rem;
-  padding: 1.5rem;
-  border-radius: 8px;
-  background: rgba(0, 0, 0, 0.3);
-  text-align: left;
-  max-width: 320px;
+    margin:        0 0 1.25rem;
+    padding:       1.5rem;
+    border-radius: 8px;
+    background:    rgba(0, 0, 0, 0.3);
+    text-align:    left;
+    max-width:     320px;
 }
 
 .modal-helpbox summary {
-  cursor: pointer;
-  font-size: 0.85rem;
-  color: var(--neon-blue);
-  font-weight: 500;
+    cursor:      pointer;
+    font-size:   0.85rem;
+    color:       var(--neon-blue);
+    font-weight: 500;
 }
 
 .modal-helpbox summary:hover {
-  text-decoration: underline;
+    text-decoration: underline;
 }
 
 .modal-helpbox ul {
-  margin: 0.85rem 0 0;
-  padding-left: 1.5rem;
-  font-size: 0.85rem;
-  color: var(--muted-text);
-  line-height: 1.5;
+    margin:       0.85rem 0 0;
+    padding-left: 1.5rem;
+    font-size:    0.85rem;
+    color:        var(--muted-text);
+    line-height:  1.5;
 }
 
 .modal-helpbox li {
-  margin-bottom: 0.25rem;
+    margin-bottom: 0.25rem;
 }
 
 /* ===========================
@@ -152,56 +164,56 @@
    =========================== */
 
 .modal-summary-row {
-  margin: 1.25rem 0;
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: baseline;
-  gap: 0.75rem;
-  position: relative; /* harmless, but keeps you flexible */
+    margin:                1.25rem 0;
+    display:               grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items:           baseline;
+    gap:                   0.75rem;
+    position:              relative;
 }
 
 .modal-summary-row .checkout-btn {
-  grid-column: 2;
-  justify-self: center;
-  margin-right: 0; /* undo old layout assumptions */
-  position: static;
-  transform: none;
-  left: auto;
+    grid-column:  2;
+    justify-self: center;
+    margin-right: 0;
+    position:     static;
+    transform:    none;
+    left:         auto;
 }
 
 .modal-summary-block {
-  grid-column: 3;
-  justify-self: end;
-  display: flex;
-  align-items: baseline;
-  gap: 0.75rem;
+    grid-column:  3;
+    justify-self: end;
+    display:      flex;
+    align-items:  baseline;
+    gap:          0.75rem;
 }
 
 .modal-summary-label {
-  opacity: 0.7;
+    opacity: 0.7;
 }
 
 .modal-summary-amount {
-  font-weight: 700;
-  font-size: 1.25rem;
+    font-weight: 700;
+    font-size:   1.25rem;
 }
 
 /* Mobile: stack total row so it doesn’t play Tetris */
 @media (max-width: 640px) {
-  .modal-summary-row {
-    grid-template-columns: 1fr;
-    justify-items: stretch;
-  }
+    .modal-summary-row {
+        grid-template-columns: 1fr;
+        justify-items:         stretch;
+    }
 
-  .modal-summary-row .checkout-btn {
-    grid-column: 1;
-    justify-self: stretch;
-  }
+    .modal-summary-row .checkout-btn {
+        grid-column:  1;
+        justify-self: stretch;
+    }
 
-  .modal-summary-block {
-    grid-column: 1;
-    justify-self: end;
-  }
+    .modal-summary-block {
+        grid-column:  1;
+        justify-self: end;
+    }
 }
 
 /* ===========================
@@ -210,5 +222,5 @@
 
 /* Generic row divider style (cart lines, review items, etc.) */
 .modal-row-divider {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }

@@ -192,14 +192,7 @@
     text-align:     left;
 }
 
-.modal-title {
-    margin:         0;
-    font-family:    "Megrim", cursive;
-    font-size:      1.75rem;
-    letter-spacing: 0.08em;
-    color:          var(--glow);
-    text-shadow:    0 0 0.5rem darkorange;
-}
+
 
 .modal-description {
     margin:      0.25rem 0 0.75rem;

@@ -17,9 +17,9 @@
     {% endif %}
 
     {% if not email %}
-        <p class="modal-text-muted">No email found for your account.</p>
+        <p class="text-muted">No email found for your account.</p>
     {% else %}
-        <p class="modal-text-muted">
+        <p class="text-muted">
             Showing unclaimed orders associated with <strong>{{ email }}</strong>.
         </p>
 
@@ -78,7 +78,7 @@
             </script>
 
         {% else %}
-            <p class="modal-text-muted">No unclaimed orders found for this email.</p>
+            <p class="text-muted">No unclaimed orders found for this email.</p>
 
             <div class="modal-actions stack uniform">
                 <button type="button" class="card-btn btn-neon btn-blue btn-sm" data-modal-close>
