@@ -65,6 +65,17 @@
 
     <hr>
 
+    {% if request.user.is_staff or request.user.is_superuser %}
+        <a
+            class="sidebar-menu-item"
+            href="{% url 'hr_shop:product_manager' %}#product-manager-panel"
+        >
+            Products
+        </a>
+
+        <hr>
+    {% endif %}
+
     <button
         class="sidebar-menu-item"
         hx-post="{% url 'hr_access:auth_logout' %}"

@@ -41,6 +41,7 @@ urlpatterns = [
 
     # Admin: Variant CRUD
     path('manage/product/<int:product_pk>/variant/create/', manage.create_variant, name='create_variant'),
+    path('manage/variant/<int:pk>/update/', manage.update_variant, name='update_variant'),
     path('manage/variant/<int:pk>/delete/', manage.delete_variant, name='delete_variant'),
 
 
