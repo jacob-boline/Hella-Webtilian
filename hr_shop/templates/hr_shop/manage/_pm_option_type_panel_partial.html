@@ -1,27 +1,26 @@
 {# hr_shop/templates/_pm_option_type_panel_partial.html #}
 
 <div class="pm-option-type-header">
-
-    <form hx-post="{% url 'hr_shop:update_option_type' pk=option_type.pk %}" hx-target="#pm-option-type-panel" hx-swap="innerHTML" class="pm-option-type-edit-form">
-
+    <form
+        hx-post="{% url 'hr_shop:update_option_type' pk=option_type.pk %}"
+        hx-target="#pm-option-type-panel"
+        hx-swap="innerHTML"
+        class="pm-option-type-edit-form"
+    >
         {% csrf_token %}
-
-        <div>
-            <label for="option-name">Name</label>
-            <input type="text" name="option-name" id="option-name" value="{{ option_type.name }}">
-        </div>
-        <div>
-            <label for="option-code">Code</label>
-            <input type="text" name="option-code" id="option-code" value="{{ option_type.code }}">
-        </div>
-        <div>
-            <label for="option-position">Position</label>
-            <input type="number" name="option-position" id="option-position" value="{{ option_type.position }}">
-        </div>
+        {{ option_type_form.non_field_errors }}
+        <div>{{ option_type_form.name.label_tag }} {{ option_type_form.name }}</div>
+        <div>{{ option_type_form.code.label_tag }} {{ option_type_form.code }}</div>
+        <div>{{ option_type_form.position.label_tag }} {{ option_type_form.position }}</div>
         <button type="submit">Save Option Type</button>
     </form>
 
-    <form hx-post="{% url 'hr_shop:delete_option_type' pk=option_type.pk %}" hx-target="#pm-product-panel" hx-swap="innerHTML" class="pm-option-type-delete-form">
+    <form
+        hx-post="{% url 'hr_shop:delete_option_type' pk=option_type.pk %}"
+        hx-target="#pm-product-panel"
+        hx-swap="innerHTML"
+        class="pm-option-type-delete-form"
+    >
         {% csrf_token %}
         <button type="submit">Delete Option Type</button>
     </form>
@@ -39,26 +38,43 @@
         </tr>
         </thead>
         <tbody>
-        {% for val in values %}
-            <tr>
-                <td>{{ val.name }}</td>
-                <td>{{ val.code }}</td>
-                <td>{{ val.position }}</td>
-                <td>
-                    <form hx-post="{% url 'hr_shop:option_value_delete' pk=val.pk %}" hx-target="#pm-option-type-panel" hx-swap="innerHTML" style="display:inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="pm-small-button">Delete</button>
-                    </form>
-                </td>
-            </tr>
-        {% empty %}
+        {% if values_with_forms %}
+            {% for val, val_form in values_with_forms %}
+                <form
+                    hx-post="{% url 'hr_shop:update_option_value' pk=val.pk %}"
+                    hx-target="#pm-option-type-panel"
+                    hx-swap="innerHTML"
+                    class="pm-option-value-row-form"
+                >
+                    {% csrf_token %}
+                    <tr>
+                        <td>{{ val_form.name }}</td>
+                        <td>{{ val_form.code }}</td>
+                        <td>{{ val_form.position }}</td>
+                        <td>
+                            <button type="submit" class="pm-small-button">Save</button>
+                            <button
+                                hx-post="{% url 'hr_shop:delete_option_value' pk=val.pk %}"
+                                hx-target="#pm-option-type-panel"
+                                hx-swap="innerHTML"
+                                class="pm-small-button"
+                                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                                type="button"
+                            >
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                </form>
+            {% endfor %}
+        {% else %}
             <tr><td colspan="4">No values yet.</td></tr>
-        {% endfor %}
+        {% endif %}
         </tbody>
     </table>
 
     <h5>Add Value</h5>
-    <form hx-post="{% url 'hr_shop:option_value_create' option_type_pk=option_type.pk %}" hx-target="#pm-option-type-panel" hx-swap="innerHTML" class="pm-option-value-create-form">
+    <form hx-post="{% url 'hr_shop:create_option_value' option_type_pk=option_type.pk %}" hx-target="#pm-option-type-panel" hx-swap="innerHTML" class="pm-option-value-create-form">
         {% csrf_token %}
         {{ value_form.non_field_errors }}
         <div>{{ value_form.name.label_tag }} {{ value_form.name }}</div>

@@ -2,8 +2,101 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, render
 
-from hr_shop.forms import ProductVariantForm, ProductOptionValueForm, ProductOptionTypeForm, ProductEditForm, ProductQuickForm
-from hr_shop.models import ProductVariant, Product, ProductOptionValue, ProductOptionType
+from hr_shop.forms import (
+    ProductEditForm,
+    ProductOptionTypeForm,
+    ProductOptionValueForm,
+    ProductQuickForm,
+    ProductVariantForm,
+)
+from hr_shop.models import Product, ProductOptionType, ProductOptionValue, ProductVariant
+
+
+def _render_product_list(request, form=None):
+    products = Product.objects.all().order_by('name')
+    return render(
+        request,
+        'hr_shop/manage/_pm_product_list.html',
+        {
+            'products': products,
+            'form': form or ProductQuickForm()
+        }
+    )
+
+
+def _render_product_panel(
+    request,
+    product,
+    *,
+    product_form=None,
+    variant_form=None,
+    option_type_form=None,
+    variant_form_overrides=None,
+    reset_option_type_panel=False,
+):
+    option_types = product.option_types.all().order_by('position', 'id')
+    variants = (
+        product.variants.all()
+        .order_by('id')
+        .prefetch_related('variant_options__option_value__option_type')
+    )
+
+    variant_forms = []
+    for variant in variants:
+        form_override = None
+        if variant_form_overrides:
+            form_override = variant_form_overrides.get(variant.pk)
+        variant_forms.append(
+            (
+                variant,
+                form_override or ProductVariantForm(instance=variant)
+            )
+        )
+
+    return render(
+        request,
+        'hr_shop/manage/_pm_product_panel_partial.html',
+        {
+            'product': product,
+            'option_types': option_types,
+            'variants': variants,
+            'variant_forms': variant_forms,
+            'product_form': product_form or ProductEditForm(instance=product),
+            'variant_form': variant_form or ProductVariantForm(),
+            'option_type_form': option_type_form or ProductOptionTypeForm(),
+            # Reset the option type panel whenever the product changes.
+            'reset_option_type_panel': reset_option_type_panel,
+        }
+    )
+
+
+def _render_option_type_panel(
+    request,
+    option_type,
+    *,
+    option_type_form=None,
+    value_form=None,
+    value_forms=None,
+):
+    values = option_type.values.all().order_by('position', 'id')
+
+    if value_forms is None:
+        value_forms = [
+            (val, ProductOptionValueForm(instance=val))
+            for val in values
+        ]
+
+    return render(
+        request,
+        'hr_shop/manage/_pm_option_type_panel_partial.html',
+        {
+            'option_type': option_type,
+            'values': values,
+            'option_type_form': option_type_form or ProductOptionTypeForm(instance=option_type),
+            'values_with_forms': value_forms,
+            'value_form': value_form or ProductOptionValueForm(),
+        }
+    )
 
 
 @staff_member_required
@@ -16,52 +109,25 @@ def product_manager(request):
 
 @staff_member_required
 def get_manage_product_panel_partial(request, pk):
-    product = get_object_or_404(Product.objects.prefetch_related('variants', 'option_types__values'), pk=pk)
-    option_types = product.option_types.all().order_by('position', 'id')
-    variants = product.variants.all().order_by('id')
-
-    product_form = ProductEditForm(instance=product)
-    variant_form = ProductVariantForm()
-    option_type_form = ProductOptionTypeForm()
-
-    return render(request, 'hr_shop/manage/_pm_product_panel_partial.html', {
-        'product': product,
-        'option_types': option_types,
-        'variants': variants,
-        'product_form': product_form,
-        'variant_form': variant_form,
-        'option_type_form': option_type_form
-    })
+    product = get_object_or_404(
+        Product.objects.prefetch_related('variants', 'option_types__values'),
+        pk=pk
+    )
+    return _render_product_panel(request, product, reset_option_type_panel=True)
 
 
 @staff_member_required
 def get_manage_product_list_partial(request):
-    products = Product.objects.all().order_by('name')
-    form = ProductQuickForm()
-    return render(
-        request,
-        'hr_shop/manage/_pm_product_list.html', {
-            'products': products,
-            'form': form
-        }
-    )
+    return _render_product_list(request)
 
 
 @staff_member_required
 def get_manage_option_type_panel_partial(request, pk):
-    opt_type = get_object_or_404(ProductOptionType.objects.prefetch_related('values', 'product'), pk=pk)
-    values = opt_type.values.all().order_by('position', 'id')
-    form = ProductOptionValueForm()
-
-    return render(
-        request,
-        'hr_shop/manage/_pm_option_type_panel_partial.html',
-        {
-            'option_type': opt_type,
-            'values': values,
-            'value_form': form
-        }
+    opt_type = get_object_or_404(
+        ProductOptionType.objects.prefetch_related('values', 'product'),
+        pk=pk
     )
+    return _render_option_type_panel(request, opt_type)
 
 
 @staff_member_required
@@ -72,14 +138,9 @@ def create_product(request):
     form = ProductQuickForm(request.POST)
     if form.is_valid():
         form.save()
+        form = ProductQuickForm()
 
-    products = Product.objects.all().order_by('name')
-    form = ProductQuickForm()
-    return render(request, 'hr_shop/manage/_pm_product_list.html', {
-            'products': products,
-            'form': form
-        }
-                  )
+    return _render_product_list(request, form=form)
 
 
 @staff_member_required
@@ -91,8 +152,9 @@ def update_product(request, pk):
     form = ProductEditForm(request.POST, instance=product)
     if form.is_valid():
         form.save()
+        return _render_product_panel(request, product)
 
-    return get_manage_product_panel_partial(request, pk)
+    return _render_product_panel(request, product, product_form=form)
 
 
 # ------------------- OPTION TYPE ---------------------- #
@@ -108,7 +170,7 @@ def create_option_type(request, product_pk):
         opt_type.product = product
         opt_type.save()
 
-    return get_manage_product_panel_partial(request, product_pk)
+    return _render_product_panel(request, product, option_type_form=form)
 
 
 @staff_member_required
@@ -120,8 +182,9 @@ def update_option_type(request, pk):
     form = ProductOptionTypeForm(request.POST, instance=opt_type)
     if form.is_valid():
         form.save()
+        return _render_option_type_panel(request, opt_type)
 
-    return get_manage_option_type_panel_partial(request, pk)
+    return _render_option_type_panel(request, opt_type, option_type_form=form)
 
 
 @staff_member_required
@@ -133,7 +196,8 @@ def delete_option_type(request, pk):
     product_pk = opt_type.product_id
     opt_type.delete()
 
-    return get_manage_product_panel_partial(request, product_pk)
+    product = get_object_or_404(Product, pk=product_pk)
+    return _render_product_panel(request, product, reset_option_type_panel=True)
 
 
 # ------------------ OPTION VALUE ----------------------- #
@@ -149,7 +213,7 @@ def create_option_value(request, option_type_pk):
         value.option_type = opt_type
         value.save()
 
-    return get_manage_option_type_panel_partial(request, option_type_pk)
+    return _render_option_type_panel(request, opt_type, value_form=form)
 
 
 @staff_member_required
@@ -158,12 +222,21 @@ def update_option_value(request, pk):
         return HttpResponseBadRequest('POST required')
 
     val = get_object_or_404(ProductOptionValue, pk=pk)
-    opt_type_pk = val.option_type_id
     form = ProductOptionValueForm(request.POST, instance=val)
     if form.is_valid():
         form.save()
+        return _render_option_type_panel(request, val.option_type)
 
-    return get_manage_option_type_panel_partial(request, opt_type_pk)
+    option_type = get_object_or_404(ProductOptionType, pk=val.option_type_id)
+    value_forms = [(val, form)] + [
+        (v, ProductOptionValueForm(instance=v))
+        for v in option_type.values.exclude(pk=val.pk).order_by('position', 'id')
+    ]
+    return _render_option_type_panel(
+        request,
+        option_type,
+        value_forms=value_forms,
+    )
 
 
 @staff_member_required
@@ -175,7 +248,8 @@ def delete_option_value(request, pk):
     opt_type_pk = val.option_type_id
     val.delete()
 
-    return get_manage_option_type_panel_partial(request, opt_type_pk)
+    opt_type = get_object_or_404(ProductOptionType, pk=opt_type_pk)
+    return _render_option_type_panel(request, opt_type)
 
 
 # ---------------------- VARIANT ------------------------ #
@@ -191,7 +265,26 @@ def create_variant(request, product_pk):
         variant.product = product
         variant.save()
 
-    return get_manage_product_panel_partial(request, product_pk)
+    return _render_product_panel(request, product, variant_form=form)
+
+
+@staff_member_required
+def update_variant(request, pk):
+    if request.method != 'POST':
+        return HttpResponseBadRequest('POST required')
+
+    variant = get_object_or_404(ProductVariant.objects.select_related('product'), pk=pk)
+    product = variant.product
+    form = ProductVariantForm(request.POST, instance=variant)
+    if form.is_valid():
+        form.save()
+        return _render_product_panel(request, product)
+
+    return _render_product_panel(
+        request,
+        product,
+        variant_form_overrides={variant.pk: form},
+    )
 
 
 @staff_member_required
@@ -203,4 +296,5 @@ def delete_variant(request, pk):
     product_pk = variant.product_id
     variant.delete()
 
-    return get_manage_product_panel_partial(request, product_pk)
+    product = get_object_or_404(Product, pk=product_pk)
+    return _render_product_panel(request, product)
