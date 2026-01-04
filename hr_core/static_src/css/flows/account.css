@@ -560,3 +560,11 @@
 .change-email-modal .auth-description {
     padding: 0.5rem 0 0.5rem;
 }
+
+/*.change-password-modal .field-group:first-of-type {*/
+/*    margin-bottom: 24px;*/
+/*}*/
+
+#password-change-form .field-row:first-of-type {
+    margin-bottom: 36px;
+}

@@ -15,6 +15,18 @@ from hr_shop.models import (
 from hr_shop.forms import ProductAdminForm
 
 
+# NOTE -- implement next time working in admin
+#
+# Admin uses forms, so if you also normalize in the field’s to_python() (optional),
+# the admin will display the normalized email back to the user immediately on save.
+# If you only normalize in pre_save(), it still saves normalized, just might look
+# “un-normalized” until refresh depending on how the form bound value is shown.
+# Usually not a big deal.
+# Email fields are normalized on model save.
+# Do NOT use queryset.update(email=...) or bulk updates for emails,
+# or normalization will be bypassed.
+
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug', 'active')

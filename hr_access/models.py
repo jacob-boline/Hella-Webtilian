@@ -8,9 +8,9 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
+from hr_core.db.fields import NormalizedEmailField
 from hr_access.constants import RESERVED_USERNAMES
 from hr_access.managers import UserManager
-from hr_core.utils.email import normalize_email
 
 
 username_chars = RegexValidator(
@@ -26,7 +26,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         USER = 'user', 'User'
 
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.USER,)
-    email = models.EmailField(_("email address"), unique=True, blank=False, null=False, max_length=254)
+    email = NormalizedEmailField(_("email address"), unique=True, blank=False, null=False)
     first_name = models.CharField(_("First Name"), max_length=254, blank=True)
     last_name = models.CharField(_("Last Name"), max_length=254, blank=True)
     username = models.CharField(max_length=150, unique=False, null=False, blank=False, validators=[MinLengthValidator(5)])
@@ -77,12 +77,14 @@ class User(AbstractBaseUser, PermissionsMixin):
             raise ValidationError({"username": _("That username is reserved.")})
 
     def save(self, *args, **kwargs):
-        self.email = normalize_email(self.email)
         self.username = (self.username or "").strip()
         self.username_ci = self.username.casefold()
+
+        if self.username_ci in RESERVED_USERNAMES:
+            raise ValidationError({"username": _("That username is reserved.")})
+
         super().save(*args, **kwargs)
 
     def set_password(self, raw_password):
         super().set_password(raw_password)
         self.password_changed_at = timezone.now()
-

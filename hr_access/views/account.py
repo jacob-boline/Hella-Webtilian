@@ -291,14 +291,20 @@ def account_change_password(request):
             user = form.save()
             update_session_auth_hash(request, user)
 
+            email = normalize_email(get)
+
             return HttpResponse(
                 status=204,
                 headers={
                     "HX-Trigger": json.dumps({
                         "accessChanged": None,
-                        "showMessage": "Your password has been changed.",
+                        "showMessage": {
+                            "message": "Your password has been changed.",
+                            "duration": 5000
+                        },
+                        "closeModal": None
                     })
-                },
+                }
             )
 
         return render(request, template, {"form": form})

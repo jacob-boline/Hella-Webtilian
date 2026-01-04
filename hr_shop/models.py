@@ -43,13 +43,14 @@ from decimal import Decimal
 from functools import cached_property
 
 from django.conf import settings
-from django.core.validators import EmailValidator, MinValueValidator
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Q, Min
 from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
 
 from hr_common.models import Address
+from hr_core.db.fields import NormalizedEmailField
 from hr_core.utils.email import normalize_email
 from hr_core.utils.slug import sync_slug_from_source
 
@@ -441,12 +442,11 @@ class Price(models.Model):
 
 
 class Customer(models.Model):
-    email = models.EmailField(
+    email = NormalizedEmailField(
         blank=False,
         null=False,
         unique=True,
-        db_index=True,
-        validators=[EmailValidator()]
+        db_index=True
     )
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
@@ -478,11 +478,6 @@ class Customer(models.Model):
     def __str__(self):
         label = f"{self.first_name} {self.last_name}".strip() or self.email
         return f"Customer {self.pk} - {label}"
-
-    def save(self, *args, **kwargs):
-        if self.email:
-            self.email = normalize_email(self.email)
-        super().save(*args, **kwargs)
 
     @property
     def full_name(self):
@@ -559,10 +554,8 @@ class Order(models.Model):
         related_name="account_get_orders"
     )
 
-    email = models.EmailField(
-        validators=[EmailValidator()],
-        db_index=True
-    )
+    email = NormalizedEmailField(db_index=True)
+
     stripe_checkout_session_id = models.CharField(
         max_length=255,
         blank=True,
@@ -664,7 +657,7 @@ class ConfirmedEmail(models.Model):
     Once an email is confirmed, it never needs to be confirmed again.
     This enables guest checkout while preventing abuse.
     """
-    email = models.EmailField(unique=True, db_index=True)
+    email = NormalizedEmailField(unique=True, db_index=True)
     confirmed_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -690,7 +683,7 @@ class ConfirmedEmail(models.Model):
 # To store session state to restore from when a validation link is used from a browser without an active session
 # so users aren't redirected to an empty cart after validating.
 class CheckoutDraft(models.Model):
-    email = models.EmailField(db_index=True)
+    email = NormalizedEmailField(db_index=True)
     customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
     address = models.ForeignKey(Address, on_delete=models.PROTECT)
     note = models.CharField(max_length=1000, blank=True, null=True)

@@ -1,123 +1,123 @@
 {# hr_shop/templates/hr_shop/_order_receipt_modal.html#}
 
 <div class="checkout-review-modal">
-  <h2 class="review-title">Order Receipt</h2>
+    <h2 class="review-title">Order Receipt</h2>
 
-  <div class="review-section">
-    <p class="review-section-title">Order</p>
 
-    <p class="customer-field"><strong>Order #:</strong> {{ order.id }}</p>
-    <p class="customer-field"><strong>Date:</strong> {{ order.created_at|date:"M j, Y · g:i A" }}</p>
-    <p class="customer-field"><strong>Status:</strong> {{ order.status|capfirst }}</p>
-  </div>
+    {#      <div class="shipping-summary">#}
+    <div class="account-status-grid inline uniform">
 
-  {% if address %}
-    <div class="review-section shipping-review">
-      <div class="shipping-summary">
-        <div class="shipping-block">
-          <p class="review-section-title">Shipping Address</p>
+        <div class="review-section">
+            <p class="review-section-title">Order</p>
 
-          <p class="shipping-address customer-field" style="white-space: pre-wrap;">
-            {{ address.formatted }}
-          </p>
+            <p class="customer-field"><strong>Order #:</strong> {{ order.id }}</p>
+            <p class="customer-field"><strong>Date:</strong> {{ order.created_at|date:"M j, Y · g:i A" }}</p>
+            <p class="customer-field"><strong>Status:</strong> {{ order.order_status|capfirst }}</p>
         </div>
 
-        {% if customer %}
-          <div class="shipping-contact">
-            <p class="review-section-title">Contact</p>
-            <p class="customer-email customer-field">{{ customer.email }}</p>
-            {% if customer.phone %}
-              <p class="customer-phone customer-field">{{ customer.phone }}</p>
-            {% endif %}
-          </div>
-        {% endif %}
-      </div>
-    </div>
-  {% endif %}
+        {% if address %}
 
-  <div class="review-section">
-    <h3 class="review-section-title">Items</h3>
+            <div class="review-section">
+                <p class="review-section-title">Shipping Address</p>
 
-    <div class="review-items">
-      {% for item in items %}
-        <div class="review-item">
-          <div class="item-info">
-            <span class="item-name">{{ item.variant.product.name }}</span>
-
-            <div class="item-meta">
-              {% if item.variant.name %}
-                <span class="item-variant">{{ item.variant.name }}</span>
-              {% endif %}
-              <span class="item-qty">Qty: {{ item.quantity }}</span>
+                <p class="shipping-address customer-field" style="white-space: pre-wrap;">{{ address.formatted }}</p>
             </div>
-          </div>
 
-          <span class="item-price">${{ item.unit_price|floatformat:2 }}</span>
-        </div>
-      {% endfor %}
+            {% if customer %}
+                <div class="review-section">
+                    <p class="review-section-title">Contact</p>
+                    <p class="customer-email customer-field">{{ customer.email }}</p>
+                    {% if customer.phone %}
+                        <p class="customer-phone customer-field">{{ customer.phone }}</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+        {% endif %}
     </div>
-  </div>
-
-  <div class="review-section review-totals">
-    <div class="total-row">
-      <span>Subtotal</span>
-      <span>${{ order.subtotal|floatformat:2 }}</span>
-    </div>
-
-    {% if order.tax %}
-      <div class="total-row">
-        <span>Tax</span>
-        <span>${{ order.tax|floatformat:2 }}</span>
-      </div>
-    {% endif %}
-
-    {% if order.shipping %}
-      <div class="total-row">
-        <span>Shipping</span>
-        <span>${{ order.shipping|floatformat:2 }}</span>
-      </div>
-    {% endif %}
-
-    <div class="total-row total-final">
-      <span>Total</span>
-      <span>${{ order.total|floatformat:2 }}</span>
-    </div>
-  </div>
-
-  {% if is_guest %}
     <div class="review-section">
-      <p class="review-section-title">Track Your Orders</p>
-      <p class="review-note">
-        Create an account to track orders, save addresses, and check out faster next time.
-      </p>
+        <h3 class="review-section-title">Items</h3>
 
-      <div class="modal-actions">
-        <button
-          type="button"
-          class="card-btn btn-neon btn-green"
-          hx-get="{% url 'hr_access:signup' %}"
-          hx-target="#modal-content"
-          hx-swap="innerHTML transition:true">
-          Create Account
-        </button>
-      </div>
+        <div class="review-items">
+            {% for item in items %}
+                <div class="review-item">
+                    <div class="item-info">
+                        <span class="item-name">{{ item.variant.product.name }}</span>
+
+                        <div class="item-meta">
+                            {% if item.variant.name %}
+                                <span class="item-variant">{{ item.variant.name }}</span>
+                            {% endif %}
+                            <span class="item-qty">Qty: {{ item.quantity }}</span>
+                        </div>
+                    </div>
+
+                    <span class="item-price">${{ item.unit_price|floatformat:2 }}</span>
+                </div>
+            {% endfor %}
+        </div>
     </div>
-  {% endif %}
 
-  <div class="review-actions modal-actions stack">
-    {% if not is_guest %}
-      <button
-        type="button"
-        class="card-btn btn-neon btn-blue"
-        hx-get="{% url 'hr_access:account_get_orders' %}"
-        hx-target="#modal-content"
-        hx-swap="innerHTML transition:true">
-        Back to Orders
-      </button>
+    <div class="review-section review-totals">
+        <div class="total-row">
+            <span>Subtotal</span>
+            <span>${{ order.subtotal|floatformat:2 }}</span>
+        </div>
+
+        {% if order.tax %}
+            <div class="total-row">
+                <span>Tax</span>
+                <span>${{ order.tax|floatformat:2 }}</span>
+            </div>
+        {% endif %}
+
+        {% if order.shipping %}
+            <div class="total-row">
+                <span>Shipping</span>
+                <span>${{ order.shipping|floatformat:2 }}</span>
+            </div>
+        {% endif %}
+
+        <div class="total-row total-final">
+            <span>Total</span>
+            <span>${{ order.total|floatformat:2 }}</span>
+        </div>
+    </div>
+
+    {% if is_guest %}
+        <div class="review-section">
+            <p class="review-section-title">Track Your Orders</p>
+            <p class="review-note">
+                Create an account to track orders, save addresses, and check out faster next time.
+            </p>
+
+            <div class="modal-actions">
+                <button
+                        type="button"
+                        class="card-btn btn-neon btn-green"
+                        hx-get="{% url 'hr_access:account_signup' %}"
+                        hx-target="#modal-content"
+                        hx-swap="innerHTML transition:true">
+                    Create Account
+                </button>
+            </div>
+        </div>
     {% endif %}
 
-    <button type="button" class="card-btn btn-neon btn-blue" data-modal-close>
-      Close
-    </button>
-  </div>
+    <div class="review-actions modal-actions inline uniform">
+        {% if not is_guest %}
+            <button
+                    type="button"
+                    class="card-btn btn-neon btn-green btn-sm"
+                    hx-get="{% url 'hr_access:account_get_orders' %}"
+                    hx-target="#modal-content"
+                    hx-swap="innerHTML transition:true">
+                Back to Orders
+            </button>
+        {% endif %}
+
+        <button type="button" class="card-btn btn-neon btn-blue btn-sm" data-modal-close>
+            Close
+        </button>
+    </div>
 </div>

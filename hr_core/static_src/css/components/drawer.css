@@ -462,7 +462,7 @@ input:-webkit-autofill:focus {
 
 .field-group:focus-within label {
     color: var(--neon-blue);
-    transform: translateY(-1.2em) scale(0.9);
+    /*transform: translateY(-1.2em) scale(0.9);*/
 }
 
 form.login-form div.form-control {
