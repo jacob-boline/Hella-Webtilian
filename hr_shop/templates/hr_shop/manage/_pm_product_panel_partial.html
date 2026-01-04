@@ -1,8 +1,18 @@
 {# hr_shop/templates/_pm_product_panel_partial.html #}
 
-<div class="pm-product-header">
+{% if reset_option_type_panel %}
+    <div id="pm-option-type-panel" hx-swap-oob="true">
+        <p>Select an option type to see its values.</p>
+    </div>
+{% endif %}
 
-    <form hx-post="{% url 'hr_shop:update_product' pk=product.pk %}" hx-target="#pm-product-panel" hx-swap="innerHTML" class="pm-product-edit-form">
+<div class="pm-product-header">
+    <form
+        hx-post="{% url 'hr_shop:update_product' pk=product.pk %}"
+        hx-target="#pm-product-panel"
+        hx-swap="innerHTML"
+        class="pm-product-edit-form"
+    >
         {% csrf_token %}
         {{ product_form.non_field_errors }}
         <div>{{ product_form.name.label_tag }} {{ product_form.name }}</div>
@@ -10,12 +20,6 @@
         <div>{{ product_form.description.label_tag }} {{ product_form.description }}</div>
         <button type="submit">Save Product</button>
     </form>
-
-{#    <h3>{{ product.name }}</h3>#}
-{#    <p><strong>Slug:</strong> {{ product.slug }}</p>#}
-{#    {% if product.description %}#}
-{#        <p class="pm-product-description">{{ product.description }}</p>#}
-{#    {% endif %}#}
 </div>
 
 <div class="pm-product-columns">
@@ -53,7 +57,7 @@
         <table class="pm-variant-table">
             <thead>
             <tr>
-                <th>Display Variant (for Product)</th>
+                <th>Display Variant</th>
                 <th>SKU</th>
                 <th>Name</th>
                 <th>Price</th>
@@ -62,30 +66,43 @@
             </tr>
             </thead>
             <tbody>
-            {% for v in variants %}
-                <tr>
-                    <td>{% if v.is_display_variant %}★{% endif %}</td>
-                    <td>{{ v.sku }}</td>
-                    <td>{{ v.name }}</td>
-                    <td>${{ v.price }}</td>
-                    <td>
-                        {# show option values for quick scan #}
-                        {% for vo in v.variant_options.all %}
-                            <span class="pm-variant-option-chip">
-                                {{ vo.option_value.option_type.name }}:
-                                {{ vo.option_value.name }}
-                            </span>
-                        {% empty %}
-                            <span class="pm-variant-option-chip pm-empty">No options</span>
-                        {% endfor %}
-                    </td>
-                    <td>
-                        <form hx-post="{% url 'hr_shop:delete_variant' pk=v.pk %}" hx-target="#pm-product-panel" hx-swap="innerHTML" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="pm-small-button">Delete</button>
-                        </form>
-                    </td>
-                </tr>
+            {% for v, v_form in variant_forms %}
+                <form
+                    hx-post="{% url 'hr_shop:update_variant' pk=v.pk %}"
+                    hx-target="#pm-product-panel"
+                    hx-swap="innerHTML"
+                >
+                    {% csrf_token %}
+                    <tr>
+                        <td>{{ v_form.is_display_variant }}</td>
+                        <td>{{ v_form.sku }}</td>
+                        <td>{{ v_form.name }}</td>
+                        <td>{{ v_form.price }}</td>
+                        <td>
+                            {% for vo in v.variant_options.all %}
+                                <span class="pm-variant-option-chip">
+                                    {{ vo.option_value.option_type.name }}:
+                                    {{ vo.option_value.name }}
+                                </span>
+                            {% empty %}
+                                <span class="pm-variant-option-chip pm-empty">No options</span>
+                            {% endfor %}
+                        </td>
+                        <td class="pm-variant-actions">
+                            <button type="submit" class="pm-small-button">Save</button>
+                            <button
+                                hx-post="{% url 'hr_shop:delete_variant' pk=v.pk %}"
+                                hx-target="#pm-product-panel"
+                                hx-swap="innerHTML"
+                                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                                type="button"
+                                class="pm-small-button"
+                            >
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                </form>
             {% empty %}
                 <tr><td colspan="6">No variants yet.</td></tr>
             {% endfor %}
