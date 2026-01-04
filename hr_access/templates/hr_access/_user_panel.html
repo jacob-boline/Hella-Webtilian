@@ -66,12 +66,14 @@
     <hr>
 
     {% if request.user.is_staff or request.user.is_superuser %}
-        <a
+        <button
             class="sidebar-menu-item"
-            href="{% url 'hr_shop:product_manager' %}#product-manager-panel"
+            hx-get="{% url 'hr_shop:product_manager' %}"
+            hx-target="#modal-content"
+            hx-swap="innerHTML transition:true"
         >
             Products
-        </a>
+        </button>
 
         <hr>
     {% endif %}
