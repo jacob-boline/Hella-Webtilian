@@ -24,6 +24,7 @@ urlpatterns = [
     path('manage/products/', manage.get_manage_product_list_partial, name='get_product_list_partial'),
     path('manage/product/<int:pk>/', manage.get_manage_product_panel_partial, name='get_product_panel_partial'),
     path('manage/option-type/<int:pk>/', manage.get_manage_option_type_panel_partial, name='get_manage_option_type_panel_partial'),
+    path('manage/product/<int:pk>/update/', manage.update_product, name='update_product'),
 
 
     # Admin: OptionType CRUD
@@ -41,6 +42,9 @@ urlpatterns = [
 
     # Admin: Variant CRUD
     path('manage/product/<int:product_pk>/variant/create/', manage.create_variant, name='create_variant'),
+    # Admin: Product CRUD
+    path('manage/product/create/', manage.create_product, name='create_product'),
+
     path('manage/variant/<int:pk>/update/', manage.update_variant, name='update_variant'),
     path('manage/variant/<int:pk>/delete/', manage.delete_variant, name='delete_variant'),
 
