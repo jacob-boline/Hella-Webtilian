@@ -102,6 +102,16 @@
     --vw: 1vw;
     --pad-inline: clamp(1rem, 6vw, 3rem);
 
+    /* Modal sizing tokens */
+    --m-maxw: 64rem;
+    --m-maxh: min(92dvh, calc(var(--vh) * 92));
+    --m-gutter: max(1rem, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+    --m-pad: clamp(0.75rem, 2.5vw, 1.5rem);
+    --m-gap: clamp(0.75rem, 2vw, 1.25rem);
+    --m-radius: clamp(0.85rem, 1.5vw, 1.5rem);
+    --m-title: clamp(1.25rem, 3vw, 1.75rem);
+    --m-text: clamp(0.85rem, 1.6vw, 1rem);
+
     /* shared vertical paddings (avoid duplication drift) */
     --section-pad: calc(var(--vh) * 18);
     --page-pad-top: calc(var(--vh) * 18);
@@ -143,6 +153,10 @@ body {
     font-family: "Space Grotesk", sans-serif;
     color: var(--text);
     background-color: var(--bg-dark);
+}
+
+body.modal-open {
+    overflow: hidden;
 }
 
 /* ===========================
@@ -312,18 +326,23 @@ nav.navbar {
     position: relative;
     z-index: 1001;
     pointer-events: auto;
-    max-width: min(64rem, calc(100vw - 2 * var(--pad-inline)));
-    max-height: min(95vh, calc(var(--vh) * 95));
-    padding: 0 1.75rem 0.75rem;
+    width: min(calc(100vw - (2 * var(--m-gutter))), var(--m-maxw));
+    max-width: 100%;
+    max-height: min(92dvh, var(--m-maxh));
+    padding: var(--m-pad);
     overflow: hidden;
+    overflow-x: hidden;
+    container-type: inline-size;
+    container-name: modal;
 }
 
 #modal-content {
     view-transition-name: modal-content;
     max-width: 100%;
     width: 100%;
-    max-height: calc(min(95vh, calc(var(--vh) * 95)) - 3.5rem);
+    max-height: calc(min(92dvh, var(--m-maxh)) - (2 * var(--m-pad)));
     overflow: hidden;
+    overflow-x: hidden;
     flex: 1 1 auto;
     min-height: 0;
     display: flex;
@@ -530,6 +549,3 @@ nav.navbar {
     padding-inline: 1.5rem;
   }
 }
-
-
-

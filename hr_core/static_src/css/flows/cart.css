@@ -154,7 +154,7 @@
    Responsive adjustments
    =========================== */
 
-@media (max-width: 640px) {
+@container modal (max-width: 600px) {
     .view-cart-modal {
         padding: 1.25rem 1rem 1.75rem;
     }
