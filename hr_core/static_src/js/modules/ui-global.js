@@ -36,12 +36,14 @@
 
         const floatingCart = document.querySelector('.floating-cart-btn');
 
-        function hideFloatingCart() {
+        let _drawerScrollY = 0;
+
+        function hideFloatingCart () {
             if (!floatingCart) return;
             floatingCart.classList.add('is-hidden');
         }
 
-        function showFloatingCart() {
+        function showFloatingCart () {
             if (!floatingCart) return;
             floatingCart.classList.remove('is-hidden');
         }
@@ -250,13 +252,29 @@
             if (!drawer || !openBtn) return;
 
             const openDrawer = () => {
+                const isMobile = window.matchMedia("(max-width: 767.98px)").matches;
+
+
                 drawer.classList.add("show");
                 openBtn.classList.add("hidden");
+                if (isMobile) {
+                    _drawerScrollY = window.scrollY || 0;
+                    document.body.classList.add("drawer-open");
+                    document.body.style.top = `-${_drawerScrollY}px`;
+                }
             };
 
             const closeDrawer = () => {
+                const isMobile = window.matchMedia("(max-width: 767.98px)").matches;
+
                 drawer.classList.remove("show");
                 openBtn.classList.remove("hidden");
+
+                if (isMobile) {
+                    document.body.classList.remove("drawer-open");
+                    document.body.style.top = "";
+                    window.scrollTo(0, _drawerScrollY);
+                }
             };
 
             openBtn.addEventListener("click", (e) => {
@@ -338,7 +356,8 @@
                         (qs ? `?${qs}` : "") +
                         window.location.hash;
                     window.history.replaceState({}, "", clean);
-                } catch (e) { }
+                } catch (e) {
+                }
             }, 0);
             return true;
         }
@@ -349,7 +368,7 @@
 
         // Try immediately; if HTMX isn't ready, try once on htmx:load + one small retry.
         if (!tryBootstrapLandingModal()) {
-            document.addEventListener("htmx:load", () => tryBootstrapLandingModal(), { once: true });
+            document.addEventListener("htmx:load", () => tryBootstrapLandingModal(), {once: true});
             window.setTimeout(tryBootstrapLandingModal, 50);
         }
 
@@ -360,7 +379,7 @@
         window.hrSite.hideModal = hideModal;
         window.hrSite.showGlobalMessage = showGlobalMessage;
 
-        window.hrModal = { open: openModal, close: hideModal };
+        window.hrModal = {open: openModal, close: hideModal};
     }
 
     if (document.readyState === "loading") {

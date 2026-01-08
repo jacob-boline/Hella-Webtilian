@@ -7,19 +7,19 @@
 @font-face {
     font-family: "Bungee Hairline";
     font-display: swap;
-    src: url("static/fonts/BungeeHairline-Regular.ttf") format("truetype");
+    src: url("/static/hr_core/fonts/BungeeHairline-Regular.ttf") format("truetype");
 }
 
 @font-face {
     font-family: "Megrim";
     font-display: swap;
-    src: url("static/fonts/Megrim-Regular.ttf") format("truetype");
+    src: url("/static/hr_core/fonts/Megrim-Regular.ttf") format("truetype");
 }
 
 @font-face {
     font-family: "Quantico";
     font-display: swap;
-    src: url("static/fonts/Quantico-Regular.ttf") format("truetype");
+    src: url("/static/hr_core/fonts/Quantico-Regular.ttf") format("truetype");
     font-weight: 400;
     font-style: normal;
 }
@@ -27,7 +27,7 @@
 @font-face {
     font-family: "Quantico";
     font-display: swap;
-    src: url("static/fonts/Quantico-Bold.ttf") format("truetype");
+    src: url("/static/hr_core/fonts/Quantico-Bold.ttf") format("truetype");
     font-weight: 700;
     font-style: normal;
 }
@@ -35,7 +35,7 @@
 @font-face {
     font-family: "Quantico";
     font-display: swap;
-    src: url("static/fonts/Quantico-Italic.ttf") format("truetype");
+    src: url("/static/hr_core/fonts/Quantico-Italic.ttf") format("truetype");
     font-weight: 400;
     font-style: italic;
 }
@@ -43,7 +43,7 @@
 @font-face {
     font-family: "Quantico";
     font-display: swap;
-    src: url("static/fonts/Quantico-BoldItalic.ttf") format("truetype");
+    src: url("/static/hr_core/fonts/Quantico-BoldItalic.ttf") format("truetype");
     font-weight: 700;
     font-style: italic;
 }
@@ -51,25 +51,25 @@
 @font-face {
     font-family: "KARNIVBL";
     font-display: swap;
-    src: url("static/fonts/KARNIVBL.ttf") format("truetype");
+    src: url("/static/hr_core/fonts/KARNIVBL.ttf") format("truetype");
 }
 
 @font-face {
     font-family: "Tilt Prism";
     font-display: swap;
-    src: url("static/fonts/TiltPrism-Regular.ttf") format("truetype");
+    src: url("/static/hr_core/fonts/TiltPrism-Regular.ttf") format("truetype");
 }
 
 @font-face {
     font-family: "Exo 2";
     font-display: swap;
-    src: url("static/fonts/Exo2-VariableFont_wght.ttf") format("truetype");
+    src: url("/static/hr_core/fonts/Exo2-VariableFont_wght.ttf") format("truetype");
 }
 
 @font-face {
     font-family: "Syne Mono";
     font-display: swap;
-    src: url("static/fonts/SyneMono-Regular.ttf") format("truetype");
+    src: url("/static/hr_core/fonts/SyneMono-Regular.ttf") format("truetype");
 }
 
 /* ===========================
@@ -171,7 +171,7 @@ nav.navbar {
     transform: translateY(-100%);
     padding: 0.75rem 1.25rem;
     font-size: 0.9rem;
-    color: #F9FAFB;
+    color: var(--text);
     text-align: center;
     opacity: 0;
     background-color: #14532D;
@@ -300,7 +300,7 @@ nav.navbar {
     position: absolute;
     inset: 0;
     pointer-events: auto;
-    background: radial-gradient(circle at top, rgba(0, 0, 0, 0.55), #000);
+    background: radial-gradient(circle at top, rgba(0, 0, 0, 0.55), black);
     opacity: 0.9;
 }
 
@@ -322,18 +322,39 @@ nav.navbar {
     max-height: var(--modal-max-h);
     padding: var(--modal-pad-block) var(--modal-pad-inline);
     overflow: hidden;
+
+    /* Enable inner scrolling layout */
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
 }
 
 #modal-content {
     view-transition-name: modal-content;
+
     max-width: 100%;
     width: 100%;
     max-height: calc(var(--modal-max-h) - (2 * var(--modal-pad-block)));
     overflow: hidden;
     flex: 1 1 auto;
     min-height: 0;
+
     display: flex;
     flex-direction: column;
+
+    /* Scroll behavior: Y only */
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    /* mobile scroll feel */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+
+    /* wrap long strings defensively */
+    overflow-wrap: anywhere;
+    word-break: break-word;
+
+    transition: opacity 200ms ease;
 }
 
 ::view-transition-old(modal-content),
@@ -374,10 +395,6 @@ nav.navbar {
     }
 }
 
-#modal-content {
-    transition: opacity 200ms ease;
-}
-
 .modal-is-swapping #modal-content {
     opacity: 0.85;
 }
@@ -388,7 +405,7 @@ nav.navbar {
 }
 
 .modal-close-btn {
-    margin-left: 100%;
+    margin-left: 95%;
     font-size: 1.75rem;
     background-color: transparent;
     color: white;
@@ -528,11 +545,9 @@ nav.navbar {
     }
 }
 
-
 @media (min-width: 768px) and (max-width: 1279.98px) {
   .modal-panel {
     width: auto; /* let max-width govern */
-    max-width: min(64rem, calc(100vw - 2 * var(--pad-inline)));
     padding-inline: 1.5rem;
   }
 }
