@@ -2,38 +2,158 @@
    Modal UI primitives
    =========================== */
 
-/* Modal layout system
-   - .modal-content: flex column wrapper inside #modal-content
-   - .modal-scroll: scroll region for long modal content
-   - .modal-cols: responsive grid helper for two-column layouts
+/* How to use:
+   <article class="m-shell">
+     <header class="m-head">...</header>
+     <section class="m-body">...</section>
+     <footer class="m-foot m-actions">...</footer>
+   </article>
+   Use .m-grid / .m-grid-2 for stacked -> 2-col layouts (container queries).
+   Use .m-split for media/detail split (stacks on narrow containers).
+   Use .m-actions for button rows (stacked on c0/c1, right-aligned row at c2+).
+   Container breakpoints (panel width): c0<=420, c1=421-600, c2=601-840, c3=841-1100, c4>=1101.
 */
 
+.modal-panel {
+    border-radius: var(--m-radius);
+}
+
+.m-shell,
 .modal-content {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: var(--m-gap);
     min-height: 0;
     height: 100%;
+    font-size: var(--m-text);
 }
 
+.m-shell > * {
+    min-width: 0;
+}
+
+.m-head {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.m-body,
 .modal-scroll {
     flex: 1 1 auto;
     min-height: 0;
     overflow: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
     scrollbar-gutter: stable;
     padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-.modal-cols {
-    display: grid;
-    gap: 1rem;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+.m-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--m-gap);
+    overflow-wrap: anywhere;
 }
 
-@media (max-width: 48rem) {
-    .modal-cols {
-        grid-template-columns: 1fr;
+.m-foot {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.m-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--m-gap);
+}
+
+.m-grid {
+    display: grid;
+    gap: var(--m-gap);
+}
+
+.m-grid-2 {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.m-grid-3 {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.m-split {
+    display: grid;
+    gap: var(--m-gap);
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.m-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: stretch;
+}
+
+.m-actions > * {
+    width: 100%;
+}
+
+.m-tablewrap {
+    overflow-x: auto;
+    max-width: 100%;
+}
+
+.m-tablewrap table {
+    min-width: 100%;
+}
+
+@container modal (max-width: 420px) {
+    .m-shell {
+        gap: clamp(0.65rem, 2.5vw, 0.85rem);
+    }
+}
+
+@container modal (min-width: 421px) and (max-width: 600px) {
+    .m-actions {
+        gap: 0.65rem;
+    }
+}
+
+@container modal (min-width: 601px) {
+    .m-grid-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .m-split {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        align-items: start;
+    }
+
+    .m-actions {
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    .m-actions > * {
+        width: auto;
+    }
+}
+
+@container modal (min-width: 841px) {
+    .m-split {
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    }
+}
+
+@container modal (min-width: 1101px) {
+    .m-grid-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .m-shell {
+        gap: clamp(0.85rem, 1.5vw, 1.35rem);
     }
 }
 
@@ -41,7 +161,7 @@
     text-align:     center;
     margin:         0;
     font-family:    "Megrim", cursive;
-    font-size:      1.75rem;
+    font-size:      var(--m-title);
     letter-spacing: 0.08em;
     color:          var(--glow);
     text-shadow:    0 0 0.5rem darkorange;
@@ -102,6 +222,37 @@
 
 .modal-actions.uniform .card-btn {
     min-width: 140px;
+}
+
+/* Modal form row helpers (container-query driven) */
+.modal-panel .field-row {
+    display: grid;
+    gap: var(--m-gap);
+}
+
+.modal-panel .field-row-two-cols {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.modal-panel .field-row-bottom-block {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.modal-panel .field-col-left,
+.modal-panel .field-col-right {
+    display: grid;
+    gap: var(--m-gap);
+}
+
+@container modal (min-width: 601px) {
+    .modal-panel .field-row-two-cols {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .modal-panel .field-row-bottom-block {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        align-items: start;
+    }
 }
 
 /* ===========================
@@ -238,8 +389,7 @@
     font-size:   1.25rem;
 }
 
-/* Mobile: stack total row so it doesn’t play Tetris */
-@media (max-width: 640px) {
+@container modal (max-width: 600px) {
     .modal-summary-row {
         grid-template-columns: 1fr;
         justify-items:         stretch;

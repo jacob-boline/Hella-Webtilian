@@ -1,60 +1,68 @@
 {# hr_access/_view_cart.html #}
 
-<div class="view-cart-modal">
-    <h2 class="sub-header modal-title">Shopping Cart</h2>
+<article class="view-cart-modal m-shell">
+    <header class="m-head">
+        <h2 class="sub-header modal-title">Shopping Cart</h2>
+    </header>
+
+    <section class="m-body">
+        {% if cart %}
+            {% for item in cart %}
+                <div class="cart-summary-card">
+                    <img
+                        class="item-thumbnail"
+                        src="{{ item.variant.image.image.url }}"
+                        alt="{{ item.variant.product.name }}{% if item.variant.name %} – {{ item.variant.name }}{% endif %}"
+                    >
+
+                    <div class="item-main">
+                        <p class="item-title">
+                            {{ item.variant.product.name }}
+                            {% if item.variant.name %}
+                                {{ item.variant.name }}
+                            {% endif %}
+                        </p>
+                        <p class="item-unit-price">
+                            ${{ item.unit_price }}
+                        </p>
+                    </div>
+
+                    <div class="item-quantity">
+                        <label for="qty-{{ item.variant.id }}">Qty:</label>
+                        <input
+                            class="control-compact"
+                            id="qty-{{ item.variant.id }}"
+                            type="number"
+                            name="quantity"
+                            min="1"
+                            value="{{ item.quantity }}"
+                            hx-post="{% url 'hr_shop:set_cart_quantity' variant_id=item.variant.id %}"
+                            hx-trigger="change"
+                            hx-target="#modal-content"
+                            hx-swap="innerHTML">
+                    </div>
+
+                    <div class="item-subtotal-wrapper">
+                        <p class="item-subtotal">${{ item.subtotal }}</p>
+
+                        <button
+                            type="button"
+                            class="cart-remove-btn"
+                            hx-post="{% url 'hr_shop:remove_from_cart' variant_id=item.variant.id %}"
+                            hx-target="#modal-content"
+                            hx-swap="innerHTML">
+                            Remove
+                        </button>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>Your cart is empty.</p>
+        {% endif %}
+    </section>
 
     {% if cart %}
-        {% for item in cart %}
-            <div class="cart-summary-card">
-                <img
-                    class="item-thumbnail"
-                    src="{{ item.variant.image.image.url }}"
-                    alt="{{ item.variant.product.name }}{% if item.variant.name %} – {{ item.variant.name }}{% endif %}"
-                >
-
-                <div class="item-main">
-                    <p class="item-title">
-                        {{ item.variant.product.name }}
-                        {% if item.variant.name %}
-                            {{ item.variant.name }}
-                        {% endif %}
-                    </p>
-                    <p class="item-unit-price">
-                        ${{ item.unit_price }}
-                    </p>
-                </div>
-
-                <div class="item-quantity">
-                    <label for="qty-{{ item.variant.id }}">Qty:</label>
-                    <input
-                        class="control-compact"
-                        id="qty-{{ item.variant.id }}"
-                        type="number"
-                        name="quantity"
-                        min="1"
-                        value="{{ item.quantity }}"
-                        hx-post="{% url 'hr_shop:set_cart_quantity' variant_id=item.variant.id %}"
-                        hx-trigger="change"
-                        hx-target="#modal-content"
-                        hx-swap="innerHTML">
-                </div>
-
-                <div class="item-subtotal-wrapper">
-                    <p class="item-subtotal">${{ item.subtotal }}</p>
-
-                    <button
-                        type="button"
-                        class="cart-remove-btn"
-                        hx-post="{% url 'hr_shop:remove_from_cart' variant_id=item.variant.id %}"
-                        hx-target="#modal-content"
-                        hx-swap="innerHTML">
-                        Remove
-                    </button>
-                </div>
-            </div>
-        {% endfor %}
-
-        <div class="modal-summary-row">
+        <footer class="m-foot m-actions modal-summary-row">
             <button class="card-btn btn-neon btn-green checkout-btn" type="button"
                     hx-get="{% url 'hr_shop:checkout_resume' %}"
                     hx-target="#modal-content"
@@ -66,9 +74,6 @@
                 <span class="modal-summary-label">Total:</span>
                 <p class="modal-summary-amount">${{ total }}</p>
             </div>
-        </div>
-
-    {% else %}
-        <p>Your cart is empty.</p>
+        </footer>
     {% endif %}
-</div>
+</article>

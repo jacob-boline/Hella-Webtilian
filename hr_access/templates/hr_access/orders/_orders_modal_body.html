@@ -1,10 +1,12 @@
 {# hr_access/templates/hr_access/_orders_modal_body.html #}
 {# Partial: rendered into #modal-message-box via HTMX #}
 
-<div class="orders-modal account-orders-modal modal-content">
-    <div class="modal-scroll">
+<article class="orders-modal account-orders-modal m-shell">
+    <header class="m-head">
         <h2 class="sub-header modal-title">My Orders</h2>
+    </header>
 
+    <section class="m-body">
         {% if unclaimed_count %}
             <p class="orders-unclaimed-note">
                 <a
@@ -66,10 +68,11 @@
             <p class="orders-empty">You don’t have any orders yet.</p>
         {% endif %}
 
-        <div class="modal-actions stack uniform grid grid-cols-1 grid-cols-2-1200" style="margin-top: 1rem;">
-            <button type="button" class="card-btn btn-neon btn-blue btn-sm" data-modal-close>
-                Close
-            </button>
-        </div>
-    </div>
-</div>
+    </section>
+
+    <footer class="m-foot m-actions" style="margin-top: 1rem;">
+        <button type="button" class="card-btn btn-neon btn-blue btn-sm" data-modal-close>
+            Close
+        </button>
+    </footer>
+</article>

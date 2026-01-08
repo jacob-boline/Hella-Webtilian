@@ -1,6 +1,9 @@
-<div class="checkout-review-modal order-detail-modal modal-content">
-    <div class="modal-scroll">
+<article class="checkout-review-modal order-detail-modal m-shell">
+    <header class="m-head">
         <h2 class="review-title">Order #{{ order.id }}</h2>
+    </header>
+
+    <section class="m-body">
 
     <!-- =========================
          Order summary
@@ -144,7 +147,7 @@
     <!-- =========================
          Actions
          ========================= -->
-        <div class="review-actions modal-actions stack grid grid-cols-1 grid-cols-2-1200">
+        <div class="review-actions m-foot m-actions">
             <button
                 type="button"
                 class="card-btn btn-neon btn-blue"
@@ -159,5 +162,5 @@
                 Close
             </button>
         </div>
-    </div>
-</div>
+    </section>
+</article>
