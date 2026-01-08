@@ -181,6 +181,36 @@
     margin: 0 0 0.5rem;
 }
 
+/* =========================================================
+    stack cards below 1200px for .uniform.inline variant
+   - <1200px: each card takes a full row
+   - >=1200px: inline grid (auto-fit columns)
+   ========================================================= */
+
+.account-status-grid.uniform.inline {
+    display: grid;
+    gap: 1rem;
+    margin: 0 0 0.5rem;
+}
+
+/* < 1200px: one column */
+@media (max-width: 1199.98px) {
+    .account-status-grid.uniform.inline {
+        grid-template-columns: 1fr;
+    }
+
+    .account-status-grid.uniform.inline > .account-status-card {
+        width: 100%;
+    }
+}
+
+/* >= 1200px: inline */
+@media (min-width: 1200px) {
+    .account-status-grid.uniform.inline {
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+}
+
 .account-status-card {
     padding: 1rem;
     border-radius: 12px;
@@ -392,7 +422,6 @@
     opacity: 1;
 }
 
-
 :is(.order-claim-header, .order-claim-row) {
     display:               grid;
     grid-template-columns: 18px 72px minmax(0, 1fr) 92px 72px 92px;
@@ -494,7 +523,6 @@
 
 
 /*account orders list scrolling*/
-
 .account-orders-modal {
   display: flex;
   flex-direction: column;
@@ -523,9 +551,9 @@
   backdrop-filter: blur(6px);
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
-    width: min(80%, 300px);
-    margin-left: auto;
-    margin-right: auto;
+  width: min(80%, 300px);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .change-email-modal .m-actions {
@@ -539,10 +567,6 @@
 .change-email-modal .auth-description {
     padding: 0.5rem 0 0.5rem;
 }
-
-/*.change-password-modal .field-group:first-of-type {*/
-/*    margin-bottom: 24px;*/
-/*}*/
 
 #password-change-form .field-row:first-of-type {
     margin-bottom: 36px;

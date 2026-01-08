@@ -3,15 +3,24 @@
   "version": "1.0.0",
   "description": "Hella Reptilian band site / Django SPA",
   "private": true,
+
   "scripts": {
-    "django:run": "uv run manage.py runserver 0.0.0.0:8000",
+    "django:run": "uv run manage.py runserver 127.0.0.1:8000",
+
     "vite:dev": "vite",
     "vite:build": "vite build",
+
+    "caddy:run": "caddy run --config Caddyfile --adapter caddyfile",
+
     "dev": "concurrently -k -n DJANGO,VITE -c magenta,cyan \"npm:django:run\" \"npm:vite:dev\"",
+
+    "dev:tunnel": "concurrently -k -n DJANGO,VITE,CADDY -c magenta,cyan,green \"npm:django:run\" \"npm:vite:dev\" \"npm:caddy:run\"",
+
     "build": "npm run vite:build",
     "lint:css": "stylelint \"**/*.css\"",
     "lint:css:fix": "stylelint \"**/*.css\" --fix"
   },
+
   "devDependencies": {
     "concurrently": "^9.2.1",
     "vite": "^7.3.0",

@@ -14,14 +14,13 @@
     align-items: center;
     gap: 1.25rem;
     padding-inline: 0.25rem;
-
-    /* This is the big fix: allow the flex child to shrink so overflow works */
-    flex: 1 1 auto;
-    min-height: fit-content;
-
-    overflow-x: hidden;
-
-    /* Don't "push down" the whole panel with margin, use padding instead */
+    /* Fit content height; drawer itself scrolls -- primarily for mobile */
+    flex: 0 0 auto;
+    min-height: auto;
+    overflow: visible;
+    /* defensive wrapping (won't force scrollbars) */
+    overflow-wrap: anywhere;
+    word-break: break-word;
     margin-top: 0;
     padding-top: 0;
 }
@@ -63,37 +62,31 @@
     top:              0;
     left:             0;
     transform:        translateX(-100%);
-
     display:          flex;
     flex-direction:   column;
-
     /* IMPORTANT: make it a real sidebar, not centered "cards" */
     align-items:      stretch;
     justify-content:  flex-start;
-
     box-sizing:       border-box;
-
-    /* IMPORTANT: keeps the drawer stable and lets #sidebar-access scroll */
-    overflow:         hidden;
-
     width:            100vw;
     height:           calc(var(--vh) * 100);
+    min-height:       0;
     padding:          1.5rem;
     border-right:     1pt solid rgba(255, 255, 255, 0.7);
-
-    color:            #FFF;
-
+    color:            var(--text);
     background-color: rgba(7, 21, 29, 0.9);
-
+    /* Drawer is the scroll container */
+    overflow-y:       auto;
+    overflow-x:       hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
     transition:       transform 0.25s ease-in-out;
 }
 
 @media (max-width: 991.98px) {
     #drawer-navigation form,
     #drawer-navigation iframe {
-        max-width: 65vw;
-        margin-left: auto;
-        margin-right: auto;
+        max-width: 100%;
     }
 }
 
@@ -115,15 +108,12 @@
     transform: translateX(0);
 }
 
-/* Bandcamp iframe: give it a predictable slot, don't let it dominate */
+/* Bandcamp iframe: capped slot; drawer scrolls to reach it */
 #drawer-navigation iframe {
     width: 100%;
     max-width: 100%;
     flex: 0 0 auto;
-
     height: auto;
-    /*max-height: 45vh;*/
-
     border: 0;
     margin-top: 2vh;
 }
@@ -154,7 +144,7 @@
     font-size:  1rem;
     border:     none;
     background: transparent;
-    color:      #FFF;
+    color:      var(--text);
     margin:     0.5rem auto;
     transition: color 0.125s ease-in-out;
     width:      100%;
@@ -174,8 +164,6 @@
     outline: none;
 }
 
-/* If you still want a subtle color shift for generic sidebar buttons, leave this.
-   Otherwise delete it. */
 .sidebar-btn:hover {
     color: aquamarine;
 }
@@ -195,33 +183,26 @@
     text-align: center;
     font-family: "Megrim", cursive;
     letter-spacing: 0.08em;
-
     color: var(--glow);
-    text-shadow: 0 0 0.5rem darkorange;
-
+    text-shadow: 0 0 0.5rem var(--gold);
+    /*text-shadow: 0 0 0.5rem darkorange;*/
     transition: color .2s ease, text-shadow .2s ease, transform .2s ease;
-
     position: relative;
     border: none;
     outline: none;
     background: transparent;
-
     margin: 0 auto;
     width: 100%;
     max-width: 24rem;
-
     display: flex;
     align-items: center;
     justify-content: center;
-    /*gap: 0.5rem;*/
-
     cursor: pointer;
 }
 
 /* Hover: glow + color ONLY (no border, no background, no box-shadow) */
 .sidebar-menu-item:hover {
-    color: #fff;
-
+    color: var(--text);
     text-shadow:
         0 0 0.35rem rgba(255, 255, 255, 0.9),
         0 0 0.75rem rgba(255, 255, 255, 0.6),
@@ -235,13 +216,11 @@
 
 /* Prefer focus-visible: keyboard navigation gets the big moment */
 .sidebar-menu-item:focus-visible {
-    color: #fff;
-
+    color: var(--text);
     text-shadow:
         0 0 0.35rem rgba(255, 255, 255, 0.95),
         0 0 0.85rem rgba(255, 255, 255, 0.65),
         0 0 1.35rem rgba(255, 165, 0, 0.65);
-
     transform: scale(1.03);
 }
 
@@ -257,12 +236,6 @@
     border: none;
 }
 
-/* If you have an alert badge on some items, ensure it doesn't inherit weirdness */
-.sidebar-menu-item .badge {
-    /* keep as-is if you style badges elsewhere */
-}
-
-
 /* ===========================
    Drawer close/open buttons
    =========================== */
@@ -270,15 +243,11 @@
 #nav-close-btn {
     background-color: transparent;
     border:           none;
-    margin-top:       0.5rem;
-    margin-left:      0.0625rem;
-    margin-bottom: 0;
-
+    margin-bottom:    0;
     /* IMPORTANT: keep it in the drawer flow and aligned left */
     align-self:       flex-start;
     flex:             0 0 auto;
-
-    /* Optional: pin it while sidebar scrolls */
+    /* Pin it while drawer scrolls */
     position:         sticky;
     top:              0.5rem;
     z-index:          2;
@@ -286,23 +255,24 @@
 
 #nav-close-btn {
 /*#nav-open-btn {*/
+    flex: 0 0 auto;
     border:        none;
     font-size:     1.5rem;
-    color:         #FFF;
+    color:         var(--text);
     background:    transparent;
     transition:    background-color 0.2s ease,
                    color 0.2s ease,
                    opacity 1s ease-in;
     border-radius: 50%;
     padding:       0.5rem;
-    margin-left: -0.5rem;
-    margin-top: 2rem;
+    margin-left:  -0.5rem;
 }
 
 #nav-open-btn {
     opacity:     0;
-    /*transition:  opacity 1s ease-in;*/
-    margin-top:  3rem;
+    /*margin-top:  3rem;*/
+    /*top: 2.9rem;*/
+    top: 2.9rem !important;
     margin-left: 24px;
     background: rgba(0, 0, 0, 0.25);
     border: 1px solid rgba(255, 255, 255, 0.18);
@@ -311,7 +281,7 @@
     border-radius: 999px;
     cursor: pointer;
     color: var(--text);
-    transition: transform .2s ease, opacity .2s ease, background 0.2s ease;
+    transition: transform .2s ease, opacity 1s ease, background 0.2s ease;
     padding: 0.5rem;
     font-size: 1.45rem;
 }
@@ -320,18 +290,15 @@
 #nav-open-btn:hover,
 #nav-close-btn:hover {
     color:            aquamarine;
+    /*color: var(--neon-blue)*/
     background-color: rgba(128, 128, 128, 0.3);
-}
-
-/* icons inside drawer buttons */
-#drawer-navigation button svg {
-    /*fill: #fff;*/
 }
 
 /* honour dark mode – keep the same hover behaviour there */
 @media (prefers-color-scheme: dark) {
      #drawer-navigation .sidebar-btn:hover {
-         color: darkorange;
+         /*color: darkorange;*/
+         color: var(--gold);
          transition: all 0.125s ease-in-out;
      }
 }
@@ -342,7 +309,8 @@
    =========================== */
 
 .card-count-badge {
-    background: #00eaff;
+    /*background: #00eaff;*/
+    background: var(--neon-blue);
     color: #000;
     border-radius: 12px;
     padding: 2px 6px;
@@ -357,28 +325,23 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-
     margin-bottom: 2rem;
     padding: 0.35rem 0.9rem;
     border-radius: 999px;
-
     border: 1px solid rgba(255, 255, 255, 0.7);
     background-color: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(6px);
-
     font-size: 0.9rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-
-    color: #fff;
+    color: var(--text);
     cursor: pointer;
-
     /* animate ALL the stuff we’re actually changing */
     transition:
-        color 0.25s ease,
-        border-color 0.25s ease,
-        box-shadow 0.25s ease,
-        background-color 0.25s ease;
+        color 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease;
 }
 
 /* keep icon/text white by default */
@@ -398,18 +361,16 @@
 
 /* neon count badge */
 .cart-count-badge {
-    background: #00eaff;
+    /*background: #00eaff;*/
+    background: var(--neon-blue);
     color: #000;
-
     border-radius: 999px;
     padding: 2px 8px;
     margin-left: 2px;
-
     font-weight: 700;
     min-width: 20px;
     text-align: center;
     line-height: 1;
-
     display: none; /* JS will flip to inline-flex when count > 0 */
 }
 
@@ -432,12 +393,10 @@ input:-webkit-autofill:hover,
 input:-webkit-autofill:focus {
     -webkit-text-fill-color: var(--neon-blue) !important;
     caret-color: var(--neon-blue) !important;
-
     -webkit-box-shadow: 0 0 0 1000px black inset !important;
     box-shadow: 0 0 0 1000px black inset !important;
     outline: none;
     border: none;
-
     transition: background-color 9999s ease-out 0s;
 }
 
@@ -504,11 +463,12 @@ form.login-form div.form-control {
 /* Base styles */
 .user-username {
     font-family: "Exo 2", sans-serif;
-    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    font-size: clamp(1.25rem, 3vw, 2rem);
     font-weight: 700;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: #F5F5F5;
+    /*color: #F5F5F5;*/
+    color: var(--text);
     text-shadow:
         0 0 0.35rem rgba(255, 255, 255, 0.6),
         0 0 0.75rem rgba(255, 255, 255, 0.45),
@@ -519,7 +479,7 @@ form.login-form div.form-control {
 
 .user-email {
     font-family: "Exo 2", sans-serif;
-    font-size: clamp(1.05rem, 2vw, 1.35rem);
+    font-size: clamp(0.5rem, 1vw, 0.75rem);
     font-weight: 500;
     letter-spacing: 0.1em;
     color: var(--text);
@@ -533,8 +493,7 @@ form.login-form div.form-control {
 .user-profile-btn:hover .user-email,
 .user-identity:hover .user-username,
 .user-identity:hover .user-email {
-    color: #fff;
-
+    color: var(--text);
     text-shadow:
         0 0 0.35rem rgba(255, 255, 255, 0.95),
         0 0 0.85rem rgba(255, 255, 255, 0.6),
@@ -544,13 +503,11 @@ form.login-form div.form-control {
 /* Keyboard focus: make it pop a little harder */
 .user-profile-btn:focus-visible .user-username,
 .user-profile-btn:focus-visible .user-email {
-    color: #fff;
-
+    color: var(--text);
     text-shadow:
         0 0 0.4rem rgba(255, 255, 255, 0.98),
         0 0 1rem rgba(255, 255, 255, 0.7),
         0 0 1.6rem rgba(200, 200, 255, 0.55);
-
     transform: scale(1.015);
 }
 

@@ -7,19 +7,19 @@
 @font-face {
     font-family: "Bungee Hairline";
     font-display: swap;
-    src: url("static/fonts/BungeeHairline-Regular.ttf") format("truetype");
+    src: url("/static/hr_core/fonts/BungeeHairline-Regular.ttf") format("truetype");
 }
 
 @font-face {
     font-family: "Megrim";
     font-display: swap;
-    src: url("static/fonts/Megrim-Regular.ttf") format("truetype");
+    src: url("/static/hr_core/fonts/Megrim-Regular.ttf") format("truetype");
 }
 
 @font-face {
     font-family: "Quantico";
     font-display: swap;
-    src: url("static/fonts/Quantico-Regular.ttf") format("truetype");
+    src: url("/static/hr_core/fonts/Quantico-Regular.ttf") format("truetype");
     font-weight: 400;
     font-style: normal;
 }
@@ -27,7 +27,7 @@
 @font-face {
     font-family: "Quantico";
     font-display: swap;
-    src: url("static/fonts/Quantico-Bold.ttf") format("truetype");
+    src: url("/static/hr_core/fonts/Quantico-Bold.ttf") format("truetype");
     font-weight: 700;
     font-style: normal;
 }
@@ -35,7 +35,7 @@
 @font-face {
     font-family: "Quantico";
     font-display: swap;
-    src: url("static/fonts/Quantico-Italic.ttf") format("truetype");
+    src: url("/static/hr_core/fonts/Quantico-Italic.ttf") format("truetype");
     font-weight: 400;
     font-style: italic;
 }
@@ -43,7 +43,7 @@
 @font-face {
     font-family: "Quantico";
     font-display: swap;
-    src: url("static/fonts/Quantico-BoldItalic.ttf") format("truetype");
+    src: url("/static/hr_core/fonts/Quantico-BoldItalic.ttf") format("truetype");
     font-weight: 700;
     font-style: italic;
 }
@@ -51,25 +51,25 @@
 @font-face {
     font-family: "KARNIVBL";
     font-display: swap;
-    src: url("static/fonts/KARNIVBL.ttf") format("truetype");
+    src: url("/static/hr_core/fonts/KARNIVBL.ttf") format("truetype");
 }
 
 @font-face {
     font-family: "Tilt Prism";
     font-display: swap;
-    src: url("static/fonts/TiltPrism-Regular.ttf") format("truetype");
+    src: url("/static/hr_core/fonts/TiltPrism-Regular.ttf") format("truetype");
 }
 
 @font-face {
     font-family: "Exo 2";
     font-display: swap;
-    src: url("static/fonts/Exo2-VariableFont_wght.ttf") format("truetype");
+    src: url("/static/hr_core/fonts/Exo2-VariableFont_wght.ttf") format("truetype");
 }
 
 @font-face {
     font-family: "Syne Mono";
     font-display: swap;
-    src: url("static/fonts/SyneMono-Regular.ttf") format("truetype");
+    src: url("/static/hr_core/fonts/SyneMono-Regular.ttf") format("truetype");
 }
 
 /* ===========================
@@ -101,6 +101,21 @@
     --vh: 1vh;
     --vw: 1vw;
     --pad-inline: clamp(1rem, 6vw, 3rem);
+    --modal-max-w: 64rem;
+    --modal-max-h: min(92dvh, calc(var(--vh) * 92));
+    --modal-gutter: max(1rem, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+    --modal-pad-inline: clamp(1rem, 4vw, 1.75rem);
+    --modal-pad-block: clamp(0.75rem, 3vh, 1.5rem);
+
+    /* Modal sizing tokens */
+    --m-maxw: 64rem;
+    --m-maxh: min(92dvh, calc(var(--vh) * 92));
+    --m-gutter: max(1rem, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+    --m-pad: clamp(0.75rem, 2.5vw, 1.5rem);
+    --m-gap: clamp(0.75rem, 2vw, 1.25rem);
+    --m-radius: clamp(0.85rem, 1.5vw, 1.5rem);
+    --m-title: clamp(1.25rem, 3vw, 1.75rem);
+    --m-text: clamp(0.85rem, 1.6vw, 1rem);
 
     /* Modal sizing tokens */
     --modal-gutter: clamp(12px, 3vw, 24px);
@@ -182,7 +197,7 @@ nav.navbar {
     transform: translateY(-100%);
     padding: 0.75rem 1.25rem;
     font-size: 0.9rem;
-    color: #F9FAFB;
+    color: var(--text);
     text-align: center;
     opacity: 0;
     background-color: #14532D;
@@ -313,7 +328,7 @@ nav.navbar {
     position: absolute;
     inset: 0;
     pointer-events: auto;
-    background: radial-gradient(circle at top, rgba(0, 0, 0, 0.55), #000);
+    background: radial-gradient(circle at top, rgba(0, 0, 0, 0.55), black);
     opacity: 0.9;
 }
 
@@ -345,6 +360,7 @@ nav.navbar {
 
 #modal-content {
     view-transition-name: modal-content;
+
     max-width: 100%;
     width: 100%;
     max-height: calc(var(--modal-max-h) - (2 * var(--m-pad)));
@@ -394,10 +410,6 @@ nav.navbar {
     ::view-transition-new(modal-content) {
         animation: none;
     }
-}
-
-#modal-content {
-    transition: opacity 200ms ease;
 }
 
 .modal-is-swapping #modal-content {
