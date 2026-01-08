@@ -514,8 +514,6 @@
 
 .unclaimed-orders-modal .modal-actions.inline.uniform,
 .unclaimed-orders-modal .modal-actions.stack.uniform {
-    position:        sticky;
-    bottom:          0;
     flex:            0 0 auto;
     background:      rgba(0, 0, 0, 0.75);
     backdrop-filter: blur(6px);

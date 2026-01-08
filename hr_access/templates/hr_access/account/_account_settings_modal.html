@@ -1,17 +1,16 @@
 {# hr_access/templates/hr_access/account/_account_settings_modal.html #}
 
-<div class="account-status-modal checkout-details-modal modal-content">
-    <div class="modal-scroll">
-        <header class="account-status-header">
-            <h2 class="sub-header modal-title">Account overview</h2>
-            <p class="modal-text-muted">Manage sign-in details, security, and linked orders.</p>
-        </header>
+<article class="account-status-modal checkout-details-modal m-shell">
+    <header class="account-status-header m-head">
+        <h2 class="sub-header modal-title">Account overview</h2>
+        <p class="modal-text-muted">Manage sign-in details, security, and linked orders.</p>
+    </header>
 
-        <div class="account-status-layout">
-            <div class="account-status-grid uniform inline grid grid-cols-1">
-                <article class="account-status-card">
-                    <p class="account-status-label">Email</p>
-                    <p class="account-status-value">{{ request.user.email }}</p>
+    <section class="account-status-layout m-body">
+        <div class="account-status-grid uniform inline m-grid m-grid-3">
+            <article class="account-status-card">
+                <p class="account-status-label">Email</p>
+                <p class="account-status-value">{{ request.user.email }}</p>
 
                     <div class="account-status-actions">
                         <button
@@ -117,7 +116,7 @@
                         </button>
                     </div>
                 </div>
-            </section>
-        </div>
-    </div>
-</div>
+            </div>
+        </section>
+    </section>
+</article>
