@@ -3,8 +3,9 @@
 
 {% load static shop_images %}
 
-<div class="modal-product" data-product-slug="{{ product.slug }}">
-    <div class="modal-product-media">
+<article class="modal-product m-shell" data-product-slug="{{ product.slug }}">
+    <div class="m-body m-split">
+        <div class="modal-product-media">
         {% if display_variant %}
             {% variant_image display_variant as modal_image %}
         {% else %}
@@ -24,9 +25,9 @@
                  alt="{{ product.name }}"
                  class="modal-image">
         {% endif %}
-    </div>
+        </div>
 
-    <div class="modal-product-body">
+        <div class="modal-product-body m-stack">
         <!-- TITLE + DESCRIPTION -->
         <h3 class="modal-title">{{ product.name }}</h3>
 
@@ -63,7 +64,7 @@
         {% endif %}
 
         <!-- PRICE + BUTTONS -->
-        <div class="modal-buttons">
+        <div class="modal-buttons m-actions">
             <span class="product-modal-price" data-role="modal-price">
                 {% if display_variant %}
                     ${{ display_variant.price }}
@@ -86,5 +87,6 @@
                 Close
             </button>
         </div>
+        </div>
     </div>
-</div>
+</article>

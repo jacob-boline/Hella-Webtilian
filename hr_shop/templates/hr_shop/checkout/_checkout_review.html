@@ -1,103 +1,107 @@
 {# hr_shop/templates/hr_shop/_checkout_review.html #}
 {% load static %}
 
-<div class="checkout-review-modal">
-    <h2 class="review-title">Review Your Order</h2>
+<article class="checkout-review-modal m-shell">
+    <header class="m-head">
+        <h2 class="review-title">Review Your Order</h2>
+    </header>
 
-    {% if customer and address %}
-        <div class="review-section shipping-review">
-            <div class="shipping-summary">
-                <div class="shipping-block">
-                    <p class="review-section-title">Shipping Address</p>
+    <section class="m-body">
+        {% if customer and address %}
+            <div class="review-section shipping-review">
+                <div class="shipping-summary">
+                    <div class="shipping-block">
+                        <p class="review-section-title">Shipping Address</p>
 
-                    <p class="customer-name customer-field">
-                        {{ customer.full_name }}
-                    </p>
-
-                    <p class="shipping-address customer-field">
-                        {{ address.formatted }}
-                    </p>
-                </div>
-
-                <div class="shipping-contact">
-                    <p class="review-section-title">Contact</p>
-                    <p class="customer-email customer-field">
-                        {{ customer.email }}
-                    </p>
-                    {% if customer.phone %}
-                        <p class="customer-phone customer-field">
-                            {{ customer.phone }}
+                        <p class="customer-name customer-field">
+                            {{ customer.full_name }}
                         </p>
-                    {% endif %}
-                </div>
-            </div>
-            <button
-                    id="edit-shipping-btn"
-                    type="button"
-                    class="card-btn btn-neon btn-yellow btn-sm center-block mx-auto"
-                    hx-get="{% url 'hr_shop:checkout_details' %}"
-                    hx-target="#modal-content"
-                    hx-swap="innerHTML transition:true">
-                Edit Shipping Info
-            </button>
-        </div>
-    {% endif %}
 
-    <div class="review-section">
-        <h3 class="review-section-title">Items</h3>
+                        <p class="shipping-address customer-field">
+                            {{ address.formatted }}
+                        </p>
+                    </div>
 
-        <div class="review-items">
-            {% for item in items %}
-            <div class="review-item">
-                <div class="item-info">
-                    <span class="item-name">{{ item.variant.product.name }}</span>
-                    <div class="item-meta">
-                        {% if item.variant.name %}
-                            <span class="item-variant">{{ item.variant.name }}</span>
+                    <div class="shipping-contact">
+                        <p class="review-section-title">Contact</p>
+                        <p class="customer-email customer-field">
+                            {{ customer.email }}
+                        </p>
+                        {% if customer.phone %}
+                            <p class="customer-phone customer-field">
+                                {{ customer.phone }}
+                            </p>
                         {% endif %}
-                        <span class="item-qty">Qty: {{ item.quantity }}</span>
                     </div>
                 </div>
-                <span class="item-price">${{ item.unit_price|floatformat:2 }}</span>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-
-    <div class="review-section review-totals">
-        <div class="total-row">
-            <span>Subtotal</span>
-            <span>${{ subtotal|floatformat:2 }}</span>
-        </div>
-
-        {% if tax %}
-            <div class="total-row">
-                <span>Tax</span>
-                <span>${{ tax|floatformat:2 }}</span>
+                <button
+                        id="edit-shipping-btn"
+                        type="button"
+                        class="card-btn btn-neon btn-yellow btn-sm center-block mx-auto"
+                        hx-get="{% url 'hr_shop:checkout_details' %}"
+                        hx-target="#modal-content"
+                        hx-swap="innerHTML transition:true">
+                    Edit Shipping Info
+                </button>
             </div>
         {% endif %}
 
-        {% if shipping %}
-            <div class="total-row">
-                <span>Shipping</span>
-                <span>${{ shipping|floatformat:2 }}</span>
-            </div>
-        {% endif %}
-
-        <div class="total-row total-final">
-            <span>Total</span>
-            <span>${{ total|floatformat:2 }}</span>
-        </div>
-    </div>
-
-    {% if note %}
         <div class="review-section">
-            <p class="review-section-title">Special Instructions</p>
-            <p class="review-note">{{ note }}</p>
-        </div>
-    {% endif %}
+            <h3 class="review-section-title">Items</h3>
 
-    <div class="review-actions modal-actions inline uniform">
+            <div class="review-items">
+                {% for item in items %}
+                <div class="review-item">
+                    <div class="item-info">
+                        <span class="item-name">{{ item.variant.product.name }}</span>
+                        <div class="item-meta">
+                            {% if item.variant.name %}
+                                <span class="item-variant">{{ item.variant.name }}</span>
+                            {% endif %}
+                            <span class="item-qty">Qty: {{ item.quantity }}</span>
+                        </div>
+                    </div>
+                    <span class="item-price">${{ item.unit_price|floatformat:2 }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="review-section review-totals">
+            <div class="total-row">
+                <span>Subtotal</span>
+                <span>${{ subtotal|floatformat:2 }}</span>
+            </div>
+
+            {% if tax %}
+                <div class="total-row">
+                    <span>Tax</span>
+                    <span>${{ tax|floatformat:2 }}</span>
+                </div>
+            {% endif %}
+
+            {% if shipping %}
+                <div class="total-row">
+                    <span>Shipping</span>
+                    <span>${{ shipping|floatformat:2 }}</span>
+                </div>
+            {% endif %}
+
+            <div class="total-row total-final">
+                <span>Total</span>
+                <span>${{ total|floatformat:2 }}</span>
+            </div>
+        </div>
+
+        {% if note %}
+            <div class="review-section">
+                <p class="review-section-title">Special Instructions</p>
+                <p class="review-note">{{ note }}</p>
+            </div>
+        {% endif %}
+    </section>
+
+    <footer class="review-actions m-foot m-actions">
         <button
             type="button"
             class="card-btn btn-neon btn-green btn-sm"
@@ -114,5 +118,5 @@
                 hx-swap="innerHTML">
             <i class="fas fa-arrow-left"></i> Back to Cart
         </button>
-    </div>
-</div>
+    </footer>
+</article>

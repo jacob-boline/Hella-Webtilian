@@ -78,6 +78,7 @@
             modalEl.classList.remove('hidden');
             modalEl.setAttribute('aria-hidden', 'false');
             document.body.style.overflow = 'hidden';
+            document.body.classList.add('modal-open');
             window.scrollTo(0, scrollY);
 
             hideFloatingCart();
@@ -95,6 +96,7 @@
             modalEl.classList.add('hidden');
             modalEl.setAttribute('aria-hidden', 'true');
             document.body.style.overflow = '';
+            document.body.classList.remove('modal-open');
 
             window.scrollTo(0, scrollY);
 

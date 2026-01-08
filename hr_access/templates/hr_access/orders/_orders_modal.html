@@ -1,9 +1,11 @@
 {# hr_access/_orders_modal.html #}
 
-<div class="view-cart-modal orders-modal modal-content">
-    <div class="modal-scroll">
+<article class="view-cart-modal orders-modal m-shell">
+    <header class="m-head">
         <h2 class="sub-header modal-title">Orders</h2>
+    </header>
 
+    <section class="m-body">
         {% if orders %}
             <div class="orders-list">
                 {% for order in orders %}
@@ -45,34 +47,28 @@
                 {% endfor %}
             </div>
 
-            <div class="modal-actions stack grid grid-cols-1 grid-cols-2-1200">
-                {% if has_more %}
-                    <button
-                        type="button"
-                        class="card-btn btn-neon btn-blue"
-                        hx-get="{% url 'hr_access:orders_page' n=page|add:1 %}"
-                        hx-target="#modal-content"
-                        hx-swap="innerHTML transition:true"
-                    >
-                        Load more
-                    </button>
-                {% endif %}
-
-                <button type="button" class="card-btn btn-neon btn-blue" data-modal-close>
-                    Close
-                </button>
-            </div>
-
         {% else %}
             <p class="orders-empty">
                 No orders yet.
             </p>
-
-            <div class="modal-actions grid grid-cols-1 grid-cols-2-1200">
-                <button type="button" class="card-btn btn-neon btn-blue" data-modal-close>
-                    Close
-                </button>
-            </div>
         {% endif %}
-    </div>
-</div>
+    </section>
+
+    <footer class="m-foot m-actions">
+        {% if orders and has_more %}
+            <button
+                type="button"
+                class="card-btn btn-neon btn-blue"
+                hx-get="{% url 'hr_access:orders_page' n=page|add:1 %}"
+                hx-target="#modal-content"
+                hx-swap="innerHTML transition:true"
+            >
+                Load more
+            </button>
+        {% endif %}
+
+        <button type="button" class="card-btn btn-neon btn-blue" data-modal-close>
+            Close
+        </button>
+    </footer>
+</article>
