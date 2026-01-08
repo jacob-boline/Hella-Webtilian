@@ -1,22 +1,26 @@
 {# hr_access/templates/hr_access/account/_account_email_change_check_email.html #}
 
-<div class="checkout-state auth-state-success">
-    <div class="checkout-state-icon">
-        <i class="fas fa-envelope"></i>
-    </div>
+<div class="modal-content">
+    <div class="modal-scroll">
+        <div class="checkout-state auth-state-success">
+            <div class="checkout-state-icon">
+                <i class="fas fa-envelope"></i>
+            </div>
 
-    <h2 class="checkout-title">Check your email</h2>
-    <p class="checkout-message">
-        We sent a confirmation link to {{ email }}. Click the link to finish updating your account email.
-    </p>
+            <h2 class="checkout-title">Check your email</h2>
+            <p class="checkout-message">
+                We sent a confirmation link to {{ email }}. Click the link to finish updating your account email.
+            </p>
 
-    {% if rate_limited %}
-        <p class="small">Too many requests. Please try again later.</p>
-    {% elif error %}
-        <p class="small">We couldn't send the email. Please try again.</p>
-    {% endif %}
+            {% if rate_limited %}
+                <p class="small">Too many requests. Please try again later.</p>
+            {% elif error %}
+                <p class="small">We couldn't send the email. Please try again.</p>
+            {% endif %}
 
-    <div class="modal-actions">
-        <button type="button" class="card-btn btn-neon btn-green" data-modal-close>Close</button>
+            <div class="modal-actions grid grid-cols-1 grid-cols-2-1200">
+                <button type="button" class="card-btn btn-neon btn-green" data-modal-close>Close</button>
+            </div>
+        </div>
     </div>
 </div>

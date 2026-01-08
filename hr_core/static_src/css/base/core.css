@@ -101,6 +101,11 @@
     --vh: 1vh;
     --vw: 1vw;
     --pad-inline: clamp(1rem, 6vw, 3rem);
+    --modal-max-w: 64rem;
+    --modal-max-h: min(92dvh, calc(var(--vh) * 92));
+    --modal-gutter: max(1rem, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+    --modal-pad-inline: clamp(1rem, 4vw, 1.75rem);
+    --modal-pad-block: clamp(0.75rem, 3vh, 1.5rem);
 
     /* shared vertical paddings (avoid duplication drift) */
     --section-pad: calc(var(--vh) * 18);
@@ -312,13 +317,10 @@ nav.navbar {
     position: relative;
     z-index: 1001;
     pointer-events: auto;
-
-    max-width: min(64rem, calc(100vw - 2 * var(--pad-inline)));
-    max-height: min(95vh, calc(var(--vh) * 95));
-
-    padding: 0 1.75rem 0.75rem;
-
-    /* Keep clipped corners and kill stray scrollbars */
+    width: min(var(--modal-max-w), calc(100vw - (2 * var(--modal-gutter))));
+    max-width: 100%;
+    max-height: var(--modal-max-h);
+    padding: var(--modal-pad-block) var(--modal-pad-inline);
     overflow: hidden;
 
     /* Enable inner scrolling layout */
@@ -332,10 +334,8 @@ nav.navbar {
 
     max-width: 100%;
     width: 100%;
-
-    /* keep your height cap (95vh) and allow inner scroll */
-    max-height: calc(min(95vh, calc(var(--vh) * 95)) - 3.5rem);
-
+    max-height: calc(var(--modal-max-h) - (2 * var(--modal-pad-block)));
+    overflow: hidden;
     flex: 1 1 auto;
     min-height: 0;
 
@@ -552,10 +552,3 @@ nav.navbar {
   }
 }
 
-@media (max-width: 767.98px) {
-  body.drawer-open {
-    position: fixed;
-    width: 100%;
-    overflow: hidden;
-  }
-}

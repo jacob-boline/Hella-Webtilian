@@ -1,76 +1,78 @@
 {# hr_access/_orders_modal.html #}
 
-<div class="view-cart-modal orders-modal">
-    <h2 class="sub-header modal-title">Orders</h2>
+<div class="view-cart-modal orders-modal modal-content">
+    <div class="modal-scroll">
+        <h2 class="sub-header modal-title">Orders</h2>
 
-    {% if orders %}
-        <div class="orders-list">
-            {% for order in orders %}
-                <div class="orders-summary-card">
-                    <div class="orders-main">
-                        <p class="orders-title">
-                            Order #{{ order.id }}
-                        </p>
+        {% if orders %}
+            <div class="orders-list">
+                {% for order in orders %}
+                    <div class="orders-summary-card">
+                        <div class="orders-main">
+                            <p class="orders-title">
+                                Order #{{ order.id }}
+                            </p>
 
-                        <div class="orders-meta">
-                            <span class="orders-date">
-                                {{ order.created_at|date:"M j, Y g:ia" }}
-                            </span>
-
-                            {% if order.status %}
-                                <span class="orders-status">
-                                    {{ order.status }}
+                            <div class="orders-meta">
+                                <span class="orders-date">
+                                    {{ order.created_at|date:"M j, Y g:ia" }}
                                 </span>
-                            {% endif %}
+
+                                {% if order.status %}
+                                    <span class="orders-status">
+                                        {{ order.status }}
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <p class="orders-total">
+                                Total: ${{ order.total }}
+                            </p>
                         </div>
 
-                        <p class="orders-total">
-                            Total: ${{ order.total }}
-                        </p>
+                        <div class="orders-actions">
+                            <button
+                                type="button"
+                                class="card-btn btn-neon btn-blue"
+                                hx-get="{% url 'hr_access:order_detail_modal' order_id=order.id %}"
+                                hx-target="#modal-content"
+                                hx-swap="innerHTML transition:true"
+                            >
+                                View
+                            </button>
+                        </div>
                     </div>
+                {% endfor %}
+            </div>
 
-                    <div class="orders-actions">
-                        <button
-                            type="button"
-                            class="card-btn btn-neon btn-blue"
-                            hx-get="{% url 'hr_access:order_detail_modal' order_id=order.id %}"
-                            hx-target="#modal-content"
-                            hx-swap="innerHTML transition:true"
-                        >
-                            View
-                        </button>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
+            <div class="modal-actions stack grid grid-cols-1 grid-cols-2-1200">
+                {% if has_more %}
+                    <button
+                        type="button"
+                        class="card-btn btn-neon btn-blue"
+                        hx-get="{% url 'hr_access:orders_page' n=page|add:1 %}"
+                        hx-target="#modal-content"
+                        hx-swap="innerHTML transition:true"
+                    >
+                        Load more
+                    </button>
+                {% endif %}
 
-        <div class="modal-actions stack">
-            {% if has_more %}
-                <button
-                    type="button"
-                    class="card-btn btn-neon btn-blue"
-                    hx-get="{% url 'hr_access:orders_page' n=page|add:1 %}"
-                    hx-target="#modal-content"
-                    hx-swap="innerHTML transition:true"
-                >
-                    Load more
+                <button type="button" class="card-btn btn-neon btn-blue" data-modal-close>
+                    Close
                 </button>
-            {% endif %}
+            </div>
 
-            <button type="button" class="card-btn btn-neon btn-blue" data-modal-close>
-                Close
-            </button>
-        </div>
+        {% else %}
+            <p class="orders-empty">
+                No orders yet.
+            </p>
 
-    {% else %}
-        <p class="orders-empty">
-            No orders yet.
-        </p>
-
-        <div class="modal-actions">
-            <button type="button" class="card-btn btn-neon btn-blue" data-modal-close>
-                Close
-            </button>
-        </div>
-    {% endif %}
+            <div class="modal-actions grid grid-cols-1 grid-cols-2-1200">
+                <button type="button" class="card-btn btn-neon btn-blue" data-modal-close>
+                    Close
+                </button>
+            </div>
+        {% endif %}
+    </div>
 </div>

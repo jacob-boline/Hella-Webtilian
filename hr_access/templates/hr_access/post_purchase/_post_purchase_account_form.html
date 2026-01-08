@@ -1,12 +1,13 @@
 {# hr_access/templates/hr_access/post_purchase/_post_purchase_account_form.html #}
 {% load form_group %}
 
-<div id="post-purchase-account" class="post-purchase-account">
-    <div class="flex-col-center">
-        <h3 class="modal-title">Create your account</h3>
-        <p class="text-muted">
-            Your purchase will be listed under Orders in your new account.
-        </p>
+<div id="post-purchase-account" class="post-purchase-account modal-content">
+    <div class="modal-scroll">
+        <div class="flex-col-center">
+            <h3 class="modal-title">Create your account</h3>
+            <p class="text-muted">
+                Your purchase will be listed under Orders in your new account.
+            </p>
 
         {# Email is locked to the order email for this flow. Show it as text, not an editable field. #}
 {#        <div class="field-group">#}
@@ -39,7 +40,7 @@
             {% form_group form.username label='Username' %}
             {% form_group form.password label='Password' %}
 
-            <div class="modal-actions inline uniform">
+            <div class="modal-actions inline uniform grid grid-cols-1 grid-cols-2-1200">
                 <button type="submit" class="card-btn btn-neon btn-green btn-small">
                     Create Account
                 </button>
@@ -47,6 +48,7 @@
                     Not now
                 </button>
             </div>
-        </form>
+            </form>
+        </div>
     </div>
 </div>
