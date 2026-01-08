@@ -1,9 +1,11 @@
 {# hr_access/templates/hr_access/account/_account_email_change_form.html #}
 {% load form_fields %}
 
-<div class="change-email-modal checkout-details-modal">
-    <h2 class="sub-header modal-title">Change Email</h2>
-    <p class="auth-description">Enter your new email and confirm with your password.</p>
+<article class="change-email-modal checkout-details-modal m-shell">
+    <header class="m-head">
+        <h2 class="sub-header modal-title">Change Email</h2>
+        <p class="auth-description">Enter your new email and confirm with your password.</p>
+    </header>
 
     {% include 'hr_common/_non_field_errors.html' %}
 
@@ -14,12 +16,13 @@
         hx-target="#modal-content"
         hx-swap="innerHTML transition:true"
         novalidate
+        class="m-body"
     >
         {% csrf_token %}
         {% form_field form.new_email %}
         {% form_field form.password %}
 
-        <div class="modal-actions inline uniform">
+        <div class="m-foot m-actions">
             <button type="submit" class="card-btn btn-neon btn-green">
                 Send verification
             </button>
@@ -28,4 +31,4 @@
             </button>
         </div>
     </form>
-</div>
+</article>

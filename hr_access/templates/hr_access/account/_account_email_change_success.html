@@ -1,14 +1,18 @@
 {# hr_access/templates/hr_access/account/_account_email_change_success.html #}
 
-<div class="checkout-state auth-state-success">
-    <div class="checkout-state-icon">
-        <i class="fas fa-check-circle"></i>
-    </div>
-    <h2 class="checkout-title">Email updated</h2>
-    <p class="checkout-message">
-        Your account email has been updated to {{ email }}.
-    </p>
-    <div class="modal-actions">
-        <button type="button" class="card-btn btn-neon btn-green" data-modal-close>Got it</button>
+<div class="modal-content">
+    <div class="modal-scroll">
+        <div class="checkout-state auth-state-success">
+            <div class="checkout-state-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2 class="checkout-title">Email updated</h2>
+            <p class="checkout-message">
+                Your account email has been updated to {{ email }}.
+            </p>
+            <div class="modal-actions grid grid-cols-1 md:grid-cols-2">
+                <button type="button" class="card-btn btn-neon btn-green" data-modal-close>Got it</button>
+            </div>
+        </div>
     </div>
 </div>

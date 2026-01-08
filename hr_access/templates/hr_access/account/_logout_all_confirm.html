@@ -1,23 +1,27 @@
 {# hr_access/templates/hr_access/account/_logout_all_confirm.html #}
 
-<div class="checkout-state auth-state-warning">
-    <div class="checkout-state-icon checkout-state-icon--warning">
-        <i class="fas fa-exclamation-triangle"></i>
-    </div>
-    <h2 class="checkout-title">Log out all sessions?</h2>
-    <p class="checkout-message">
-        This will end every active session for your account on all devices.
-    </p>
-    <div class="modal-actions">
-        <button
-            type="button"
-            class="card-btn btn-neon btn-yellow"
-            hx-post="{% url 'hr_access:account_logout_all_sessions' %}"
-            hx-target="#modal-content"
-            hx-swap="innerHTML"
-        >
-            Log out everywhere
-        </button>
-        <button type="button" class="card-btn btn-neon btn-blue" data-modal-close>Cancel</button>
+<div class="modal-content">
+    <div class="modal-scroll">
+        <div class="checkout-state auth-state-warning">
+            <div class="checkout-state-icon checkout-state-icon--warning">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h2 class="checkout-title">Log out all sessions?</h2>
+            <p class="checkout-message">
+                This will end every active session for your account on all devices.
+            </p>
+            <div class="modal-actions grid grid-cols-1 md:grid-cols-2">
+                <button
+                    type="button"
+                    class="card-btn btn-neon btn-yellow"
+                    hx-post="{% url 'hr_access:account_logout_all_sessions' %}"
+                    hx-target="#modal-content"
+                    hx-swap="innerHTML"
+                >
+                    Log out everywhere
+                </button>
+                <button type="button" class="card-btn btn-neon btn-blue" data-modal-close>Cancel</button>
+            </div>
+        </div>
     </div>
 </div>

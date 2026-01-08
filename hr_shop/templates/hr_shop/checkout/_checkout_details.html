@@ -1,16 +1,18 @@
 {# hr_shop/templates/hr_shop/_checkout_details.html #}
 {% load form_group %}
 
-<div class="view-cart-modal checkout-details-modal">
-    <h2 class="sub-header modal-title">Checkout Details</h2>
+<article class="view-cart-modal checkout-details-modal m-shell">
+    <header class="m-head">
+        <h2 class="sub-header modal-title">Checkout Details</h2>
 
-    {% if form.non_field_errors %}
-        <div class="form-errors">
-            {% for error in form.non_field_errors %}
-                <p>{{ error }}</p>
-            {% endfor %}
-        </div>
-    {% endif %}
+        {% if form.non_field_errors %}
+            <div class="form-errors">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </header>
 
     <form
         id="checkout-details-form"
@@ -19,23 +21,23 @@
         hx-post="{% url 'hr_shop:checkout_details_submit' %}"
         hx-target="#modal-content"
         hx-swap="innerHTML transition:true"
-        class="checkout-details-form"
+        class="checkout-details-form m-body"
     >
         {% csrf_token %}
 
         <h3 class="group-title">Contact</h3>
-        <div class="field-row field-row-two-cols">
+        <div class="field-row field-row-two-cols m-grid m-grid-2">
             {% form_group form.email %}
             {% form_group form.phone %}
         </div>
 
         <h3 class="group-title">Name</h3>
-        <div class="field-row field-row-two-cols">
+        <div class="field-row field-row-two-cols m-grid m-grid-2">
             {% form_group form.first_name %}
             {% form_group form.middle_initial %}
         </div>
 
-        <div class="field-row field-row-two-cols">
+        <div class="field-row field-row-two-cols m-grid m-grid-2">
             {% form_group form.last_name %}
             {% form_group form.suffix %}
         </div>
@@ -50,12 +52,12 @@
             {% form_group form.street_address_line2 %}
         </div>
 
-        <div class="field-row field-row-two-cols">
+        <div class="field-row field-row-two-cols m-grid m-grid-2">
             {% form_group form.building_type %}
             {% form_group form.unit group_classes="field-group hidden" %}
         </div>
 
-        <div class="field-row field-row-two-cols field-row-bottom-block">
+        <div class="field-row field-row-two-cols field-row-bottom-block m-grid m-grid-2">
             <div class="field-col-left">
                 {% form_group form.city %}
                 {% form_group form.subdivision %}
@@ -67,7 +69,7 @@
             </div>
         </div>
 
-        <div class="modal-actions">
+        <div class="m-foot m-actions">
             <button type="submit" class="card-btn btn-neon btn-green btn-sm">
                 Continue
             </button>
@@ -76,4 +78,4 @@
             </button>
         </div>
     </form>
-</div>
+</article>

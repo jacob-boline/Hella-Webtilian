@@ -102,6 +102,18 @@
     --vw: 1vw;
     --pad-inline: clamp(1rem, 6vw, 3rem);
 
+    /* Modal sizing tokens */
+    --modal-gutter: clamp(12px, 3vw, 24px);
+    --modal-max-w: 64rem;
+    --modal-max-h: calc(100dvh - (2 * var(--modal-gutter)) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    --m-maxw: var(--modal-max-w);
+    --m-maxh: var(--modal-max-h);
+    --m-pad: clamp(0.75rem, 2.5vw, 1.5rem);
+    --m-gap: clamp(0.75rem, 2vw, 1.25rem);
+    --m-radius: clamp(0.85rem, 1.5vw, 1.5rem);
+    --m-title: clamp(1.25rem, 3vw, 1.75rem);
+    --m-text: clamp(0.85rem, 1.6vw, 1rem);
+
     /* shared vertical paddings (avoid duplication drift) */
     --section-pad: calc(var(--vh) * 18);
     --page-pad-top: calc(var(--vh) * 18);
@@ -143,6 +155,10 @@ body {
     font-family: "Space Grotesk", sans-serif;
     color: var(--text);
     background-color: var(--bg-dark);
+}
+
+body.modal-open {
+    overflow: hidden;
 }
 
 /* ===========================
@@ -282,6 +298,8 @@ nav.navbar {
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: calc(var(--modal-gutter) + env(safe-area-inset-top, 0px)) var(--modal-gutter) calc(var(--modal-gutter) + env(safe-area-inset-bottom, 0px));
+    box-sizing: border-box;
     pointer-events: none;
 }
 
@@ -312,22 +330,32 @@ nav.navbar {
     position: relative;
     z-index: 1001;
     pointer-events: auto;
-    max-width: min(64rem, calc(100vw - 2 * var(--pad-inline)));
-    max-height: min(95vh, calc(var(--vh) * 95));
-    padding: 0 1.75rem 0.75rem;
+    inline-size: 100%;
+    max-inline-size: var(--modal-max-w);
+    max-block-size: var(--modal-max-h);
+    padding: var(--m-pad);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
     overflow: hidden;
+    overflow-x: hidden;
+    container-type: inline-size;
+    container-name: modal;
 }
 
 #modal-content {
     view-transition-name: modal-content;
     max-width: 100%;
     width: 100%;
-    max-height: calc(min(95vh, calc(var(--vh) * 95)) - 3.5rem);
-    overflow: hidden;
+    max-height: calc(var(--modal-max-h) - (2 * var(--m-pad)));
+    overflow: auto;
+    overflow-x: hidden;
     flex: 1 1 auto;
     min-height: 0;
+    min-block-size: 0;
     display: flex;
     flex-direction: column;
+    overscroll-behavior: contain;
 }
 
 ::view-transition-old(modal-content),
@@ -382,7 +410,9 @@ nav.navbar {
 }
 
 .modal-close-btn {
-    margin-left: 100%;
+    align-self: flex-end;
+    position: sticky;
+    top: 0;
     font-size: 1.75rem;
     background-color: transparent;
     color: white;
@@ -514,22 +544,4 @@ nav.navbar {
         padding: 1rem;
         border-radius: 0.75rem;
     }
-    .modal-panel {
-        width: 100vw;
-        max-width: 100vw;
-        padding: 0.75rem 0.75rem 1.25rem;
-        border-radius: 0.75rem;
-    }
 }
-
-
-@media (min-width: 768px) and (max-width: 1279.98px) {
-  .modal-panel {
-    width: auto; /* let max-width govern */
-    max-width: min(64rem, calc(100vw - 2 * var(--pad-inline)));
-    padding-inline: 1.5rem;
-  }
-}
-
-
-

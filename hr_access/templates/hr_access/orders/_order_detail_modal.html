@@ -1,5 +1,9 @@
-<div class="checkout-review-modal order-detail-modal">
-    <h2 class="review-title">Order #{{ order.id }}</h2>
+<article class="checkout-review-modal order-detail-modal m-shell">
+    <header class="m-head">
+        <h2 class="review-title">Order #{{ order.id }}</h2>
+    </header>
+
+    <section class="m-body">
 
     <!-- =========================
          Order summary
@@ -143,19 +147,20 @@
     <!-- =========================
          Actions
          ========================= -->
-    <div class="review-actions modal-actions stack">
-        <button
-            type="button"
-            class="card-btn btn-neon btn-blue"
-            hx-get="{% url 'hr_access:account_get_orders' %}"
-            hx-target="#modal-content"
-            hx-swap="innerHTML transition:true"
-        >
-            Back to Orders
-        </button>
+        <div class="review-actions m-foot m-actions">
+            <button
+                type="button"
+                class="card-btn btn-neon btn-blue"
+                hx-get="{% url 'hr_access:account_get_orders' %}"
+                hx-target="#modal-content"
+                hx-swap="innerHTML transition:true"
+            >
+                Back to Orders
+            </button>
 
-        <button type="button" class="card-btn btn-neon btn-blue" data-modal-close>
-            Close
-        </button>
-    </div>
-</div>
+            <button type="button" class="card-btn btn-neon btn-blue" data-modal-close>
+                Close
+            </button>
+        </div>
+    </section>
+</article>

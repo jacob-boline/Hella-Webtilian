@@ -1,91 +1,93 @@
 {# hr_access/templates/hr_access/_unclaimed_orders_modal.html #}
 
 {#<div class="modal-panel unclaimed-orders-modal">#}
-<div class="unclaimed-orders-modal">
-    <h2 class="sub-header modal-title">Unclaimed orders</h2>
+<div class="unclaimed-orders-modal modal-content">
+    <div class="modal-scroll">
+        <h2 class="sub-header modal-title">Unclaimed orders</h2>
 
-    {% if claimed_count %}
-        <div class="form-errors is-success">
-            <p>Claimed {{ claimed_count }} order{{ claimed_count|pluralize }}.</p>
-        </div>
-    {% endif %}
-
-    {% if error %}
-        <div class="form-errors">
-            <p>{{ error }}</p>
-        </div>
-    {% endif %}
-
-    {% if not email %}
-        <p class="text-muted">No email found for your account.</p>
-    {% else %}
-        <p class="text-muted">
-            Showing unclaimed orders associated with <strong>{{ email }}</strong>.
-        </p>
-
-        {% if unclaimed_orders %}
-            <form
-                    method="post"
-                    hx-post="{% url 'hr_access:account_submit_claim_unclaimed_orders' %}"
-                    hx-target="#modal-content"
-                    hx-swap="innerHTML transition:true">
-
-                {% csrf_token %}
-
-                <div class="order-claim-list">
-                    <div class="order-claim-header">
-                        <input type="checkbox" id="select-all-unclaimed" aria-label="Select all orders">
-                        <span>ID</span>
-                        <span>Date</span>
-                        <span>Total</span>
-                        <span>Payment</span>
-                        <span>Status</span>
-                    </div>
-                    {% for o in unclaimed_orders %}
-                        <label class="order-claim-row">
-                            <input
-                                    type="checkbox"
-                                    name="order_ids"
-                                    value="{{ o.id }}"
-                                    class="unclaimed-order-checkbox">
-                            <span class="order-claim-id">#{{ o.id }}</span>
-                            <span class="order-claim-meta">{{ o.created_at|date:"M j, Y g:i A" }}</span>
-                            <span class="order-claim-meta">${{ o.total|floatformat:2 }}</span>
-                            <span class="order-claim-meta">{{ o.payment_status }}</span>
-                            <span class="order-claim-meta">{{ o.order_status }}</span>
-                        </label>
-                    {% endfor %}
-                </div>
-
-                <div class="modal-actions inline uniform">
-                    <button type="submit" class="card-btn btn-neon btn-blue btn-sm">Claim selected</button>
-                    <button type="button" class="card-btn btn-neon btn-yellow btn-sm" data-modal-close>Not now</button>
-                </div>
-            </form>
-
-            <script>
-                (function () {
-                    const selectAll = document.getElementById("select-all-unclaimed");
-                    const boxes = document.querySelectorAll(".unclaimed-order-checkbox");
-                    if (!selectAll || !boxes.length) return;
-
-                    selectAll.addEventListener("change", () => {
-                        boxes.forEach(b => {
-                            b.checked = selectAll.checked;
-                        });
-                    });
-                })();
-            </script>
-
-        {% else %}
-            <p class="text-muted">No unclaimed orders found for this email.</p>
-
-            <div class="modal-actions stack uniform">
-                <button type="button" class="card-btn btn-neon btn-blue btn-sm" data-modal-close>
-                    Close
-                </button>
+        {% if claimed_count %}
+            <div class="form-errors is-success">
+                <p>Claimed {{ claimed_count }} order{{ claimed_count|pluralize }}.</p>
             </div>
         {% endif %}
 
-    {% endif %}
+        {% if error %}
+            <div class="form-errors">
+                <p>{{ error }}</p>
+            </div>
+        {% endif %}
+
+        {% if not email %}
+            <p class="text-muted">No email found for your account.</p>
+        {% else %}
+            <p class="text-muted">
+                Showing unclaimed orders associated with <strong>{{ email }}</strong>.
+            </p>
+
+            {% if unclaimed_orders %}
+                <form
+                        method="post"
+                        hx-post="{% url 'hr_access:account_submit_claim_unclaimed_orders' %}"
+                        hx-target="#modal-content"
+                        hx-swap="innerHTML transition:true">
+
+                    {% csrf_token %}
+
+                    <div class="order-claim-list">
+                        <div class="order-claim-header">
+                            <input type="checkbox" id="select-all-unclaimed" aria-label="Select all orders">
+                            <span>ID</span>
+                            <span>Date</span>
+                            <span>Total</span>
+                            <span>Payment</span>
+                            <span>Status</span>
+                        </div>
+                        {% for o in unclaimed_orders %}
+                            <label class="order-claim-row">
+                                <input
+                                        type="checkbox"
+                                        name="order_ids"
+                                        value="{{ o.id }}"
+                                        class="unclaimed-order-checkbox">
+                                <span class="order-claim-id">#{{ o.id }}</span>
+                                <span class="order-claim-meta">{{ o.created_at|date:"M j, Y g:i A" }}</span>
+                                <span class="order-claim-meta">${{ o.total|floatformat:2 }}</span>
+                                <span class="order-claim-meta">{{ o.payment_status }}</span>
+                                <span class="order-claim-meta">{{ o.order_status }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+
+                    <div class="modal-actions inline uniform grid grid-cols-1 md:grid-cols-2">
+                        <button type="submit" class="card-btn btn-neon btn-blue btn-sm">Claim selected</button>
+                        <button type="button" class="card-btn btn-neon btn-yellow btn-sm" data-modal-close>Not now</button>
+                    </div>
+                </form>
+
+                <script>
+                    (function () {
+                        const selectAll = document.getElementById("select-all-unclaimed");
+                        const boxes = document.querySelectorAll(".unclaimed-order-checkbox");
+                        if (!selectAll || !boxes.length) return;
+
+                        selectAll.addEventListener("change", () => {
+                            boxes.forEach(b => {
+                                b.checked = selectAll.checked;
+                            });
+                        });
+                    })();
+                </script>
+
+            {% else %}
+                <p class="text-muted">No unclaimed orders found for this email.</p>
+
+                <div class="modal-actions stack uniform grid grid-cols-1 md:grid-cols-2">
+                    <button type="button" class="card-btn btn-neon btn-blue btn-sm" data-modal-close>
+                        Close
+                    </button>
+                </div>
+            {% endif %}
+
+        {% endif %}
+    </div>
 </div>
