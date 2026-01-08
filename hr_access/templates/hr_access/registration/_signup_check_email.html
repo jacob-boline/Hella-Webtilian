@@ -1,33 +1,35 @@
 {# hr_access/templates/hr_access/registration/_signup_check_email.html #}
 
-<div class="auth-modal">
-    <h2 class="review-title">Confirm your email</h2>
+<div class="auth-modal modal-content">
+    <div class="modal-scroll">
+        <h2 class="review-title">Confirm your email</h2>
 
-    {% if rate_limited %}
-        <p class="text-muted">
-            Too many confirmation emails were requested. Please check your inbox (including spam) or try again in an hour.
-        </p>
-    {% elif error %}
-        <p class="text-muted">
-            {{ message|default:"Could not send confirmation email. Please try again." }}
-        </p>
-    {% else %}
-        <p class="text-muted">
-            {{ message|default:"We've sent a confirmation link to your email. Please check your inbox." }}
-        </p>
-    {% endif %}
+        {% if rate_limited %}
+            <p class="text-muted">
+                Too many confirmation emails were requested. Please check your inbox (including spam) or try again in an hour.
+            </p>
+        {% elif error %}
+            <p class="text-muted">
+                {{ message|default:"Could not send confirmation email. Please try again." }}
+            </p>
+        {% else %}
+            <p class="text-muted">
+                {{ message|default:"We've sent a confirmation link to your email. Please check your inbox." }}
+            </p>
+        {% endif %}
 
-    {% if email %}
-        <p class="customer-field"><strong>Email:</strong> {{ email }}</p>
-    {% endif %}
+        {% if email %}
+            <p class="customer-field"><strong>Email:</strong> {{ email }}</p>
+        {% endif %}
 
-    {% if sent_at %}
-        <p class="customer-field"><strong>Last sent:</strong> {{ sent_at|date:"M j, Y · g:i A" }}</p>
-    {% endif %}
+        {% if sent_at %}
+            <p class="customer-field"><strong>Last sent:</strong> {{ sent_at|date:"M j, Y · g:i A" }}</p>
+        {% endif %}
 
-    <div class="modal-actions stack" style="margin-top: 1rem;">
-        <button type="button" class="card-btn btn-neon btn-blue" data-modal-close>
-            Close
-        </button>
+        <div class="modal-actions stack grid grid-cols-1 grid-cols-2-1200" style="margin-top: 1rem;">
+            <button type="button" class="card-btn btn-neon btn-blue" data-modal-close>
+                Close
+            </button>
+        </div>
     </div>
 </div>
