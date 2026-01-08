@@ -1,0 +1,21 @@
+:8080 {
+
+    # -----------------------------
+    # Vite dev server (HMR + assets)
+    # -----------------------------
+    @vite {
+        path /@vite/* /@id/* /node_modules/* /src/* /vite/*
+    }
+    reverse_proxy @vite 127.0.0.1:5173
+
+    # -----------------------------
+    # Django static + media
+    # -----------------------------
+    reverse_proxy /static/* 127.0.0.1:8000
+    reverse_proxy /media/*  127.0.0.1:8000
+
+    # -----------------------------
+    # Everything else → Django
+    # -----------------------------
+    reverse_proxy 127.0.0.1:8000
+}
