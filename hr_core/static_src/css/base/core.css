@@ -306,6 +306,7 @@ nav.navbar {
    =========================== */
 
 .modal {
+    font-family: Quantico, sans-serif;
     position: fixed;
     inset: 0;
     z-index: 1600;
@@ -353,7 +354,6 @@ nav.navbar {
     flex-direction: column;
     box-sizing: border-box;
     overflow: hidden;
-    overflow-x: hidden;
     container-type: inline-size;
     container-name: modal;
 }

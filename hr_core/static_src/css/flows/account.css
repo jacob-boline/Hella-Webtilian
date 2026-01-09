@@ -207,6 +207,20 @@
     .account-status-grid.uniform.inline > .account-status-card {
         width: 100%;
     }
+
+    .account-status-grid .review-section {
+        padding: .5rem 1rem 0;
+        margin-bottom: 0;
+    }
+
+    .account-status-grid .review-section p {
+        display: inline;
+    }
+
+    .account-status-grid .review-section .shipping-address.customer-field {
+        white-space: normal !important;
+     }
+
 }
 
 /* >= 1200px: inline */

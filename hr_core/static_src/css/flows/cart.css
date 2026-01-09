@@ -151,3 +151,7 @@
     }
 
 }
+
+.view-cart-modal.checkout-details-modal.m-shell {
+    gap: 0;
+}
