@@ -48,14 +48,10 @@ urlpatterns = [
     path('account_get_orders/', orders.account_get_orders, name='account_get_orders'),
     path('account_get_orders/unclaimed/', orders.account_get_unclaimed_orders, name='account_get_unclaimed_orders'),
     path('account_get_orders/claim/', orders.account_submit_claim_unclaimed_orders, name='account_submit_claim_unclaimed_orders'),
-
     path("account_get_orders/page/<int:n>/", orders_page, name="orders_page"),
-    # path("account_get_orders/", orders.account_get_orders, name="account_get_orders"),
     path("account_get_orders/<int:order_id>/", order_detail_modal, name="order_detail_modal"),
     path("account_get_orders/<int:order_id>/receipt/", orders.account_get_order_receipt, name="account_get_order_receipt"),
 
-    # path("account/claim/<slug:uidb64>/<slug:token>/", views.claim_account, name="claim_account"),
-    # path("account/claim/resend/", views.claim_resend, name="claim_resend"),  # POST (email)
     path('manage/superuser/remove/<int:user_id>/', admin.admin_demote_superuser, name='admin_demote_superuser'),
     path('manage/superuser/confirm-removal/<int:user_id>/', admin.admin_confirm_privilege_demotion, name='admin_confirm_privilege_demotion'),
     path('manage/staff/add/', admin.admin_create_site_admin, name='admin_create_site_admin'),

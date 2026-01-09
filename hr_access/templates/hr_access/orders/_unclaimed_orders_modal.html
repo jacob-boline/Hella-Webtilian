@@ -2,14 +2,16 @@
 
 {#<div class="modal-panel unclaimed-orders-modal">#}
 <div class="unclaimed-orders-modal modal-content">
-    <div class="modal-scroll">
+    <div class="unclaimed-orders-layout">
         <h2 class="sub-header modal-title">Unclaimed orders</h2>
 
-        {% if claimed_count %}
-            <div class="form-errors is-success">
-                <p>Claimed {{ claimed_count }} order{{ claimed_count|pluralize }}.</p>
+        <div class="claim-flash-slot" aria-live="polite" aria-atomic="true">
+            <div class="form-errors is-success claim-flash {% if claimed_count %}is-active{% endif %}" role="status">
+                {% if claimed_count %}
+                    <p>Claimed {{ claimed_count }} order{{ claimed_count|pluralize }}.</p>
+                {% endif %}
             </div>
-        {% endif %}
+        </div>
 
         {% if error %}
             <div class="form-errors">

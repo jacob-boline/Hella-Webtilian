@@ -1,28 +1,20 @@
 {# hr_shop/templates/hr_shop/_order_receipt_modal.html#}
 
-<div class="checkout-review-modal">
-    <h2 class="review-title">Order Receipt</h2>
+<div class="checkout-review-modal order-receipt-modal">
+    <h2 class="sub-header modal-title">Order Receipt</h2>
 
-
-    {#      <div class="shipping-summary">#}
     <div class="account-status-grid inline uniform">
-
         <div class="review-section">
-            <p class="review-section-title">Order</p>
-
+            <p class="review-section-title">Details</p>
             <p class="customer-field"><strong>Order #:</strong> {{ order.id }}</p>
             <p class="customer-field"><strong>Date:</strong> {{ order.created_at|date:"M j, Y · g:i A" }}</p>
             <p class="customer-field"><strong>Status:</strong> {{ order.order_status|capfirst }}</p>
         </div>
-
         {% if address %}
-
             <div class="review-section">
                 <p class="review-section-title">Shipping Address</p>
-
                 <p class="shipping-address customer-field" style="white-space: pre-wrap;">{{ address.formatted }}</p>
             </div>
-
             {% if customer %}
                 <div class="review-section">
                     <p class="review-section-title">Contact</p>
@@ -32,9 +24,9 @@
                     {% endif %}
                 </div>
             {% endif %}
-
         {% endif %}
     </div>
+
     <div class="review-section">
         <h3 class="review-section-title">Items</h3>
 
@@ -43,7 +35,6 @@
                 <div class="review-item">
                     <div class="item-info">
                         <span class="item-name">{{ item.variant.product.name }}</span>
-
                         <div class="item-meta">
                             {% if item.variant.name %}
                                 <span class="item-variant">{{ item.variant.name }}</span>
@@ -51,7 +42,6 @@
                             <span class="item-qty">Qty: {{ item.quantity }}</span>
                         </div>
                     </div>
-
                     <span class="item-price">${{ item.unit_price|floatformat:2 }}</span>
                 </div>
             {% endfor %}

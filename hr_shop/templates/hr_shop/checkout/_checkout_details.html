@@ -1,10 +1,11 @@
 {# hr_shop/templates/hr_shop/_checkout_details.html #}
+
 {% load form_group %}
 
 <article class="view-cart-modal checkout-details-modal m-shell">
+
     <header class="m-head">
         <h2 class="sub-header modal-title">Checkout Details</h2>
-
         {% if form.non_field_errors %}
             <div class="form-errors">
                 {% for error in form.non_field_errors %}

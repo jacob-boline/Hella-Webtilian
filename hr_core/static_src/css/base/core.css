@@ -274,7 +274,7 @@ nav.navbar {
     font-size: clamp(3rem, 5vmin, 4rem);
     font-weight: 700;
     line-height: 1.125;
-    color: #F5F5F5;
+    color: var(--text);
     text-align: center;
     text-shadow:
         0 0 4px rgba(255, 255, 255, 0.6),
@@ -427,7 +427,7 @@ nav.navbar {
     top: 0;
     font-size: 1.75rem;
     background-color: transparent;
-    color: white;
+    color: var(--text);
     border: none;
     cursor: pointer;
 }
@@ -449,7 +449,7 @@ nav.navbar {
     border: 1px solid rgba(255, 255, 255, 0.18);
     background: rgba(0, 0, 0, 0.25);
     backdrop-filter: blur(10px);
-    color: #FFF;
+    color: var(--text);
     cursor: pointer;
     box-shadow: 0 0 18px rgba(0, 234, 255, 0.15);
     transition: transform 0.2s ease, opacity 1s ease, background 0.2s ease;

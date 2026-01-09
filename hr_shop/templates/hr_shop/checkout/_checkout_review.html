@@ -3,7 +3,7 @@
 
 <article class="checkout-review-modal m-shell">
     <header class="m-head">
-        <h2 class="review-title">Review Your Order</h2>
+        <h2 class="sub-header modal-title">Review Your Order</h2>
     </header>
 
     <section class="m-body">
@@ -115,7 +115,7 @@
                 class="card-btn btn-neon btn-blue btn-sm"
                 hx-get="{% url 'hr_shop:view_cart' %}"
                 hx-target="#modal-content"
-                hx-swap="innerHTML">
+                hx-swap="innerHTML transition:true">
             <i class="fas fa-arrow-left"></i> Back to Cart
         </button>
     </footer>

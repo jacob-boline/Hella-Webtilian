@@ -123,7 +123,6 @@
    Drawer / open-button controls
    =========================== */
 
-/*.user-panel,*/
 .user-panel hr {
     margin-top:    .5rem;
     margin-bottom: .5rem;
@@ -136,7 +135,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem;
 }
 
 .sidebar-btn {
@@ -270,9 +269,7 @@
 
 #nav-open-btn {
     opacity:     0;
-    /*margin-top:  3rem;*/
-    /*top: 2.9rem;*/
-    top: 2.9rem !important;
+    top: calc((var(--vh) * 7) - 2px);
     margin-left: 24px;
     background: rgba(0, 0, 0, 0.25);
     border: 1px solid rgba(255, 255, 255, 0.18);
@@ -290,16 +287,14 @@
 #nav-open-btn:hover,
 #nav-close-btn:hover {
     color:            aquamarine;
-    /*color: var(--neon-blue)*/
     background-color: rgba(128, 128, 128, 0.3);
 }
 
 /* honour dark mode – keep the same hover behaviour there */
 @media (prefers-color-scheme: dark) {
      #drawer-navigation .sidebar-btn:hover {
-         /*color: darkorange;*/
          color: var(--gold);
-         transition: all 0.125s ease-in-out;
+         transition: all 0.2s ease-in-out;
      }
 }
 
@@ -311,7 +306,7 @@
 .card-count-badge {
     /*background: #00eaff;*/
     background: var(--neon-blue);
-    color: #000;
+    color: black;
     border-radius: 12px;
     padding: 2px 6px;
     margin-left: 6px;
@@ -336,7 +331,6 @@
     letter-spacing: 0.08em;
     color: var(--text);
     cursor: pointer;
-    /* animate ALL the stuff we’re actually changing */
     transition:
         color 0.2s ease,
         border-color 0.2s ease,
@@ -351,9 +345,8 @@
     background: transparent;
 }
 
-/* hover state */
 .cart-btn:hover {
-    color: aquamarine; /* text */
+    color: aquamarine;
     border-color: aquamarine;
     box-shadow: 0 0 14px rgba(0, 234, 255, 0.9);
     background-color: rgba(0, 0, 0, 0.75);
@@ -361,9 +354,8 @@
 
 /* neon count badge */
 .cart-count-badge {
-    /*background: #00eaff;*/
     background: var(--neon-blue);
-    color: #000;
+    color: black;
     border-radius: 999px;
     padding: 2px 8px;
     margin-left: 2px;
@@ -373,7 +365,6 @@
     line-height: 1;
     display: none; /* JS will flip to inline-flex when count > 0 */
 }
-
 
 /* ===========================
    Form controls (login)
@@ -421,22 +412,15 @@ input:-webkit-autofill:focus {
 
 .field-group:focus-within label {
     color: var(--neon-blue);
-    /*transform: translateY(-1.2em) scale(0.9);*/
 }
 
 form.login-form div.form-control {
     margin: 0.5rem 0;
 }
 
-
-/* ===========================
-   User identity (username/email)
-   - Hover glow on TEXT ONLY
-   - Focus-visible pop for keyboard nav
-   =========================== */
-
 .user-profile-btn {
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 1rem 0 1rem;
+    margin-bottom: 0;
 }
 
 /* Keep the parent button from adding backgrounds/borders */
@@ -460,14 +444,12 @@ form.login-form div.form-control {
     cursor: pointer;
 }
 
-/* Base styles */
 .user-username {
     font-family: "Exo 2", sans-serif;
     font-size: clamp(1.25rem, 3vw, 2rem);
     font-weight: 700;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    /*color: #F5F5F5;*/
     color: var(--text);
     text-shadow:
         0 0 0.35rem rgba(255, 255, 255, 0.6),

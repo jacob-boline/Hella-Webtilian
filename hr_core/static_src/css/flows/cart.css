@@ -24,11 +24,9 @@
 .cart-summary-card {
     display: grid;
     grid-template-columns: 142px minmax(0, 1.6fr) auto auto;
-    grid-template-areas:
-        "thumb main qty subtotal";
+    grid-template-areas:"thumb main qty subtotal";
     column-gap: 1rem;
     row-gap: 0.5rem;
-
     align-items: center;
     padding: 1rem 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
@@ -87,25 +85,18 @@
     opacity: 0.8;
 }
 
-/* NOTE:
-   Input styling moved to modal-ui.css via:
-   .modal input/select/textarea base + .control-compact.
-   In template, add class="control-compact" to the qty input.
-*/
 .item-quantity input[type="number"] {
-    width: 64px; /* keeps layout stable even if class is missed */
+    width: 64px;
 }
 
 /* line subtotal + remove */
 
 .item-subtotal-wrapper {
     grid-area: subtotal;
-
     display: flex;
     flex-direction: row;
     align-items: flex-end;
     justify-content: center;
-
     gap: 0.4rem;
 }
 
@@ -118,7 +109,6 @@
 }
 
 /* remove button (cart-specific) */
-
 .cart-remove-btn {
     padding: 0.25rem 0.75rem;
     border-radius: 999px;
@@ -128,7 +118,6 @@
     color: #ff8a8a;
     font-size: 0.75rem;
     cursor: pointer;
-
     transition: 0.2s ease;
 }
 
@@ -137,18 +126,6 @@
     color: var(--text);
     box-shadow: 0 0 10px rgba(255, 80, 80, 0.4);
 }
-
-
-/* ===========================
-   Totals row
-   =========================== */
-
-/* NOTE:
-   modal-summary-row layout has moved to modal-ui.css (grid-based).
-   You should update the template to wrap total label + amount in:
-   <div class="modal-summary-block"> ... </div>
-*/
-
 
 /* ===========================
    Responsive adjustments
@@ -173,7 +150,4 @@
         justify-self: start;
     }
 
-    /* NOTE:
-       modal-summary-row responsive behavior now handled in modal-ui.css
-    */
 }

@@ -171,12 +171,12 @@
     text-align: left;
     padding:    1.5rem;
     color:      var(--text);
-    /*max-width:  min(800px, 80vw);*/
     width: 80vw;
 }
 
 .checkout-review-modal:not(.order-payment-result) {
     width: max-content;
+    max-width: 100%;
 }
 
 .modal-actions.stack.uniform {
@@ -187,7 +187,6 @@
     text-align:     center;
     margin-bottom:  0.5rem;
     margin-top:     -1.5rem;
-
     font-family:    "Exo 2", sans-serif;
     font-weight:    600;
     font-size:      1.25rem;
@@ -363,7 +362,6 @@
     grid-template-columns: minmax(0, 1fr) auto;
     align-items:           center;
     gap:                   1rem;
-
     padding:               1rem 0;
     border-bottom:         1px solid rgba(255, 255, 255, 0.2);
 }
@@ -392,7 +390,6 @@
     display:   flex;
     flex-wrap: wrap;
     gap:       0.5rem;
-
     font-size: 0.75rem;
     color:     var(--muted-text);
 }
@@ -466,7 +463,7 @@
 .cta-fadein {
     opacity:   0;
     transform: translateY(4px);
-    animation: ctaFadeIn 220ms ease-out forwards;
+    animation: ctaFadeIn .2s ease-out forwards;
 }
 
 @keyframes ctaFadeIn {
@@ -480,7 +477,7 @@
 .post-purchase-account.is-dismissing {
     opacity:    0;
     transform:  translateY(2px);
-    transition: opacity 1000ms ease, transform 1000ms ease;
+    transition: opacity 1s ease, transform 1s ease;
 }
 
 
@@ -516,10 +513,6 @@
     white-space: nowrap;
 }
 
-/*.order-payment-result .customer-field.shipping-address {*/
-/*    white-space: pre-wrap;*/
-/*}*/
-
 .order-payment-result .order-details p {
     text-wrap: none;
 }
@@ -546,28 +539,11 @@
     max-width:     560px;
     margin:        0.9rem auto 0;
     padding:       1rem;
-
     border-radius: 14px;
     background:    rgba(0, 0, 0, 0.35);
     border:        1px solid rgba(255, 255, 255, 0.16);
     box-shadow:    0 0 18px rgba(0, 234, 255, 0.10);
 }
-
-/*!* CTA buttons same line, same width *!*/
-/*.order-payment-result .modal-actions.inline.uniform {*/
-/*    display:         flex;*/
-/*    gap:             0.75rem;*/
-/*    justify-content: center;*/
-/*    align-items:     stretch;*/
-/*    flex-wrap:       nowrap;*/
-/*}*/
-
-/*.order-payment-result .modal-actions.inline.uniform > * {*/
-/*    flex:      1 1 0;*/
-/*    min-width: 0;*/
-/*}*/
-
-/* Collapse to stack on small screens */
 
 .order-payment-result .modal-actions.inline.uniform {
     margin-top: 0.85rem;
@@ -598,15 +574,12 @@
     list-style:     none;
     user-select:    none;
     cursor:         pointer;
-
-    /*display:        inline-flex;*/
     display: flex;
     width: 100%;
     justify-content: center;
     text-align: center;
     align-items:    center;
     gap:            0.55rem;
-
     color:          var(--neon-red);
     font-size:      0.80rem;
     letter-spacing: 0.125em;
@@ -626,7 +599,7 @@
     display:     inline-block;
     line-height: 1;
     transform:   rotate(0deg);
-    transition:  transform 160ms ease;
+    transition:  transform .2s ease;
     opacity:     0.95;
 }
 
@@ -644,14 +617,6 @@
     color:          var(--neon-blue);
     opacity:        0.95;
 }
-
-/*!* 3-up details grid *!*/
-/*.order-payment-result .order-details-grid {*/
-/*    display:               grid;*/
-/*    grid-template-columns: repeat(3, minmax(12rem, 1fr));*/
-/*    gap:                   1rem;*/
-/*    min-width: max-content;*/
-/*}*/
 
 /* desktop */
 .order-payment-result .order-details-grid {
@@ -694,26 +659,15 @@
   white-space: pre-wrap;
 }
 
-
-/*!* Mobile: stack the grid *!*/
-/*@media (max-width: 640px) {*/
-/*    .order-payment-result .order-details-grid {*/
-/*        grid-template-columns: 1fr;*/
-/*    }*/
-/*}*/
-
-/* Make this specific modal scroll instead of overflowing the viewport */
 .checkout-review-modal.order-payment-result {
     max-height:                 75vh;
     overflow-y:                 auto;
     overflow-x:                 hidden;
     overscroll-behavior:        contain;
-    /*padding-right:              1.25rem;*/
     -webkit-overflow-scrolling: touch;
     padding: 1.25rem -1.25rem;
 }
 
-/* Optional: keep the top-right X visible while scrolling */
 .order-payment-result .order-payment-close {
     position:    sticky;
     top:         0.75rem;
@@ -727,4 +681,14 @@
 
 .order-payment-msg .text-muted {
     margin-top: 0.5rem;
+}
+
+.checkout-details-form {
+  overflow-y: auto;
+    scrollbar-gutter: stable;
+    padding-right: 0.75rem;
+}
+
+.order-receipt-modal {
+    align-items: center;
 }
