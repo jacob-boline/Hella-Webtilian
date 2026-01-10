@@ -5,10 +5,11 @@ import logging
 
 from django.shortcuts import render
 
-from hr_about.logging import log_event
+from hr_about.unified_logging import log_event
 from hr_about.models import CarouselSlide, PullQuote
 
 logger = logging.getLogger(__name__)
+
 
 def get_carousel_partial(request):
     slides = CarouselSlide.objects.filter(is_active=True).order_by('order', 'id')

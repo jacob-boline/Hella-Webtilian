@@ -18,7 +18,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from hr_core.utils.tokens import generate_order_receipt_token
-from hr_payment.logging import log_event
+from hr_payment.unified_logging import log_event
 from hr_payment.models import PaymentAttempt, PaymentAttemptStatus
 from hr_payment.models import WebhookEvent
 from hr_shop.models import Order, PaymentStatus
@@ -186,7 +186,7 @@ def stripe_webhook(request):
             sig_header=sig_header,
             secret=settings.STRIPE_WEBHOOK_SECRET,
         )
-    except Exception:
+    except stripe.error.SignatureVerificationError:
         log_event(
             logger,
             logging.WARNING,

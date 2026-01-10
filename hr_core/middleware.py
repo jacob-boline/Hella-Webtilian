@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from django.http import HttpRequest, HttpResponse
 
-from hr_core.utils.logging import (
+from hr_core.utils.unified_logging_core import (
     REQUEST_ID_HEADER,
     REQUEST_ID_META_KEY,
     generate_request_id,

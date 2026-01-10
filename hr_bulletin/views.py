@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 from django.views.decorators.http import require_GET
 
-from hr_bulletin.logging import log_event
+from hr_bulletin.unified_logging import log_event
 from hr_bulletin.models import Post
 from hr_core.utils.pagination import paginate
 from hr_core.utils.permissions import is_site_admin

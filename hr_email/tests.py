@@ -2,8 +2,8 @@ import logging
 
 from django.test import SimpleTestCase, override_settings
 
-from hr_core.utils.logging import reset_request_id, set_request_id
-from hr_email.logging import log_event
+from hr_core.utils.unified_logging_core import reset_request_id, set_request_id
+from hr_email.unified_logging import log_event
 from hr_email.provider_settings import get_email_config, get_mailjet_rest_config
 
 

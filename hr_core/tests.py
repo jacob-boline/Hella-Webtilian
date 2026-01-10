@@ -3,9 +3,9 @@ import logging
 from django.http import HttpResponse
 from django.test import RequestFactory, SimpleTestCase
 
-from hr_core.logging import log_event
+from hr_core.unified_logging import log_event
 from hr_core.middleware import RequestIdMiddleware
-from hr_core.utils.logging import (
+from hr_core.utils.unified_logging_core import (
     REQUEST_ID_HEADER,
     get_request_id,
     redact_payload,

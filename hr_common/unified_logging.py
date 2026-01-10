@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from hr_core.utils.logging import get_request_id, redact_payload
+from hr_core.utils.unified_logging_core import get_request_id, redact_payload
 
 
 def log_event(

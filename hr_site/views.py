@@ -3,7 +3,7 @@ import logging
 from django.shortcuts import render
 from django.utils import timezone
 
-from hr_site.logging import log_event
+from hr_site.unified_logging import log_event
 from hr_live.models import Show
 from hr_shop.models import Product
 from hr_about.models import CarouselSlide, PullQuote

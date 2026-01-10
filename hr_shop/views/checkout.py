@@ -43,7 +43,7 @@ from hr_shop.services.email_confirmation import (
 )
 from hr_shop.views.cart import view_cart
 from hr_email.service import EmailProviderError, send_app_email
-from hr_shop.logging import log_event
+from hr_shop.unified_logging import log_event
 
 logger = logging.getLogger(__name__)
 

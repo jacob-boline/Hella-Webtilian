@@ -15,7 +15,7 @@ from django.utils import timezone
 from hr_core.utils.email import normalize_email
 from hr_core.utils.tokens import generate_checkout_email_token
 from hr_email.service import EmailProviderError, send_app_email
-from hr_shop.logging import log_event
+from hr_shop.unified_logging import log_event
 from hr_shop.exceptions import RateLimitExceeded, EmailSendError
 from hr_shop.models import ConfirmedEmail
 

@@ -2,8 +2,8 @@ import logging
 
 from django.test import SimpleTestCase
 
-from hr_core.utils.logging import reset_request_id, set_request_id
-from hr_payment.logging import log_event
+from hr_core.utils.unified_logging_core import reset_request_id, set_request_id
+from hr_payment.unified_logging import log_event
 
 
 class LoggingTests(SimpleTestCase):

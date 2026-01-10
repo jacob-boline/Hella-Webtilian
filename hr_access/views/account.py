@@ -31,7 +31,7 @@ from hr_shop.exceptions import RateLimitExceeded, EmailSendError
 from hr_shop.models import Order
 from hr_shop.services.customers import attach_customer_to_user
 from hr_email.service import EmailProviderError, send_app_email
-from hr_access.logging import log_event
+from hr_access.unified_logging import log_event
 from django.contrib.sessions.models import Session
 from django.utils.http import urlencode
 
@@ -42,10 +42,6 @@ SIGNUP_RATE_LIMIT_WINDOW_SECONDS = 3600
 SIGNUP_SENT_AT_KEY = "account_signup_confirm_sent_at:{email}"
 SIGNUP_COUNT_KEY = "account_signup_email_count:{email}"
 
-EMAIL_CHANGE_RATE_LIMIT_MAX_EMAILS = 3
-EMAIL_CHANGE_RATE_LIMIT_WINDOW_SECONDS = 3600
-EMAIL_CHANGE_COUNT_KEY = "account_email_change_count:{user_id}"
-EMAIL_CHANGE_SENT_AT_KEY = "account_email_change_sent_at:{user_id}"
 EMAIL_CHANGE_RATE_LIMIT_MAX_EMAILS = 3
 EMAIL_CHANGE_RATE_LIMIT_WINDOW_SECONDS = 3600
 EMAIL_CHANGE_COUNT_KEY = "account_email_change_count:{user_id}"
@@ -61,8 +57,8 @@ def _increment_signup_email_count(email:str) -> int:
 
 
 def _can_send_signup_email(email: str) -> bool:
-    normalized = normalize_email(email)
-    key = SIGNUP_COUNT_KEY.format(email=normalized)
+    # normalized = normalize_email(email)
+    key = SIGNUP_COUNT_KEY.format(email=email)
     return cache.get(key, 0) < SIGNUP_RATE_LIMIT_MAX_EMAILS
 
 
@@ -78,10 +74,10 @@ def send_account_verify_email(request, user: User) -> str:
     if not user.email:
         raise ValueError("User email is required for signup verification.")
 
-    if not _can_send_signup_email(user.email):
+    if not _can_send_signup_email(user.email or ""):
         raise RateLimitExceeded("Too many confirmation emails sent. Please check your inbox or try again.")
 
-    token = generate_account_signup_token(user_id=user.id, email=user.email)
+    token = generate_account_signup_token(user_id=user.id, email=user.email or "")
     confirm_url = request.build_absolute_uri(
         f"{reverse('hr_access:account_signup_confirm')}?u={user.id}&t={token}"
     )
@@ -91,7 +87,7 @@ def send_account_verify_email(request, user: User) -> str:
         "hr_access/registration/signup_confirmation_email.html",
         {
             "confirm_url": confirm_url,
-            "email": normalize_email(user.email),
+            "email": user.email or "",
             "year": timezone.now().year
         }
     )
@@ -105,7 +101,7 @@ def send_account_verify_email(request, user: User) -> str:
 
     try:
         send_app_email(
-            to_emails=[user.email],
+            to_emails=[user.email or ""],
             subject=subject,
             text_body=text_body,
             html_body=html_body,
@@ -121,9 +117,9 @@ def send_account_verify_email(request, user: User) -> str:
         )
         raise EmailSendError("Could not send confirmation email. Please try again.") from exc
 
-    _increment_signup_email_count(user.email)
+    _increment_signup_email_count(user.email or "")
     cache.set(
-        SIGNUP_SENT_AT_KEY.format(email=normalize_email(user.email)),
+        SIGNUP_SENT_AT_KEY.format(email=user.email or ""),
         timezone.now(),
         timeout=SIGNUP_RATE_LIMIT_WINDOW_SECONDS
     )
@@ -224,12 +220,17 @@ def account_signup(request):
     if request.method == "POST":
         form = AccountCreationForm(request.POST)
         if not form.is_valid():
+            log_event(logger, logging.INFO, 'access.account_signup.form_invalid', user_id=request.user.id or -1)
             return render(request, "hr_access/registration/_signup.html", {"form": form})
 
         user = form.create_user(role=User.Role.USER, is_active=False)
 
+        log_event(logger, logging.INFO, 'access.account_signup.user_created.inactive_until_verified', user_id=user.id)
+
         try:
+            log_event(logger, logging.INFO, 'access.account_signup.verify_email_send_attempt', user_id=user.id, email=user.email)
             send_account_verify_email(request, user)
+            log_event(logger, logging.INFO, 'access.account_signup.verify_email_sent', user_id=user.id)
             context = {
                 'email': user.email,
                 'sent_at': _get_last_signup_confirmation_sent_at(user.email),
@@ -238,6 +239,7 @@ def account_signup(request):
                 'message': "We've sent a confirmation link to your email. Please check your inbox."
             }
         except RateLimitExceeded:
+            log_event(logger, logging.WARNING, 'access.account_signup.rate_limit_exceeded', user_id=user.id, email=user.email, exc_info=True)
             context = {
                 'email':        user.email,
                 'sent_at':      _get_last_signup_confirmation_sent_at(user.email),
@@ -246,6 +248,7 @@ def account_signup(request):
                 'message':      "Too many confirmation emails sent. Please check your inbox or try again later.",
             }
         except EmailSendError:
+            log_event(logger, logging.WARNING, 'access.account_signup.email_send_error', user_id=user.id, email=user.email, exc_info=True)
             context = {
                 'email':        user.email,
                 'sent_at':      _get_last_signup_confirmation_sent_at(user.email),
@@ -268,29 +271,43 @@ def account_signup_confirm(request):
     token = (request.GET.get("t") or "").strip()
     user_id = request.GET.get("u") or ""
 
+    log_event(logger, logging.INFO, 'access.signup_confirmation.started', user_id=user_id)
+
     user = get_object_or_404(User, pk=user_id)
 
     data = verify_account_signup_token(token)
     if not data:
+        log_event(logger, logging.WARNING, 'access.signup_confirmation.invalid_token', user_id=user.id)
         return HttpResponse("Invalid or expired confirmation link.", status=400)
 
     # bind token to the intended user + email
     if int(data["user_id"]) != int(user.id):
+        log_event(logger, logging.WARNING, 'access.signup_confirmation.user_mismatch', user_id=user.id)
         return HttpResponse("Invalid confirmation link.", status=400)
 
     if normalize_email(data["email"]) != normalize_email(user.email):
+        log_event(logger, logging.WARNING, 'access.signup_confirmation.email_mismatch', user_id=user.id, token_email=data.get('email'), user_email=user.email)
         return HttpResponse("Invalid confirmation link.", status=400)
 
     if not user.is_active:
         user.is_active = True
         user.save(update_fields=["is_active", "updated_at"])
+        log_event(logger, logging.INFO, 'access.signup_confirmation.activated', user_id=user.id)
 
     login(request, user)
 
     try:
         attach_customer_to_user(user)
     except Exception:
-        pass
+        log_event(
+            logger,
+            logging.ERROR,
+            'access.signup_confirmation.attach_customer_failed',
+            user_id=user.id,
+            exc_info=True
+        )
+
+    log_event(logger, logging.INFO, 'access.signup_confirmation.confirmed', user_id=user.id)
 
     return HttpResponse(
         status=204,
@@ -318,7 +335,7 @@ def account_change_password(request):
             user = form.save()
             update_session_auth_hash(request, user)
 
-            email = normalize_email(get)
+            # email = normalize_email(request.user.email)
 
             return HttpResponse(
                 status=204,
@@ -343,7 +360,8 @@ def account_change_password(request):
 @login_required
 @require_GET
 def account_settings(request):
-    email = normalize_email(getattr(request.user, "email", "") or "")
+    # email = normalize_email(getattr(request.user, "email", "") or "")
+    email = request.user.email
     order_count = Order.objects.filter(user=request.user).count()
     unclaimed_count = (
         Order.objects.filter(user__isnull=True, email__iexact=email).count()

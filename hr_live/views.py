@@ -7,7 +7,7 @@ from django.shortcuts import render
 from django.utils import timezone
 
 from hr_core.utils.pagination import paginate
-from hr_live.logging import log_event
+from hr_live.unified_logging import log_event
 from hr_live.models import Show
 
 logger = logging.getLogger(__name__)
@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 # -------------------------------------------------------------------
 # Helpers
 # -------------------------------------------------------------------
+
 
 def _get_today():
     return timezone.localdate()
