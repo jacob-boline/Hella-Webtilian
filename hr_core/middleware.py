@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from django.http import HttpRequest, HttpResponse
+from structlog.contextvars import clear_contextvars
 
 from hr_core.utils.logging import (
     REQUEST_ID_HEADER,
@@ -22,6 +23,7 @@ class RequestIdMiddleware:
         try:
             response = self.get_response(request)
         finally:
+            clear_contextvars()
             reset_request_id(token)
         response[REQUEST_ID_HEADER] = request_id
         return response

@@ -3,7 +3,9 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from hr_core.utils.logging import get_request_id, redact_payload
+import structlog
+
+from hr_core.utils.logging import redact_payload
 
 
 def log_event(
@@ -14,13 +16,6 @@ def log_event(
     exc_info: bool = False,
     **data: Any,
 ) -> None:
-    request_id = get_request_id()
     payload = redact_payload(data)
-    logger.log(
-        level,
-        "event=%s request_id=%s data=%s",
-        event,
-        request_id,
-        payload,
-        exc_info=exc_info,
-    )
+    struct_logger = structlog.stdlib.wrap_logger(logger)
+    struct_logger.log(level, event, **payload, exc_info=exc_info)

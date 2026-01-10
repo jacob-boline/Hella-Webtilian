@@ -12,6 +12,11 @@ from pathlib import Path
 
 from django.core.management.utils import get_random_secret_key
 
+from hr_core.utils.structlog_config import (
+    get_structlog_processors,
+    get_structlog_renderer,
+)
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv(BASE_DIR / ".env")
@@ -70,7 +75,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 
     # Project apps
-    "hr_core",
+    "hr_core.apps.CoreConfig",
     "hr_about",
     "hr_access",
     "hr_bulletin",
@@ -226,40 +231,34 @@ LOG_DIR.mkdir(parents=True, exist_ok=True)
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "filters": {
-        "request_id": {
-            "()": "hr_core.utils.logging.RequestIdFilter",
-        },
-    },
     "formatters": {
-        "standard": {
-            "format": "%(asctime)s %(levelname)s %(name)s request_id=%(request_id)s %(message)s",
+        "structlog": {
+            "()": "structlog.stdlib.ProcessorFormatter",
+            "processor": get_structlog_renderer(),
+            "foreign_pre_chain": get_structlog_processors(),
         },
     },
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
-            "formatter": "standard",
-            "filters": ["request_id"],
+            "formatter": "structlog",
         },
         "file": {
             "class": "logging.handlers.TimedRotatingFileHandler",
-            "formatter": "standard",
+            "formatter": "structlog",
             "filename": str(LOG_DIR / "django.log"),
             "when": "midnight",
             "backupCount": 30,
             "encoding": "utf-8",
-            "filters": ["request_id"],
         },
         "error_file": {
             "class": "logging.handlers.TimedRotatingFileHandler",
-            "formatter": "standard",
+            "formatter": "structlog",
             "filename": str(LOG_DIR / "django-error.log"),
             "when": "midnight",
             "backupCount": 30,
             "encoding": "utf-8",
             "level": "ERROR",
-            "filters": ["request_id"],
         },
         # To add database logging later, define a custom handler class and add it here.
         # Example: "db": {"class": "hr_core.logging_handlers.DatabaseLogHandler", ...}
@@ -268,26 +267,26 @@ LOGGING = {
         "django": {
             "handlers": ["console", "file", "error_file"],
             "level": "INFO",
-            "propagate": True,
+            "propagate": False,
         },
         "django.request": {
             "handlers": ["console", "file", "error_file"],
             "level": "ERROR",
             "propagate": False,
         },
-        "hr_about": {"handlers": ["console", "file", "error_file"], "level": "INFO"},
-        "hr_access": {"handlers": ["console", "file", "error_file"], "level": "INFO"},
-        "hr_bulletin": {"handlers": ["console", "file", "error_file"], "level": "INFO"},
-        "hr_common": {"handlers": ["console", "file", "error_file"], "level": "INFO"},
-        "hr_config": {"handlers": ["console", "file", "error_file"], "level": "INFO"},
-        "hr_core": {"handlers": ["console", "file", "error_file"], "level": "INFO"},
-        "hr_django": {"handlers": ["console", "file", "error_file"], "level": "INFO"},
-        "hr_email": {"handlers": ["console", "file", "error_file"], "level": "INFO"},
-        "hr_live": {"handlers": ["console", "file", "error_file"], "level": "INFO"},
-        "hr_payment": {"handlers": ["console", "file", "error_file"], "level": "INFO"},
-        "hr_shop": {"handlers": ["console", "file", "error_file"], "level": "INFO"},
-        "hr_site": {"handlers": ["console", "file", "error_file"], "level": "INFO"},
-        "hr_storage": {"handlers": ["console", "file", "error_file"], "level": "INFO"},
+        "hr_about": {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
+        "hr_access": {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
+        "hr_bulletin": {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
+        "hr_common": {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
+        "hr_config": {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
+        "hr_core": {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
+        "hr_django": {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
+        "hr_email": {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
+        "hr_live": {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
+        "hr_payment": {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
+        "hr_shop": {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
+        "hr_site": {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
+        "hr_storage": {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
     },
     "root": {
         "handlers": ["console", "file", "error_file"],

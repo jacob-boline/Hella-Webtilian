@@ -1,3 +1,4 @@
+import ast
 import logging
 
 from django.test import SimpleTestCase
@@ -24,8 +25,12 @@ class LoggingTests(SimpleTestCase):
         reset_request_id(token)
 
         output = "\n".join(captured.output)
-        self.assertIn("event=bulletin.test_event", output)
-        self.assertIn("request_id=req-303", output)
-        self.assertIn("**redacted**", output)
+        payload = ast.literal_eval(output.split(":", 2)[-1])
+        self.assertEqual(payload["event"], "bulletin.test_event")
+        self.assertEqual(payload["request_id"], "req-303")
+        self.assertEqual(payload["email"], "**redacted**")
+        self.assertEqual(payload["token"], "**redacted**")
+        self.assertEqual(payload["meta"]["phone"], "**redacted**")
+        self.assertEqual(payload["meta"]["nickname"], "ok")
         self.assertNotIn("user@example.com", output)
         self.assertNotIn("secret-token", output)

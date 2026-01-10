@@ -5,6 +5,8 @@ import logging
 import uuid
 from typing import Any, Iterable
 
+from structlog.contextvars import bind_contextvars, unbind_contextvars
+
 
 REQUEST_ID_HEADER = "X-Request-ID"
 REQUEST_ID_META_KEY = "HTTP_X_REQUEST_ID"
@@ -40,11 +42,17 @@ def get_request_id() -> str | None:
 
 
 def set_request_id(request_id: str | None) -> contextvars.Token:
-    return _request_id_var.set(request_id)
+    token = _request_id_var.set(request_id)
+    if request_id is not None:
+        bind_contextvars(request_id=request_id)
+    else:
+        unbind_contextvars("request_id")
+    return token
 
 
 def reset_request_id(token: contextvars.Token) -> None:
     _request_id_var.reset(token)
+    unbind_contextvars("request_id")
 
 
 def generate_request_id() -> str:
