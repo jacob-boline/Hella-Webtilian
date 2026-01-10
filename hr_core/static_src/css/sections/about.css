@@ -41,7 +41,7 @@
 .about-card,
 .about-card p,
 .about-card .about-quote {
-    color:       #F5F5F5;
+    color: var(--text);
     text-align:  center;
     text-shadow: 0 2px 2px var(--black-alpha-45);
 }
@@ -227,7 +227,7 @@
     line-height:   0;
     color:         var(--text);
     background:    var(--black-alpha-45);
-    transition:    background 0.125s ease, transform 0.125s ease;
+    transition:    background .2s ease, transform .2s ease;
 }
 
 .about-gallery figure.about-stage button.about-nav:hover {
@@ -273,9 +273,9 @@
     height:        2rem;
     border:        1px solid var(--white-alpha-15);
     border-radius: 999px;
-    color:         #FFF;
+    color:         white;
     background:    var(--black-alpha-30);
-    transition:    background 0.125s ease, transform 0.125s ease;
+    transition:    background .2s ease, transform .2s ease;
 }
 
 .about-thumbs {
@@ -310,9 +310,9 @@
     border-radius:   0.75rem;
     background-size: cover;
     background:      #0B0B0B no-repeat center;
-    transition:      transform 0.125s ease,
-                     box-shadow 0.125s ease,
-                     border-color 0.125s ease;
+    transition:      transform .2s ease,
+                     box-shadow .2s ease,
+                     border-color .2s ease;
 }
 
 .about-thumbs button img {
@@ -441,10 +441,10 @@
     font-family:    "Syne Mono", monospace;
     font-size:      clamp(1.25rem, 1.5vmin, 1.5rem);
     line-height:    1.25;
-    color:          #E9E9E9;
+    color:          var(--text);
     letter-spacing: 0.01rem;
     opacity:        0.92;
-    transition:     opacity 0.2s ease;
+    transition:     opacity .2s ease;
 }
 
 /* quote + source share vertical lift + glow */
