@@ -1,13 +1,16 @@
 # hr_live/views.py
 
 from typing import Dict, Any
+import logging
 
 from django.shortcuts import render
 from django.utils import timezone
 
 from hr_core.utils.pagination import paginate
+from hr_live.logging import log_event
 from hr_live.models import Show
 
+logger = logging.getLogger(__name__)
 
 # -------------------------------------------------------------------
 # Helpers
@@ -46,6 +49,13 @@ def _serialize_show(show: Show) -> Dict[str, Any]:
 def live_upcoming_list(request):
     qs = Show.objects.upcoming()
     page_obj = paginate(request, qs, per_page=10)
+    log_event(
+        logger,
+        logging.INFO,
+        "live.upcoming_list.rendered",
+        page_number=page_obj.number,
+        total_count=page_obj.paginator.count,
+    )
 
     context = {
         'page_obj': page_obj,
@@ -62,6 +72,13 @@ def live_upcoming_list(request):
 def live_past_list(request):
     qs = Show.objects.past()
     page_obj = paginate(request, qs, per_page=10)
+    log_event(
+        logger,
+        logging.INFO,
+        "live.past_list.rendered",
+        page_number=page_obj.number,
+        total_count=page_obj.paginator.count,
+    )
 
     context = {
         'page_obj': page_obj,

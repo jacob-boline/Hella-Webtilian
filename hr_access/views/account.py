@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 from logging import getLogger
 
 from django.contrib.auth import login, logout, update_session_auth_hash
@@ -30,6 +31,7 @@ from hr_shop.exceptions import RateLimitExceeded, EmailSendError
 from hr_shop.models import Order
 from hr_shop.services.customers import attach_customer_to_user
 from hr_email.service import EmailProviderError, send_app_email
+from hr_access.logging import log_event
 from django.contrib.sessions.models import Session
 from django.utils.http import urlencode
 
@@ -110,7 +112,13 @@ def send_account_verify_email(request, user: User) -> str:
             custom_id=f"account_signup_confirm_{user.id}"
         )
     except EmailProviderError as exc:
-        logger.error('Failed to send signup confirmation to %s: %s', user.email, exc)
+        log_event(
+            logger,
+            logging.ERROR,
+            "access.signup_confirmation.send_failed",
+            email=user.email,
+            error=str(exc),
+        )
         raise EmailSendError("Could not send confirmation email. Please try again.") from exc
 
     _increment_signup_email_count(user.email)
@@ -119,7 +127,13 @@ def send_account_verify_email(request, user: User) -> str:
         timezone.now(),
         timeout=SIGNUP_RATE_LIMIT_WINDOW_SECONDS
     )
-    logger.info("Signup confirmation email sent to %s", user.email)
+    log_event(
+        logger,
+        logging.INFO,
+        "access.signup_confirmation.sent",
+        email=user.email,
+        user_id=user.id,
+    )
     return confirm_url
 
 
@@ -175,7 +189,14 @@ def send_email_change_verification(request, user: User, new_email: str) -> str:
             custom_id=f"account_email_change_{user.id}",
         )
     except EmailProviderError as exc:
-        logger.error('Failed to send email change confirmation to %s: %s', new_email, exc)
+        log_event(
+            logger,
+            logging.ERROR,
+            "access.email_change_confirmation.send_failed",
+            email=new_email,
+            user_id=user.id,
+            error=str(exc),
+        )
         raise EmailSendError("Could not send confirmation email. Please try again.") from exc
 
     _increment_email_change_email_count(user.id)
@@ -184,7 +205,13 @@ def send_email_change_verification(request, user: User, new_email: str) -> str:
         timezone.now(),
         timeout=EMAIL_CHANGE_RATE_LIMIT_WINDOW_SECONDS,
     )
-    logger.info("Email change confirmation sent to %s for user %s", new_email, user.id)
+    log_event(
+        logger,
+        logging.INFO,
+        "access.email_change_confirmation.sent",
+        email=new_email,
+        user_id=user.id,
+    )
     return confirm_url
 
 

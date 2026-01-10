@@ -7,6 +7,7 @@ from django.conf import settings
 from django.core.mail import EmailMultiAlternatives, get_connection
 from django.utils.html import strip_tags
 
+from hr_email.logging import log_event
 from hr_email.mailjet import MailjetSendError, send_mailjet_email
 from hr_email.provider_settings import (
     get_provider,
@@ -77,7 +78,13 @@ def send_app_email(
             )
             return {"provider": provider, "mode": mode, "result": result}
         except MailjetSendError as exc:
-            logger.exception("Mailjet REST send failed.")
+            log_event(
+                logger,
+                logging.ERROR,
+                "email.mailjet.send_failed",
+                error=str(exc),
+                exc_info=True,
+            )
             raise EmailProviderError(str(exc)) from exc
 
     # SMTP path (default for non-mailjet providers, and optional for mailjet if forced)

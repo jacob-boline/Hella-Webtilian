@@ -1,10 +1,15 @@
 # hr_common/templatetags/form_fields.py
 
 
+import logging
+
 from django import template
 from django.forms import BoundField
 
+from hr_common.logging import log_event
+
 register = template.Library()
+logger = logging.getLogger(__name__)
 
 
 def _field_state(bound_field: BoundField) -> str:
@@ -40,6 +45,12 @@ def form_field(
     """
 
     if not isinstance(field, BoundField):
+        log_event(
+            logger,
+            logging.WARNING,
+            "common.form_field.invalid_field",
+            field_type=type(field).__name__,
+        )
         return {
             'field': None,
             'rendered_field': '',

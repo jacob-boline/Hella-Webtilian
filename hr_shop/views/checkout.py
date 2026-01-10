@@ -43,6 +43,7 @@ from hr_shop.services.email_confirmation import (
 )
 from hr_shop.views.cart import view_cart
 from hr_email.service import EmailProviderError, send_app_email
+from hr_shop.logging import log_event
 
 logger = logging.getLogger(__name__)
 
@@ -390,22 +391,50 @@ def _stripe_session_result(session_id: str | None) -> Tuple[str, Optional[str], 
     StripeError = stripe.error.StripeError
 
     def _temporary(where: str, err: Exception) -> StripePaymentOutcome:
-        logger.info("Stripe temporary issue (%s) session=%s: %s", where, session_id, err)
+        log_event(
+            logger,
+            logging.INFO,
+            "stripe.session.temporary_issue",
+            where=where,
+            session_id=session_id,
+            error=str(err),
+        )
         return StripePaymentOutcome(StripePaymentResult.PENDING)
 
     def _hard_auth(where: str, err: Exception) -> StripePaymentOutcome:
-        logger.critical("Stripe auth/permission issue (%s) session=%s: %s", where, session_id, err)
+        log_event(
+            logger,
+            logging.CRITICAL,
+            "stripe.session.auth_error",
+            where=where,
+            session_id=session_id,
+            error=str(err),
+        )
         return StripePaymentOutcome(StripePaymentResult.UNKNOWN, "Payment configuration error.", "stripe_auth_error")
 
     def _generic(where: str, err: Exception) -> StripePaymentOutcome:
-        logger.exception("Stripe error (%s) session=%s: %s", where, session_id, err)
+        log_event(
+            logger,
+            logging.ERROR,
+            "stripe.session.error",
+            where=where,
+            session_id=session_id,
+            error=str(err),
+            exc_info=True,
+        )
         return StripePaymentOutcome(StripePaymentResult.UNKNOWN, "Payment processor error.", "stripe_error")
 
     # ---- retrieve session
     try:
         sess = stripe.checkout.Session.retrieve(session_id)
     except InvalidRequestError as e:
-        logger.warning("Invalid checkout session %s: %s", session_id, e)
+        log_event(
+            logger,
+            logging.WARNING,
+            "stripe.session.invalid",
+            session_id=session_id,
+            error=str(e),
+        )
         return StripePaymentOutcome(StripePaymentResult.UNKNOWN, "Invalid checkout session.", "invalid_session").as_tuple()
     except (APIConnectionError, RateLimitError) as e:
         return _temporary("retrieve_session", e).as_tuple()
@@ -459,7 +488,14 @@ def _stripe_session_result(session_id: str | None) -> Tuple[str, Optional[str], 
     try:
         pi = stripe.PaymentIntent.retrieve(pi_id)
     except InvalidRequestError as e:
-        logger.warning("Invalid PaymentIntent %s for session=%s: %s", pi_id, session_id, e)
+        log_event(
+            logger,
+            logging.WARNING,
+            "stripe.payment_intent.invalid",
+            payment_intent_id=pi_id,
+            session_id=session_id,
+            error=str(e),
+        )
         return StripePaymentOutcome(StripePaymentResult.UNKNOWN, "Invalid payment intent.", "invalid_payment_intent").as_tuple()
     except (APIConnectionError, RateLimitError) as e:
         return _temporary("retrieve_payment_intent", e).as_tuple()
@@ -803,20 +839,42 @@ def order_send_receipt_email(request, order_id: int):
             html_body=html_body,
             custom_id=f"order_receipt_{order.id}",
         )
-        logger.info("Receipt email sent for order %s to %s", order_id, order.email)
+        log_event(
+            logger,
+            logging.INFO,
+            "checkout.receipt.sent",
+            order_id=order_id,
+            email=order.email,
+        )
 
         return HttpResponse(status=204, headers={
             'HX-Trigger': json.dumps({'showMessage': 'Receipt email sent.'})
         })
 
     except EmailProviderError as exc:
-        logger.exception("Failed sending receipt for order %s: %s", order.id, exc)
+        log_event(
+            logger,
+            logging.ERROR,
+            "checkout.receipt.send_failed",
+            order_id=order.id,
+            email=order.email,
+            error=str(exc),
+            exc_info=True,
+        )
         return HttpResponse(status=500, headers={
             'HX-Trigger': json.dumps({'showMessage': 'Receipt email failed to send. Try again shortly.'})
         })
 
     except Exception as e:
-        logger.exception("Failed sending receipt for order %s: %s", order.id, e)
+        log_event(
+            logger,
+            logging.ERROR,
+            "checkout.receipt.send_failed",
+            order_id=order.id,
+            email=order.email,
+            error=str(e),
+            exc_info=True,
+        )
         return HttpResponse(status=500, headers={
             'HX-Trigger': json.dumps({'showMessage': 'Receipt email failed to send. Try again shortly.'})
         })
