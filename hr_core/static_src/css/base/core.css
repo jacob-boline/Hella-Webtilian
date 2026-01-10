@@ -430,6 +430,11 @@ nav.navbar {
     color: var(--text);
     border: none;
     cursor: pointer;
+    transition: color .2s ease-in-out;
+}
+
+.modal-close-btn:hover {
+    color: var(--neon-red);
 }
 
 /* ===========================

@@ -715,3 +715,115 @@
 #password-change-form .field-row:first-of-type {
     margin-bottom: 36px;
 }
+
+/* Allow inline layout when activated */
+.account-status-card.is-inline {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+@container modal (max-width: 1200px) {
+    .account-status-card {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .account-status-card > :not(.account-status-actions) {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .account-status-card .account-status-actions {
+        margin-top: 0;
+        margin-left: auto;
+        justify-content: flex-end;
+        white-space: nowrap;
+    }
+}
+
+@container modal (max-width: 420px) {
+    .account-status-card {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .account-status-card .account-status-actions {
+        justify-content: flex-start;
+        margin-left: 0;
+        margin-top: 0.5rem;
+    }
+}
+
+
+/* =========================================================
+   Account status cards: responsive "inline actions" behavior
+   - <768px: stack card contents (default column)
+   - 768px–1199.98px: inline layout, actions right
+   - >=1200px: keep existing desktop behavior
+   ========================================================= */
+
+/* <768px: explicit stack (this matches your default, but makes intent clear) */
+@media (max-width: 767.98px) {
+    .account-status-grid.uniform.inline > .account-status-card {
+        display:        flex;
+        flex-direction: column;
+        align-items:    stretch;
+    }
+
+    .account-status-grid.uniform.inline > .account-status-card .account-status-actions {
+        margin-top: 0.75rem;
+        justify-content: flex-start; /* or center if you prefer */
+        width: 100%;
+    }
+}
+
+/* 768px–1199.98px: inline text left, actions right */
+@media (min-width: 768px) and (max-width: 1199.98px) {
+    .account-status-grid.uniform.inline > .account-status-card {
+        display:        flex;
+        flex-direction: row;
+        align-items:    center;
+        gap:            1rem;
+    }
+
+    /* Treat everything except actions as the "text block" */
+    .account-status-grid.uniform.inline > .account-status-card > :not(.account-status-actions) {
+        flex:      1 1 auto;
+        min-width: 0;
+    }
+
+    .account-status-grid.uniform.inline > .account-status-card .account-status-actions {
+        margin-top: 0;
+        margin-left: auto;
+        justify-content: flex-end;
+        flex: 0 0 auto;
+        white-space: nowrap;
+    }
+}
+
+
+/* >=1200px: restore original card layout (stacked content, actions at bottom) */
+@media (min-width: 1200px) {
+  .account-status-grid.uniform.inline > .account-status-card {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.4rem; /* match your base card gap */
+  }
+
+  /* Undo the "text block" flex behavior */
+  .account-status-grid.uniform.inline > .account-status-card > :not(.account-status-actions) {
+    flex: initial;
+    min-width: 0;
+  }
+
+  /* Put actions back at the bottom like before */
+  .account-status-grid.uniform.inline > .account-status-card .account-status-actions {
+    margin-top: auto;     /* key: pushes to bottom */
+    margin-left: 0;       /* undo inline push-right */
+    justify-content: flex-end;
+    width: auto;
+    white-space: normal;  /* undo nowrap if you set it */
+  }
+}
