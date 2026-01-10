@@ -19,8 +19,8 @@
 /* Glassy “card” for intro + carousel */
 .about-card {
     --card-bg:           rgba(8, 8, 8, 0.55);
-    --card-border:       rgba(255, 255, 255, 0.12);
-    --card-shadow:       0 16px 32px rgba(0, 0, 0, 0.45);
+    --card-border:       var(--white-alpha-15);
+    --card-shadow:       0 16px 32px var(--black-alpha-45);
 
     display:             flex;
     flex-direction:      column;
@@ -43,7 +43,7 @@
 .about-card .about-quote {
     color:       #F5F5F5;
     text-align:  center;
-    text-shadow: 0 2px 2px rgba(0, 0, 0, 0.45);
+    text-shadow: 0 2px 2px var(--black-alpha-45);
 }
 
 /* Intro text above carousel */
@@ -80,12 +80,12 @@
     background: linear-gradient(
                         90deg,
                         transparent,
-                        rgba(255, 255, 255, 0.22),
-                        rgba(255, 255, 255, 0.32),
-                        rgba(255, 255, 255, 0.22),
+                        var(--white-alpha-15),
+                        var(--white-alpha-30),
+                        var(--white-alpha-15),
                         transparent
                 );
-    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.45);
+    box-shadow: 0 2px 0 var(--black-alpha-45);
 }
 
 
@@ -118,7 +118,7 @@
     max-width:           100%;
     height:              auto;
     background:          #0B0B0B;
-    box-shadow:          8px 8px 24px rgba(0, 0, 0, 0.35);
+    box-shadow:          8px 8px 24px var(--black-alpha-30);
     border-radius:       1rem;
     justify-self:        center;
 }
@@ -131,7 +131,7 @@
     background:     radial-gradient(
                             ellipse at 50% 100%,
                             var(--stage-glow-strong),
-                            rgba(0, 0, 0, 0) 62%
+                            var(--black-alpha-0) 62%
                     );
     filter:         blur(29px);
     opacity:        0.85;
@@ -146,8 +146,8 @@
     border-radius:  inherit;
     background:     radial-gradient(
                             ellipse at center,
-                            rgba(0, 0, 0, 0) 56%,
-                            rgba(0, 0, 0, 0.42) 100%
+                            var(--black-alpha-0) 56%,
+                            var(--black-alpha-45) 100%
                     );
     pointer-events: none;
 }
@@ -202,12 +202,12 @@
     text-align:    left;
     background:    linear-gradient(
                            180deg,
-                           rgba(0, 0, 0, 0.05),
-                           rgba(0, 0, 0, 0.55) 48%,
-                           rgba(0, 0, 0, 0.8)
+                           var(--black-alpha-15),
+                           var(--black-alpha-60) 48%,
+                           var(--black-alpha-75)
                    );
-    outline:       1px solid rgba(255, 255, 255, 0.18);
-    box-shadow:    0 16px 32px rgba(0, 0, 0, 0.45);
+    outline:       1px solid var(--white-alpha-15);
+    box-shadow:    0 16px 32px var(--black-alpha-45);
 }
 
 /* arrows on stage */
@@ -221,18 +221,18 @@
     place-items:   center;
     width:         3rem;
     height:        3rem;
-    border:        1px solid rgba(255, 255, 255, 0.25);
+    border:        1px solid var(--white-alpha-30);
     border-radius: 999px;
     font-size:     1.5rem;
     line-height:   0;
     color:         var(--text);
-    background:    rgba(0, 0, 0, 0.45);
+    background:    var(--black-alpha-45);
     transition:    background 0.125s ease, transform 0.125s ease;
 }
 
 .about-gallery figure.about-stage button.about-nav:hover {
     transform:  translateY(-50%) scale(1.0625);
-    background: rgba(255, 255, 255, 0.25);
+    background: var(--white-alpha-30);
 }
 
 .about-gallery .about-nav.prev {
@@ -262,7 +262,7 @@
 .about-thumbs-wrap button.thumbs-prev:hover,
 .about-thumbs-wrap button.thumbs-next:hover {
     transform:  scale(1.0625);
-    background: rgba(255, 255, 255, 0.25);
+    background: var(--white-alpha-30);
 }
 
 .about-thumbs-wrap > button {
@@ -271,10 +271,10 @@
     place-items:   center;
     width:         2rem;
     height:        2rem;
-    border:        1px solid rgba(255, 255, 255, 0.2);
+    border:        1px solid var(--white-alpha-15);
     border-radius: 999px;
     color:         #FFF;
-    background:    rgba(0, 0, 0, 0.35);
+    background:    var(--black-alpha-30);
     transition:    background 0.125s ease, transform 0.125s ease;
 }
 
@@ -306,7 +306,7 @@
     height:          80px;
     width:           100%;
     padding:         0;
-    border:          1px solid rgba(255, 255, 255, 0.12);
+    border:          1px solid var(--white-alpha-15);
     border-radius:   0.75rem;
     background-size: cover;
     background:      #0B0B0B no-repeat center;
@@ -349,11 +349,11 @@
     max-width:       100%;
     margin-bottom:   calc(var(--vh) * 18);
     margin-inline:   auto;
-    border:          1px solid var(--card-border, rgba(255, 255, 255, 0.12));
+    border:          1px solid var(--card-border, var(--white-alpha-15));
     border-top:      0;
     border-radius:   0 0 1rem 1rem;
     backdrop-filter: saturate(1.125) blur(8px);
-    box-shadow:      var(--card-shadow, 0 1rem 2rem rgba(0, 0, 0, 0.48));
+    box-shadow:      var(--card-shadow, 0 1rem 2rem var(--black-alpha-45));
 }
 
 /* vertical edge accents */
@@ -368,7 +368,7 @@
     background:     linear-gradient(
                             180deg,
                             transparent 0%,
-                            var(--card-border, rgba(255, 255, 255, 0.12)) 100%
+                            var(--card-border, var(--white-alpha-15)) 100%
                     );
 }
 

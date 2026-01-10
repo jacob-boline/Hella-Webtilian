@@ -86,12 +86,12 @@
 
 @keyframes letter-glow {
   0% {
-    text-shadow: 0 0 1px rgba(255, 255, 255, 0.1);
+    text-shadow: 0 0 1px var(--white-alpha-15);
     opacity: 0;
   }
 
   66% {
-    text-shadow: 0 0 0.75rem rgba(255, 255, 255, 0.9);
+    text-shadow: 0 0 0.75rem var(--white-alpha-90);
     opacity: 1;
   }
 

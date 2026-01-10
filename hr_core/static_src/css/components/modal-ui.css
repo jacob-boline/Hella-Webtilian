@@ -173,8 +173,8 @@
 
 .modal-title:hover {
     color:       #FFF;
-    text-shadow: 0 0 0.45rem rgba(255, 255, 255, 0.9),
-                 0 0 0.9rem rgba(255, 255, 255, 0.6),
+    text-shadow: 0 0 0.45rem var(--white-alpha-90),
+                 0 0 0.9rem var(--white-alpha-60),
                  0 0 1.8rem rgba(255, 220, 140, 0.35);
 }
 
@@ -269,7 +269,7 @@
     padding:          0.25rem;
     border-radius:    8px;
     border:           1px solid rgba(255, 255, 255, 0.45);
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: var(--black-alpha-60);
     color:            var(--text);
     font-family:      inherit;
     font-size:        0.75rem;
@@ -282,7 +282,7 @@
 .modal textarea:focus {
     border-color:     var(--neon-blue);
     box-shadow:       0 0 0 1px rgba(0, 234, 255, 0.5);
-    background-color: rgba(0, 0, 0, 0.9);
+    background-color: var(--black-alpha-90);
 }
 
 .modal input.control-compact,
@@ -325,7 +325,7 @@
     margin:        0 0 1.25rem;
     padding:       1.5rem;
     border-radius: 8px;
-    background:    rgba(0, 0, 0, 0.3);
+    background:    var(--black-alpha-30);
     text-align:    left;
     max-width:     320px;
 }
@@ -415,5 +415,5 @@
 
 /* Generic row divider style (cart lines, review items, etc.) */
 .modal-row-divider {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 1px solid var(--white-alpha-15);
 }

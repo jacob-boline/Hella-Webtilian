@@ -72,7 +72,7 @@
     height:           calc(var(--vh) * 100);
     min-height:       0;
     padding:          1.5rem;
-    border-right:     1pt solid rgba(255, 255, 255, 0.7);
+    border-right:     1pt solid var(--white-alpha-75);
     color:            var(--text);
     background-color: rgba(7, 21, 29, 0.9);
     /* Drawer is the scroll container */
@@ -80,7 +80,7 @@
     overflow-x:       hidden;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
-    transition:       transform 0.25s ease-in-out;
+    transition:       transform 0.2s ease-in-out;
 }
 
 @media (max-width: 991.98px) {
@@ -145,7 +145,7 @@
     background: transparent;
     color:      var(--text);
     margin:     0.5rem auto;
-    transition: color 0.125s ease-in-out;
+    transition: color 0.2s ease-in-out;
     width:      100%;
     max-width: 24rem;
     display:    flex;
@@ -203,8 +203,8 @@
 .sidebar-menu-item:hover {
     color: var(--text);
     text-shadow:
-        0 0 0.35rem rgba(255, 255, 255, 0.9),
-        0 0 0.75rem rgba(255, 255, 255, 0.6),
+        0 0 0.35rem var(--white-alpha-90),
+        0 0 0.75rem var(--white-alpha-60),
         0 0 1.25rem rgba(255, 165, 0, 0.6);
 }
 
@@ -217,8 +217,8 @@
 .sidebar-menu-item:focus-visible {
     color: var(--text);
     text-shadow:
-        0 0 0.35rem rgba(255, 255, 255, 0.95),
-        0 0 0.85rem rgba(255, 255, 255, 0.65),
+        0 0 0.35rem rgba( 0.95),
+        0 0 0.85rem var(--white-alpha-60),
         0 0 1.35rem rgba(255, 165, 0, 0.65);
     transform: scale(1.03);
 }
@@ -271,8 +271,8 @@
     opacity:     0;
     top: calc((var(--vh) * 7) - 2px);
     margin-left: 24px;
-    background: rgba(0, 0, 0, 0.25);
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: var(--black-alpha-30);
+    border: 1px solid var(--white-alpha-15);
     box-shadow: 0 0 18px rgba(0, 234, 255, 0.15);
     backdrop-filter: blur(10px);
     border-radius: 999px;
@@ -323,8 +323,8 @@
     margin-bottom: 2rem;
     padding: 0.35rem 0.9rem;
     border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.7);
-    background-color: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--white-alpha-75);
+    background-color: var(--black-alpha-45);
     backdrop-filter: blur(6px);
     font-size: 0.9rem;
     text-transform: uppercase;
@@ -349,7 +349,7 @@
     color: aquamarine;
     border-color: aquamarine;
     box-shadow: 0 0 14px rgba(0, 234, 255, 0.9);
-    background-color: rgba(0, 0, 0, 0.75);
+    background-color: var(--black-alpha-75);
 }
 
 /* neon count badge */
@@ -452,7 +452,7 @@ form.login-form div.form-control {
     text-transform: uppercase;
     color: var(--text);
     text-shadow:
-        0 0 0.35rem rgba(255, 255, 255, 0.6),
+        0 0 0.35rem var(--white-alpha-60),
         0 0 0.75rem rgba(255, 255, 255, 0.45),
         0 0 1.5rem rgba(200, 200, 255, 0.35);
     line-height: 1.1;
@@ -465,7 +465,7 @@ form.login-form div.form-control {
     font-weight: 500;
     letter-spacing: 0.1em;
     color: var(--text);
-    text-shadow: 0 0 0.4rem rgba(255, 255, 255, 0.25);
+    text-shadow: 0 0 0.4rem var(--white-alpha-30);
     line-height: 1.2;
     transition: color .2s ease, text-shadow .2s ease, transform .2s ease;
 }
@@ -477,8 +477,8 @@ form.login-form div.form-control {
 .user-identity:hover .user-email {
     color: var(--text);
     text-shadow:
-        0 0 0.35rem rgba(255, 255, 255, 0.95),
-        0 0 0.85rem rgba(255, 255, 255, 0.6),
+        0 0 0.35rem var(--white-alpha-90),
+        0 0 0.85rem var(--white-alpha-60),
         0 0 1.35rem rgba(200, 200, 255, 0.45);
 }
 
@@ -487,8 +487,8 @@ form.login-form div.form-control {
 .user-profile-btn:focus-visible .user-email {
     color: var(--text);
     text-shadow:
-        0 0 0.4rem rgba(255, 255, 255, 0.98),
-        0 0 1rem rgba(255, 255, 255, 0.7),
+        0 0 0.4rem var(--white-alpha-90),
+        0 0 1rem var(--white-alpha-75),
         0 0 1.6rem rgba(200, 200, 255, 0.55);
     transform: scale(1.015);
 }

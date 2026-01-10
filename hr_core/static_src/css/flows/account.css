@@ -39,8 +39,8 @@
 .account-orders-modal .orders-list {
     padding:       0.75rem;
     border-radius: 12px;
-    background:    rgba(0, 0, 0, 0.35);
-    border:        1px solid rgba(255, 255, 255, 0.12);
+    background:    var(--black-alpha-30);
+    border:        1px solid var(--white-alpha-15);
 }
 
 /* row card */
@@ -50,7 +50,7 @@
     align-items:           center;
     gap:                   1rem;
     padding:               1rem 0;
-    border-bottom:         1px solid rgba(255, 255, 255, 0.2);
+    border-bottom:         1px solid var(--white-alpha-15);
 }
 
 .orders-summary-card:last-of-type {
@@ -233,8 +233,8 @@
 .account-status-card {
     padding:         1rem;
     border-radius:   12px;
-    background:      rgba(0, 0, 0, 0.35);
-    border:          1px solid rgba(255, 255, 255, 0.12);
+    background:      var(--black-alpha-30);
+    border:          1px solid var(--white-alpha-15);
     backdrop-filter: blur(6px);
     display:         flex;
     flex-direction:  column;
@@ -293,8 +293,8 @@
     margin-top:      1rem;
     padding:         1rem;
     border-radius:   12px;
-    background:      rgba(0, 0, 0, 0.35);
-    border:          1px solid rgba(255, 255, 255, 0.12);
+    background:      var(--black-alpha-30);
+    border:          1px solid var(--white-alpha-15);
     backdrop-filter: blur(6px);
     display:         flex;
     align-items:     flex-start;
@@ -401,8 +401,8 @@
     margin:              0.75rem 0 1rem;
     padding:             0 0.75rem 0.75rem;
     border-radius:       12px;
-    background:          rgba(0, 0, 0, 0.35);
-    border:              1px solid rgba(255, 255, 255, 0.12);
+    background:          var(--black-alpha-30);
+    border:              1px solid var(--white-alpha-15);
     overflow-y:          auto;
     overflow-x:          hidden; /* default; modal overrides may enable x */
     overscroll-behavior: contain;
@@ -420,9 +420,9 @@
     letter-spacing:  0.08em;
     text-transform:  uppercase;
     color:           var(--muted-text);
-    background:      rgba(0, 0, 0, 0.85);
+    background:      var(--black-alpha-90);
     backdrop-filter: blur(6px);
-    border-bottom:   1px solid rgba(255, 255, 255, 0.18);
+    border-bottom:   1px solid var(--white-alpha-15);
     pointer-events:  auto;
 }
 
@@ -452,7 +452,7 @@
     gap:           0.75rem;
     align-items:   center;
     padding:       0.5rem 1.25rem 0.5rem 0.75rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid var(--white-alpha-15);
     cursor:        pointer;
     /* IMPORTANT: don't force 720px always; allow shrink by default */
     min-width:     0;
@@ -591,7 +591,7 @@
 .unclaimed-orders-modal .modal-actions.stack.uniform {
     flex:            0 0 auto;
     margin-top:      auto;
-    background:      rgba(0, 0, 0, 0.75);
+    background:      var(--black-alpha-75);
     backdrop-filter: blur(6px);
     padding-top:     0.75rem;
     padding-bottom:  0.75rem;
@@ -687,7 +687,7 @@
     position:        sticky;
     bottom:          0;
     flex:            0 0 auto;
-    background:      rgba(0, 0, 0, 0.75);
+    background:      var(--black-alpha-75);
     backdrop-filter: blur(6px);
     padding-top:     0.75rem;
     padding-bottom:  0.75rem;

@@ -5,9 +5,11 @@ from typing import Any
 
 from hr_core.utils.logging import get_request_id, redact_payload
 
+hr_common_logger = logging.getLogger(__name__)
+
 
 def log_event(
-    logger: logging.Logger,
+    logger: hr_common_logger,
     level: int,
     event: str,
     *,

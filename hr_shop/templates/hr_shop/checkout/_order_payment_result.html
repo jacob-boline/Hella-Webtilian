@@ -11,13 +11,13 @@
     {#  Title (varies by result) #}
     {# ========================= #}
     {% if payment_result == "paid" %}
-        <h2 class="review-title">Payment Successful</h2>
+        <h2 class="sub-header modal-title">Payment Successful</h2>
     {% elif payment_result == "pending" %}
-        <h2 class="review-title">Payment Processing</h2>
+        <h2 class="sub-header modal-title">Payment Processing</h2>
     {% elif payment_result == "failed" or payment_result == "canceled" or payment_result == "expired" %}
-        <h2 class="review-title">Payment Not Completed</h2>
+        <h2 class="sub-header modal-title">Payment Not Completed</h2>
     {% else %}
-        <h2 class="review-title">Payment Status Unknown</h2>
+        <h2 class="sub-header modal-title">Payment Status Unknown</h2>
     {% endif %}
 
     {# ========================= #}

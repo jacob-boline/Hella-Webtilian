@@ -25,14 +25,14 @@
     padding:        1.5rem;
     border-radius:  0.75rem;
 
-    color:          #F0F0F0;
+    color:          var(--text);
 
     background:     linear-gradient(
                             145deg,
                             rgba(14, 22, 16, 0.75),
                             rgba(4, 6, 8, 0.92)
                     );
-    box-shadow:     0 0 2rem rgba(0, 0, 0, 0.75),
+    box-shadow:     0 0 2rem var(--black-alpha-75),
                     0 0 1.5rem rgba(0, 255, 180, 0.08),
                     inset 0 0 0.75rem rgba(0, 255, 120, 0.04);
 
@@ -50,7 +50,7 @@
 
     aspect-ratio:  1 / 1;
     width:         100%;
-    border:        1px solid rgba(255, 255, 255, 0.08);
+    border:        1px solid var(--white-alpha-15);
     border-radius: 0.75rem;
 
     background:    #111;
@@ -173,7 +173,7 @@
     grid-template-columns: minmax(0, 1.25fr) minmax(0, 1.75fr);
     gap:                   1.5rem;
     align-items:           flex-start;
-    color:                 #F0F0F0;
+    color:                 var(--text);
 }
 
 .merch-modal-media {
@@ -188,10 +188,10 @@
     width:         100%;
     max-width:     20rem;
     border-radius: 0.75rem;
-    border:        1px solid rgba(255, 255, 255, 0.12);
+    border:        1px solid var(--white-alpha-15);
 
     background:    #111;
-    box-shadow:    0 0 2rem rgba(0, 0, 0, 0.75),
+    box-shadow:    0 0 2rem var(--black-alpha-75),
                    0 0 1.5rem rgba(0, 255, 180, 0.12),
                    inset 0 0 0.75rem rgba(0, 255, 120, 0.06);
 }
@@ -208,7 +208,7 @@
     font-family: "Exo 2", sans-serif;
     font-size:   0.98rem;
     line-height: 1.6;
-    color:       #E5E7EB;
+    color: var(--text);
 }
 
 /* options (generic) */
@@ -237,7 +237,7 @@
     border-radius: 0.4rem;
     border:        1px solid rgba(148, 163, 184, 0.8);
     background:    rgba(15, 23, 42, 0.95);
-    color:         #E5E7EB;
+    color: var(--muted-text);
     font-family:   "Space Grotesk", sans-serif;
     font-size:     0.95rem;
 }
@@ -256,8 +256,7 @@
     display:        flex;
     flex-direction: column;
     gap:            1.5rem;
-
-    color:          #F0F0F0;
+    color: var(--text);
     background-color: transparent;
     border-radius:  0.75rem;
     padding:        1.5rem;
@@ -274,10 +273,10 @@
     width:         100%;
     aspect-ratio:  1 / 1;
     border-radius: 0.75rem;
-    border:        1px solid rgba(255, 255, 255, 0.12);
+    border:        1px solid var(--white-alpha-15);
     object-fit:    cover;
-    background:    #000;
-    box-shadow:    0 0 1.5rem rgba(0, 0, 0, 0.75);
+    background:    black;
+    box-shadow:    0 0 1.5rem var(--black-alpha-75);
 }
 
 .modal-product-body {
@@ -301,11 +300,11 @@
     display: inline-block;
     padding: 0.4rem 1rem;
     border-radius: 14px;
-    background: rgba(0, 0, 0, 0.75);
+    background: var(--black-alpha-75);
     backdrop-filter: blur(10px);
     box-shadow:
-        0 0 12px rgba(255, 225, 100, 0.3),
-        inset 0 0 8px rgba(0, 0, 0, 0.65);
+              0 0 12px rgb(var(--green) / 0.30),
+        inset 0 0  8px rgb(var(--black) / 0.65);
     font-weight: 700;
     text-align: center;
 }
@@ -315,7 +314,7 @@
     font-family: "Exo 2", sans-serif;
     font-size:   0.95rem;
     line-height: 1.5;
-    color:       #E5E7EB;
+    color: var(--muted-text);
 }
 
 .modal-variant-group {
@@ -336,9 +335,9 @@
 .modal-select {
     padding:       0.35rem 0.5rem;
     border-radius: 0.4rem;
-    border:        1px solid rgba(148, 163, 184, 0.7);
-    background:    rgba(15, 23, 42, 0.9);
-    color:         #E5E7EB;
+    border:        1px solid rgb(var(--gray1) / 0.7);
+    background:    rgba(var(--dark1) / 0.9);
+    color: var(--muted-text);
     font-size:     0.9rem;
 }
 
@@ -642,7 +641,7 @@
 }
 
 #modal:not(.hidden) .modal-panel {
-    animation: modal-panel-in 220ms ease-out;
+    animation: modal-panel-in 0.2s ease-out;
 }
 
 @keyframes modal-panel-in {
