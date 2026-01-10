@@ -15,6 +15,7 @@ from django.utils import timezone
 from hr_core.utils.email import normalize_email
 from hr_core.utils.tokens import generate_checkout_email_token
 from hr_email.service import EmailProviderError, send_app_email
+from hr_shop.logging import log_event
 from hr_shop.exceptions import RateLimitExceeded, EmailSendError
 from hr_shop.models import ConfirmedEmail
 
@@ -56,7 +57,12 @@ def send_checkout_confirmation_email(request, email: str, draft_id: int) -> str:
     normalized_email = normalize_email(email)
 
     if not can_send_confirmation_email(normalized_email):
-        logger.warning("Rate limit exceeded for email: %s", normalized_email)
+        log_event(
+            logger,
+            logging.WARNING,
+            "checkout_email.rate_limit_exceeded",
+            email=normalized_email,
+        )
         raise RateLimitExceeded("Too many confirmation emails sent. Please check your inbox or try again later.")
 
     token = generate_checkout_email_token(email=normalized_email, draft_id=draft_id)
@@ -96,15 +102,33 @@ Hella Reptilian
             html_body=html_message,
             custom_id=f"checkout_confirm_{draft_id}"
         )
-        logger.info("Checkout confirm send result: %r", result)
+        log_event(
+            logger,
+            logging.INFO,
+            "checkout_email.send_result",
+            email=normalized_email,
+            result=result,
+        )
 
     except EmailProviderError as exc:
-        logger.error("Failed to send confirmation email to %s: %s", normalized_email, exc)
+        log_event(
+            logger,
+            logging.ERROR,
+            "checkout_email.send_failed",
+            email=normalized_email,
+            error=str(exc),
+        )
         raise EmailSendError("Could not send confirmation email. Please try again.") from exc
 
     increment_email_send_count(normalized_email)
     cache.set(SENT_AT_KEY.format(email=normalized_email), timezone.now(), timeout=SENT_AT_TTL)
-    logger.info("Confirmation email sent to %s", normalized_email)
+    log_event(
+        logger,
+        logging.INFO,
+        "checkout_email.sent",
+        email=normalized_email,
+        draft_id=draft_id,
+    )
 
     return confirm_url
 

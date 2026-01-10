@@ -7,6 +7,7 @@ from decimal import Decimal, ROUND_HALF_UP
 from urllib.parse import quote
 
 import stripe
+import logging
 from django.conf import settings
 from django.db import transaction
 from django.http import HttpResponse
@@ -17,9 +18,12 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from hr_core.utils.tokens import generate_order_receipt_token
+from hr_payment.logging import log_event
 from hr_payment.models import PaymentAttempt, PaymentAttemptStatus
 from hr_payment.models import WebhookEvent
 from hr_shop.models import Order, PaymentStatus
+
+logger = logging.getLogger(__name__)
 
 
 @require_POST
@@ -36,9 +40,22 @@ def checkout_stripe_session(request, order_id: int):
     order = get_object_or_404(Order, pk=order_id)
 
     if order.payment_status == PaymentStatus.PAID:
+        log_event(
+            logger,
+            logging.INFO,
+            "payment.checkout.session_already_paid",
+            order_id=order.id,
+        )
         return JsonResponse({"error": "Order already paid."}, status=409)
 
     if not order.total or order.total <= 0:
+        log_event(
+            logger,
+            logging.WARNING,
+            "payment.checkout.invalid_total",
+            order_id=order.id,
+            total=str(order.total or 0),
+        )
         return JsonResponse({"error": "Order total must be > 0."}, status=400)
 
     # 1) Reuse existing open session from the latest non-final attempt if possible
@@ -70,7 +87,16 @@ def checkout_stripe_session(request, order_id: int):
                     "sessionId":    sess["id"],
                     "reused":       True,
                 })
-        except Exception:
+        except Exception as exc:
+            log_event(
+                logger,
+                logging.WARNING,
+                "payment.checkout.session_reuse_failed",
+                order_id=order.id,
+                session_id=existing_attempt.provider_session_id,
+                error=str(exc),
+                exc_info=True,
+            )
             pass
 
     # 2) Create a new attempt + session (atomic so attempt exists for webhook mapping)
@@ -161,6 +187,12 @@ def stripe_webhook(request):
             secret=settings.STRIPE_WEBHOOK_SECRET,
         )
     except Exception:
+        log_event(
+            logger,
+            logging.WARNING,
+            "payment.webhook.invalid_signature",
+            signature_present=bool(sig_header),
+        )
         return HttpResponse(status=400)
 
     # idempotency/audit
@@ -172,6 +204,12 @@ def stripe_webhook(request):
         },
     )
     if not created and obj.ok:
+        log_event(
+            logger,
+            logging.INFO,
+            "payment.webhook.duplicate",
+            event_id=event.get("id"),
+        )
         return HttpResponse(status=200)
 
     try:
@@ -183,6 +221,14 @@ def stripe_webhook(request):
         obj.error = None
         obj.save(update_fields=["ok", "processed_at", "error"])
     except Exception as e:
+        log_event(
+            logger,
+            logging.ERROR,
+            "payment.webhook.processing_failed",
+            event_id=event.get("id"),
+            error=str(e),
+            exc_info=True,
+        )
         obj.ok = False
         obj.processed_at = timezone.now()
         obj.error = str(e)

@@ -1,5 +1,9 @@
+import logging
+
 from django.test import SimpleTestCase, override_settings
 
+from hr_core.utils.logging import reset_request_id, set_request_id
+from hr_email.logging import log_event
 from hr_email.provider_settings import get_email_config, get_mailjet_rest_config
 
 
@@ -58,3 +62,28 @@ class ProviderSettingsTests(SimpleTestCase):
         self.assertTrue(cfg["enabled"])
         self.assertTrue(cfg["api_key_set"])
         self.assertTrue(cfg["api_secret_set"])
+
+
+class LoggingTests(SimpleTestCase):
+    def test_log_event_includes_request_id_and_redacts(self):
+        logger = logging.getLogger("hr_email.tests")
+        token = set_request_id("req-202")
+
+        with self.assertLogs("hr_email.tests", level="INFO") as captured:
+            log_event(
+                logger,
+                logging.INFO,
+                "email.test_event",
+                email="user@example.com",
+                token="secret-token",
+                meta={"phone": "555-0100", "nickname": "ok"},
+            )
+
+        reset_request_id(token)
+
+        output = "\n".join(captured.output)
+        self.assertIn("event=email.test_event", output)
+        self.assertIn("request_id=req-202", output)
+        self.assertIn("**redacted**", output)
+        self.assertNotIn("user@example.com", output)
+        self.assertNotIn("secret-token", output)

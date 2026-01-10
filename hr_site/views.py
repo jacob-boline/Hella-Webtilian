@@ -1,9 +1,14 @@
+import logging
+
 from django.shortcuts import render
 from django.utils import timezone
 
+from hr_site.logging import log_event
 from hr_live.models import Show
 from hr_shop.models import Product
 from hr_about.models import CarouselSlide, PullQuote
+
+logger = logging.getLogger(__name__)
 
 
 def index(request):
@@ -13,6 +18,16 @@ def index(request):
     quotes = PullQuote.objects.filter(is_active=True).order_by("order", "id")
     shows = Show.objects.filter(status='published', date__gte=today).select_related('venue').prefetch_related('lineup').order_by('date', 'time', 'id')[:5]
     modal = (request.GET.get('modal') or '').strip()
+    log_event(
+        logger,
+        logging.INFO,
+        "site.index.rendered",
+        products_count=products.count(),
+        slides_count=slides.count(),
+        quotes_count=quotes.count(),
+        shows_count=shows.count(),
+        has_modal=bool(modal),
+    )
     return render(request, "hr_site/index.html", {
         'products': products,
         'slides': slides,
@@ -51,6 +66,14 @@ def display_message_box_modal(request, *args, **kwargs):
         "cancel_url":     _get("cancel_url"),
         "cancel_label":   _get("cancel_label", "Cancel"),
     }
+    log_event(
+        logger,
+        logging.INFO,
+        "site.message_box.rendered",
+        level=context["level"],
+        has_confirm=bool(context["confirm_url"]),
+        has_cancel=bool(context["cancel_url"]),
+    )
 
     return render(request, "hr_site/display_message_box_modal.html", context)
 
