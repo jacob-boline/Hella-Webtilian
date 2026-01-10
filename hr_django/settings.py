@@ -220,6 +220,81 @@ STORAGES = {
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+LOG_DIR = Path(os.environ.get("LOG_DIR", BASE_DIR / "logs"))
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "filters": {
+        "request_id": {
+            "()": "hr_core.utils.logging.RequestIdFilter",
+        },
+    },
+    "formatters": {
+        "standard": {
+            "format": "%(asctime)s %(levelname)s %(name)s request_id=%(request_id)s %(message)s",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "standard",
+            "filters": ["request_id"],
+        },
+        "file": {
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "formatter": "standard",
+            "filename": str(LOG_DIR / "django.log"),
+            "when": "midnight",
+            "backupCount": 30,
+            "encoding": "utf-8",
+            "filters": ["request_id"],
+        },
+        "error_file": {
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "formatter": "standard",
+            "filename": str(LOG_DIR / "django-error.log"),
+            "when": "midnight",
+            "backupCount": 30,
+            "encoding": "utf-8",
+            "level": "ERROR",
+            "filters": ["request_id"],
+        },
+        # To add database logging later, define a custom handler class and add it here.
+        # Example: "db": {"class": "hr_core.logging_handlers.DatabaseLogHandler", ...}
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console", "file", "error_file"],
+            "level": "INFO",
+            "propagate": True,
+        },
+        "django.request": {
+            "handlers": ["console", "file", "error_file"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+        "hr_about": {"handlers": ["console", "file", "error_file"], "level": "INFO"},
+        "hr_access": {"handlers": ["console", "file", "error_file"], "level": "INFO"},
+        "hr_bulletin": {"handlers": ["console", "file", "error_file"], "level": "INFO"},
+        "hr_common": {"handlers": ["console", "file", "error_file"], "level": "INFO"},
+        "hr_config": {"handlers": ["console", "file", "error_file"], "level": "INFO"},
+        "hr_core": {"handlers": ["console", "file", "error_file"], "level": "INFO"},
+        "hr_django": {"handlers": ["console", "file", "error_file"], "level": "INFO"},
+        "hr_email": {"handlers": ["console", "file", "error_file"], "level": "INFO"},
+        "hr_live": {"handlers": ["console", "file", "error_file"], "level": "INFO"},
+        "hr_payment": {"handlers": ["console", "file", "error_file"], "level": "INFO"},
+        "hr_shop": {"handlers": ["console", "file", "error_file"], "level": "INFO"},
+        "hr_site": {"handlers": ["console", "file", "error_file"], "level": "INFO"},
+        "hr_storage": {"handlers": ["console", "file", "error_file"], "level": "INFO"},
+    },
+    "root": {
+        "handlers": ["console", "file", "error_file"],
+        "level": "INFO",
+    },
+}
+
 
 # -----------------------------
 # Django-Vite

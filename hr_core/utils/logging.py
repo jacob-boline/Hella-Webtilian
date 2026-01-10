@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import contextvars
+import logging
 import uuid
 from typing import Any, Iterable
 
@@ -48,6 +49,12 @@ def reset_request_id(token: contextvars.Token) -> None:
 
 def generate_request_id() -> str:
     return uuid.uuid4().hex
+
+
+class RequestIdFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        record.request_id = get_request_id() or "-"
+        return True
 
 
 def redact_payload(
