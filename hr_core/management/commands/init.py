@@ -55,6 +55,18 @@ class Command(BaseCommand):
             help="Skip starting `npm run dev`.",
         )
 
+        parser.add_argument(
+            "--keep-media",
+            action="store_true",
+            help="Preserve seeded media subfolders under MEDIA_ROOT.",
+        )
+
+        parser.add_argument(
+            "--wipe-media",
+            action="store_true",
+            help="Force delete seeded media folders even if --no-seed is used."
+        )
+
     def handle(self, *args, **options):
 
         if not settings.DEBUG:
@@ -63,6 +75,8 @@ class Command(BaseCommand):
         no_input = options["no_input"]
         no_seed = options["no_seed"]
         no_npm = options["no_npm"]
+        keep_media = options['keep_media']
+        wipe_media = options['wipe_media']
 
         base_dir = Path(settings.BASE_DIR)
         db_path = base_dir / "db.sqlite3"
@@ -104,7 +118,17 @@ class Command(BaseCommand):
         # 4) Create superuser from env
         self._create_superuser_from_env()
 
-        # 5) Seed data
+        # 5) Wipe Media
+        should_wipe_media = ((not keep_media) and ((not no_seed) or wipe_media))
+        if should_wipe_media:
+            self._wipe_seeded_media()
+        else:
+            self.stdout.write(self.style.WARNING(
+                "→ Skipping media wipe "
+                f"({'--keep-media' if keep_media else '--no-seed'})."
+            ))
+
+        # 6) Seed data
         if not no_seed:
             self._run_seed_data()
         else:
@@ -117,6 +141,22 @@ class Command(BaseCommand):
         #     self.stdout.write(self.style.WARNING("Skipping `npm run dev` (per --no-npm)."))
 
         self.stdout.write(self.style.SUCCESS("✅ initialize complete."))
+
+    def _wipe_seeded_media(self):
+        self.stdout.write("→ Wiping seeded media folders…")
+        media_root = Path(settings.MEDIA_ROOT)
+        to_wipe = [
+            media_root / "hr_about",
+            media_root / "hr_shop",
+            media_root / "hr_live",
+            media_root / "hr_bulletin",
+        ]
+        for p in to_wipe:
+            if p.exists() and p.is_dir():
+                shutil.rmtree(p)
+                self.stdout.write(f"  • Deleted {p}")
+            else:
+                self.stdout.write(f"  • Not found: {p}")
 
     # ------------------------------------------------------------------
     # Helpers

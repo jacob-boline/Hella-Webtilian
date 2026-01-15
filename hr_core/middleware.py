@@ -13,7 +13,7 @@ from hr_core.utils.unified_logging_core import (
     reset_request_id,
     set_request_id,
 )
-from utils.http import is_htmx, likely_session_expired
+from hr_core.utils.http import is_htmx, likely_session_expired
 
 
 class RequestIdMiddleware:

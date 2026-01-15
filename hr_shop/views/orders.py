@@ -6,7 +6,7 @@ from django.views.decorators.http import require_GET
 
 from hr_core.utils.email import normalize_email
 from hr_shop.models import Customer, Order
-from utils.http import hx_login_required
+from hr_core.utils.http import hx_login_required
 
 PER_PAGE = 20
 

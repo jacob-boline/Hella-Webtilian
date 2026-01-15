@@ -10,7 +10,7 @@ from django.db import transaction
 
 from hr_core.utils.email import normalize_email
 from hr_shop.models import Order, OrderItem
-from utils.http import hx_login_required
+from hr_core.utils.http import hx_login_required
 
 
 @hx_login_required

@@ -36,7 +36,7 @@ from hr_access.unified_logging import log_event
 from django.contrib.sessions.models import Session
 from django.utils.http import urlencode
 
-from utils.http import hx_login_required
+from hr_core.utils.http import hx_login_required
 
 logger = getLogger()
 

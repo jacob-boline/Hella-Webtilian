@@ -12,7 +12,7 @@ from django.views.decorators.http import require_POST
 from hr_access.forms import AccountCreationForm
 from hr_access.models import User
 from hr_site.views import display_message_box_modal
-from utils.http import hx_superuser_required
+from hr_core.utils.http import hx_superuser_required
 
 
 @hx_superuser_required
