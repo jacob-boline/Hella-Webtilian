@@ -1,12 +1,14 @@
 # hr_shop/forms.py
 
+import re
+
 from django import forms
 from phonenumber_field.formfields import PhoneNumberField
-import re
-from hr_shop.models import Product, ProductVariant, ProductOptionType, ProductOptionValue, OptionTypeTemplate
-from hr_common.models import BuildingType
+
 from hr_common.constants.us_states import US_STATES
+from hr_common.models import BuildingType
 from hr_core.utils.email import normalize_email
+from hr_shop.models import Product, ProductVariant, ProductOptionType, ProductOptionValue, OptionTypeTemplate
 
 ZIP_RE = re.compile(r"^\d{5}(-\d{4})?$")
 
@@ -81,29 +83,66 @@ class ProductVariantForm(forms.ModelForm):
 
 
 class CheckoutDetailsForm(forms.Form):
-
-    email = forms.EmailField(required=True, label='Email')
-    phone = PhoneNumberField(required=False, label='Phone', region='US')
-
-    first_name = forms.CharField(required=True, max_length=100, label='First Name')
-    middle_initial = forms.CharField(required=False, max_length=5, label='Middle Initial')
-    last_name = forms.CharField(required=True, max_length=100, label="Last Name")
-    suffix = forms.CharField(required=False, max_length=20, label="Suffix")
-
-    street_address = forms.CharField(required=True, max_length=255, label='Street Address')
-    street_address_line2 = forms.CharField(required=False, max_length=255, label='Street Address Line 2')
-
-    building_type = forms.ChoiceField(required=True, choices=BuildingType.choices, label='Building Type')
-    unit = forms.CharField(required=False, max_length=64, label='Apt/Office/Unit')
-
-    city = forms.CharField(required=True, max_length=255, label='City')
-    subdivision = forms.ChoiceField(required=True, choices=US_STATES, label='State')
-    postal_code = forms.CharField(required=True, max_length=25, label='Zip Code')
-
-    note = forms.CharField(required=False, max_length=1000, widget=forms.Textarea(attrs={'rows': 8}), label='Note')
-
-    save_info_for_next_time = forms.BooleanField(required=False, initial=False, label='Save info for faster checkouts in the future')
-
+    email = forms.EmailField(
+        required=True,
+        label='Email')
+    phone = PhoneNumberField(
+        required=False,
+        label='Phone',
+        region='US')
+    first_name = forms.CharField(
+        required=True,
+        max_length=100,
+        label='First Name')
+    middle_initial = forms.CharField(
+        required=False,
+        max_length=5,
+        label='Middle Initial')
+    last_name = forms.CharField(
+        required=True,
+        max_length=100,
+        label="Last Name")
+    suffix = forms.CharField(
+        required=False,
+        max_length=20,
+        label="Suffix")
+    street_address = forms.CharField(
+        required=True,
+        max_length=255,
+        label='Street Address')
+    street_address_line2 = forms.CharField(
+        required=False,
+        max_length=255,
+        label='Street Address Line 2')
+    building_type = forms.ChoiceField(
+        required=True,
+        choices=BuildingType.choices,
+        label='Building Type')
+    unit = forms.CharField(
+        required=False,
+        max_length=64,
+        label='Apt/Office/Unit')
+    city = forms.CharField(
+        required=True,
+        max_length=255,
+        label='City')
+    subdivision = forms.ChoiceField(
+        required=True,
+        choices=US_STATES,
+        label='State')
+    postal_code = forms.CharField(
+        required=True,
+        max_length=25,
+        label='Zip Code')
+    note = forms.CharField(
+        required=False,
+        max_length=1000,
+        widget=forms.Textarea(attrs={'rows': 6}),
+        label='Note')
+    save_info_for_next_time = forms.BooleanField(
+        required=False,
+        initial=False,
+        label='Save info for faster checkouts in the future')
 
     def clean(self):
         cleaned = super().clean()

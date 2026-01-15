@@ -82,7 +82,7 @@
         <button type="button"
                 id="nav-close-btn"
                 data-drawer-close
-                class="rounded-lg text-sm p-1.5 top-2.5 right-2.5 inline-flex items-center relative">
+                class="rounded-lg text-sm p-1.5 top-2.5 right-2.5 inline-flex items-center relative">  {# -right-2.5 + left: 0, -relative +fixed + z-40 #}
             <i class="fa-regular fa-circle-xmark"></i>
             <span class="sr-only">Close menu</span>
         </button>
@@ -93,13 +93,7 @@
                hx-swap="innerHTML">
         </aside>
 
-        <iframe style="border: 0; width: auto; height: 100%; margin-top:5vh;"
-                src="https://bandcamp.com/EmbeddedPlayer/album=1766078263/size=large/bgcol=333333/linkcol=4ec5ec/tracklist=false/transparent=true/"
-                seamless>
-            <a href="https://hellareptilian.bandcamp.com/album/into-hella-we-ride-demo">
-                Into Hella We Ride! [Demo] by Hella Reptilian!
-            </a>
-        </iframe>
+        <iframe src="https://bandcamp.com/EmbeddedPlayer/album=1766078263/size=large/bgcol=333333/linkcol=4ec5ec/tracklist=false/transparent=true/" seamless><a href="https://hellareptilian.bandcamp.com/album/into-hella-we-ride-demo">Into Hella We Ride! [Demo] by Hella Reptilian!</a></iframe>
     </div>
 
     {# ---- Global Cart Icon w/ Item Counter #}

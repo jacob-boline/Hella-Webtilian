@@ -59,15 +59,21 @@
             }, timeoutMs);
         }
 
-        // function openModal () {
-        //     if (!modalEl) return;
-        //     modalEl.classList.remove("hidden");
-        //     modalEl.setAttribute("aria-hidden", "false");
-        //     document.body.style.overflow = "hidden";
-        //
-        //     hideFloatingCart();
-        // }
+        function refreshScrollOnModalClose () {
+            const reflow   = window.hrSite?.reflowParallax;
+            const syncWipe = window.hrSite?.syncActiveWipe;
+            const banner   = window.hrSite?.banner;
 
+            // Let scroll restore land + any viewport resize happen first
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    if (typeof reflow === "function") reflow();
+                    if (typeof syncWipe === "function") syncWipe();
+                    if (typeof banner?.setBannerState === "function") banner.setBannerState(window.scrollY || 0);
+                    if (typeof banner?.updateFade === "function") banner.updateFade();
+                });
+            });
+        }
 
         function openModal () {
             if (!modalEl) return;
@@ -77,13 +83,15 @@
 
             modalEl.classList.remove('hidden');
             modalEl.setAttribute('aria-hidden', 'false');
-            document.body.style.overflow = 'hidden';
+            // document.body.style.overflow = 'hidden';
+            // requestParallaxReflow();
+
             document.body.classList.add('modal-open');
-            window.scrollTo(0, scrollY);
+            document.body.style.top = `-${scrollY}px`;
+            // if (window.scrollY !== scrollY) window.scrollTo(0, scrollY);
 
             hideFloatingCart();
         }
-
 
         function hideModal () {
             if (!modalEl) return;
@@ -91,37 +99,27 @@
             const navOpenBtn = document.getElementById('nav-open-btn');
             if (navOpenBtn) navOpenBtn.classList.remove('hidden');
 
-            const scrollY = parseInt(modalEl.dataset.scrollY || '0');
+            const scrollY = parseInt(modalEl.dataset.scrollY || '0', 10);
 
             modalEl.classList.add('hidden');
             modalEl.setAttribute('aria-hidden', 'true');
-            document.body.style.overflow = '';
-            document.body.classList.remove('modal-open');
 
+            // Unfreeze body
+            document.body.classList.remove('modal-open');
+            document.body.style.top = '';
+
+            // IMPORTANT: restore scroll synchronously, before the next paint
             window.scrollTo(0, scrollY);
+
+            // Now fix parallax/wipes once the DOM has settled for this frame
+            refreshScrollOnModalClose();
 
             if (modalContent) modalContent.replaceChildren();
             if (modalMsg) modalMsg.replaceChildren();
 
-            showFloatingCart()
+            showFloatingCart();
         }
 
-
-        // function hideModal () {
-        //     if (!modalEl) return;
-        //
-        //     const navOpenBtn = document.getElementById("nav-open-btn");
-        //     if (navOpenBtn) navOpenBtn.classList.remove("hidden");
-        //
-        //     modalEl.classList.add("hidden");
-        //     modalEl.setAttribute("aria-hidden", "true");
-        //     document.body.style.overflow = "";
-        //
-        //     if (modalContent) modalContent.replaceChildren();
-        //     if (modalMsg) modalMsg.replaceChildren();
-        //
-        //     showFloatingCart();
-        // }
 
         // ------------------------------
         // Modal close behavior
@@ -162,23 +160,6 @@
                 if (!isModalSwapTarget(target)) return;
                 openModal();
             });
-
-            // document.addEventListener('htmx:beforeSwap', (e) => {
-            //     const target = e.target;
-            //     if (!shouldReinit(target)) return;
-            //
-            //     const detail = e.detail || {};
-            //
-            //     if (isModalTarget(target)) {
-            //         const scrollY = window.scrollY;
-            //
-            //         requestAnimationFrame(() => {
-            //             if (window.scrollY !== scrollY) {
-            //                 window.scrollTo(0, scrollY);
-            //             }
-            //         });
-            //     }
-            // });
 
             document.addEventListener("htmx:beforeSwap", (e) => {
                 const target = e.target;
@@ -254,24 +235,29 @@
             if (!drawer || !openBtn) return;
 
             const openDrawer = () => {
-                const isMobile = window.matchMedia("(max-width: 767.98px)").matches;
+              const isMobile = window.matchMedia("(max-width: 767.98px)").matches;
+              const isOpen = drawer.classList.contains('show');
 
-
+              if (!isOpen) {
                 drawer.classList.add("show");
                 openBtn.classList.add("hidden");
-                if (isMobile) {
-                    _drawerScrollY = window.scrollY || 0;
-                    document.body.classList.add("drawer-open");
-                    document.body.style.top = `-${_drawerScrollY}px`;
+              }
+
+              if (isMobile) {
+                // ensure mobile lock is applied even if drawer was already open
+                if (!document.body.classList.contains("drawer-open")) {
+                  _drawerScrollY = window.scrollY || 0;
+                  document.body.classList.add("drawer-open");
+                  document.body.style.top = `-${_drawerScrollY}px`;
                 }
+              }
             };
+
 
             const closeDrawer = () => {
                 const isMobile = window.matchMedia("(max-width: 767.98px)").matches;
-
                 drawer.classList.remove("show");
                 openBtn.classList.remove("hidden");
-
                 if (isMobile) {
                     document.body.classList.remove("drawer-open");
                     document.body.style.top = "";
@@ -380,7 +366,10 @@
         window.hrSite = window.hrSite || {};
         window.hrSite.hideModal = hideModal;
         window.hrSite.showGlobalMessage = showGlobalMessage;
-
+        window.hrSite = window.hrSite || {};
+        window.hrSite.cart = window.hrSite.cart || {};
+        window.hrSite.cart.show = showFloatingCart;
+        window.hrSite.cart.hide = hideFloatingCart;
         window.hrModal = {open: openModal, close: hideModal};
     }
 

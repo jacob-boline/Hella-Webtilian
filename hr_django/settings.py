@@ -48,6 +48,7 @@ WHITENOISE_USE_FINDERS = DEBUG
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
+EXTERNAL_BASE_URL = os.getenv('EXTERNAL_BASE_URL', '').rstrip('/')
 
 ALLOWED_HOSTS = [h.strip() for h in os.environ.get("ALLOWED_HOSTS", "").split(",") if h.strip()]
 CSRF_TRUSTED_ORIGINS = [h.strip() for h in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",") if h.strip()]
@@ -58,6 +59,7 @@ AUTHENTICATION_BACKENDS = [
     "hr_access.auth_backend.CustomBackend",
 ]
 
+CSRF_FAILURE_VIEW = 'hr_core.utils.http.csrf_failure'
 
 # -----------------------------
 # Apps
@@ -111,6 +113,9 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
+
+    "hr_core.middleware.HtmxExceptionMiddleware",
+
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
@@ -244,21 +249,25 @@ LOGGING = {
             "formatter": "structlog",
         },
         "file": {
-            "class": "logging.handlers.TimedRotatingFileHandler",
+            "class": "concurrent_log_handler.ConcurrentTimedRotatingFileHandler",
             "formatter": "structlog",
             "filename": str(LOG_DIR / "django.log"),
             "when": "midnight",
             "backupCount": 30,
             "encoding": "utf-8",
+            "utc": True,
+            "delay": True,
         },
         "error_file": {
-            "class": "logging.handlers.TimedRotatingFileHandler",
+            "class": "concurrent_log_handler.ConcurrentTimedRotatingFileHandler",
             "formatter": "structlog",
             "filename": str(LOG_DIR / "django-error.log"),
             "when": "midnight",
             "backupCount": 30,
             "encoding": "utf-8",
+            "utc": True,
             "level": "ERROR",
+            "delay": True,
         },
         # To add database logging later, define a custom handler class and add it here.
         # Example: "db": {"class": "hr_core.logging_handlers.DatabaseLogHandler", ...}
@@ -293,7 +302,6 @@ LOGGING = {
         "level": "INFO",
     },
 }
-
 
 # -----------------------------
 # Django-Vite

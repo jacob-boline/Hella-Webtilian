@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 
-from django.contrib.admin.views.decorators import user_passes_test
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -13,9 +12,10 @@ from django.views.decorators.http import require_POST
 from hr_access.forms import AccountCreationForm
 from hr_access.models import User
 from hr_site.views import display_message_box_modal
+from utils.http import hx_superuser_required
 
 
-@user_passes_test(lambda u: u.is_superuser)
+@hx_superuser_required
 def admin_create_site_admin(request):
     """
     Internal "create site admin" view (superusers only).
@@ -41,7 +41,7 @@ def admin_create_site_admin(request):
     return render(request, "hr_access/user_admin/add_staff_form.html", {"add_staff_form": AccountCreationForm()})
 
 
-@user_passes_test(lambda u: u.is_superuser)
+@hx_superuser_required
 def admin_confirm_privilege_demotion(request, user_id: int):
     target = get_object_or_404(User, pk=user_id)
 
@@ -67,7 +67,7 @@ def admin_confirm_privilege_demotion(request, user_id: int):
     )
 
 
-@user_passes_test(lambda u: u.is_superuser)
+@hx_superuser_required
 @require_POST
 def admin_demote_superuser(request, user_id: int):
     target = get_object_or_404(User, pk=user_id)
@@ -98,7 +98,7 @@ def admin_demote_superuser(request, user_id: int):
     )
 
 
-@user_passes_test(lambda u: u.is_superuser)
+@hx_superuser_required
 @require_POST
 def admin_cancel_privilege_demotion(_request, user_id: int):
     return HttpResponse(status=204, headers={

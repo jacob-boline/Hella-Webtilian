@@ -11,7 +11,6 @@ from django.shortcuts import render
 from django.views.decorators.http import require_GET, require_POST
 
 from hr_access.forms import AccountAuthenticationForm
-from hr_core.utils.email import normalize_email
 from hr_shop.models import Order
 
 logger = getLogger()
@@ -33,6 +32,7 @@ def auth_login(request):
             headers={
                 "HX-Trigger": json.dumps({
                     "accessChanged": None,
+                    "authSuccess": None,
                     "showMessage": "Signed in.",
                 })
             },
@@ -49,9 +49,6 @@ def auth_logout(request):
         headers={
             "HX-Trigger": json.dumps({
                 "accessChanged": None,
-                "bulletinChanged": None,
-                "dialogChanged": None,
-                "showsChanged": None,
                 "showMessage": "You have been logged out.",
             })
         },
@@ -73,14 +70,12 @@ def account_get_user_panel(request):
     """
     User panel fragment (used by sidebar once authenticated).
     """
-    email = normalize_email(getattr(request.user, "email", "") or "")
-    order_count = Order.objects.filter(user=request.user).count()
+    email = request.user.email
     unclaimed_count = (
         Order.objects.filter(user__isnull=True, email__iexact=email).count()
         if email else 0
     )
 
     return render(request, "hr_access/_user_panel.html", {
-        "order_count": order_count,
         "unclaimed_count": unclaimed_count,
     })

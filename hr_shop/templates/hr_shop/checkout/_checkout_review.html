@@ -93,12 +93,11 @@
             </div>
         </div>
 
-        {% if note %}
-            <div class="review-section">
-                <p class="review-section-title">Special Instructions</p>
-                <p class="review-note">{{ note }}</p>
-            </div>
-        {% endif %}
+        <div class="review-section">
+            <p class="review-section-title">Special Instructions</p>
+            <p class="review-note">{% if note %}{{ note }}{% else %}<span class="empty-note">None</span>{% endif %}</p>
+        </div>
+
     </section>
 
     <footer class="review-actions m-foot m-actions">

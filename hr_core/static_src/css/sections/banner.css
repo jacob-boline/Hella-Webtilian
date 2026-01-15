@@ -1,8 +1,7 @@
 @font-face {
-  font-family: "KARNIVBL";
-
-  font-display: swap;
-  src: url("../../../static/hr_core/fonts/KARNIVBL.ttf") format("truetype");
+    font-family:  "KARNIVBL";
+    font-display: swap;
+    src:          url("../../../static/hr_core/fonts/KARNIVBL.ttf") format("truetype");
 }
 
 /* ===========================
@@ -11,36 +10,29 @@
 
 /* Main banner strip at the top */
 #banner {
-  position: fixed;
-  top: 0;
-
-  width: 100%;
-  height: calc(var(--vh) * 10);
-
-  color: darkorange;
-  text-align: left;
-
-  background: #000;
-
-  /* you still get padding from .px-4 via utilities.css */
-  transition: all 3s ease;
+    position:   fixed;
+    top:        0;
+    width:      100%;
+    height:     calc(var(--vh) * 10);
+    color:      darkorange;
+    text-align: left;
+    background: black;
+    transition: all 3s ease;
 }
 
-/* rows inside banner */
 #banner .row,
 #banner .row .banner-row {
-  height: calc(var(--vh) * 6);
+    height: calc(var(--vh) * 6);
 }
 
 .banner-row:nth-of-type(2) {
-  background-color: transparent;
+    background-color: transparent;
 }
 
-/* Tall black strip used to “scroll past” banner */
 #banner-scroller {
-  width: 100%;
-  height: calc(var(--vh) * 180);
-  background: #000;
+    width:      100%;
+    height:     calc(var(--vh) * 180);
+    background: black;
 }
 
 /* ===========================
@@ -48,61 +40,56 @@
    =========================== */
 
 .banner-row > span {
-  display: inline-block;
-
-  font-family: "KARNIVBL", display, serif;
-  font-size: 6vmin;
-  color: darkorange;
-
-  opacity: 0;
-
-  transition:
-    color 0.5s ease,
-    opacity 0.5s ease-out;
+    display:     inline-block;
+    font-family: "KARNIVBL", display, serif;
+    font-size:   6vmin;
+    color:       darkorange;
+    opacity:     0;
+    transition:  color   .5s ease,
+                 opacity .5s ease-out;
 }
 
-/* used for the first letter + JS visibility */
 .banner-row > span.blink,
 .banner-row > span.is-visible {
-  opacity: 1;
+    opacity: 1;
 }
 
 /* glowing “burn” animation when triggered */
 .banner-row > span.burn {
-  animation: letter-glow 1.25s ease both;
+    animation: letter-glow 1.25s ease both;
 }
 
 .banner-row > span:hover {
-  color: cyan;
-  text-shadow: 0 0 1rem #fff;
-  transition: all 0.25s ease;
+    color:       var(--neon-blue);
+    text-shadow: 0 0 1rem var(--text);
+    transition:  all .2s ease;
 }
 
 /* fade-out state */
 .banner-row > span.is-fading {
-  opacity: 0;
-  transition: opacity 2.5s ease;
+    opacity:    0;
+    transition: opacity 2.5s ease;
 }
 
 @keyframes letter-glow {
-  0% {
-    text-shadow: 0 0 1px var(--white-alpha-15);
-    opacity: 0;
-  }
+    0% {
+        text-shadow: 0 0 1px var(--white-alpha-15);
+        opacity:     0;
+    }
 
-  66% {
-    text-shadow: 0 0 0.75rem var(--white-alpha-90);
-    opacity: 1;
-  }
+    66% {
+        text-shadow: 0 0 .75rem var(--white-alpha-90);
+        opacity:     1;
+    }
 
-  77% {
-    opacity: 1;
-  }
+    77% {
+        opacity: 1;
+    }
 
-  100% {
-    text-shadow: 0 0 0.75rem rgba(255, 255, 255, 0);
-    opacity: 0.5;
-  }
+    100% {
+        text-shadow: 0 0 .75rem var(--black-alpha-0);
+        opacity:    .5;
+    }
 }
 
 /* ===========================
@@ -110,12 +97,12 @@
    =========================== */
 
 @keyframes blinker {
-  50% {
-    opacity: 0;
-  }
+    50% {
+        opacity: 0;
+    }
 }
 
 .blink {
-  display: inline-block;
-  animation: blinker 2.5s ease-in-out infinite;
+    display:   inline-block;
+    animation: blinker 2.5s ease-in-out infinite;
 }

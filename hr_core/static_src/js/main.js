@@ -1,5 +1,7 @@
 import "../css/main.css";
 
+import './utils/globals.js';
+
 import './utils/core-utils.js';
 import './utils/htmx-csrf.js';
 import './utils/vh-fix.js';

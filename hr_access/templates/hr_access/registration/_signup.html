@@ -13,8 +13,8 @@
             hx-post="{% url 'hr_access:account_signup' %}"
             hx-target="#modal-content"
             hx-swap="innerHTML transition:true"
-            class="form"
-        >
+            class="form">
+
             {% csrf_token %}
 
             {% form_group form.email placeholder='email' label='' %}

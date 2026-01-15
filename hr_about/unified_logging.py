@@ -5,7 +5,7 @@ from typing import Any
 
 import structlog
 
-from hr_core.utils.logging import redact_payload
+from hr_core.utils.unified_logging_core import redact_payload
 
 
 def log_event(
@@ -17,5 +17,5 @@ def log_event(
     **data: Any,
 ) -> None:
     payload = redact_payload(data)
-    struct_logger = structlog.stdlib.wrap_logger(logger)
+    struct_logger = structlog.get_logger(logger.name)
     struct_logger.log(level, event, **payload, exc_info=exc_info)

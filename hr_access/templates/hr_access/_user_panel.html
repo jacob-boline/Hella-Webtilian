@@ -1,26 +1,12 @@
 {# hr_access/_user_panel.html #}
 
 <div class="user-panel">
-{#    <button#}
-{#        class="sidebar-btn section-title stack uniform sidebar-btn--link"#}
-{#        hx-get="{% url 'hr_access:account_settings' %}"#}
-{#        hx-target="#modal-content"#}
-{#        hx-swap="innerHTML transition:true"#}
-{#    >#}
-{#        <div class="user-name">{{ request.user.username }}</div>#}
-{#        <div class="small">{{ request.user.email }}</div>#}
-{#    </button>#}
-
-{#    <div class="sidebar-user-info stack uniform">#}
-{#        <p class="user-name section-title">{{request.user.username}}</p>#}
-{#        <p class="small">{{ request.user.email }}</p>#}
-{#    </div>#}
     <button
         class="sidebar-btn sidebar-btn--link user-profile-btn"
         hx-get="{% url 'hr_access:account_settings' %}"
         hx-target="#modal-content"
-        hx-swap="innerHTML transition:true"
-    >
+        hx-swap="innerHTML transition:true">
+
         <div class="user-identity">
             <span class="user-username">{{ request.user.username }}</span>
             <span class="user-email">{{ request.user.email }}</span>
@@ -33,13 +19,8 @@
         class="sidebar-menu-item"
         hx-get="{% url 'hr_access:account_get_orders' %}"
         hx-target="#modal-content"
-        hx-swap="innerHTML transition:true"
-    >
+        hx-swap="innerHTML transition:true">
         Orders
-{#        <span class="sidebar-btn-label ">Orders</span>#}
-{#        <span class="sidebar-count-pill" aria-label="Orders count">#}
-{#            {{ order_count|default:0 }}#}
-{#        </span>#}
     </button>
 
     {% if unclaimed_count %}
@@ -47,8 +28,7 @@
             class="sidebar-menu-item sidebar-btn--alert"
             hx-get="{% url 'hr_access:account_get_unclaimed_orders' %}"
             hx-target="#modal-content"
-            hx-swap="innerHTML transition:true"
-        >
+            hx-swap="innerHTML transition:true">
             <span>Unclaimed Orders</span>
             <span class="badge badge--alert">!</span>
         </button>
@@ -58,8 +38,7 @@
         class="sidebar-menu-item"
         hx-get="{% url 'hr_access:account_settings' %}"
         hx-target="#modal-content"
-        hx-swap="innerHTML transition:true"
-    >
+        hx-swap="innerHTML transition:true">
         Account
     </button>
 
@@ -70,11 +49,9 @@
             class="sidebar-menu-item"
             hx-get="{% url 'hr_shop:product_manager' %}"
             hx-target="#modal-content"
-            hx-swap="innerHTML transition:true"
-        >
+            hx-swap="innerHTML transition:true">
             Products
         </button>
-
         <hr>
     {% endif %}
 
@@ -82,8 +59,7 @@
         class="sidebar-menu-item"
         hx-post="{% url 'hr_access:auth_logout' %}"
         hx-target="#sidebar-access"
-        hx-swap="innerHTML"
-    >
+        hx-swap="innerHTML transition:true">
         Log out
     </button>
 

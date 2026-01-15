@@ -6,11 +6,14 @@ Handles sending confirmation emails and rate limiting.
 """
 
 import logging
+import os
 
+from django.conf import settings
 from django.core.cache import cache
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
+from urllib.parse import urljoin
 
 from hr_core.utils.email import normalize_email
 from hr_core.utils.tokens import generate_checkout_email_token
@@ -20,6 +23,8 @@ from hr_shop.exceptions import RateLimitExceeded, EmailSendError
 from hr_shop.models import ConfirmedEmail
 
 logger = logging.getLogger(__name__)
+
+EXTERNAL_BASE_URL = os.getenv('EXTERNAL_BASE_URL', '').rstrip('/')
 
 RATE_LIMIT_MAX_EMAILS = 3
 RATE_LIMIT_WINDOW_SECONDS = 3600  # 1 hour
@@ -67,8 +72,17 @@ def send_checkout_confirmation_email(request, email: str, draft_id: int) -> str:
 
     token = generate_checkout_email_token(email=normalized_email, draft_id=draft_id)
 
+    # confirm_path = reverse("hr_shop:email_confirmation_process_response", args=[token])
+    # confirm_url = request.build_absolute_uri(confirm_path)
+
     confirm_path = reverse("hr_shop:email_confirmation_process_response", args=[token])
-    confirm_url = request.build_absolute_uri(confirm_path)
+
+    base = getattr(settings, "EXTERNAL_BASE_URL", "").strip().rstrip("/")
+    if base:
+        confirm_url = urljoin(base + "/", confirm_path.lstrip("/"))
+    else:
+        # fallback if you haven't set EXTERNAL_BASE_URL
+        confirm_url = request.build_absolute_uri(confirm_path)
 
     subject = "Confirm your email to complete your order - Hella Reptilian"
 

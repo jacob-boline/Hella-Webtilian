@@ -6,23 +6,21 @@
    =========================== */
 
 #sidebar-access {
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    display: flex;
+    width:          100%;
+    max-width:      500px;
+    box-sizing:     border-box;
+    display:        flex;
     flex-direction: column;
-    align-items: center;
-    gap: 1.25rem;
+    align-items:    center;
+    gap:            1.25rem;
     padding-inline: 0.25rem;
-    /* Fit content height; drawer itself scrolls -- primarily for mobile */
-    flex: 0 0 auto;
-    min-height: auto;
-    overflow: visible;
-    /* defensive wrapping (won't force scrollbars) */
-    overflow-wrap: anywhere;
-    word-break: break-word;
-    margin-top: 0;
-    padding-top: 0;
+    flex:           0 0 auto;
+    min-height:     auto;
+    overflow:       visible;
+    overflow-wrap:  anywhere;
+    word-break:     break-word;
+    margin:         0 auto;
+    padding-top:    0;
 }
 
 #sidebar-access h2 {
@@ -30,7 +28,7 @@
 }
 
 #sidebar-access > * {
-    width: 100%;
+    width:     100%;
     max-width: 32rem;
 }
 
@@ -40,52 +38,36 @@
 
 
 /* ===========================
-   Audio / Banner hook
-   =========================== */
-
-/* Placeholder span in the banner where audio UI gets mounted */
-#nav-audio {
-    top:              1rem;
-    right:            1rem;
-    background-color: transparent;
-    transition:       all 2s ease-in-out;
-}
-
-
-/* ===========================
    Drawer navigation panel
    =========================== */
 
 #drawer-navigation {
-    position:         fixed;
-    z-index:          50;
-    top:              0;
-    left:             0;
-    transform:        translateX(-100%);
-    display:          flex;
-    flex-direction:   column;
-    /* IMPORTANT: make it a real sidebar, not centered "cards" */
-    align-items:      stretch;
-    justify-content:  flex-start;
-    box-sizing:       border-box;
-    width:            100vw;
-    height:           calc(var(--vh) * 100);
-    min-height:       0;
-    padding:          1.5rem;
-    border-right:     1pt solid var(--white-alpha-75);
-    color:            var(--text);
-    background-color: rgba(7, 21, 29, 0.9);
-    /* Drawer is the scroll container */
-    overflow-y:       auto;
-    overflow-x:       hidden;
+    position:                   fixed;
+    z-index:                    50;
+    top:                        0;
+    left:                       0;
+    transform:                  translateX(-100%);
+    display:                    flex;
+    flex-direction:             column;
+    align-items:                stretch;
+    justify-content:            flex-start;
+    box-sizing:                 border-box;
+    width:                      100vw;
+    height:                     calc(var(--vh) * 100);
+    min-height:                 0;
+    padding:                    1.5rem;
+    border-right:               1pt solid var(--white-alpha-75);
+    color:                      var(--text);
+    background-color:           rgba(7, 21, 29, 0.9);
+    overflow-y:                 auto;
+    overflow-x:                 hidden;
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-    transition:       transform 0.2s ease-in-out;
+    overscroll-behavior:        contain;
+    transition:                 transform .2s ease-in-out;
 }
 
 @media (max-width: 991.98px) {
-    #drawer-navigation form,
-    #drawer-navigation iframe {
+    #drawer-navigation form {
         max-width: 100%;
     }
 }
@@ -108,14 +90,20 @@
     transform: translateX(0);
 }
 
-/* Bandcamp iframe: capped slot; drawer scrolls to reach it */
 #drawer-navigation iframe {
-    width: 100%;
-    max-width: 100%;
-    flex: 0 0 auto;
-    height: auto;
-    border: 0;
-    margin-top: 2vh;
+    width:            100%;
+    max-width:        360px;
+    align-self:       center;
+    margin-inline:    auto;
+    flex:             0 0 auto;
+    height:           480px;
+    border:           0;
+    border-radius:    12px;
+    box-shadow:       0 0 18px var(--black-alpha-45),
+                      0 0 12px var(--white-alpha-30);
+    display:          block;
+    margin:           2vh auto 0;
+    background-color: #303030;
 }
 
 
@@ -124,177 +112,157 @@
    =========================== */
 
 .user-panel hr {
-    margin-top:    .5rem;
-    margin-bottom: .5rem;
-    width: 100%;
+    margin-top:     0.5rem;
+    margin-bottom:  0.25rem;
+    width:          100%;
+    border-color:   var(--faint-text);
 }
 
 .user-panel {
-    width: 100%;
-    max-width: 32rem;
-    display: flex;
+    width:          100%;
+    max-width:      32rem;
+    display:        flex;
     flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
+    align-items:    center;
+    gap:            0.25rem;
 }
 
 .sidebar-btn {
-    position: relative;
-    font-size:  1rem;
-    border:     none;
-    background: transparent;
-    color:      var(--text);
-    margin:     0.5rem auto;
-    transition: color 0.2s ease-in-out;
-    width:      100%;
-    max-width: 24rem;
-    display:    flex;
-    align-items: center;
+    position:        relative;
+    font-size:       1rem;
+    border:          none;
+    background:      transparent;
+    color:           var(--text);
+    margin:          0.5rem auto;
+    transition:      color .2s ease-in-out;
+    width:           100%;
+    max-width:       24rem;
+    display:         flex;
+    align-items:     center;
     justify-content: center;
-    gap: 0.75rem;
-    text-align: center;
+    gap:             0.75rem;
+    text-align:      center;
 }
 
-/* Keep sidebar buttons "text-only" on hover/focus: no background darkening, no border */
 .sidebar-btn:hover,
 .sidebar-btn:focus {
     background: transparent;
-    border: none;
-    outline: none;
+    border:     none;
+    outline:    none;
 }
 
 .sidebar-btn:hover {
     color: aquamarine;
 }
 
-
-/* ===========================
-   Sidebar menu items (Orders / Account / Log out)
-   - Remove any "buttony" border/background effects.
-   - Hover = text glow only
-   - Focus-visible = keyboard pop
-   =========================== */
-
 .sidebar-menu-item {
-    font-size: 1.5rem;
-    font-weight: 700;
-    line-height: 1.1;
-    text-align: center;
-    font-family: "Megrim", cursive;
-    letter-spacing: 0.08em;
-    color: var(--glow);
-    text-shadow: 0 0 0.5rem var(--gold);
-    /*text-shadow: 0 0 0.5rem darkorange;*/
-    transition: color .2s ease, text-shadow .2s ease, transform .2s ease;
-    position: relative;
-    border: none;
-    outline: none;
-    background: transparent;
-    margin: 0 auto;
-    width: 100%;
-    max-width: 24rem;
-    display: flex;
-    align-items: center;
+    font-size:       1.15rem;
+    font-weight:     700;
+    line-height:     1.1;
+    text-align:      center;
+    font-family:     "Megrim", cursive;
+    letter-spacing:  0.08em;
+    color:           var(--glow);
+    text-shadow:     0 0 0.5rem var(--gold);
+    transition:      color       .2s ease,
+                     text-shadow .2s ease,
+                     transform   .2s ease;
+    position:        relative;
+    border:          none;
+    outline:         none;
+    background:      transparent;
+    margin:          0 auto;
+    width:           100%;
+    max-width:       24rem;
+    display:         flex;
+    align-items:     center;
     justify-content: center;
-    cursor: pointer;
+    cursor:          pointer;
 }
 
 /* Hover: glow + color ONLY (no border, no background, no box-shadow) */
 .sidebar-menu-item:hover {
-    color: var(--text);
-    text-shadow:
-        0 0 0.35rem var(--white-alpha-90),
-        0 0 0.75rem var(--white-alpha-60),
-        0 0 1.25rem rgba(255, 165, 0, 0.6);
+    color:       var(--text);
+    text-shadow: 0 0 0.35rem var(--white-alpha-90),
+                 0 0 0.75rem var(--white-alpha-60),
+                 0 0 1.25rem rgba(255, 165, 0, 0.6);
 }
 
-/* Keyboard focus: "pop" without adding boxes behind it */
 .sidebar-menu-item:focus {
     outline: none;
 }
 
-/* Prefer focus-visible: keyboard navigation gets the big moment */
 .sidebar-menu-item:focus-visible {
-    color: var(--text);
-    text-shadow:
-        0 0 0.35rem rgba( 0.95),
-        0 0 0.85rem var(--white-alpha-60),
-        0 0 1.35rem rgba(255, 165, 0, 0.65);
-    transform: scale(1.03);
+    color:       var(--text);
+    text-shadow: 0 0 0.35rem var(--white-alpha-90),
+                 0 0 0.85rem var(--white-alpha-60),
+                 0 0 1.35rem rgba(255, 165, 0, 0.65);
+    transform:   scale(1.03);
 }
 
-/* Optional: keep the pop when focused (mouse click) if you want parity.
-   If you *only* want keyboard pop, leave focus-visible only (as above). */
 .sidebar-menu-item:focus:not(:focus-visible) {
     transform: none;
 }
 
-/* If any browser tries to apply a default background on active click, stomp it */
 .sidebar-menu-item:active {
     background: transparent;
-    border: none;
+    border:     none;
 }
 
 /* ===========================
    Drawer close/open buttons
    =========================== */
 
+
+
 #nav-close-btn {
-    background-color: transparent;
-    border:           none;
-    margin-bottom:    0;
-    /* IMPORTANT: keep it in the drawer flow and aligned left */
-    align-self:       flex-start;
     flex:             0 0 auto;
-    /* Pin it while drawer scrolls */
+    border:           none;
+    font-size:        1.45rem;
+    color:            var(--text);
+    background:       transparent;
+    transition:       background-color .2s ease,
+                      color            .2s ease,
+                      opacity           1s ease-in;
+    border-radius:    100vmax;
+    padding:          0.5rem;
+    margin-left:     -0.5rem;
+    margin-bottom:    0;
+    align-self:       flex-start;
     position:         sticky;
-    top:              0.5rem;
+    top:              calc((var(--vh) * 7) - 2px - 1.5rem);
     z-index:          2;
 }
 
-#nav-close-btn {
-/*#nav-open-btn {*/
-    flex: 0 0 auto;
-    border:        none;
-    font-size:     1.5rem;
-    color:         var(--text);
-    background:    transparent;
-    transition:    background-color 0.2s ease,
-                   color 0.2s ease,
-                   opacity 1s ease-in;
-    border-radius: 50%;
-    padding:       0.5rem;
-    margin-left:  -0.5rem;
-}
-
 #nav-open-btn {
-    opacity:     0;
-    top: calc((var(--vh) * 7) - 2px);
-    margin-left: 24px;
-    background: var(--black-alpha-30);
-    border: 1px solid var(--white-alpha-15);
-    box-shadow: 0 0 18px rgba(0, 234, 255, 0.15);
+    opacity:         0;
+    top:             calc((var(--vh) * 7) - 2px);
+    margin-left:     24px;
+    background:      var(--black-alpha-30);
+    border:          1px solid var(--white-alpha-15);
+    box-shadow:      0 0 18px rgba(0, 234, 255, 0.15);
     backdrop-filter: blur(10px);
-    border-radius: 999px;
-    cursor: pointer;
-    color: var(--text);
-    transition: transform .2s ease, opacity 1s ease, background 0.2s ease;
-    padding: 0.5rem;
-    font-size: 1.45rem;
+    border-radius:   100vmax;
+    cursor:          pointer;
+    color:           var(--text);
+    transition:      background  .2s ease,
+                     transform   .2s ease,
+                     opacity      1s ease;
+
+    padding:         0.5rem;
+    font-size:       1.45rem;
 }
 
-/* hover feedback for drawer buttons */
 #nav-open-btn:hover,
 #nav-close-btn:hover {
     color:            aquamarine;
     background-color: rgba(128, 128, 128, 0.3);
 }
 
-/* honour dark mode – keep the same hover behaviour there */
 @media (prefers-color-scheme: dark) {
      #drawer-navigation .sidebar-btn:hover {
-         color: var(--gold);
-         transition: all 0.2s ease-in-out;
+         color:      var(--gold);
+         transition: all .2s ease-in-out;
      }
 }
 
@@ -304,66 +272,63 @@
    =========================== */
 
 .card-count-badge {
-    /*background: #00eaff;*/
-    background: var(--neon-blue);
-    color: black;
+    background:    var(--neon-blue);
+    color:         black;
     border-radius: 12px;
-    padding: 2px 6px;
-    margin-left: 6px;
-    font-weight: bold;
-    min-width: 20px;
-    display: inline-block;
-    text-align: center;
+    padding:       2px 6px;
+    margin-left:   6px;
+    font-weight:   bold;
+    min-width:     20px;
+    display:       inline-block;
+    text-align:    center;
 }
 
 .cart-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 2rem;
-    padding: 0.35rem 0.9rem;
-    border-radius: 999px;
+    display:          inline-flex;
+    align-items:      center;
+    gap:              0.5rem;
+    margin-bottom:    2rem;
+    padding:          0.35rem 0.9rem;
+    border-radius:    100vmax;
     border: 1px solid var(--white-alpha-75);
     background-color: var(--black-alpha-45);
-    backdrop-filter: blur(6px);
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--text);
-    cursor: pointer;
-    transition:
-        color 0.2s ease,
-        border-color 0.2s ease,
-        box-shadow 0.2s ease,
-        background-color 0.2s ease;
+    backdrop-filter:  blur(6px);
+    font-size:        0.9rem;
+    text-transform:   uppercase;
+    letter-spacing:   0.08em;
+    color:            var(--text);
+    cursor:           pointer;
+    transition:       color            .2s ease,
+                      border-color     .2s ease,
+                      box-shadow       .2s ease,
+                      background-color .2s ease;
 }
 
-/* keep icon/text white by default */
 .cart-btn .fa-shopping-cart,
 .cart-btn .cart-label {
-    color: inherit;
+    color:      inherit;
     background: transparent;
 }
 
 .cart-btn:hover {
-    color: aquamarine;
-    border-color: aquamarine;
-    box-shadow: 0 0 14px rgba(0, 234, 255, 0.9);
+    color:            aquamarine;
+    border-color:     aquamarine;
+    box-shadow:       0 0 14px rgba(0, 234, 255, 0.9);
     background-color: var(--black-alpha-75);
 }
 
 /* neon count badge */
 .cart-count-badge {
-    background: var(--neon-blue);
-    color: black;
-    border-radius: 999px;
-    padding: 2px 8px;
-    margin-left: 2px;
-    font-weight: 700;
-    min-width: 20px;
-    text-align: center;
-    line-height: 1;
-    display: none; /* JS will flip to inline-flex when count > 0 */
+    background:    var(--neon-blue);
+    color:         black;
+    border-radius: 100vmax;
+    padding:       2px 8px;
+    margin-left:   2px;
+    font-weight:   700;
+    min-width:     20px;
+    text-align:    center;
+    line-height:   1;
+    display:       none; /* JS will flip to inline-flex when count > 0 */
 }
 
 /* ===========================
@@ -373,41 +338,41 @@
 .form-control input[type="text"],
 .form-control input[type="password"] {
     background-color: transparent;
-    color: var(--neon-blue);
-    width: 100%;
-    height: 100%;
-    margin: 0;
+    color:            var(--neon-blue);
+    width:            100%;
+    height:           100%;
+    margin:           0;
 }
 
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus {
     -webkit-text-fill-color: var(--neon-blue) !important;
-    caret-color: var(--neon-blue) !important;
-    -webkit-box-shadow: 0 0 0 1000px black inset !important;
-    box-shadow: 0 0 0 1000px black inset !important;
-    outline: none;
-    border: none;
-    transition: background-color 9999s ease-out 0s;
+    caret-color:             var(--neon-blue) !important;
+    -webkit-box-shadow:      0 0 0 1000px black inset !important;
+    box-shadow:              0 0 0 1000px black inset !important;
+    outline:                 none;
+    border:                  none;
+    transition:              background-color 9999s ease-out 0s;
 }
 
 .form-control input[type="text"]::placeholder,
 .form-control input[type="password"]::placeholder {
-    color: var(--text);
+    color:   var(--text);
     opacity: 0.9;
 }
 
 .form-control input[type="text"]:focus,
 .form-control input[type="password"]:focus {
-    color: var(--neon-blue);
+    color:            var(--neon-blue);
     background-color: transparent;
 }
 
 /* could make this conditional by using .form-control:has(.class:focus) */
 .form-control:focus-within {
     box-shadow: inset 0 0 0 1px var(--neon-blue),
-                0 0 12px rgba(0, 234, 255, 0.55),
-                0 0 14px rgba(0, 234, 255, 0.35);
+                      0 0  12px rgba(0, 234, 255, 0.55),
+                      0 0  14px rgba(0, 234, 255, 0.35);
 }
 
 .field-group:focus-within label {
@@ -419,25 +384,24 @@ form.login-form div.form-control {
 }
 
 .user-profile-btn {
-    padding: 0.5rem 1rem 0 1rem;
+    padding:       0.5rem 1rem 0 1rem;
     margin-bottom: 0;
 }
 
-/* Keep the parent button from adding backgrounds/borders */
 .user-profile-btn:hover,
 .user-profile-btn:focus {
     background: transparent;
-    border: none;
-    outline: none;
+    border:     none;
+    outline:    none;
 }
 
 .user-identity {
-    display: flex;
+    display:        flex;
     flex-direction: column;
-    align-items: center;
-    gap: 0.25rem;
-    width: 100%;
-    text-align: center;
+    align-items:    center;
+    gap:            0.25rem;
+    width:          100%;
+    text-align:     center;
 }
 
 .user-identity:hover {
@@ -445,52 +409,51 @@ form.login-form div.form-control {
 }
 
 .user-username {
-    font-family: "Exo 2", sans-serif;
-    font-size: clamp(1.25rem, 3vw, 2rem);
-    font-weight: 700;
+    font-family:   "Exo 2", sans-serif;
+    font-size:      clamp(0.5rem,2vw,1rem);
+    font-weight:    700;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: var(--text);
-    text-shadow:
-        0 0 0.35rem var(--white-alpha-60),
-        0 0 0.75rem rgba(255, 255, 255, 0.45),
-        0 0 1.5rem rgba(200, 200, 255, 0.35);
-    line-height: 1.1;
-    transition: color .2s ease, text-shadow .2s ease, transform .2s ease;
+    color:          var(--text);
+    text-shadow:    0 0 0.35rem var(--white-alpha-60),
+                    0 0 0.75rem var(--white-alpha-45),
+                    0 0 1.5rem rgba(200, 200, 255, 0.35);
+    line-height:    1.1;
+    transition:     color       .2s ease,
+                    text-shadow .2s ease,
+                    transform   .2s ease;
 }
 
 .user-email {
-    font-family: "Exo 2", sans-serif;
-    font-size: clamp(0.5rem, 1vw, 0.75rem);
-    font-weight: 500;
+    font-family:   "Exo 2", sans-serif;
+    font-size:      clamp(0.5rem, 1vw, 0.65rem);
+    font-weight:    500;
     letter-spacing: 0.1em;
-    color: var(--text);
-    text-shadow: 0 0 0.4rem var(--white-alpha-30);
-    line-height: 1.2;
-    transition: color .2s ease, text-shadow .2s ease, transform .2s ease;
+    color:          var(--text);
+    text-shadow:    0 0 0.4rem var(--white-alpha-30);
+    line-height:    1.2;
+    transition:     color       .2s ease,
+                    text-shadow .2s ease,
+                    transform   .2s ease;
 }
 
-/* Hover on the wrapper affects ONLY the text spans */
 .user-profile-btn:hover .user-username,
 .user-profile-btn:hover .user-email,
 .user-identity:hover .user-username,
 .user-identity:hover .user-email {
-    color: var(--text);
-    text-shadow:
-        0 0 0.35rem var(--white-alpha-90),
-        0 0 0.85rem var(--white-alpha-60),
-        0 0 1.35rem rgba(200, 200, 255, 0.45);
+    color:       var(--text);
+    text-shadow: 0 0 0.35rem var(--white-alpha-90),
+                 0 0 0.85rem var(--white-alpha-60),
+                 0 0 1.35rem rgba(200, 200, 255, 0.45);
 }
 
-/* Keyboard focus: make it pop a little harder */
 .user-profile-btn:focus-visible .user-username,
 .user-profile-btn:focus-visible .user-email {
-    color: var(--text);
-    text-shadow:
-        0 0 0.4rem var(--white-alpha-90),
-        0 0 1rem var(--white-alpha-75),
-        0 0 1.6rem rgba(200, 200, 255, 0.55);
-    transform: scale(1.015);
+    color:      var(--text);
+    text-shadow: 0 0 0.4rem var(--white-alpha-90),
+                 0 0 1rem var(--white-alpha-75),
+                 0 0 1.6rem rgba(200, 200, 255, 0.55);
+    transform:   scale(1.015);
 }
 
 /* If focused via mouse click, don't do the big keyboard pop */

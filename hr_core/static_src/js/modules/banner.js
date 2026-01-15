@@ -27,7 +27,9 @@
         const firstSectionWipe = document.querySelector('#section-wipe-0');
 
         const STATE = {
-            lastIndexHidden: -1
+            lastIndexHidden: -1,
+            cartShown: null,
+            lastBtnOpacity: null
         };
 
         const navOpenBtn = document.getElementById('nav-open-btn');
@@ -96,12 +98,12 @@
         // -----------------------------
         // Distance-based fade
         // -----------------------------
-        function updateFade(scrollTopOverride) {
+        function updateFade() {
             if (!banner || !firstSectionWipe) return;
 
-            const scrollPosition = typeof scrollTopOverride === 'number'
-                ? scrollTopOverride
-                : window.scrollY;
+            // const scrollPosition = typeof scrollTopOverride === 'number'
+            //     ? scrollTopOverride
+            //     : window.scrollY;
 
             // We want geometry in *viewport* coordinates, not page coords
             const bannerRect = banner.getBoundingClientRect();
@@ -140,6 +142,18 @@
 
                 if (floatingCartBtn) {
                     floatingCartBtn.style.opacity = btnOpacity.toFixed(3);
+                    const shouldShow = btnOpacity > 0.001;
+
+                    if (STATE.cartShown !== shouldShow) {
+                        STATE.cartShown = shouldShow;
+
+                        const cartAPI = window.hrSite?.cart;
+                        if (cartAPI?.show && cartAPI?.hide) {
+                            shouldShow ? cartAPI.show() : cartAPI.hide();
+                        } else {
+                            floatingCartBtn.classList.toggle('is-hidden', !shouldShow);
+                        }
+                    }
                 }
             }
         }

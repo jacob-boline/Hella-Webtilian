@@ -11,6 +11,72 @@
    Account: Orders modal
    =========================== */
 
+/* Cap modal width for this partial at 1000px */
+#modal:has(#modal-content .change-password-modal) .modal-panel {
+    width:     min(90vw, 1000px);
+    max-width: 1000px;
+}
+
+.change-password-modal {
+    --btn-max: 300px;
+    --btn-gap: 1rem;
+    --rail-w:  min(var(--btn-max), 90%);
+}
+
+@container modal (min-width: 700px) {
+    .change-password-modal {
+        --rail-w: min(90%, calc(var(--btn-max) * 2 + var(--btn-gap)));
+    }
+}
+
+.change-password-modal #password-change-form.m-body {
+    align-items:    center;
+    padding-inline: 1rem;
+}
+
+.change-password-modal #password-change-form > .field-row--neutral,
+.change-password-modal #password-change-form > .field-row--error,
+.change-password-modal #password-change-form > .field-row--valid {
+    width:         100%;
+    max-width:     var(--rail-w);
+    margin-inline: auto;
+}
+
+.change-password-modal #password-change-form input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):not([type="button"]):not([type="submit"]):not([type="reset"]),
+.change-password-modal #password-change-form select,
+.change-password-modal #password-change-form textarea {
+    width: 100%;
+}
+
+/* Actions rail */
+.change-password-modal #password-change-form .m-actions {
+    width:          100%;
+    max-width:      var(--rail-w);
+    margin-inline:  auto;
+    display:        flex;
+    flex-direction: column;
+    align-items:    center;
+    gap:            var(--btn-gap);
+}
+
+.change-password-modal #password-change-form .m-actions > .card-btn {
+    width: 100%;
+    max-width: var(--btn-max);
+}
+
+@container modal (min-width: 700px) {
+    .change-password-modal #password-change-form .m-actions {
+        flex-direction:  row;
+        justify-content: center;
+    }
+
+    .change-password-modal #password-change-form .m-actions > .card-btn {
+        flex:  0 0 var(--btn-max);
+        width:     var(--btn-max);
+        max-width: var(--btn-max);
+    }
+}
+
 .orders-modal {
     text-align: left;
     color:      var(--text);
@@ -27,6 +93,7 @@
     color:                 var(--text);
     text-decoration:       underline;
     text-underline-offset: 3px;
+    background-color:      transparent;
 }
 
 /* list container */
@@ -168,7 +235,7 @@
 .modal-kicker {
     margin:         0;
     font-size:      0.7rem;
-    letter-spacing: 0.08em;
+    letter-spacing: .08em;
     text-transform: uppercase;
     color:          var(--muted-text);
 }
@@ -198,8 +265,10 @@
     margin:  0 0 0.5rem;
 }
 
+
 /* < 1200px: one column */
 @media (max-width: 1199.98px) {
+
     .account-status-grid.uniform.inline {
         grid-template-columns: 1fr;
     }
@@ -209,7 +278,7 @@
     }
 
     .account-status-grid .review-section {
-        padding: .5rem 1rem 0;
+        padding:       0.5rem 1rem 0;
         margin-bottom: 0;
     }
 
@@ -219,7 +288,7 @@
 
     .account-status-grid .review-section .shipping-address.customer-field {
         white-space: normal !important;
-     }
+    }
 
 }
 
@@ -238,13 +307,13 @@
     backdrop-filter: blur(6px);
     display:         flex;
     flex-direction:  column;
-    gap:             0.4rem;
+    gap:             0.5rem;
 }
 
 .account-status-label {
     margin:         0 0 0.35rem;
     font-size:      0.75rem;
-    letter-spacing: 0.08em;
+    letter-spacing: .08em;
     text-transform: uppercase;
     color:          var(--neon-blue);
 }
@@ -267,7 +336,7 @@
 .meta-label {
     display:        block;
     font-size:      0.7rem;
-    letter-spacing: 0.05em;
+    letter-spacing: .05em;
     text-transform: uppercase;
     color:          var(--muted-text);
 }
@@ -314,19 +383,18 @@
 }
 
 .account-status-panel--orders {
-    border-color: rgba(0, 234, 255, 0.2);
+    border-color:          rgba(0, 234, 255, 0.2);
     box-shadow:   0 0 14px rgba(0, 234, 255, 0.15);
 }
 
 .account-status-panel--danger {
-    border-color: rgba(255, 107, 107, 0.35);
+    border-color:          rgba(255, 107, 107, 0.35);
     box-shadow:   0 0 12px rgba(255, 107, 107, 0.15);
 }
 
-/* ===========================
-   Account status panels: inline text + right-justified actions
-   (Orders + Danger)
-   =========================== */
+/* =====================
+   Account status panels
+   ===================== */
 
 .account-status-panel-header {
     display:         flex;
@@ -389,9 +457,9 @@
     }
 }
 
-/* ===========================
-   Account: Order claim list (base “table vibe”)
-   =========================== */
+/* ================
+   Order claim list
+   ================ */
 
 .order-claim-list {
     width:               100%;
@@ -404,7 +472,7 @@
     background:          var(--black-alpha-30);
     border:              1px solid var(--white-alpha-15);
     overflow-y:          auto;
-    overflow-x:          hidden; /* default; modal overrides may enable x */
+    overflow-x:          hidden;
     overscroll-behavior: contain;
 }
 
@@ -413,11 +481,11 @@
     top:             0;
     z-index:         2;
     margin:          -0.75rem -0.75rem 0.25rem;
-    padding:         0.5rem 1.25rem 0.5rem 0.75rem;
+    padding:         -0.5rem 1.25rem 0.5rem 0.75rem;
     border-radius:   12px 12px 0 0;
     font-size:       0.65rem;
     font-weight:     700;
-    letter-spacing:  0.08em;
+    letter-spacing:  .08em;
     text-transform:  uppercase;
     color:           var(--muted-text);
     background:      var(--black-alpha-90);
@@ -454,7 +522,6 @@
     padding:       0.5rem 1.25rem 0.5rem 0.75rem;
     border-bottom: 1px solid var(--white-alpha-15);
     cursor:        pointer;
-    /* IMPORTANT: don't force 720px always; allow shrink by default */
     min-width:     0;
 }
 
@@ -517,9 +584,9 @@
     color:        var(--text);
 }
 
-/* ===========================
-   Unclaimed Orders: layout + list-only scroll + footer
-   =========================== */
+/* ================
+   Unclaimed Orders
+   ================ */
 
 .unclaimed-orders-modal {
     display:        flex;
@@ -531,9 +598,6 @@
     max-width:      100%;
 }
 
-/* MISSING LINK FIX:
-   This wrapper must be the shrinkable flex column so the list can collapse
-   and the footer stays inside the modal. */
 .unclaimed-orders-modal .unclaimed-orders-layout {
     display:        flex;
     flex-direction: column;
@@ -541,7 +605,6 @@
     min-height:     0;
 }
 
-/* Make the form itself flex so the list can take remaining space */
 .unclaimed-orders-modal form {
     display:        flex;
     flex-direction: column;
@@ -549,8 +612,7 @@
     min-height:     0;
 }
 
-/* Toast slot: reserves space (no layout shift) */
-.unclaimed-orders-modal .claim-flash-slot {
+\.unclaimed-orders-modal .claim-flash-slot {
     min-height: calc(1.5rem + 1.2em);
     margin:     0 0 1rem;
 }
@@ -566,9 +628,7 @@
     opacity:         1;
     visibility:      visible;
     pointer-events:  auto;
-
-    /* show immediately, then fade after ~5s */
-    animation:       claimFlashFade 0.6s ease forwards;
+    animation:       claimFlashFade .5s ease forwards;
     animation-delay: 5s;
 }
 
@@ -612,20 +672,8 @@
     overflow:       hidden; /* prevent modal-content scrolling; list scrolls instead */
 }
 
-#modal-content:has(.unclaimed-orders-modal) .unclaimed-orders-modal {
-    display:        flex;
-    flex-direction: column;
-    flex:           1 1 auto;
-    min-height:     0;
-}
-
-#modal-content:has(.unclaimed-orders-modal) .unclaimed-orders-layout {
-    display:        flex;
-    flex-direction: column;
-    flex:           1 1 auto;
-    min-height:     0;
-}
-
+#modal-content:has(.unclaimed-orders-modal) .unclaimed-orders-modal,
+#modal-content:has(.unclaimed-orders-modal) .unclaimed-orders-layout,
 #modal-content:has(.unclaimed-orders-modal) .unclaimed-orders-modal form {
     display:        flex;
     flex-direction: column;
@@ -716,54 +764,44 @@
     margin-bottom: 36px;
 }
 
-/* Allow inline layout when activated */
 .account-status-card.is-inline {
-    display: flex;
+    display:     flex;
     align-items: center;
-    gap: 1rem;
+    gap:         1rem;
 }
 
-@container modal (max-width: 1200px) {
+@container modal (max-width: 1199.98px) {
     .account-status-card {
         flex-direction: row;
-        align-items: center;
+        align-items:    center;
     }
 
     .account-status-card > :not(.account-status-actions) {
-        flex: 1 1 auto;
+        flex:      1 1 auto;
         min-width: 0;
     }
 
     .account-status-card .account-status-actions {
-        margin-top: 0;
-        margin-left: auto;
+        margin-top:      0;
+        margin-left:     auto;
         justify-content: flex-end;
-        white-space: nowrap;
+        white-space:     nowrap;
     }
 }
 
 @container modal (max-width: 420px) {
     .account-status-card {
         flex-direction: column;
-        align-items: stretch;
+        align-items:    stretch;
     }
 
     .account-status-card .account-status-actions {
         justify-content: flex-start;
-        margin-left: 0;
-        margin-top: 0.5rem;
+        margin-left:     0;
+        margin-top:      0.5rem;
     }
 }
 
-
-/* =========================================================
-   Account status cards: responsive "inline actions" behavior
-   - <768px: stack card contents (default column)
-   - 768px–1199.98px: inline layout, actions right
-   - >=1200px: keep existing desktop behavior
-   ========================================================= */
-
-/* <768px: explicit stack (this matches your default, but makes intent clear) */
 @media (max-width: 767.98px) {
     .account-status-grid.uniform.inline > .account-status-card {
         display:        flex;
@@ -772,9 +810,9 @@
     }
 
     .account-status-grid.uniform.inline > .account-status-card .account-status-actions {
-        margin-top: 0.75rem;
-        justify-content: flex-start; /* or center if you prefer */
-        width: 100%;
+        margin-top:      0.75rem;
+        justify-content: flex-start;
+        width:           100%;
     }
 }
 
@@ -787,43 +825,41 @@
         gap:            1rem;
     }
 
-    /* Treat everything except actions as the "text block" */
     .account-status-grid.uniform.inline > .account-status-card > :not(.account-status-actions) {
         flex:      1 1 auto;
         min-width: 0;
     }
 
     .account-status-grid.uniform.inline > .account-status-card .account-status-actions {
-        margin-top: 0;
-        margin-left: auto;
+        margin-top:      0;
+        margin-left:     auto;
         justify-content: flex-end;
-        flex: 0 0 auto;
-        white-space: nowrap;
+        flex:            0 0 auto;
+        white-space:     nowrap;
     }
 }
 
 
 /* >=1200px: restore original card layout (stacked content, actions at bottom) */
 @media (min-width: 1200px) {
-  .account-status-grid.uniform.inline > .account-status-card {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.4rem; /* match your base card gap */
-  }
 
-  /* Undo the "text block" flex behavior */
-  .account-status-grid.uniform.inline > .account-status-card > :not(.account-status-actions) {
-    flex: initial;
-    min-width: 0;
-  }
+    .account-status-grid.uniform.inline > .account-status-card {
+        display:        flex;
+        flex-direction: column;
+        align-items:    stretch;
+        gap:            0.5rem;
+    }
 
-  /* Put actions back at the bottom like before */
-  .account-status-grid.uniform.inline > .account-status-card .account-status-actions {
-    margin-top: auto;     /* key: pushes to bottom */
-    margin-left: 0;       /* undo inline push-right */
-    justify-content: flex-end;
-    width: auto;
-    white-space: normal;  /* undo nowrap if you set it */
-  }
+    .account-status-grid.uniform.inline > .account-status-card > :not(.account-status-actions) {
+        flex:      initial;
+        min-width: 0;
+    }
+
+    .account-status-grid.uniform.inline > .account-status-card .account-status-actions {
+        margin-top:      auto;
+        margin-left:     0;
+        justify-content: flex-end;
+        width:           auto;
+        white-space:     normal;
+    }
 }

@@ -41,7 +41,7 @@
 .about-card,
 .about-card p,
 .about-card .about-quote {
-    color: var(--text);
+    color:       var(--text);
     text-align:  center;
     text-shadow: 0 2px 2px var(--black-alpha-45);
 }
@@ -222,12 +222,13 @@
     width:         3rem;
     height:        3rem;
     border:        1px solid var(--white-alpha-30);
-    border-radius: 999px;
+    border-radius: 100vmax;
     font-size:     1.5rem;
     line-height:   0;
     color:         var(--text);
     background:    var(--black-alpha-45);
-    transition:    background .2s ease, transform .2s ease;
+    transition:    background .2s ease,
+                   transform  .2s ease;
 }
 
 .about-gallery figure.about-stage button.about-nav:hover {
@@ -236,11 +237,11 @@
 }
 
 .about-gallery .about-nav.prev {
-    left: 0.5rem;
+    left: .5rem;
 }
 
 .about-gallery .about-nav.next {
-    right: 0.5rem;
+    right: .5rem;
 }
 
 
@@ -251,12 +252,12 @@
 .about-thumbs-wrap {
     display:         inline-flex;
     grid-area:       thumbs;
-    gap:             0.25rem;
+    gap:            .25rem;
     align-items:     center;
     justify-content: center;
     width:           100%;
     margin-top:      1rem;
-    margin-bottom:   0.5rem;
+    margin-bottom:  .5rem;
 }
 
 .about-thumbs-wrap button.thumbs-prev:hover,
@@ -272,10 +273,11 @@
     width:         2rem;
     height:        2rem;
     border:        1px solid var(--white-alpha-15);
-    border-radius: 999px;
+    border-radius: 100vmax;
     color:         white;
     background:    var(--black-alpha-30);
-    transition:    background .2s ease, transform .2s ease;
+    transition:    background .2s ease,
+                   transform  .2s ease;
 }
 
 .about-thumbs {
@@ -307,11 +309,11 @@
     width:           100%;
     padding:         0;
     border:          1px solid var(--white-alpha-15);
-    border-radius:   0.75rem;
+    border-radius:  .75rem;
     background-size: cover;
     background:      #0B0B0B no-repeat center;
-    transition:      transform .2s ease,
-                     box-shadow .2s ease,
+    transition:      transform    .2s ease,
+                     box-shadow   .2s ease,
                      border-color .2s ease;
 }
 
@@ -326,7 +328,7 @@
 .about-thumbs button.about-thumb.is-active {
     transform:      scale(1.0625);
     box-shadow:     0 0 0 2px rgba(120, 255, 255, 0.25),
-                    0 0 24px rgba(120, 255, 255, 0.18);
+                    0 0  24px rgba(120, 255, 255, 0.18);
     outline:        2px solid var(--text);
     outline-offset: 2px;
 }
@@ -386,10 +388,10 @@
     height:     calc(var(--q-clear) * 0.56);
     background: linear-gradient(
                         180deg,
-                        rgba(8, 8, 8, 0.6) 0%,
+                        rgba(8, 8, 8, 0.6)   0%,
                         rgba(8, 8, 8, 0.48) 32%,
                         rgba(8, 8, 8, 0.24) 64%,
-                        rgba(8, 8, 8, 0) 100%
+                        rgba(8, 8, 8, 0)   100%
                 );
 }
 
@@ -404,7 +406,7 @@
     overflow:       visible;
     display:        flex;
     flex-direction: column;
-    gap:            0.5rem;
+    gap:           .5rem;
     align-items:    center;
     min-height:     calc(var(--q-clear) + 3rem);
     padding-top:    calc(var(--q-clear) * 0.48 + max(0px, calc(var(--q-rise) * -1)));
@@ -413,12 +415,12 @@
     border-radius:  0 0 1rem 1rem;
     background:     linear-gradient(
                             180deg,
-                            rgba(8, 8, 8, 0) 0%,
-                            rgba(8, 8, 8, 0.08) 16%,
-                            rgba(8, 8, 8, 0.16) 32%,
-                            rgba(8, 8, 8, 0.24) 48%,
-                            rgba(8, 8, 8, 0.48) 64%,
-                            rgba(8, 8, 8, 0.72) 80%,
+                            rgba(8, 8, 8, 0)      0%,
+                            rgba(8, 8, 8, 0.08)  16%,
+                            rgba(8, 8, 8, 0.16)  32%,
+                            rgba(8, 8, 8, 0.24)  48%,
+                            rgba(8, 8, 8, 0.48)  64%,
+                            rgba(8, 8, 8, 0.72)  80%,
                             rgba(8, 8, 8, 0.96) 100%
                     );
 }
@@ -432,7 +434,7 @@
     font-size:     clamp(1.5rem, 3vmin, 2.25rem);
     line-height:   1.25;
     opacity:       1;
-    transition:    opacity 0.2s ease;
+    transition:    opacity .2s ease;
 }
 
 /* quote source line */
@@ -452,10 +454,10 @@
 #parallax-section-about .about-quote-rotator .quote-source {
     position:    relative;
     transform:   translateY(var(--q-rise));
-    text-shadow: 0 0 1rem rgba(8, 8, 8, 1),
+    text-shadow: 0 0 1rem   rgba(8, 8, 8, 1),
                  0 0 1.5rem rgba(8, 8, 8, 0.8),
-                 0 0 2rem rgba(8, 8, 8, 0.64),
-                 0 0 3rem rgba(8, 8, 8, 0.48);
+                 0 0 2rem   rgba(8, 8, 8, 0.64),
+                 0 0 3rem   rgba(8, 8, 8, 0.48);
 }
 
 /* visible state toggled by JS */
@@ -490,7 +492,7 @@
 
     .about-thumbs {
         grid-auto-columns: 24vw;
-        gap:               0.5rem;
+        gap:               .5rem;
     }
 
     .about-caption .about-quote {

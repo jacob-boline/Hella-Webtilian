@@ -20,12 +20,12 @@
 
 .m-shell,
 .modal-content {
-    display: flex;
+    display:        flex;
     flex-direction: column;
-    gap: var(--m-gap);
-    min-height: 0;
-    height: 100%;
-    font-size: var(--m-text);
+    gap:            var(--m-gap);
+    min-height:     0;
+    height:         100%;
+    font-size:      var(--m-text);
 }
 
 .m-shell > * {
@@ -33,47 +33,47 @@
 }
 
 .m-head {
-    display: flex;
+    display:        flex;
     flex-direction: column;
-    gap: 0.35rem;
+    gap:            0.35rem;
 }
 
 .m-body,
 .modal-scroll {
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow: auto;
-    overflow-x: hidden;
-    overscroll-behavior: contain;
+    flex:                       1 1 auto;
+    min-height:                 0;
+    overflow:                   auto;
+    overflow-x:                 hidden;
+    overscroll-behavior:        contain;
     -webkit-overflow-scrolling: touch;
-    scrollbar-gutter: stable;
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+    scrollbar-gutter:           stable;
+    padding-bottom:             env(safe-area-inset-bottom, 0px);
 }
 
 .m-body {
-    display: flex;
+    display:        flex;
     flex-direction: column;
-    gap: var(--m-gap);
-    overflow-wrap: anywhere;
+    gap:            var(--m-gap);
+    overflow-wrap:  anywhere;
 }
 
 .m-foot {
-    display: flex;
+    display:        flex;
     flex-direction: column;
-    gap: 0.75rem;
-    width: auto;
-    margin: 1rem 1rem 0;
+    gap:            0.75rem;
+    width:          auto;
+    margin:         1rem 1rem 0;
 }
 
 .m-stack {
-    display: flex;
+    display:        flex;
     flex-direction: column;
-    gap: var(--m-gap);
+    gap:            var(--m-gap);
 }
 
 .m-grid {
     display: grid;
-    gap: var(--m-gap);
+    gap:     var(--m-gap);
 }
 
 .m-grid-2 {
@@ -85,16 +85,16 @@
 }
 
 .m-split {
-    display: grid;
-    gap: var(--m-gap);
+    display:               grid;
+    gap:                   var(--m-gap);
     grid-template-columns: minmax(0, 1fr);
 }
 
 .m-actions {
-    display: flex;
+    display:        flex;
     flex-direction: column;
-    gap: 0.75rem;
-    align-items: stretch;
+    gap:            0.75rem;
+    align-items:    stretch;
 }
 
 .m-actions > * {
@@ -103,39 +103,41 @@
 
 .m-tablewrap {
     overflow-x: auto;
-    max-width: 100%;
+    max-width:  100%;
 }
 
 .m-tablewrap table {
     min-width: 100%;
 }
 
-@container modal (max-width: 420px) {
+@container modal (max-width: 419.98px) {
     .m-shell {
         gap: clamp(0.65rem, 2.5vw, 0.85rem);
     }
 }
 
-@container modal (min-width: 421px) and (max-width: 600px) {
+@container modal (min-width: 420px) and (max-width: 599.98px) {
     .m-actions {
         gap: 0.65rem;
     }
 }
 
-@container modal (min-width: 601px) {
+@container modal (min-width: 600px) {
     .m-grid-2 {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+}
 
+@container modal (min-width: 840px) {
     .m-split {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
         align-items: start;
     }
 
     .m-actions {
-        flex-direction: row;
+        flex-direction:  row;
         justify-content: flex-end;
-        align-items: center;
+        align-items:     center;
     }
 
     .m-actions > * {
@@ -143,13 +145,7 @@
     }
 }
 
-@container modal (min-width: 841px) {
-    .m-split {
-        grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-    }
-}
-
-@container modal (min-width: 1101px) {
+@container modal (min-width: 1100px) {
     .m-grid-3 {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
@@ -162,23 +158,22 @@
 .modal-title {
     text-align:     center;
     margin:         0;
-    font-family:    "Megrim", cursive;
+    font-family:   "Megrim", cursive;
     font-size:      var(--m-title);
     letter-spacing: 0.08em;
     color:          var(--glow);
     text-shadow:    0 0 0.5rem darkorange;
-    transition:     color 300ms ease,
-                    text-shadow 420ms ease;
+    transition:     color       .2s ease,
+                    text-shadow .5s ease;
 }
 
 .modal-title:hover {
-    color:       #FFF;
+    color:       var(--text);
     text-shadow: 0 0 0.45rem var(--white-alpha-90),
-                 0 0 0.9rem var(--white-alpha-60),
-                 0 0 1.8rem rgba(255, 220, 140, 0.35);
+                 0 0 0.90rem var(--white-alpha-60),
+                 0 0 1.80rem rgba(255, 220, 140, 0.35);
 }
 
-/* Generic centered state column (success/error/expired/awaiting/etc.) */
 .flex-col-center {
     display:        flex;
     flex-direction: column;
@@ -213,7 +208,7 @@
 }
 
 .modal-actions.grid {
-    display: grid;
+    display:       grid;
     justify-items: center;
 }
 
@@ -229,7 +224,7 @@
 /* Modal form row helpers (container-query driven) */
 .modal-panel .field-row {
     display: grid;
-    gap: var(--m-gap);
+    gap:     var(--m-gap);
 }
 
 .modal-panel .field-row-two-cols {
@@ -243,18 +238,17 @@
 .modal-panel .field-col-left,
 .modal-panel .field-col-right {
     display: grid;
-    /*gap: var(--m-gap);*/
-    gap: 0;
+    gap:     0;
 }
 
-@container modal (min-width: 601px) {
+@container modal (min-width: 600px) {
     .modal-panel .field-row-two-cols {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .modal-panel .field-row-bottom-block {
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-        align-items: start;
+        align-items:           start;
     }
 }
 
@@ -268,13 +262,15 @@
     width:            100%;
     padding:          0.25rem;
     border-radius:    8px;
-    border:           1px solid rgba(255, 255, 255, 0.45);
+    border:           1px solid var(--white-alpha-45);
     background-color: var(--black-alpha-60);
     color:            var(--text);
     font-family:      inherit;
     font-size:        0.75rem;
     outline:          none;
-    transition:       border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    transition:       border-color     .2s ease,
+                      box-shadow       .2s ease,
+                      background-color .2s ease;
 }
 
 .modal input:not([type="checkbox"]):not([type="radio"]):focus,
@@ -292,11 +288,6 @@
     padding:       0.15rem 0.4rem;
     border-radius: 6px;
     font-size:     1rem;
-}
-
-/* Opt-out if needed */
-.modal .no-modal-style {
-    all: revert;
 }
 
 /* ===========================
@@ -392,7 +383,7 @@
     font-size:   1.25rem;
 }
 
-@container modal (max-width: 600px) {
+@container modal (max-width: 599.98px) {
     .modal-summary-row {
         grid-template-columns: 1fr;
         justify-items:         stretch;
@@ -413,7 +404,11 @@
    Rhythm helpers (optional)
    =========================== */
 
-/* Generic row divider style (cart lines, review items, etc.) */
 .modal-row-divider {
     border-bottom: 1px solid var(--white-alpha-15);
+}
+
+.modal h2.sub-header.modal-title:hover {
+    color: initial;
+    text-shadow: 0 0 0.5rem darkorange;
 }

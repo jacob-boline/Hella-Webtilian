@@ -25,17 +25,18 @@ class User(AbstractBaseUser, PermissionsMixin):
         SITE_ADMIN = 'site_admin', 'Site Admin'
         USER = 'user', 'User'
 
-    role = models.CharField(max_length=20, choices=Role.choices, default=Role.USER,)
-    email = NormalizedEmailField(_("email address"), unique=True, blank=False, null=False)
-    first_name = models.CharField(_("First Name"), max_length=254, blank=True)
-    last_name = models.CharField(_("Last Name"), max_length=254, blank=True)
-    username = models.CharField(max_length=150, unique=False, null=False, blank=False, validators=[MinLengthValidator(5)])
-    username_ci = models.CharField(max_length=150, unique=True, editable=False, db_index=True, validators=[MinLengthValidator(5)])
-    is_staff = models.BooleanField(default=False)
-    is_superuser = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
+    email: str
+    email =               NormalizedEmailField(_("email address"), unique=True, blank=False, null=False)
+    role =                models.CharField(max_length=20, choices=Role.choices, default=Role.USER,)
+    first_name =          models.CharField(_("First Name"), max_length=254, blank=True)
+    last_name =           models.CharField(_("Last Name"),  max_length=254, blank=True)
+    username =            models.CharField(max_length=150, unique=False, null=False, blank=False, validators=[MinLengthValidator(5)])
+    username_ci =         models.CharField(max_length=150, unique=True, editable=False, db_index=True, validators=[MinLengthValidator(5)])
+    is_staff =            models.BooleanField(default=False)
+    is_superuser =        models.BooleanField(default=False)
+    is_active =           models.BooleanField(default=True)
     password_changed_at = models.DateTimeField(null=True, blank=True)
-    deleted_at = models.DateTimeField(null=True, blank=True)
+    deleted_at =          models.DateTimeField(null=True, blank=True)
 
     @property
     def is_site_admin(self):

@@ -1,5 +1,4 @@
 {# hr_access/templates/hr_access/_orders_modal_body.html #}
-{# Partial: rendered into #modal-message-box via HTMX #}
 
 <article class="orders-modal account-orders-modal m-shell">
     <header class="m-head">
@@ -9,15 +8,23 @@
     <section class="m-body">
         {% if unclaimed_count %}
             <p class="orders-unclaimed-note">
-                <a
-                        href="#"
-                        class="orders-unclaimed-link text-center"
+                <button
+                    type="button"
+                    class="orders-unclaimed-link text-center"
                         hx-get="{% url 'hr_access:account_get_unclaimed_orders' %}"
                         hx-target="#modal-content"
-                        hx-swap="innerHTML transition:true"
-                        onclick="return false;">
-                    There are unclaimed orders associated with this email.
-                </a>
+                        hx-swap="innerHTML transition:true">
+                    Click here to view the unclaimed orders associated with this email.
+                </button>
+{#                <a#}
+{#                        href="#"#}
+{#                        class="orders-unclaimed-link text-center"#}
+{#                        hx-get="{% url 'hr_access:account_get_unclaimed_orders' %}"#}
+{#                        hx-target="#modal-content"#}
+{#                        hx-swap="innerHTML transition:true"#}
+{#                        onclick="return false;">#}
+{#                    There are unclaimed orders associated with this email.#}
+{#                </a>#}
             </p>
         {% endif %}
 
@@ -60,7 +67,7 @@
             </div>
 
             {% if has_more %}
-                <p class="text-faint " style="margin-top: 0.75rem;">
+                <p class="text-faint text-center mt-3">
                     Showing the 20 most recent orders.
                 </p>
             {% endif %}
@@ -70,7 +77,7 @@
 
     </section>
 
-    <footer class="m-foot m-actions" style="margin-top: 1rem;">
+    <footer class="m-foot m-actions mt-3">
         <button type="button" class="card-btn btn-neon btn-blue btn-sm" data-modal-close>
             Close
         </button>

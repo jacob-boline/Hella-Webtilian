@@ -442,6 +442,7 @@ class Price(models.Model):
 
 
 class Customer(models.Model):
+    email: str
     email = NormalizedEmailField(
         blank=False,
         null=False,
@@ -554,6 +555,7 @@ class Order(models.Model):
         related_name="account_get_orders"
     )
 
+    email: str
     email = NormalizedEmailField(db_index=True)
 
     stripe_checkout_session_id = models.CharField(
@@ -657,6 +659,7 @@ class ConfirmedEmail(models.Model):
     Once an email is confirmed, it never needs to be confirmed again.
     This enables guest checkout while preventing abuse.
     """
+    email: str
     email = NormalizedEmailField(unique=True, db_index=True)
     confirmed_at = models.DateTimeField(auto_now_add=True)
 
@@ -683,6 +686,7 @@ class ConfirmedEmail(models.Model):
 # To store session state to restore from when a validation link is used from a browser without an active session
 # so users aren't redirected to an empty cart after validating.
 class CheckoutDraft(models.Model):
+    email: str
     email = NormalizedEmailField(db_index=True)
     customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
     address = models.ForeignKey(Address, on_delete=models.PROTECT)

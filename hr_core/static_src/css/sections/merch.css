@@ -7,12 +7,10 @@
     --accent-neon-glow: rgba(57, 255, 20, 0.55);
 }
 
-/* Responsive grid for merchModule cards */
 .merch-grid {
     display:               grid;
     grid-template-columns: 1fr;
     gap:                   1rem;
-
     padding:               2rem 0;
     padding-inline:        clamp(16px, 6vw, 32px);
 }
@@ -24,35 +22,30 @@
 .merch-card {
     padding:        1.5rem;
     border-radius:  0.75rem;
-
     color:          var(--text);
-
     background:     linear-gradient(
                             145deg,
                             rgba(14, 22, 16, 0.75),
                             rgba(4, 6, 8, 0.92)
                     );
-    box-shadow:     0 0 2rem var(--black-alpha-75),
-                    0 0 1.5rem rgba(0, 255, 180, 0.08),
+    box-shadow:           0 0 2.00rem var(--black-alpha-75),
+                          0 0 1.50rem rgba(0, 255, 180, 0.08),
                     inset 0 0 0.75rem rgba(0, 255, 120, 0.04);
-
-    transition:     box-shadow 0.5s ease,
-                    transform 0.25s ease;
-
+    transition:     box-shadow .2s ease,
+                    transform  .2s ease;
     display:        flex;
     flex-direction: column;
+    max-height:     calc(var(--vh) * 80);
 }
 
 .merch-img {
     cursor:        pointer;
     position:      relative;
     overflow:      hidden;
-
     aspect-ratio:  1 / 1;
     width:         100%;
     border:        1px solid var(--white-alpha-15);
     border-radius: 0.75rem;
-
     background:    #111;
 }
 
@@ -60,7 +53,7 @@
     width:      100%;
     height:     100%;
     object-fit: cover;
-    transition: transform 0.5s ease;
+    transition: transform .2s ease;
 }
 
 .merch-img:hover img {
@@ -110,24 +103,24 @@
 
 @media (min-width: 1024px) {
     .merch-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap:                   0.75rem;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         padding-inline:        clamp(1.5rem, 6vw, 2rem);
     }
 }
 
 @media (min-width: 1280px) {
     .merch-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap:                   1.5rem;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         padding-inline:        clamp(2rem, 6vw, 3rem);
     }
 }
 
 @media (min-width: 1440px) {
     .merch-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap:                   1.5rem;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         padding-inline:        clamp(3rem, 6vw, 4rem);
     }
 }
@@ -135,32 +128,24 @@
 /* Inline only when cards are genuinely wide */
 @media (min-width: 1280px) {
     .merch-meta {
-        flex-direction:  row;
-        align-items:     center;
-        justify-content: space-between;
-        gap:             1rem;
-    }
-
-    .merch-title,
-    .merch-price {
-        white-space: nowrap;
+        flex-direction: column;
+        align-items:    center;
+        gap:            0.5rem;
     }
 }
 
-/* (Optional guard) Keep stacking in the “in-between” range */
 @media (min-width: 640px) and (max-width: 1279px) {
     .merch-meta {
         flex-direction: column;
-        align-items: flex-start;
+        align-items:    center;
     }
 }
 
 /* Inline for very wide screens >1920px (redundant with 1280+, but harmless) */
 @media (min-width: 1920px) {
     .merch-meta {
-        flex-direction:  row;
-        align-items:     center;
-        justify-content: space-between;
+        flex-direction: column;
+        align-items:    center;
     }
 }
 
@@ -182,17 +167,16 @@
     justify-content: center;
 }
 
-/* NOTE: modal-image is also defined later for product modal; last rule wins */
-.modal-image {
+/* Merch-modal image only (kept separate from product modal image below) */
+.merch-modal .modal-image {
     display:       block;
     width:         100%;
     max-width:     20rem;
     border-radius: 0.75rem;
     border:        1px solid var(--white-alpha-15);
-
     background:    #111;
-    box-shadow:    0 0 2rem var(--black-alpha-75),
-                   0 0 1.5rem rgba(0, 255, 180, 0.12),
+    box-shadow:          0 0 2.00rem var(--black-alpha-75),
+                         0 0 1.50rem rgba(0, 255, 180, 0.12),
                    inset 0 0 0.75rem rgba(0, 255, 120, 0.06);
 }
 
@@ -203,78 +187,40 @@
     text-align:     left;
 }
 
-.modal-description {
-    margin:      0.25rem 0 0.75rem;
-    font-family: "Exo 2", sans-serif;
-    font-size:   0.98rem;
-    line-height: 1.6;
-    color: var(--text);
-}
-
-/* options (generic) */
-.modal-options {
-    display:        flex;
-    flex-direction: column;
-    gap:            0.75rem;
-}
-
-.modal-variant-group {
-    display:        flex;
-    flex-direction: column;
-    gap:            0.25rem;
-}
-
-.modal-variant-group label {
-    font-family:    "Quantico", sans-serif;
-    font-size:      0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color:          #CBD5F5;
-}
-
-.modal-select {
-    padding:       0.4rem 0.6rem;
-    border-radius: 0.4rem;
-    border:        1px solid rgba(148, 163, 184, 0.8);
-    background:    rgba(15, 23, 42, 0.95);
-    color: var(--muted-text);
-    font-family:   "Space Grotesk", sans-serif;
-    font-size:     0.95rem;
-}
-
-/* buttons row (generic) */
-.modal-buttons {
-    gap:        0.75rem;
-    margin-top: 1.25rem;
-}
-
 /* =======================================================================================================
    PRODUCT MODAL
    ======================================================================================================= */
 
 .modal-product {
-    display:        flex;
-    flex-direction: column;
-    gap:            1.5rem;
-    color: var(--text);
+    display:          flex;
+    flex-direction:   column;
+    gap:              1.5rem;
+    color:            var(--text);
     background-color: transparent;
-    border-radius:  0.75rem;
-    padding:        1.5rem;
+    border-radius:    0.75rem;
+    padding:          0.75rem;
 }
 
 .modal-product-media {
-    flex:          0 0 40%;
-    max-width:     18rem;
-    margin-inline: auto;
+    --pm-media:      clamp(12rem, 32cqw, 24rem);
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    flex:            0 0 var(--pm-media);
+    max-width:       var(--pm-media);
+    margin-inline:   auto;
+    min-width:       0;
 }
 
-.modal-image {
+.modal-product .modal-image {
     display:       block;
     width:         100%;
+    max-width:     clamp(12rem, 32cqw, 22rem);
+    height:        auto;
     aspect-ratio:  1 / 1;
     border-radius: 0.75rem;
     border:        1px solid var(--white-alpha-15);
-    object-fit:    cover;
+    object-fit:    contain;
     background:    black;
     box-shadow:    0 0 1.5rem var(--black-alpha-75);
 }
@@ -284,37 +230,43 @@
     display:        flex;
     flex-direction: column;
     gap:            0.5rem;
-    min-width:      0; /* important in row layout */
+    min-width:      0;
 }
 
 .modal-title,
 .product-modal-price {
-    margin:      0;
+    margin:       0;
     font-family: "Megrim", cursive;
-    font-size:   1.75rem;
-    color:       var(--glow);
-    text-shadow: 0 0 0.5rem darkorange;
+    font-size:    1.75rem;
+    color:        var(--glow);
+    text-shadow:  0 0 0.5rem darkorange;
 }
 
 .product-modal-price {
-    display: inline-block;
-    padding: 0.4rem 1rem;
-    border-radius: 14px;
-    background: var(--black-alpha-75);
+    display:         inline-block;
+    padding:         0.5rem 1rem;
+    border-radius:   14px;
+    background:      var(--black-alpha-75);
     backdrop-filter: blur(10px);
-    box-shadow:
-              0 0 12px rgb(var(--green) / 0.30),
-        inset 0 0  8px rgb(var(--black) / 0.65);
-    font-weight: 700;
-    text-align: center;
+    box-shadow:            0 0 12px rgb(var(--green) / 0.30),
+                     inset 0 0  8px var(--black-alpha-60);
+    font-weight:     700;
+    text-align:      center;
 }
 
-.modal-description {
+.modal-product .modal-description {
     margin:      0.25rem 0 0.5rem;
     font-family: "Exo 2", sans-serif;
-    font-size:   0.95rem;
+    font-size:   0.75rem;
     line-height: 1.5;
-    color: var(--muted-text);
+    color:       var(--muted-text);
+}
+
+@container modal (max-width: 768.98px) {
+    .modal-title,
+    .product-modal-price {
+        font-size: 1.25rem;
+    }
 }
 
 .modal-variant-group {
@@ -326,21 +278,22 @@
 
 .modal-variant-group label {
     font-family:    "Quantico", sans-serif;
-    font-size:      0.85rem;
+    font-size:      0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color:          #A5B4FC;
 }
 
 .modal-select {
-    padding:       0.35rem 0.5rem;
-    border-radius: 0.4rem;
+    padding:       0.25rem 0.5rem;
+    border-radius: 0.5rem;
     border:        1px solid rgb(var(--gray1) / 0.7);
     background:    rgba(var(--dark1) / 0.9);
-    color: var(--muted-text);
-    font-size:     0.9rem;
+    color:         var(--muted-text);
+    font-size:     1rem;
 }
 
+/* Actions */
 .modal-buttons {
     display:    flex;
     flex-wrap:  nowrap;
@@ -349,14 +302,14 @@
 }
 
 .modal-buttons .product-modal-price {
-    flex: 1;
+    flex:       1;
     text-align: center;
     align-self: center;
-    font-size: 1.25rem;
+    font-size:  1.15rem;
 }
 
 .modal-buttons button {
-    flex: 2;
+    flex:       2;
     text-align: center;
 }
 
@@ -374,213 +327,170 @@
    MODAL BREAKPOINTS (container-query driven)
    ======================================================================================================= */
 
+/* Small modal */
 @container modal (max-width: 420px) {
-  .modal-product {
-    padding: 1rem 0.5rem 1.25rem;
-    gap:     1rem;
-  }
+    .modal-product {
+        padding:    0.25rem 0.5rem .25rem;
+        gap:        1rem;
+    }
 
-  .modal-product-media {
-    max-width: 12rem;
-    margin-inline: auto;
-  }
+    .modal-title {
+        font-size:  1.25rem;
+        text-align: center;
+    }
 
-  .modal-image {
-    max-width: 12rem;
-  }
+    .modal-product .modal-description {
+        text-align: center;
+    }
 
-  .modal-title {
-    font-size: 1.4rem;
-    text-align: center;
-  }
+    .modal-variant-group {
+        margin-top: 0.25rem;
+    }
 
-  .modal-description {
-    font-size: 0.88rem;
-    text-align: center;
-  }
+    .modal-select {
+        font-size: 0.75rem;
+        padding:   0.25rem 0.5rem;
+    }
 
-  .modal-variant-group {
-    margin-top: 0.35rem;
-  }
+    .modal-buttons {
+        flex-direction:  column;
+        align-items:     stretch;
+        justify-content: center;
+        margin-top:      0.25rem;
+    }
 
-  .modal-select {
-    font-size: 0.88rem;
-    padding: 0.3rem 0.45rem;
-  }
+    .modal-buttons .product-modal-price {
+        order:      -1;
+        align-self: auto;
+        width:      100%;
+    }
 
-  .modal-buttons {
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: center;
-    margin-top: 1rem;
-  }
+    .modal-buttons button {
+        width: 100%;
+    }
 
-  .modal-buttons .product-modal-price {
-    order: -1;
-    align-self: auto;
-    width: 100%;
-  }
-
-  .modal-buttons button {
-    width: 100%;
-  }
-
-  .merch-modal {
-    grid-template-columns: 1fr;
-  }
+    .merch-modal {
+        grid-template-columns: 1fr;
+    }
 }
 
+/* Medium small */
 @container modal (min-width: 421px) and (max-width: 600px) {
-  .modal-product {
-    padding: 1.1rem 0.75rem 1.35rem;
-    gap:     1.1rem;
-  }
+    .modal-product {
+        padding:    .25rem 0.5rem .25rem;
+    }
 
-  .modal-product-media {
-    max-width: 13rem;
-    margin-inline: auto;
-  }
-
-  .modal-image {
-    max-width: 13rem;
-  }
-
-  .modal-buttons {
-    flex-direction: column;
-  }
+    .modal-buttons {
+        flex-direction: column;
+        margin-top:     0.25rem;
+    }
 }
 
-/* UPDATED: stacked stops at 677 now */
-@container modal (min-width: 601px) and (max-width: 677px) {
-  .modal-product {
-    padding: 1.25rem 0.75rem 1.5rem;
-    gap:     1.25rem;
-  }
+/* Medium */
+@container modal (min-width: 769px) and (max-width: 1100.98px) {
+    .modal-product {
+        padding:    0 0.75rem .25rem;
+    }
 
-  .modal-product-media {
-    max-width: 14rem;
-    margin-inline: auto;
-  }
+    .modal-title {
+        font-size: 1.5rem;
+    }
 
-  .modal-image {
-    max-width: 14rem;
-    margin-inline: auto;
-    margin-top: -2.5rem;
-  }
+    .modal-select {
+        font-size: 1rem;
+        padding:   0.25rem 0.5rem;
+    }
 
-  .modal-title {
-    font-size: 1.6rem;
-  }
+    .modal-buttons {
+        flex-direction: column;
+        margin-top:     0.25rem;
+    }
 
-  .modal-description {
-    font-size: 0.9rem;
-  }
-
-  .modal-select {
-    font-size: 0.9rem;
-    padding: 0.35rem 0.5rem;
-  }
-
-  .modal-buttons {
-    flex-direction: column;
-    margin-top: 0.25rem;
-  }
-
-  .modal-buttons .product-modal-price {
-    font-size: 1.1rem;
-  }
+    .modal-buttons .product-modal-price {
+        font-size: 1rem;
+    }
 }
 
-/* UPDATED: “desktop-ish” row layout begins at 678 now */
-@container modal (min-width: 678px) and (max-width: 1100px) {
-  .modal-product {
-    flex-direction: row;
-    align-items: center;
-    gap: 1.75rem;
-  }
+@container modal (min-width: 841px) {
 
-  .modal-product-media {
-    flex: 0 0 auto;
-    max-width: 13rem;
-    margin-inline: 0 1.75rem;
-  }
+    .modal-buttons {
+        display:               grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap:                   0.75rem;
+        align-items:           center;
+    }
 
-  .modal-image {
-    max-width: 13rem;
-    margin-top: 0;
-  }
+    .modal-buttons .product-modal-price {
+        grid-column:  1 / -1;
+        justify-self: stretch;
+        text-align:   center;
+        width:        100%;
+    }
 
-  .modal-product-body {
-    min-width: 0;
-    flex: 1 1 auto;
-  }
-
-  /* use the same button behavior as large screens */
-  .modal-buttons {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-top: 1.25rem;
-  }
-
-  .modal-buttons .product-modal-price {
-    order: -1;
-    flex: 0 0 100%;
-    display: inline-block;
-    width: auto;
-    align-self: center;
-    text-align: center;
-    margin-bottom: 0.5rem;
-  }
-
-  .modal-buttons button {
-    flex: 1 1 0;
-    text-align: center;
-    min-width: 10rem; /* optional: prevents tiny buttons */
-  }
+    .modal-buttons button {
+        width:     100%;
+        min-width: 0;
+    }
 }
 
+/* 1200px+: single row, three equal-width cells */
+@container modal (min-width: 1200px) {
+    .modal-buttons {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .modal-buttons .product-modal-price {
+        grid-column:  auto;
+        width:        100%;
+        justify-self: stretch;
+    }
+
+    .modal-buttons button {
+        width: 100%;
+    }
+
+    .modal-description {
+        font-size: 1rem;
+    }
+}
+
+/* Largest modal: same as wide, allow the media to grow a bit more */
 @container modal (min-width: 1101px) {
-  .modal-product {
-    flex-direction: row;
-    align-items: center;
-    gap: 1.75rem;
-  }
+    .modal-product {
+        flex-direction: row;
+        align-items:    center;
+    }
 
-  .modal-product-media {
-    flex: 0 0 auto;
-    max-width: 13rem;
-    margin-inline: 0 1.75rem;
-  }
+    .modal-product-media {
+        margin-inline: 0;
+        max-width:     none;
+        width:         auto;
+        flex:          0 1 clamp(16rem, 28cqw, 24rem);;
+        align-self:    center;
+    }
 
-  .modal-image {
-    max-width: 13rem;
-    margin-top: 0;
-  }
+    .modal-buttons {
+        display:        flex;
+        flex-direction: row;
+        flex-wrap:      wrap;
+        gap:            1rem;
+        margin-top:     0.5rem;
+    }
 
-  .modal-buttons {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-top: 1.25rem;
-  }
+    .modal-buttons .product-modal-price {
+        order:        -1;
+        flex:          1;
+        display:       inline-block;
+        width:         auto;
+        align-self:    center;
+        text-align:    center;
+        margin-bottom: 0.5rem;
+    }
 
-  .modal-buttons .product-modal-price {
-    order: -1;
-    flex: 0 0 100%;
-    display: inline-block;
-    width: auto;
-    align-self: center;
-    text-align: center;
-    margin-bottom: 0.5rem;
-  }
-
-  .modal-buttons button {
-    flex: 1 1 0;
-    text-align: center;
-  }
+    .modal-buttons button {
+        flex:       1 1 0;
+        text-align: center;
+    }
 }
 
 /* =======================================================================================================
@@ -596,11 +506,11 @@
 }
 
 ::view-transition-old(product-image) {
-    animation: merch-thumb-fade-glow 180ms ease-out forwards;
+    animation: merch-thumb-fade-glow .2s ease-out forwards;
 }
 
 ::view-transition-new(product-image) {
-    animation: merch-modal-warp-in 260ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation: merch-modal-warp-in .5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 /* =======================================================================================================
@@ -608,29 +518,14 @@
    ======================================================================================================= */
 
 @keyframes merch-thumb-fade-glow {
-    0% {
-        opacity:   1;
-        transform: scale(1);
-    }
-    100% {
-        opacity:   0;
-        transform: scale(0.97);
-    }
+      0% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(0.97); }
 }
 
 @keyframes merch-modal-warp-in {
-    0% {
-        opacity:   0;
-        transform: scale(0.88) rotate(0.6deg);
-    }
-    60% {
-        opacity:   1;
-        transform: scale(1.04) rotate(-0.2deg);
-    }
-    100% {
-        opacity:   1;
-        transform: scale(1);
-    }
+      0% { opacity: 0; transform: scale(0.88) rotate( 0.6deg); }
+     60% { opacity: 1; transform: scale(1.04) rotate(-0.2deg); }
+    100% { opacity: 1; transform: scale(1); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -641,16 +536,26 @@
 }
 
 #modal:not(.hidden) .modal-panel {
-    animation: modal-panel-in 0.2s ease-out;
+    animation: modal-panel-in .2s ease-out;
 }
 
 @keyframes modal-panel-in {
-    from {
-        opacity:   0;
-        transform: scale(0.96);
+    from { opacity: 0; transform: scale(0.96);}
+      to { opacity: 1; transform: scale(1); }
+}
+
+/* =====================================================================================
+   Viewport gate: keep product modal STACKED until >= 768px viewport width
+   ===================================================================================== */
+
+@container modal (max-width: 1100px) {
+    .modal-product {
+        flex-direction: column;
+        align-items:    stretch;
     }
-    to {
-        opacity:   1;
-        transform: scale(1);
+
+    .modal-product-media {
+        align-self:    auto;
+        margin-inline: auto;
     }
 }

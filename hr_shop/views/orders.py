@@ -1,16 +1,16 @@
 # hr_access/views/account_get_orders.py
 
-from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_GET
 
 from hr_core.utils.email import normalize_email
 from hr_shop.models import Customer, Order
+from utils.http import hx_login_required
 
 PER_PAGE = 20
 
-
+@hx_login_required
 def _orders_queryset_for_user(user):
     """
     Return a queryset of account_get_orders visible to this authenticated user.
@@ -34,7 +34,7 @@ def _orders_queryset_for_user(user):
         .distinct()
     )
 
-
+@hx_login_required
 def _paginate(qs, *, page: int, per: int):
     """
     Offset pagination with the "n+1 trick".
@@ -48,7 +48,7 @@ def _paginate(qs, *, page: int, per: int):
     return rows[:per], has_more
 
 
-@login_required
+@hx_login_required
 def orders(request):
     """
     First page of account_get_orders, rendered into a modal partial.
@@ -65,7 +65,7 @@ def orders(request):
     return render(request, "hr_access/orders/_orders_modal.html", ctx)
 
 
-@login_required
+@hx_login_required
 def orders_page(request, n: int):
     """
     Subsequent pages of account_get_orders.
@@ -83,7 +83,7 @@ def orders_page(request, n: int):
     return render(request, "hr_access/orders/_orders_modal.html", ctx)
 
 
-@login_required
+@hx_login_required
 @require_GET
 def order_detail_modal(request, order_id: int):
     """

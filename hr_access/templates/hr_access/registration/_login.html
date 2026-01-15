@@ -1,20 +1,17 @@
 {# hr_access/templates/hr_access/registration/_login.html #}
+
 {% load form_group %}
 
 <div class="sidebar-panel sidebar-auth">
     <h2 class="sub-header modal-title">Sign In</h2>
 
-
-{% include 'hr_common/_non_field_errors.html' %}
+    {% include 'hr_common/_non_field_errors.html' %}
 
     <form
-            method="post"
-            action="{% url 'hr_access:auth_login' %}"
             hx-post="{% url 'hr_access:auth_login' %}"
             hx-target="#sidebar-access"
             hx-swap="innerHTML transition:true"
-            class="form login-form"
-    >
+            class="form login-form">
         {% csrf_token %}
 
         <div>
@@ -31,12 +28,11 @@
 
         <div class="small">
             <button
-                type="button"
-                class="link-btn"
-                hx-get="{% url 'hr_access:password_reset' %}"
-                hx-target="#modal-content"
-                hx-swap="innerHTML transition:true"
-            >
+                    type="button"
+                    class="link-btn"
+                    hx-get="{% url 'hr_access:password_reset' %}"
+                    hx-target="#modal-content"
+                    hx-swap="innerHTML transition:true">
                 Forgot password?
             </button>
         </div>
@@ -51,8 +47,7 @@
                     class="card-btn btn-neon btn-blue btn-sm"
                     hx-get="{% url 'hr_access:account_signup' %}"
                     hx-target="#modal-content"
-                    hx-swap="innerHTML transition:true"
-            >
+                    hx-swap="innerHTML transition:true">
                 Create Account
             </button>
         </div>
