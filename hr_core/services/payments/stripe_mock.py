@@ -1,4 +1,4 @@
-# hr_shop/gateways/stripe_mock.py
+# hr_core/services/payments/stripe_mock.py
 import json, uuid, time
 from django.urls import reverse
 from .base import PaymentGateway, CheckoutSession

@@ -1,4 +1,4 @@
-// hr_bulletin/static/hr_bulletin/js/bulletin.js
+// hr_core/static_src/js/modules/bulletin.js
 
 export function initBulletin() {
     if (document.body._bulletinInitDone) return;

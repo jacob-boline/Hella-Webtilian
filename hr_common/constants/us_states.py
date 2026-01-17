@@ -1,3 +1,5 @@
+# hr_common/constants/us_states.py
+
 US_STATES = [
     ("AL", "Alabama"),
     ("AK", "Alaska"),

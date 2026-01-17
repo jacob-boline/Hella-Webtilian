@@ -1,3 +1,5 @@
+# hr_shop/views/products.py
+
 import json
 
 from django.http import HttpResponseBadRequest, HttpResponse, JsonResponse
@@ -7,13 +9,6 @@ from django.views.decorators.http import require_POST, require_GET
 
 from hr_shop.models import Product
 from hr_shop.utils.image_resolver import resolve_variant_for_values
-
-
-# def get_merch_grid_partial(request):
-#
-#     products = get_active_product_tree()
-#
-#     return render(request, 'hr_shop/_OLD_merch_grid_partial.html', {'products': products, })
 
 
 def get_product_modal_partial(request, product_slug):
@@ -44,10 +39,10 @@ def get_product_modal_partial(request, product_slug):
         })
 
     context = {
-        'product': product,
-        'option_types': option_types,
+        'product':         product,
+        'option_types':    option_types,
         'display_variant': display_variant,
-        'variants_json': json.dumps(variants_data)
+        'variants_json':   json.dumps(variants_data)
     }
 
     return render(request, 'hr_shop/shop/_product_detail_modal.html', context)
@@ -75,22 +70,18 @@ def update_details_modal(request, product_slug):
     if not selected_value_ids:
         return HttpResponseBadRequest('No options selected')
 
-    # 🔥 Resolve the variant first
     variant = resolve_variant_for_values(product, selected_value_ids)
-
-    # Resolve image from that variant
     img = variant.resolve_image() if variant else None
+
     if img and getattr(img, "image", None):
         image_url = img.image.url
     else:
-        image_url = static('hr_shop/img/placeholder_2.png')
+        image_url = static('hr_shop/img/placeholder_2.png')  # TODO implement a value in settings for this
 
-    # At this point, resolve_variant_for_values should NEVER return None,
-    # so it's safe to drop the `if variant else None` guards:
     context = {
-        "image_url": image_url,
-        "price": str(variant.price),
-        "variant_slug": variant.slug,
+        "image_url":    image_url,
+        "price":        str(variant.price),
+        "variant_slug": variant.slug
     }
 
     response = HttpResponse(status=204)
@@ -110,7 +101,7 @@ def product_image_for_selection(request, product_slug):
     # Gather selected option value IDs
     raw_ids = request.GET.getlist("ov")
     try:
-        selected_ids = {int(x) for x in raw_ids if x}
+        selected_ids = { int(x) for x in raw_ids if x }
     except ValueError:
         selected_ids = set()
 
@@ -126,7 +117,6 @@ def product_image_for_selection(request, product_slug):
     if selected_ids:
         # Look for the most specific variant whose option_values
         # set is a superset of the selected IDs.
-        # (If you want strict equality, change the condition.)
         for v in variants:
             v_ids = set(v.option_values.values_list("id", flat=True))
             if selected_ids.issubset(v_ids):
@@ -142,7 +132,7 @@ def product_image_for_selection(request, product_slug):
         return JsonResponse(
             {
                 "url": img.image.url,
-                "alt": img.alt_text or product.name,
+                "alt": img.alt_text or product.name
             }
         )
 
@@ -150,6 +140,6 @@ def product_image_for_selection(request, product_slug):
     return JsonResponse(
         {
             "url": "",
-            "alt": product.name,
+            "alt": product.name
         }
     )

@@ -1,3 +1,4 @@
+# hr_django/settings.py
 """
 Django settings for hellaWebtilian project.
 
@@ -12,7 +13,7 @@ from pathlib import Path
 
 from django.core.management.utils import get_random_secret_key
 
-from hr_core.utils.structlog_config import (
+from hr_config.structlog_config import (
     get_structlog_processors,
     get_structlog_renderer,
 )
@@ -59,7 +60,7 @@ AUTHENTICATION_BACKENDS = [
     "hr_access.auth_backend.CustomBackend",
 ]
 
-CSRF_FAILURE_VIEW = 'hr_core.utils.http.csrf_failure'
+CSRF_FAILURE_VIEW = 'hr_common.utils.htmx_responses.csrf_failure'
 
 # -----------------------------
 # Apps
@@ -145,7 +146,6 @@ TEMPLATES = [
 
                 # Project
                 "hr_shop.context_processors.cart_context",
-                "hr_core.context_processors.vite_flags",
             ],
         },
     },

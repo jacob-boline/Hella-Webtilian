@@ -1,3 +1,4 @@
+{# hr_access/templates/hr_access/user_admin/_demote_superuser_button.html #}
 <button type="button"
         class="btn btn-sm btn-danger"
         hx-get="{% url 'hr_access:admin_confirm_privilege_demotion' user_id=user.id %}"

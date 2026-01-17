@@ -1,6 +1,5 @@
-{# hr_access/templates/hr_access/_unclaimed_orders_modal.html #}
+{# hr_access/templates/hr_access/orders/_unclaimed_orders_modal.html #}
 
-{#<div class="modal-panel unclaimed-orders-modal">#}
 <div class="unclaimed-orders-modal modal-content">
     <div class="unclaimed-orders-layout">
         <h2 class="sub-header modal-title">Unclaimed orders</h2>
@@ -27,11 +26,10 @@
             </p>
 
             {% if unclaimed_orders %}
-                <form
-                        method="post"
-                        hx-post="{% url 'hr_access:account_submit_claim_unclaimed_orders' %}"
-                        hx-target="#modal-content"
-                        hx-swap="innerHTML transition:true">
+                <form method="post"
+                      hx-post="{% url 'hr_access:account_submit_claim_unclaimed_orders' %}"
+                      hx-target="#modal-content"
+                      hx-swap="innerHTML transition:true">
 
                     {% csrf_token %}
 
@@ -46,11 +44,10 @@
                         </div>
                         {% for o in unclaimed_orders %}
                             <label class="order-claim-row">
-                                <input
-                                        type="checkbox"
-                                        name="order_ids"
-                                        value="{{ o.id }}"
-                                        class="unclaimed-order-checkbox">
+                                <input type="checkbox"
+                                       name="order_ids"
+                                       value="{{ o.id }}"
+                                       class="unclaimed-order-checkbox">
                                 <span class="order-claim-id">#{{ o.id }}</span>
                                 <span class="order-claim-meta">{{ o.created_at|date:"M j, Y g:i A" }}</span>
                                 <span class="order-claim-meta">${{ o.total|floatformat:2 }}</span>

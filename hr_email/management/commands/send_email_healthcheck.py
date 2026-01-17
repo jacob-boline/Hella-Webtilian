@@ -1,3 +1,5 @@
+# hr_email/management/commands/send_email_healthcheck.py
+
 import os
 
 from django.core.management.base import BaseCommand, CommandError

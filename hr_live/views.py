@@ -1,13 +1,15 @@
 # hr_live/views.py
 
-from typing import Dict, Any
 import logging
+from typing import Dict, Any
+from datetime import date as date_cls
 
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
 
-from hr_core.utils.pagination import paginate
-from hr_live.unified_logging import log_event
+from hr_common.db import slug
+from hr_common.utils.pagination import paginate
+from hr_common.utils.unified_logging import log_event
 from hr_live.models import Show
 
 logger = logging.getLogger(__name__)
@@ -39,12 +41,12 @@ def _serialize_show(show: Show) -> Dict[str, Any]:
         'booker': f"{show.booker.first_name} {show.booker.last_name}".strip() if show.booker_id else None,
         'lineup': lineup_names,
         'image': show.image.url if show.image else None,
-        'readable_details': show.readable_details,
+        'readable_details': show.readable_details
     }
 
 
 # -------------------------------------------------------------------
-# SSR: /live/ — upcoming shows list
+#  upcoming shows list
 # -------------------------------------------------------------------
 
 def live_upcoming_list(request):
@@ -55,7 +57,7 @@ def live_upcoming_list(request):
         logging.INFO,
         "live.upcoming_list.rendered",
         page_number=page_obj.number,
-        total_count=page_obj.paginator.count,
+        total_count=page_obj.paginator.count
     )
 
     context = {
@@ -78,68 +80,33 @@ def live_past_list(request):
         logging.INFO,
         "live.past_list.rendered",
         page_number=page_obj.number,
-        total_count=page_obj.paginator.count,
+        total_count=page_obj.paginator.count
     )
 
     context = {
         'page_obj': page_obj,
-        'shows': page_obj.object_list,
+        'shows': page_obj.object_list
     }
 
     return render(request, 'hr_live/past_list.html', context)
+
+
+def show_details(request, year: int, month: int, day: int, venue_slug: slug):
+    show_date = date_cls(year, month, day)
+    show = get_object_or_404(
+        Show.objects.select_related('venue'),
+        date=show_date,
+        venue__slug=venue_slug,
+        status='published'
+    )
+    ctx = {'show': show}
+    pass
+
 
 # ---------------------------------------------------------------------------------------------------#
 #                        BELOW IS NOT FOR MVP - COMMENTED UNTIL NEEDED                               #
 # ---------------------------------------------------------------------------------------------------#
 
-#
-# # -------------------------------------------------------------------
-# # HTMX: /live/partial/list?page=n
-# # -------------------------------------------------------------------
-#
-# def live_upcoming_partial(request):
-#     qs = Show.objects.upcoming()
-#     page_obj = _paginate(request, qs, per_page=10)
-#
-#     context = {
-#         'page_obj': page_obj,
-#         'shows': page_obj.object_list,
-#     }
-#
-#     return render(request, 'hr_live/partials/upcoming_list.html', context)
-#
-#
-# # -------------------------------------------------------------------
-# # JSON: /api/live/shows?status=published&after=today
-# # -------------------------------------------------------------------
-# def api_live_shows_list(request):
-#     status = request.GET.get('status', None)
-#     after = request.GET.get('after')
-#
-#     qs = Show.objects.all()
-#
-#     if status:
-#         qs = qs.filter(status=status)
-#
-#     if after:
-#         if after == 'today':
-#             dt = _get_today()
-#         else:
-#             try:
-#                 dt = datetime.strptime(after,'%Y-%m-%d').date()
-#             except ValueError:
-#                 return JsonResponse(
-#                     {'error': "Invalid 'after' date. Use 'today' or YYYY-MM-DD."},
-#                     status=400
-#                 )
-#         qs = qs.filter(date__gte=dt)
-#
-#     qs = qs.order_by('date', 'time', 'id')
-#
-#     data = [_serialize_show(show) for show in qs]
-#     return JsonResponse({'results': data}, status=200)
-#
-#
 # # -------------------------------------------------------------------
 # # iCal: /live/calendar.ics — all upcoming shows
 # # -------------------------------------------------------------------
@@ -189,57 +156,3 @@ def live_past_list(request):
 #     response = HttpResponse(ical_content, content_type='text/calendar; charset=utf-8')
 #     response['Content-Disposition'] = 'attachment; filename=\"live-shows.ics\"'
 #     return response
-#
-#
-#
-#
-#
-# # -------------------------------------------------------------------
-# # HTMX: /live/partial/past?page=n
-# # -------------------------------------------------------------------
-#
-# def live_past_partial(request):
-#     qs = Show.objects.past()
-#     page_obj = _paginate(request, qs, per_page=10)
-#
-#     context = {
-#         "page_obj": page_obj,
-#         "shows": page_obj.object_list,
-#     }
-#     return render(request, 'hr_live/partials/past_list.html', context)
-#
-#
-# # -------------------------------------------------------------------
-# # Detail: /live/<slug>/ — show detail
-# # -------------------------------------------------------------------
-#
-# def live_detail(request, slug):
-#     show = get_object_or_404(Show, slug=slug, status="published")
-#
-#     context = {
-#         "show": show,
-#     }
-#     return render(request, "hr_live/detail.html", context)
-#
-#
-# # -------------------------------------------------------------------
-# # HTMX: /live/partial/<slug>/card
-# # -------------------------------------------------------------------
-#
-# def live_detail_card_partial(request, slug):
-#     show = get_object_or_404(Show, slug=slug, status="published")
-#
-#     context = {
-#         "show": show,
-#     }
-#     return render(request, "hr_live/partials/show_card.html", context)
-#
-#
-# # -------------------------------------------------------------------
-# # JSON: /api/live/shows/<slug>
-# # -------------------------------------------------------------------
-#
-# def api_live_show_detail(request, slug):
-#     show = get_object_or_404(Show, slug=slug, status="published")
-#     data = _serialize_show(show)
-#     return JsonResponse(data, status=200)

@@ -12,9 +12,9 @@ from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
 from phonenumber_field.phonenumber import PhoneNumber
 
+from hr_common.db.slug import sync_slug_from_source
 from hr_common.models import Address
 from hr_live.managers import ShowManager, VenueManager, BookerManager, MusicianManager, ActManager
-from hr_core.utils.slug import sync_slug_from_source
 
 
 def fmt(obj):
@@ -70,6 +70,7 @@ class Venue(models.Model):
     note = models.TextField(max_length=5000, blank=True, null=True, verbose_name="Note")
     bookers = models.ManyToManyField("Booker", related_name="venues", verbose_name="Bookers")
     address = models.ForeignKey(Address, related_name="venue", verbose_name="Address", on_delete=models.PROTECT, null=True)
+    slug = models.SlugField(max_length=140, unique=True, blank=True)
 
     objects = VenueManager()
 
@@ -80,6 +81,10 @@ class Venue(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        sync_slug_from_source(self, self.name, max_length=140)
+        super().save(*args, **kwargs)
 
     @property
     def formatted_phone(self) -> str:
@@ -311,12 +316,8 @@ class Show(models.Model):
         return f"{date_str} -- {venue_str} -- {time_str}"
 
     def save(self, *args, **kwargs):
-        if self.date and self.venue_id:
-            source = f"{self.date.isoformat()}-{self.venue.name}"
-        else:
-            source = None
-
-        sync_slug_from_source(self, self.title, max_length=140)
+        if self.date:
+            sync_slug_from_source(self, self.date.isoformat(), max_length=140)
         super().save(*args, **kwargs)
 
     # helpers

@@ -1,4 +1,4 @@
-{# hr_access/templates/hr_access/_orders_modal_body.html #}
+{# hr_access/templates/hr_access/orders/_orders_modal_body.html #}
 
 <article class="orders-modal account-orders-modal m-shell">
     <header class="m-head">
@@ -8,23 +8,13 @@
     <section class="m-body">
         {% if unclaimed_count %}
             <p class="orders-unclaimed-note">
-                <button
-                    type="button"
-                    class="orders-unclaimed-link text-center"
+                <button type="button"
+                        class="orders-unclaimed-link text-center"
                         hx-get="{% url 'hr_access:account_get_unclaimed_orders' %}"
                         hx-target="#modal-content"
                         hx-swap="innerHTML transition:true">
                     Click here to view the unclaimed orders associated with this email.
                 </button>
-{#                <a#}
-{#                        href="#"#}
-{#                        class="orders-unclaimed-link text-center"#}
-{#                        hx-get="{% url 'hr_access:account_get_unclaimed_orders' %}"#}
-{#                        hx-target="#modal-content"#}
-{#                        hx-swap="innerHTML transition:true"#}
-{#                        onclick="return false;">#}
-{#                    There are unclaimed orders associated with this email.#}
-{#                </a>#}
             </p>
         {% endif %}
 
@@ -53,8 +43,7 @@
                         <div class="orders-actions">
                             <p class="orders-total">${{ order.total|floatformat:2 }}</p>
 
-                            <button
-                                    type="button"
+                            <button type="button"
                                     class="card-btn btn-neon btn-blue btn-sm"
                                     hx-get="{% url 'hr_access:account_get_order_receipt' order.id %}"
                                     hx-target="#modal-content"
@@ -78,7 +67,9 @@
     </section>
 
     <footer class="m-foot m-actions mt-3">
-        <button type="button" class="card-btn btn-neon btn-blue btn-sm" data-modal-close>
+        <button type="button"
+                class="card-btn btn-neon btn-blue btn-sm"
+                data-modal-close>
             Close
         </button>
     </footer>

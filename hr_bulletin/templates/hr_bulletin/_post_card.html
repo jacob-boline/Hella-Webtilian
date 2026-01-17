@@ -1,7 +1,6 @@
-{# hr_bulletin/templates/_post_card.html #}
+{# hr_bulletin/templates/hr_bulletin/_post_card.html #}
 
-<article class="bulletin-post
-       {% if post.body|length > 260 %}is-collapsible is-collapsed{% endif %}">
+<article class="bulletin-post {% if post.body|length > 260 %}is-collapsible is-collapsed{% endif %}">
 
     {% if post.hero %}
         <div class="bulletin-hero">
@@ -39,7 +38,6 @@
         {% if post.body %}
             <div class="bulletin-body">
                 <div class="bulletin-body-inner">
-                    {# render however you normally render body; tweak filter if needed #}
                     {{ post.body|linebreaksbr }}
                 </div>
 
@@ -56,5 +54,4 @@
             </div>
         {% endif %}
     </header>
-
 </article>

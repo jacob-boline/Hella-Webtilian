@@ -1,3 +1,5 @@
+# hr_email/mailjet.py
+
 from functools import lru_cache
 from typing import Iterable, Optional
 

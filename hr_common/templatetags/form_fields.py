@@ -6,7 +6,7 @@ import logging
 from django import template
 from django.forms import BoundField
 
-from hr_common.unified_logging import log_event
+from hr_common.utils.unified_logging import log_event
 
 register = template.Library()
 logger = logging.getLogger(__name__)
@@ -67,7 +67,7 @@ def form_field(
             'debug_error': f'form_field expected BoundField, got {type(field).__name__}: {repr(field)}',
         }
 
-    # Defaukt: use Django's label
+    # Default: use Django's label
     label_text = label or field.label
 
     # Default: use the form field's required attribute
@@ -79,42 +79,6 @@ def form_field(
 
     state = _field_state(field)
     has_errors = bool(field.errors)
-
-    # field_id = field.id_for_label
-    # help_id = f"{field.auto_id}-help" if help_text else ""
-    # error_id = f"{field.auto_id}-errors" if has_errors else ""
-    #
-    # described_by_ids = " ".join(x for x in [help_id, error_id] if x) or None
-    #
-    # widget_attrs = {}
-    #
-    # if has_errors:
-    #     widget_attrs['aria-invalid'] = 'true'
-    # if described_by_ids:
-    #     widget_attrs['aria-describedby'] = described_by_ids
-    # if placeholder is not None:
-    #     widget_attrs['placeholder'] = str(placeholder)
-    #
-    # if isinstance(extra_attrs, dict):
-    #     widget_attrs.update(extra_attrs)
-    #
-    # rendered_field = field.as_widget(attrs=widget_attrs)
-    #
-    # return {
-    #     'field': field,
-    #     'rendered_field': rendered_field,
-    #     'label': label_text,
-    #     'required ': required_flag,
-    #     'help': help_text,
-    #     'wrapper_classes': wrapper_classes,
-    #     'group_classes': group_classes,
-    #     'state': state,
-    #     'has_errors': has_errors,
-    #     'field_id': field_id,
-    #     'help_id': help_id,
-    #     'error_id': error_id,
-    #     'debug_error': ''
-    # }
 
     field_id = field.id_for_label
     help_id = f'{field.auto_id}-help' if help_text else ''

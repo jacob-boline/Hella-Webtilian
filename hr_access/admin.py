@@ -9,7 +9,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
 
 from hr_access.forms import AccountAdminChangeForm, AccountValidationMixin
-from hr_core.utils.email import normalize_email
+from hr_common.utils.email import normalize_email
 
 User = get_user_model()
 
@@ -47,7 +47,7 @@ class AccountAdminAddForm(AccountValidationMixin, forms.ModelForm):
     def save(self, commit: bool = True):
         user = super().save(commit=False)
 
-        user.email = normalize_email(self.cleaned_data.get("email") or "")
+        user.email = self.cleaned_data.get("email")
         user.username = (self.cleaned_data.get("username") or "").strip()
         user.set_password(self.cleaned_data["password"])
 

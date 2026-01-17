@@ -17,7 +17,7 @@ from django.utils.translation import gettext_lazy as _
 
 from hr_access.constants import RESERVED_USERNAMES
 from hr_access.models import User
-from hr_core.utils.email import normalize_email
+from hr_common.utils.email import normalize_email
 
 
 # ------------------------------------------------------------

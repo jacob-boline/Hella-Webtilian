@@ -1,62 +1,62 @@
 {# hr_access/templates/hr_access/post_purchase/_post_purchase_account_success.html #}
 
 <div id="post-purchase-account" class="post-purchase-account">
-  <div class="flex-col-center">
-    <h3 class="modal-title">Account created</h3>
-    <p class="text-muted">This order is now linked to your account.</p>
+    <div class="flex-col-center">
+        <h3 class="modal-title">Account created</h3>
+        <p class="text-muted">This order is now linked to your account.</p>
 
-    {% if claimed_count %}
-      <p class="text-faint">
-        Claimed {{ claimed_count }} additional order{{ claimed_count|pluralize }}.
-      </p>
-    {% endif %}
+        {% if claimed_count %}
+            <p class="text-faint">
+                Claimed {{ claimed_count }} additional order{{ claimed_count|pluralize }}.
+            </p>
+        {% endif %}
 
-    {% if other_orders %}
-      <div class="modal-helpbox" style="max-width: 520px;">
-        <p>We found older orders for {{ order.email }}</p>
-        <ul>
-          <li>Select any you want to link to this account.</li>
-          <li>Nothing changes unless you confirm.</li>
-        </ul>
-      </div>
+        {% if other_orders %}
+            <div class="modal-helpbox" style="max-width: 520px;">
+                <p>We found older orders for {{ order.email }}</p>
+                <ul>
+                    <li>Select any you want to link to this account.</li>
+                    <li>Nothing changes unless you confirm.</li>
+                </ul>
+            </div>
 
-      <form
-        method="post"
-        hx-post="{% url 'hr_access:account_submit_post_purchase_claim_orders' order.id %}"
-        hx-target="#post-purchase-account"
-        hx-swap="outerHTML transition:true">
+            <form
+                    method="post"
+                    hx-post="{% url 'hr_access:account_submit_post_purchase_claim_orders' order.id %}"
+                    hx-target="#post-purchase-account"
+                    hx-swap="outerHTML transition:true">
 
-        {% csrf_token %}
+                {% csrf_token %}
 
-        <div class="order-claim-list">
-          {% for o in other_orders %}
-            <label class="order-claim-row">
-              <input type="checkbox" name="order_ids" value="{{ o.id }}">
-              <span class="order-claim-id">#{{ o.id }}</span>
-              <span class="order-claim-meta">{{ o.created_at|date:"M j, Y g:i A" }}</span>
-              <span class="order-claim-meta">${{ o.total|floatformat:2 }}</span>
-              <span class="order-claim-meta">{{ o.payment_status }}</span>
-            </label>
-          {% endfor %}
-        </div>
+                <div class="order-claim-list">
+                    {% for o in other_orders %}
+                        <label class="order-claim-row">
+                            <input type="checkbox" name="order_ids" value="{{ o.id }}">
+                            <span class="order-claim-id">#{{ o.id }}</span>
+                            <span class="order-claim-meta">{{ o.created_at|date:"M j, Y g:i A" }}</span>
+                            <span class="order-claim-meta">${{ o.total|floatformat:2 }}</span>
+                            <span class="order-claim-meta">{{ o.payment_status }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
 
-        <div class="modal-actions stack uniform">
-          <button type="submit" class="card-btn btn-neon btn-blue">
-            Link selected orders
-          </button>
-          <button type="button" class="card-btn btn-neon btn-yellow" data-modal-close>
-            Done
-          </button>
-        </div>
-      </form>
-    {% else %}
-      <p class="text-faint">No other unlinked orders for this email.</p>
+                <div class="modal-actions stack uniform">
+                    <button type="submit" class="card-btn btn-neon btn-blue">
+                        Link selected orders
+                    </button>
+                    <button type="button" class="card-btn btn-neon btn-yellow" data-modal-close>
+                        Done
+                    </button>
+                </div>
+            </form>
+        {% else %}
+            <p class="text-faint">No other unlinked orders for this email.</p>
 
-      <div class="modal-actions stack uniform">
-        <button type="button" class="card-btn btn-neon btn-blue" data-modal-close>
-          Close
-        </button>
-      </div>
-    {% endif %}
-  </div>
+            <div class="modal-actions stack uniform">
+                <button type="button" class="card-btn btn-neon btn-blue" data-modal-close>
+                    Close
+                </button>
+            </div>
+        {% endif %}
+    </div>
 </div>

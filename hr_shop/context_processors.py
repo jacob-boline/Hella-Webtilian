@@ -1,4 +1,4 @@
-#  hr_shop/content_processor.py
+# hr_shop/context_processors.py
 
 
 from hr_shop.cart import get_cart_item_count

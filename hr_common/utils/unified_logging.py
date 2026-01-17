@@ -1,3 +1,22 @@
+# hr_common/utils/unified_logging.py
+
+
+"""
+Request-id + payload redaction utilities for unified logging.
+
+Provides:
+- A request_id contextvar that is bound into structlog contextvars
+- Generation and propagation of request IDs (X-Request-ID)
+- A logging.Filter that injects request_id into standard logging records
+- Recursive payload redaction helpers to prevent sensitive data leaks in logs
+
+Design goals:
+- Every log line in a request should carry a request_id
+- Logs should be safe by default (redact common sensitive fields)
+- Works with both standard logging and structlog
+"""
+
+
 from __future__ import annotations
 
 import contextvars
@@ -5,6 +24,7 @@ import logging
 import uuid
 from typing import Any, Iterable
 
+import structlog
 from structlog.contextvars import bind_contextvars, unbind_contextvars
 
 
@@ -35,6 +55,12 @@ _SENSITIVE_KEY_PARTS = (
     "stripe",
     "ssn",
 )
+
+
+def log_event(logger: logging.Logger, level: int, event: str, *, exc_info: bool = False, **data: Any,) -> None:
+    payload = redact_payload(data)
+    struct_logger = structlog.get_logger(logger.name)
+    struct_logger.log(level, event, **payload, exc_info=exc_info)
 
 
 def get_request_id() -> str | None:

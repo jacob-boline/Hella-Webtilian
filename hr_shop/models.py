@@ -50,9 +50,9 @@ from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
 
 from hr_common.models import Address
-from hr_core.db.fields import NormalizedEmailField
-from hr_core.utils.email import normalize_email
-from hr_core.utils.slug import sync_slug_from_source
+from hr_common.db.fields import NormalizedEmailField
+from hr_common.utils.email import normalize_email
+from hr_common.db.slug import sync_slug_from_source
 
 
 def max_per_purchase(product):
@@ -65,7 +65,6 @@ def max_per_purchase(product):
 # ==========================
 # Catalog core
 # ==========================
-
 
 class Product(models.Model):
     name = models.CharField(max_length=255)
@@ -494,9 +493,9 @@ class Customer(models.Model):
 
 class CustomerAddress(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='addresses')
-    address = models.ForeignKey(Address, on_delete=models.PROTECT, related_name='customer_links')
+    address  = models.ForeignKey(Address, on_delete=models.PROTECT, related_name='customer_links')
     is_default_shipping = models.BooleanField(default=False)
-    is_default_billing = models.BooleanField(default=False)
+    is_default_billing  = models.BooleanField(default=False)
 
     class Meta:
         constraints = [
@@ -519,19 +518,19 @@ class CustomerAddress(models.Model):
 
 # Not currently used, but would like to replace STATUS_CHOICES with this.
 class OrderStatus(models.TextChoices):
-    RECEIVED = 'received'
+    RECEIVED   = 'received'
     PROCESSING = 'processing'
-    SHIPPED = 'shipped'
-    DELIVERED = 'delivered'
-    CANCELLED = 'cancelled'
-    RETURNED = 'returned'
+    SHIPPED    = 'shipped'
+    DELIVERED  = 'delivered'
+    CANCELLED  = 'cancelled'
+    RETURNED   = 'returned'
 
 
 class PaymentStatus(models.TextChoices):
-    PENDING = 'pending'
-    UNPAID = 'unpaid'
-    PAID = 'paid'
-    FAILED = 'failed'
+    PENDING  = 'pending'
+    UNPAID   = 'unpaid'
+    PAID     = 'paid'
+    FAILED   = 'failed'
     REFUNDED = 'refunded'
 
 
@@ -689,12 +688,12 @@ class CheckoutDraft(models.Model):
     email: str
     email = NormalizedEmailField(db_index=True)
     customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
-    address = models.ForeignKey(Address, on_delete=models.PROTECT)
+    address  = models.ForeignKey(Address, on_delete=models.PROTECT)
     note = models.CharField(max_length=1000, blank=True, null=True)
     cart = models.JSONField(default=list)  # [{'variant_id': 123, 'qty': 2, 'unit_price': '19.99'}, ...]
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField(db_index=True)
-    used_at = models.DateTimeField(null=True, blank=True)
+    used_at    = models.DateTimeField(null=True, blank=True)
     order = models.OneToOneField(
         'Order',
         on_delete=models.SET_NULL,
@@ -713,7 +712,7 @@ class CheckoutDraft(models.Model):
             models.UniqueConstraint(
                 fields=['customer'],
                 condition=Q(used_at__isnull=True),
-                name='uq_one_active_draft_per_customer',
+                name='uq_one_active_draft_per_customer'
             )
         ]
 

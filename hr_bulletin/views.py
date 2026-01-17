@@ -7,10 +7,10 @@ from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 from django.views.decorators.http import require_GET
 
-from hr_bulletin.unified_logging import log_event
+from hr_access.permissions import is_site_admin
 from hr_bulletin.models import Post
-from hr_core.utils.pagination import paginate
-from hr_core.utils.permissions import is_site_admin
+from hr_common.utils.pagination import paginate
+from hr_common.utils.unified_logging import log_event
 
 logger = logging.getLogger(__name__)
 
@@ -77,45 +77,10 @@ def bulletin_detail(request, slug):
     return render(request, "hr_bulletin/detail.html", {"post": post})
 
 
-#
-# # -------------------------------------------------------------------
+
+# # ------------------------------------------------------------------ #
 # # Helpers
-# # -------------------------------------------------------------------
-#
-# def _is_site_admin(user) -> bool:
-#     """Allow superusers or users in the 'Site admin' group (or custom property)."""
-#     if not getattr(user, "is_authenticated", False):
-#         return False
-#
-#     if getattr(user, "is_superuser", False):
-#         return True
-#
-#         # your custom property on hr_access.User
-#     if bool(getattr(user, "is_site_admin", False)):
-#         return True
-#
-#         # fallback: check group membership (guarded)
-#     try:
-#         return user.groups.filter(name="Site admin").exists()
-#     except Group.DoesNotExist:
-#         return False
-#
-#
-# def staff_or_site_admin_required(view):
-#     return login_required(user_passes_test(_is_site_admin)(view))
-#
-#
-# def _paginate(request, qs, per_page=10):
-#     page = request.GET.get('page', 1)
-#     paginator = Paginator(qs, per_page)
-#     try:
-#         page_obj = paginator.page(page)
-#     except PageNotAnInteger:
-#         page_obj = paginator.page(1)
-#     except EmptyPage:
-#         page_obj = paginator.page(paginator.num_pages)
-#     return page_obj
-#
+# # ------------------------------------------------------------------ #
 #
 # def _published_qs():
 #     now = timezone.now()
@@ -149,73 +114,3 @@ def bulletin_detail(request, slug):
 #         "allow_comments": post.allow_comments,
 #         "tags":           [t.slug for t in post.tags.all()],
 #     }
-#
-#
-# # -------------------------------------------------------------------
-# # Public: SSR container (infinite scroll shell)
-# # GET /bulletin/
-# # -------------------------------------------------------------------
-#
-#
-# @require_GET
-# def bulletin_list(request):
-#     qs = _frontpage_qs()
-#     page_obj = _paginate(request, qs, per_page=10)
-#     ctx = {"page_obj": page_obj, "posts": page_obj.object_list}
-#     return render(request, "hr_bulletin/list.html", ctx)
-#
-# # -------------------------------------------------------------------
-# # HTMX partial list (page=n)
-# # GET /bulletin/partial/list?page=n
-# # -------------------------------------------------------------------
-#
-#
-# @require_GET
-# def bulletin_list_partial(request):
-#     qs = _frontpage_qs()
-#     page_obj = _paginate(request, qs, per_page=10)
-#     ctx = {"page_obj": page_obj, "posts": page_obj.object_list}
-#     return render(request, "hr_bulletin/partials/list.html", ctx)
-#
-# # -------------------------------------------------------------------
-# # JSON list (page=n)
-# # GET /api/bulletin/posts?page=n
-# # -------------------------------------------------------------------
-#
-#
-# @require_GET
-# def api_bulletin_posts(request):
-#     qs = _frontpage_qs()
-#     page_obj = _paginate(request, qs, per_page=10)
-#     data = [_serialize_post(p) for p in page_obj.object_list]
-#     return JsonResponse(
-#         {
-#             "count":     page_obj.paginator.count,
-#             "num_pages": page_obj.paginator.num_pages,
-#             "page":      page_obj.number,
-#             "results":   data,
-#         },
-#         status=200,
-#     )
-#
-# # -------------------------------------------------------------------
-# # Public detail (staff can preview drafts via ?preview=1)
-# # GET /bulletin/<slug>/
-# # -------------------------------------------------------------------
-#
-#
-# @require_GET
-# def bulletin_detail(request, slug):
-#     preview = request.GET.get("preview") in ("1", "true", "yes")
-#     now = timezone.now()
-#
-#     if preview and _is_site_admin(request.user):
-#         post = get_object_or_404(Post, slug=slug)  # any status
-#     else:
-#         # published & released
-#         post = get_object_or_404(
-#             Post.objects.filter(slug=slug, status="published").filter(publish_at__isnull=True)
-#             | Post.objects.filter(slug=slug, status="published", publish_at__lte=now)
-#         )
-#
-#     return render(request, "hr_bulletin/detail.html", {"post": post})

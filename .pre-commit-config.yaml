@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      - id: sync-file-headers
+        name: Sync file path headers
+        entry: python scripts/sync_file_headers.py
+        language: python
+        types_or: [python, javascript, css, html, yaml]
+        pass_filenames: true

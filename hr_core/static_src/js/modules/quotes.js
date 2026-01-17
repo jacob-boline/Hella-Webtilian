@@ -1,4 +1,4 @@
-// hr_about/static/hr_about/js/quotes.js
+// hr_core/static_src/js/modules/quotes.js
 
 export function initQuotes(root = document) {
     const container = root.querySelector('#about-quotes');

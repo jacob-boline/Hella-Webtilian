@@ -6,7 +6,6 @@ from hr_shop.models import (
     ProductVariant,
     ProductOptionType,
     ProductOptionValue,
-    OptionTypeTemplate,
     ConfirmedEmail,
     Customer,
     Order,

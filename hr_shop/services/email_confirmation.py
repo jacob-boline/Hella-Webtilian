@@ -7,20 +7,20 @@ Handles sending confirmation emails and rate limiting.
 
 import logging
 import os
+from urllib.parse import urljoin
 
 from django.conf import settings
 from django.core.cache import cache
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
-from urllib.parse import urljoin
 
-from hr_core.utils.email import normalize_email
-from hr_core.utils.tokens import generate_checkout_email_token
+from hr_common.utils.email import normalize_email
+from hr_common.utils.unified_logging import log_event
 from hr_email.service import EmailProviderError, send_app_email
-from hr_shop.unified_logging import log_event
 from hr_shop.exceptions import RateLimitExceeded, EmailSendError
 from hr_shop.models import ConfirmedEmail
+from hr_shop.tokens import generate_checkout_email_token
 
 logger = logging.getLogger(__name__)
 

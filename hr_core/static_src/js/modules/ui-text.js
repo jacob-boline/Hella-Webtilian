@@ -1,4 +1,4 @@
-// hr_core/static_src/js/utils/ui-text.js
+// hr_core/static_src/js/modules/ui-text.js
 //
 // Text-wrapping / micro-typography helpers.
 // - Idempotent (won't double-wrap)

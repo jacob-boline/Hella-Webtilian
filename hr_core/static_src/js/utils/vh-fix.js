@@ -1,4 +1,4 @@
-// hr_site/static/js/vh-fix.js
+// hr_core/static_src/js/utils/vh-fix.js
 
 (() => {
     const setVH = () => {

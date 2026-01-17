@@ -1,3 +1,4 @@
+// hr_core/static_src/js/main.js
 import "../css/main.css";
 
 import './utils/globals.js';

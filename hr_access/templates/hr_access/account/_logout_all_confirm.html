@@ -11,16 +11,18 @@
                 This will end every active session for your account on all devices.
             </p>
             <div class="modal-actions grid grid-cols-1 md:grid-cols-2">
-                <button
-                    type="button"
-                    class="card-btn btn-neon btn-yellow"
-                    hx-post="{% url 'hr_access:account_logout_all_sessions' %}"
-                    hx-target="#modal-content"
-                    hx-swap="innerHTML"
-                >
+                <button type="button"
+                        class="card-btn btn-neon btn-yellow"
+                        hx-post="{% url 'hr_access:account_logout_all_sessions' %}"
+                        hx-target="#modal-content"
+                        hx-swap="innerHTML transition:true">
                     Log out everywhere
                 </button>
-                <button type="button" class="card-btn btn-neon btn-blue" data-modal-close>Cancel</button>
+                <button type="button"
+                        class="card-btn btn-neon btn-blue"
+                        data-modal-close>
+                    Cancel
+                </button>
             </div>
         </div>
     </div>

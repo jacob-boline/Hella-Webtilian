@@ -1,3 +1,4 @@
+// hr_core/static_src/js/utils/globals.js
 /**
  * @typedef  {Object}   HxDetail
  * @typedef  {Object}   HrSite

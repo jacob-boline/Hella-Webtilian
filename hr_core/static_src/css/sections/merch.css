@@ -1,3 +1,4 @@
+/* hr_core/static_src/css/sections/merch.css */
 /* ===========================
    Merch section wrapper
    =========================== */
@@ -69,6 +70,7 @@
 .merch-meta {
     display:        flex;
     flex-direction: column;
+    align-items:    center;
     gap:            0.25rem;
     padding:        0.75rem 0.75rem 0;
     font-family:    "Megrim", cursive;
@@ -76,7 +78,9 @@
 }
 
 .merch-title,
-.merch-price {
+.modal-title,
+.product-modal-price {
+    font-family: "Megrim", cursive;
     color:       var(--glow);
     text-shadow: 0 0 0.5rem darkorange;
 }
@@ -111,46 +115,24 @@
 
 @media (min-width: 1280px) {
     .merch-grid {
-        gap:                   1.5rem;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        padding-inline:        clamp(2rem, 6vw, 3rem);
+        gap:            1.5rem;
+        padding-inline: clamp(2rem, 6vw, 3rem);
+    }
+
+    .merch-meta {
+        gap: 0.5rem;
     }
 }
 
 @media (min-width: 1440px) {
     .merch-grid {
-        gap:                   1.5rem;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         padding-inline:        clamp(3rem, 6vw, 4rem);
     }
 }
 
-/* Inline only when cards are genuinely wide */
-@media (min-width: 1280px) {
-    .merch-meta {
-        flex-direction: column;
-        align-items:    center;
-        gap:            0.5rem;
-    }
-}
-
-@media (min-width: 640px) and (max-width: 1279px) {
-    .merch-meta {
-        flex-direction: column;
-        align-items:    center;
-    }
-}
-
-/* Inline for very wide screens >1920px (redundant with 1280+, but harmless) */
-@media (min-width: 1920px) {
-    .merch-meta {
-        flex-direction: column;
-        align-items:    center;
-    }
-}
-
 /* =======================================================================================================
-   Merch modal – expanded card (if used elsewhere)
+   Merch modal – expanded card
    ======================================================================================================= */
 
 .merch-modal {
@@ -167,7 +149,6 @@
     justify-content: center;
 }
 
-/* Merch-modal image only (kept separate from product modal image below) */
 .merch-modal .modal-image {
     display:       block;
     width:         100%;
@@ -233,25 +214,26 @@
     min-width:      0;
 }
 
-.modal-title,
-.product-modal-price {
-    margin:       0;
-    font-family: "Megrim", cursive;
-    font-size:    1.75rem;
-    color:        var(--glow);
-    text-shadow:  0 0 0.5rem darkorange;
+.modal-title {
+    margin:    0;
+    font-size: 1.75rem;
 }
 
 .product-modal-price {
-    display:         inline-block;
-    padding:         0.5rem 1rem;
-    border-radius:   14px;
-    background:      var(--black-alpha-75);
+    margin: 0;
+    font-weight: 700;
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 14px;
+    background: var(--black-alpha-75);
     backdrop-filter: blur(10px);
-    box-shadow:            0 0 12px rgb(var(--green) / 0.30),
-                     inset 0 0  8px var(--black-alpha-60);
-    font-weight:     700;
-    text-align:      center;
+    box-shadow:
+        0 0 12px rgb(var(--green) / 0.30),
+        inset 0 0 8px var(--black-alpha-60);
+    text-align: center;
+    align-self: center;
+    justify-self: stretch;
+    font-size: 1.15rem;
 }
 
 .modal-product .modal-description {
@@ -260,13 +242,6 @@
     font-size:   0.75rem;
     line-height: 1.5;
     color:       var(--muted-text);
-}
-
-@container modal (max-width: 768.98px) {
-    .modal-title,
-    .product-modal-price {
-        font-size: 1.25rem;
-    }
 }
 
 .modal-variant-group {
@@ -301,18 +276,12 @@
     margin-top: 1.25rem;
 }
 
-.modal-buttons .product-modal-price {
-    flex:       1;
-    text-align: center;
-    align-self: center;
-    font-size:  1.15rem;
-}
-
 .modal-buttons button {
     flex:       2;
     text-align: center;
 }
 
+/* View transition opt-out by default */
 .merch-thumb-img,
 .modal-image {
     view-transition-name: none;
@@ -328,14 +297,13 @@
    ======================================================================================================= */
 
 /* Small modal */
-@container modal (max-width: 420px) {
+@container modal (max-width: 419.98px) {
     .modal-product {
-        padding:    0.25rem 0.5rem .25rem;
-        gap:        1rem;
+        padding: 0.25rem 0.5rem;
+        gap:     1rem;
     }
 
     .modal-title {
-        font-size:  1.25rem;
         text-align: center;
     }
 
@@ -359,12 +327,6 @@
         margin-top:      0.25rem;
     }
 
-    .modal-buttons .product-modal-price {
-        order:      -1;
-        align-self: auto;
-        width:      100%;
-    }
-
     .modal-buttons button {
         width: 100%;
     }
@@ -375,9 +337,9 @@
 }
 
 /* Medium small */
-@container modal (min-width: 421px) and (max-width: 600px) {
+@container modal (min-width: 420px) and (max-width: 599.98px) {
     .modal-product {
-        padding:    .25rem 0.5rem .25rem;
+        padding: 0.25rem 0.5rem;
     }
 
     .modal-buttons {
@@ -386,14 +348,33 @@
     }
 }
 
+/* Small-medium */
+@container modal (max-width: 767.98px) {
+    .modal-title {
+        font-size:  1.25rem;
+        text-align: center;
+    }
+
+    .product-modal-price {
+        font-size:   1.05rem;
+        order:       -1;
+        width:       100%;
+        align-self:  auto;
+    }
+}
+
 /* Medium */
-@container modal (min-width: 769px) and (max-width: 1100.98px) {
+@container modal (min-width: 768px) and (max-width: 1099.98px) {
     .modal-product {
-        padding:    0 0.75rem .25rem;
+        padding: 0 0.75rem 0.25rem;
     }
 
     .modal-title {
         font-size: 1.5rem;
+    }
+
+    .product-modal-price {
+        font-size: 1rem;
     }
 
     .modal-select {
@@ -405,14 +386,10 @@
         flex-direction: column;
         margin-top:     0.25rem;
     }
-
-    .modal-buttons .product-modal-price {
-        font-size: 1rem;
-    }
 }
 
-@container modal (min-width: 841px) {
-
+/* Wide (grid actions) */
+@container modal (min-width: 840px) and (max-width: 1099.98px) {
     .modal-buttons {
         display:               grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -420,11 +397,9 @@
         align-items:           center;
     }
 
-    .modal-buttons .product-modal-price {
-        grid-column:  1 / -1;
-        justify-self: stretch;
-        text-align:   center;
-        width:        100%;
+    .product-modal-price {
+        grid-column: 1 / -1;
+        width:       100%;
     }
 
     .modal-buttons button {
@@ -433,39 +408,41 @@
     }
 }
 
-/* 1200px+: single row, three equal-width cells */
-@container modal (min-width: 1200px) {
-    .modal-buttons {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+/* =====================================================================================
+   Viewport gate: keep product modal STACKED until >= 768px viewport width
+   ===================================================================================== */
+
+@container modal (max-width: 1099.98px) {
+    .modal-product {
+        flex-direction: column;
+        align-items:    stretch;
     }
 
-    .modal-buttons .product-modal-price {
-        grid-column:  auto;
-        width:        100%;
-        justify-self: stretch;
-    }
-
-    .modal-buttons button {
-        width: 100%;
-    }
-
-    .modal-description {
-        font-size: 1rem;
+    .modal-product-media {
+        align-self:    auto;
+        margin-inline: auto;
     }
 }
 
+
 /* Largest modal: same as wide, allow the media to grow a bit more */
-@container modal (min-width: 1101px) {
+@container modal (min-width: 1100px) {
     .modal-product {
         flex-direction: row;
         align-items:    center;
+    }
+
+    .product-modal-price {
+        order:      -1;
+        width:      auto;
+        align-self: center;
     }
 
     .modal-product-media {
         margin-inline: 0;
         max-width:     none;
         width:         auto;
-        flex:          0 1 clamp(16rem, 28cqw, 24rem);;
+        flex:          0 1 clamp(16rem, 28cqw, 24rem);
         align-self:    center;
     }
 
@@ -475,16 +452,6 @@
         flex-wrap:      wrap;
         gap:            1rem;
         margin-top:     0.5rem;
-    }
-
-    .modal-buttons .product-modal-price {
-        order:        -1;
-        flex:          1;
-        display:       inline-block;
-        width:         auto;
-        align-self:    center;
-        text-align:    center;
-        margin-bottom: 0.5rem;
     }
 
     .modal-buttons button {
@@ -523,7 +490,7 @@
 }
 
 @keyframes merch-modal-warp-in {
-      0% { opacity: 0; transform: scale(0.88) rotate( 0.6deg); }
+      0% { opacity: 0; transform: scale(0.88) rotate(0.6deg); }
      60% { opacity: 1; transform: scale(1.04) rotate(-0.2deg); }
     100% { opacity: 1; transform: scale(1); }
 }
@@ -540,22 +507,6 @@
 }
 
 @keyframes modal-panel-in {
-    from { opacity: 0; transform: scale(0.96);}
+    from { opacity: 0; transform: scale(0.96); }
       to { opacity: 1; transform: scale(1); }
-}
-
-/* =====================================================================================
-   Viewport gate: keep product modal STACKED until >= 768px viewport width
-   ===================================================================================== */
-
-@container modal (max-width: 1100px) {
-    .modal-product {
-        flex-direction: column;
-        align-items:    stretch;
-    }
-
-    .modal-product-media {
-        align-self:    auto;
-        margin-inline: auto;
-    }
 }

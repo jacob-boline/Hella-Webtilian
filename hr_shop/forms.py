@@ -7,7 +7,7 @@ from phonenumber_field.formfields import PhoneNumberField
 
 from hr_common.constants.us_states import US_STATES
 from hr_common.models import BuildingType
-from hr_core.utils.email import normalize_email
+from hr_common.utils.email import normalize_email
 from hr_shop.models import Product, ProductVariant, ProductOptionType, ProductOptionValue, OptionTypeTemplate
 
 ZIP_RE = re.compile(r"^\d{5}(-\d{4})?$")

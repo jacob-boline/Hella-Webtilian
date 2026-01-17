@@ -1,7 +1,9 @@
+# hr_storage/fields.py
+
 from django.conf import settings
 from django.db import models
 
-from .storage_backends import PrivateMediaStorage
+from hr_storage.storage_backends import PrivateMediaStorage
 
 
 class PrivateFileField(models.FileField):

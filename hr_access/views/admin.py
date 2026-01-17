@@ -11,8 +11,8 @@ from django.views.decorators.http import require_POST
 
 from hr_access.forms import AccountCreationForm
 from hr_access.models import User
+from hr_common.utils.htmx_responses import hx_superuser_required
 from hr_site.views import display_message_box_modal
-from hr_core.utils.http import hx_superuser_required
 
 
 @hx_superuser_required
@@ -24,7 +24,6 @@ def admin_create_site_admin(request):
     if request.method == "POST":
         form = AccountCreationForm(request.POST)
         if not form.is_valid():
-            # Keep your existing template name (you already have it)
             from django.shortcuts import render
             return render(request, "hr_access/user_admin/add_staff_form.html", {"add_staff_form": form})
 

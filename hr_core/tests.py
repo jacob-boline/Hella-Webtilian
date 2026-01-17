@@ -1,17 +1,13 @@
-import ast
-import logging
+# hr_core/tests.py
+
 
 from django.http import HttpResponse
 from django.test import RequestFactory, SimpleTestCase
 
-from hr_core.unified_logging import log_event
 from hr_core.middleware import RequestIdMiddleware
-from hr_core.utils.unified_logging_core import (
+from hr_common.utils.unified_logging import (
     REQUEST_ID_HEADER,
     get_request_id,
-    redact_payload,
-    reset_request_id,
-    set_request_id,
 )
 
 
@@ -21,7 +17,7 @@ class RequestIdMiddlewareTests(SimpleTestCase):
         request = factory.get("/", HTTP_X_REQUEST_ID="req-123")
         captured = {}
 
-        def get_response(req):
+        def get_response(_request):
             captured["request_id"] = get_request_id()
             return HttpResponse("ok")
 
@@ -31,59 +27,3 @@ class RequestIdMiddlewareTests(SimpleTestCase):
         self.assertEqual(captured["request_id"], "req-123")
         self.assertEqual(response[REQUEST_ID_HEADER], "req-123")
         self.assertIsNone(get_request_id())
-
-
-class RedactionTests(SimpleTestCase):
-    def test_redact_payload_scrubs_sensitive_fields(self):
-        payload = {
-            "email": "user@example.com",
-            "token": "secret-token",
-            "profile": {
-                "phone": "555-0100",
-                "address": "123 Example St",
-                "nickname": "hi",
-            },
-            "items": [
-                {"name": "Item 1", "card_last4": "4242"},
-                "ok",
-            ],
-        }
-
-        redacted = redact_payload(payload)
-
-        self.assertEqual(redacted["email"], "**redacted**")
-        self.assertEqual(redacted["token"], "**redacted**")
-        self.assertEqual(redacted["profile"]["phone"], "**redacted**")
-        self.assertEqual(redacted["profile"]["address"], "**redacted**")
-        self.assertEqual(redacted["profile"]["nickname"], "hi")
-        self.assertEqual(redacted["items"][0]["card_last4"], "**redacted**")
-        self.assertEqual(redacted["items"][1], "ok")
-
-
-class LoggingTests(SimpleTestCase):
-    def test_log_event_includes_request_id_and_redacts(self):
-        logger = logging.getLogger("hr_core.tests")
-        token = set_request_id("req-707")
-
-        with self.assertLogs("hr_core.tests", level="INFO") as captured:
-            log_event(
-                logger,
-                logging.INFO,
-                "core.test_event",
-                email="user@example.com",
-                token="secret-token",
-                meta={"phone": "555-0100", "nickname": "ok"},
-            )
-
-        reset_request_id(token)
-
-        output = "\n".join(captured.output)
-        payload = ast.literal_eval(output.split(":", 2)[-1])
-        self.assertEqual(payload["event"], "core.test_event")
-        self.assertEqual(payload["request_id"], "req-707")
-        self.assertEqual(payload["email"], "**redacted**")
-        self.assertEqual(payload["token"], "**redacted**")
-        self.assertEqual(payload["meta"]["phone"], "**redacted**")
-        self.assertEqual(payload["meta"]["nickname"], "ok")
-        self.assertNotIn("user@example.com", output)
-        self.assertNotIn("secret-token", output)

@@ -1,3 +1,5 @@
+# hr_shop/views/manage.py
+
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, render
@@ -7,7 +9,7 @@ from hr_shop.forms import (
     ProductOptionTypeForm,
     ProductOptionValueForm,
     ProductQuickForm,
-    ProductVariantForm,
+    ProductVariantForm
 )
 from hr_shop.models import Product, ProductOptionType, ProductOptionValue, ProductVariant
 
@@ -32,7 +34,7 @@ def _render_product_panel(
     variant_form=None,
     option_type_form=None,
     variant_form_overrides=None,
-    reset_option_type_panel=False,
+    reset_option_type_panel=False
 ):
     option_types = product.option_types.all().order_by('position', 'id')
     variants = (
@@ -65,7 +67,7 @@ def _render_product_panel(
             'variant_form': variant_form or ProductVariantForm(),
             'option_type_form': option_type_form or ProductOptionTypeForm(),
             # Reset the option type panel whenever the product changes.
-            'reset_option_type_panel': reset_option_type_panel,
+            'reset_option_type_panel': reset_option_type_panel
         }
     )
 
@@ -76,7 +78,7 @@ def _render_option_type_panel(
     *,
     option_type_form=None,
     value_form=None,
-    value_forms=None,
+    value_forms=None
 ):
     values = option_type.values.all().order_by('position', 'id')
 
@@ -94,7 +96,7 @@ def _render_option_type_panel(
             'values': values,
             'option_type_form': option_type_form or ProductOptionTypeForm(instance=option_type),
             'values_with_forms': value_forms,
-            'value_form': value_form or ProductOptionValueForm(),
+            'value_form': value_form or ProductOptionValueForm()
         }
     )
 
@@ -235,7 +237,7 @@ def update_option_value(request, pk):
     return _render_option_type_panel(
         request,
         option_type,
-        value_forms=value_forms,
+        value_forms=value_forms
     )
 
 
@@ -283,7 +285,7 @@ def update_variant(request, pk):
     return _render_product_panel(
         request,
         product,
-        variant_form_overrides={variant.pk: form},
+        variant_form_overrides={variant.pk: form}
     )
 
 

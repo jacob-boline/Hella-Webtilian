@@ -1,4 +1,4 @@
-// hr_site/static/hr_site/js/banner.js
+// hr_core/static_src/js/modules/banner.js
 
 (function () {
     window.hrSite = window.hrSite || {};

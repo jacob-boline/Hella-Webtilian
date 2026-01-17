@@ -1,3 +1,5 @@
+# hr_shop/views/cart.py
+
 import json
 
 from django.http import HttpResponse, HttpResponseBadRequest

@@ -6,8 +6,8 @@ from django.contrib.contenttypes.models import ContentType
 
 from hr_bulletin.models import Post, Tag
 from hr_shop.models import Product, ProductVariant, Order
-from hr_site.models import CarouselSlide, PullQuote
-from ...constants import SITE_ADMIN_GROUP_NAME
+from hr_about.models import CarouselSlide, PullQuote
+from hr_access.constants import SITE_ADMIN_GROUP_NAME
 
 
 class Command(BaseCommand):

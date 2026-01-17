@@ -1,3 +1,5 @@
+# hr_email/service.py
+
 from __future__ import annotations
 
 import logging
@@ -7,7 +9,7 @@ from django.conf import settings
 from django.core.mail import EmailMultiAlternatives, get_connection
 from django.utils.html import strip_tags
 
-from hr_email.unified_logging import log_event
+from hr_common.utils.unified_logging import log_event
 from hr_email.mailjet import MailjetSendError, send_mailjet_email
 from hr_email.provider_settings import (
     get_provider,

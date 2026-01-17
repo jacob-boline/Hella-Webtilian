@@ -50,13 +50,12 @@ class Cart:
                 continue
 
             quantity = data.get("quantity", 0)
-
             price_str = data.get('unit_price') or data.get('price') or '0.00'
+
             try:
                 price = Decimal(price_str)
             except (InvalidOperation, TypeError, ValueError):
                 price = Decimal("0.00")
-            # price = Decimal(data.get("price", "0.00"))
 
             available = variant.active
 
@@ -95,7 +94,7 @@ class Cart:
         if line is None:
             self.cart[key] = {
                 "quantity": quantity,
-                "unit_price": str(variant.price),
+                "unit_price": str(variant.price)
             }
         else:
             if override:
@@ -174,20 +173,6 @@ def get_cart_item_count(request) -> int:
     Total quantity of items in the cart for this request.
     """
     return len(Cart(request))
-
-
-# class CartItemExistsError(Exception):
-#     def __init__(self, variant_id, message=None):
-#         self.variant = ProductVariant.objects.get(id=variant_id)
-#         self.message = (
-#             message
-#             or "You cannot add an already existing item this way. "
-#                "Use <cart.set_quantity()> or <cart.add(override=True)> instead."
-#         )
-#         super().__init__(self.message)
-#
-#     def __str__(self):
-#         return f"{self.variant} -> {self.message}"
 
 
 class CartItemNotFoundError(Exception):

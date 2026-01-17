@@ -1,3 +1,4 @@
+# hr_site/templatetags/custom_filters.py
 from django import template
 import urllib.parse
 import json

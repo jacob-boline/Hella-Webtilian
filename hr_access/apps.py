@@ -8,4 +8,4 @@ class AccessConfig(AppConfig):
     name = 'hr_access'
 
     def ready(self):
-        import hr_access.signals  # noqa
+        import hr_access.signals  # noqa     register signals and connect receivers

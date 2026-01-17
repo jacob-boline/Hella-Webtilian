@@ -5,7 +5,7 @@ from django.db import models
 from django.utils import timezone
 
 from hr_bulletin.managers import PostManager
-from hr_core.utils.slug import sync_slug_from_source
+from hr_common.db.slug import sync_slug_from_source
 
 
 class Tag(models.Model):
@@ -37,7 +37,7 @@ class Post(models.Model):
 
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=220, unique=True, blank=True)
-    body = models.TextField()  # wHTML or Markdown
+    body = models.TextField()  # HTML or Markdown
     hero = models.ImageField(upload_to='posts/hero/', blank=True, null=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='draft')
     publish_at = models.DateTimeField(null=True, blank=True)

@@ -1,3 +1,5 @@
+# hr_email/provider_settings.py
+
 """
 Email provider configuration.
 

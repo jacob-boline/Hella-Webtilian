@@ -1,4 +1,4 @@
-{# hr_shop/templates/_product_detail_modal.html #}
+{# hr_shop/templates/hr_shop/shop/_product_detail_modal.html #}
 
 
 {% load static shop_images %}
@@ -6,87 +6,87 @@
 <article class="modal-product m-shell" data-product-slug="{{ product.slug }}">
     <div class="m-body m-split">
         <div class="modal-product-media">
-        {% if display_variant %}
-            {% variant_image display_variant as modal_image %}
-        {% else %}
-            {% with product.variants.first as display_variant_fallback %}
-                {% if display_variant_fallback %}
-                    {% variant_image display_variant_fallback as modal_image %}
-                {% endif %}
-            {% endwith %}
-        {% endif %}
+            {% if display_variant %}
+                {% variant_image display_variant as modal_image %}
+            {% else %}
+                {% with product.variants.first as display_variant_fallback %}
+                    {% if display_variant_fallback %}
+                        {% variant_image display_variant_fallback as modal_image %}
+                    {% endif %}
+                {% endwith %}
+            {% endif %}
 
-        {% if modal_image %}
-            <img src="{{ modal_image.image.url }}"
-                 alt="{{ product.name }}"
-                 class="modal-image">
-        {% else %}
-            <img src="{% static 'hr_shop/img/placeholder_2.png' %}"
-                 alt="{{ product.name }}"
-                 class="modal-image">
-        {% endif %}
+            {% if modal_image %}
+                <img src="{{ modal_image.image.url }}"
+                     alt="{{ product.name }}"
+                     class="modal-image">
+            {% else %}
+                <img src="{% static 'hr_shop/img/placeholder_2.png' %}"
+                     alt="{{ product.name }}"
+                     class="modal-image">
+            {% endif %}
         </div>
 
         <div class="modal-product-body m-stack">
         <!-- TITLE + DESCRIPTION -->
-        <h3 class="modal-title">{{ product.name }}</h3>
+            <h3 class="modal-title">{{ product.name }}</h3>
 
-        {% if product.description %}
-            <p class="modal-description">{{ product.description }}</p>
-        {% endif %}
+            {% if product.description %}
+                <p class="modal-description">{{ product.description }}</p>
+            {% endif %}
 
-        <!-- OPTION SELECTORS -->
-        {% if option_types %}
-            <form id="product-options-form">
-                {% csrf_token %}
-                {% for opt in option_types %}
-                    <div class="modal-variant-group">
-                        <label for="opt-{{ opt.code }}">{{ opt.name }}</label>
-                        <select id="opt-{{ opt.code }}"
-                                name="opt_{{ opt.code }}"
-                                class="modal-select"
-                                data-option-type-id="{{ opt.id }}"
-                                {% if opt.drives_image %}data-drives-image="1"{% endif %}
-                                hx-post="{% url 'hr_shop:update_details_modal' product_slug=product.slug %}"
-                                hx-trigger="change"
-                                hx-include="#product-options-form"
-                                hx-swap="none">
-                            {% for val in opt.values.all %}
-                                <option value="{{ val.id }}"
-                                        {% if opt.default_value_id == val.id %}selected{% endif %}>
-                                    {{ val.name }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                {% endfor %}
-            </form>
-        {% endif %}
+            <!-- OPTION SELECTORS -->
+            {% if option_types %}
+                <form id="product-options-form">
+                    {% csrf_token %}
+                    {% for opt in option_types %}
+                        <div class="modal-variant-group">
+                            <label for="opt-{{ opt.code }}">{{ opt.name }}</label>
+                            <select id="opt-{{ opt.code }}"
+                                    name="opt_{{ opt.code }}"
+                                    class="modal-select"
+                                    data-option-type-id="{{ opt.id }}"
+                                    {% if opt.drives_image %}data-drives-image="1"{% endif %}
+                                    hx-post="{% url 'hr_shop:update_details_modal' product_slug=product.slug %}"
+                                    hx-trigger="change"
+                                    hx-include="#product-options-form"
+                                    hx-swap="none">
+                                {% for val in opt.values.all %}
+                                    <option value="{{ val.id }}"
+                                            {% if opt.default_value_id == val.id %}selected{% endif %}>
+                                        {{ val.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    {% endfor %}
+                </form>
+            {% endif %}
 
-        <!-- PRICE + BUTTONS -->
-        <div class="modal-buttons m-actions">
-            <span class="product-modal-price" data-role="modal-price">
-                {% if display_variant %}
-                    ${{ display_variant.price }}
-                {% else %}
-                    $0.00
-                {% endif %}
-            </span>
-
-            <button class="card-btn btn-neon btn-green"
-                    type="button"
+            <!-- PRICE + BUTTONS -->
+            <div class="modal-buttons m-actions">
+                <span class="product-modal-price" data-role="modal-price">
                     {% if display_variant %}
-                        hx-post="{% url 'hr_shop:add_to_cart' variant_slug=display_variant.slug %}"
-                        hx-swap="none"
+                        ${{ display_variant.price }}
+                    {% else %}
+                        $0.00
                     {% endif %}
-                    data-role="buy-selected-variant">
-                <i class="fas fa-cart-plus"></i> Add
-            </button>
+                </span>
 
-            <button class="card-btn btn-neon btn-blue" type="button" data-modal-close>
-                Close
-            </button>
-        </div>
+                <button class="card-btn btn-neon btn-green"
+                        type="button"
+                        {% if display_variant %}
+                            hx-post="{% url 'hr_shop:add_to_cart' variant_slug=display_variant.slug %}"
+                            hx-swap="none"
+                        {% endif %}
+                        data-role="buy-selected-variant">
+                    <i class="fas fa-cart-plus"></i> Add
+                </button>
+
+                <button class="card-btn btn-neon btn-blue" type="button" data-modal-close>
+                    Close
+                </button>
+            </div>
         </div>
     </div>
 </article>

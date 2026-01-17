@@ -8,7 +8,7 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
-from hr_core.db.fields import NormalizedEmailField
+from hr_common.db.fields import NormalizedEmailField
 from hr_access.constants import RESERVED_USERNAMES
 from hr_access.managers import UserManager
 

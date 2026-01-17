@@ -1,19 +1,42 @@
+# hr_core/middleware.py
+
+
+"""
+Project middleware.
+
+Contains:
+1) RequestIdMiddleware
+   - Ensures every request has a stable request_id
+   - Stores request_id in a contextvar and binds it to structlog contextvars
+   - Adds X-Request-ID header to every response
+
+2) HtmxExceptionMiddleware
+   - Converts common exceptions (404, PermissionDenied) into HTMX-friendly
+     responses when HX-Request is true.
+   - For HTMX:
+       * returns appropriate status code
+       * emits HX-Trigger events (showMessage, closeModal)
+   - For non-HTMX:
+       * re-raises to let Django's normal error views handle it
+"""
+
 from __future__ import annotations
 
 import json
 
+from collections.abc import Callable
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse, Http404
 from structlog.contextvars import clear_contextvars
 
-from hr_core.utils.unified_logging_core import (
+from utils.unified_logging import (
     REQUEST_ID_HEADER,
     REQUEST_ID_META_KEY,
     generate_request_id,
     reset_request_id,
     set_request_id,
 )
-from hr_core.utils.http import is_htmx, likely_session_expired
+from utils.htmx_responses import is_htmx, likely_session_expired
 
 
 class RequestIdMiddleware:
@@ -34,10 +57,10 @@ class RequestIdMiddleware:
 
 
 class HtmxExceptionMiddleware:
-    def __init__(self, get_response):
+    def __init__(self, get_response: Callable[[HttpRequest], HttpResponse]):
         self.get_response = get_response
 
-    def __call__(self, request):
+    def __call__(self, request: HttpRequest) -> HttpResponse:
         try:
             return self.get_response(request)
         except Http404:

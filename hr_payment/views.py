@@ -1,13 +1,10 @@
 # hr_payment/views.py
-#
-# NOTE: This is your “single provider” Stripe-only views.py as pasted,
-# with one targeted improvement:
-# - amount_cents uses Decimal-safe quantization to avoid rounding edge cases.
+
+import logging
 from decimal import Decimal, ROUND_HALF_UP
 from urllib.parse import quote
 
 import stripe
-import logging
 from django.conf import settings
 from django.db import transaction
 from django.http import HttpResponse
@@ -17,11 +14,11 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
-from hr_core.utils.tokens import generate_order_receipt_token
-from hr_payment.unified_logging import log_event
+from hr_common.utils.unified_logging import log_event
 from hr_payment.models import PaymentAttempt, PaymentAttemptStatus
 from hr_payment.models import WebhookEvent
 from hr_shop.models import Order, PaymentStatus
+from hr_shop.tokens import generate_order_receipt_token
 
 logger = logging.getLogger(__name__)
 

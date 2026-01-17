@@ -12,12 +12,11 @@
                 <p class="account-status-label">Email</p>
                 <p class="account-status-value">{{ request.user.email }}</p>
                 <div class="account-status-actions">
-                    <button
-                        type="button"
-                        class="card-btn btn-neon btn-blue btn-sm"
-                        hx-get="{% url 'hr_access:account_change_email' %}"
-                        hx-target="#modal-content"
-                        hx-swap="innerHTML transition:true">
+                    <button type="button"
+                            class="card-btn btn-neon btn-blue btn-sm"
+                            hx-get="{% url 'hr_access:account_change_email' %}"
+                            hx-target="#modal-content"
+                            hx-swap="innerHTML transition:true">
                         Change email
                     </button>
                 </div>
@@ -28,12 +27,11 @@
                 <p class="modal-text-faint">Update your account password.</p>
 
                 <div class="account-status-actions">
-                    <button
-                        type="button"
-                        class="card-btn btn-neon btn-blue btn-sm"
-                        hx-get="{% url 'hr_access:account_change_password' %}"
-                        hx-target="#modal-content"
-                        hx-swap="innerHTML transition:true">
+                    <button type="button"
+                            class="card-btn btn-neon btn-blue btn-sm"
+                            hx-get="{% url 'hr_access:account_change_password' %}"
+                            hx-target="#modal-content"
+                            hx-swap="innerHTML transition:true">
                         Change password
                     </button>
                 </div>
@@ -53,12 +51,11 @@
                 </ul>
 
                 <div class="account-status-actions">
-                    <button
-                        type="button"
-                        class="card-btn btn-neon btn-yellow btn-sm"
-                        hx-get="{% url 'hr_access:account_logout_all_confirm' %}"
-                        hx-target="#modal-content"
-                        hx-swap="innerHTML transition:true">
+                    <button type="button"
+                            class="card-btn btn-neon btn-yellow btn-sm"
+                            hx-get="{% url 'hr_access:account_logout_all_confirm' %}"
+                            hx-target="#modal-content"
+                            hx-swap="innerHTML transition:true">
                         Log out all sessions
                     </button>
                 </div>
@@ -74,18 +71,16 @@
                 </div>
 
                 <div class="account-status-actions account-status-actions--inline">
-                    <button
-                        class="card-btn btn-neon btn-green btn-sm"
-                        hx-get="{% url 'hr_access:account_get_orders' %}"
-                        hx-target="#modal-content"
-                        hx-swap="innerHTML transition:true">
+                    <button class="card-btn btn-neon btn-green btn-sm"
+                            hx-get="{% url 'hr_access:account_get_orders' %}"
+                            hx-target="#modal-content"
+                            hx-swap="innerHTML transition:true">
                         View orders
                     </button>
-                    <button
-                        class="card-btn btn-neon btn-blue btn-sm"
-                        hx-get="{% url 'hr_access:account_get_unclaimed_orders' %}"
-                        hx-target="#modal-content"
-                        hx-swap="innerHTML transition:true">
+                    <button class="card-btn btn-neon btn-blue btn-sm"
+                            hx-get="{% url 'hr_access:account_get_unclaimed_orders' %}"
+                            hx-target="#modal-content"
+                            hx-swap="innerHTML transition:true">
                         Claim orders
                     </button>
                 </div>
@@ -103,12 +98,11 @@
                 </div>
 
                 <div class="account-status-actions account-status-actions--inline">
-                    <button
-                        type="button"
-                        class="card-btn btn-neon btn-red btn-sm"
-                        hx-get="{% url 'hr_access:account_delete_confirm' %}"
-                        hx-target="#modal-content"
-                        hx-swap="innerHTML transition:true">
+                    <button type="button"
+                            class="card-btn btn-neon btn-red btn-sm"
+                            hx-get="{% url 'hr_access:account_delete_confirm' %}"
+                            hx-target="#modal-content"
+                            hx-swap="innerHTML transition:true">
                         Delete account
                     </button>
                 </div>

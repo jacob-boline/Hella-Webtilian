@@ -1,4 +1,4 @@
-# hr_core/utils/email.py
+# hr_common/utils/email.py
 
 def normalize_email(value: str) -> str:
     """

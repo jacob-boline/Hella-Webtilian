@@ -1,4 +1,4 @@
-// hr_core/static/hr_core/js/modules/auto-advance.js
+// hr_core/static_src/js/modules/auto-advance.js
 
 /**
  * Auto-advance utility:

@@ -3,8 +3,11 @@
 import hashlib
 import re
 import urllib.parse
+
 from django.db import models
+
 from hr_common.managers import AddressManager
+
 
 _whitespace = re.compile(r"\s+")
 
@@ -17,6 +20,7 @@ def _norm(s: str | None) -> str:
 
 def _fp(*parts: str) -> str:
     raw = "|".join(parts)
+    # noinspection InsecureHash
     return hashlib.sha256(raw.encode('utf-8')).hexdigest()
 
 
@@ -68,6 +72,7 @@ class Address(models.Model):
             _norm(postal_code),
             _norm(country),
         ])
+        # noinspection InsecureHash
         return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
     def save(self, *args, **kwargs):

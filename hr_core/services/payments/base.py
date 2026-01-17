@@ -1,4 +1,4 @@
-# hr_shop/gateways/base.py
+# hr_core/services/payments/base.py
 
 class CheckoutSession:
     def __init__(self, id, url):

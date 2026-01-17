@@ -1,17 +1,16 @@
 # hr_access/constants.py
-from django.conf import settings
 
 
 SITE_ADMIN_GROUP_NAME = 'Site Admin'
 GLOBAL_ADMIN_GROUP_NAME = 'Global Admin'
 USER_GROUPS = [SITE_ADMIN_GROUP_NAME, GLOBAL_ADMIN_GROUP_NAME]
 
-
 RESERVED_USERNAMES = {
+
     # auth/admin-ish
     "admin", "administrator", "root", "sysadmin", "staff", "mod", "moderator",
     "owner", "operator", "security", "support", "help", "service", "system", "home",
-    "official",
+    "official", "hellareptilian", "hella_reptilian", "hella-reptilian", "hella.reptilian"
 
     # comms + billing
     "billing", "payments", "refunds", "account_get_orders", "account", "accounts", "merch"

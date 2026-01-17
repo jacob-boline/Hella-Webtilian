@@ -1,16 +1,14 @@
-# hr_access/views/account_get_orders.py
+# hr_access/views/orders.py
 
 from __future__ import annotations
 
 from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_GET, require_POST
-from django.http import HttpResponse
 from django.db import transaction
 
-from hr_core.utils.email import normalize_email
 from hr_shop.models import Order, OrderItem
-from hr_core.utils.http import hx_login_required
+from hr_common.utils.htmx_responses import hx_login_required
 
 
 @hx_login_required

@@ -1,4 +1,4 @@
-# hr_core/utils/slug.py
+# hr_common/db/slug.py
 
 import itertools
 from typing import Optional

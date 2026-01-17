@@ -1,4 +1,4 @@
-// hr_site/static/hr_site/js/ui-global.js
+// hr_core/static_src/js/modules/ui-global.js
 //
 // UI primitives (things that directly implement the behavior of UI components) -- modal, messages, drawer, etc.
 //
@@ -27,6 +27,13 @@
 
 (function () {
     function initGlobalUI () {
+        // ------------------------------
+        // Idempotency guard
+        // ------------------------------
+        window.hrSite = window.hrSite || {};
+        if (window.hrSite.__globalUiInitialized) return;
+        window.hrSite.__globalUiInitialized = true;
+
         const modalEl = document.getElementById("modal");
         const modalContent = document.getElementById("modal-content");
         const modalMsg = document.getElementById("modal-message-box");
@@ -60,9 +67,9 @@
         }
 
         function refreshScrollOnModalClose () {
-            const reflow   = window.hrSite?.reflowParallax;
+            const reflow = window.hrSite?.reflowParallax;
             const syncWipe = window.hrSite?.syncActiveWipe;
-            const banner   = window.hrSite?.banner;
+            const banner = window.hrSite?.banner;
 
             // Let scroll restore land + any viewport resize happen first
             requestAnimationFrame(() => {
@@ -83,12 +90,9 @@
 
             modalEl.classList.remove('hidden');
             modalEl.setAttribute('aria-hidden', 'false');
-            // document.body.style.overflow = 'hidden';
-            // requestParallaxReflow();
 
             document.body.classList.add('modal-open');
             document.body.style.top = `-${scrollY}px`;
-            // if (window.scrollY !== scrollY) window.scrollTo(0, scrollY);
 
             hideFloatingCart();
         }
@@ -119,7 +123,6 @@
 
             showFloatingCart();
         }
-
 
         // ------------------------------
         // Modal close behavior
@@ -235,24 +238,23 @@
             if (!drawer || !openBtn) return;
 
             const openDrawer = () => {
-              const isMobile = window.matchMedia("(max-width: 767.98px)").matches;
-              const isOpen = drawer.classList.contains('show');
+                const isMobile = window.matchMedia("(max-width: 767.98px)").matches;
+                const isOpen = drawer.classList.contains('show');
 
-              if (!isOpen) {
-                drawer.classList.add("show");
-                openBtn.classList.add("hidden");
-              }
-
-              if (isMobile) {
-                // ensure mobile lock is applied even if drawer was already open
-                if (!document.body.classList.contains("drawer-open")) {
-                  _drawerScrollY = window.scrollY || 0;
-                  document.body.classList.add("drawer-open");
-                  document.body.style.top = `-${_drawerScrollY}px`;
+                if (!isOpen) {
+                    drawer.classList.add("show");
+                    openBtn.classList.add("hidden");
                 }
-              }
-            };
 
+                if (isMobile) {
+                    // ensure mobile lock is applied even if drawer was already open
+                    if (!document.body.classList.contains("drawer-open")) {
+                        _drawerScrollY = window.scrollY || 0;
+                        document.body.classList.add("drawer-open");
+                        document.body.style.top = `-${_drawerScrollY}px`;
+                    }
+                }
+            };
 
             const closeDrawer = () => {
                 const isMobile = window.matchMedia("(max-width: 767.98px)").matches;
@@ -305,7 +307,7 @@
 
             let hxGet = null;
 
-            if (modalUrlParam) {
+            if ((modalUrlParam) || ((modal === "password_reset" && modalUrlParam) || (modal === "email_change" && modalUrlParam))) {
                 hxGet = modalUrlParam;
             } else if (modal === "email_confirmed") {
                 hxGet = "/shop/checkout/email-confirmation/success/";
@@ -313,15 +315,10 @@
                 const orderId = (params.get("order_id") || "").trim();
                 const token = (params.get("t") || "").trim();
                 if (!orderId || !token) return false;
-
                 hxGet = `/shop/order/${encodeURIComponent(orderId)}/payment-result/?t=${encodeURIComponent(token)}`;
-            } else if (modal === "password_reset" && modalUrlParam) {
-                hxGet = modalUrlParam;
-            } else if (modal === "email_change" && modalUrlParam) {
-                hxGet = modalUrlParam;
-            } else {
-                return true;  // unknown modal key -> don't do anything (but also don't keep re-trying)
             }
+
+            if (hxGet == null) return true;  // unknown modal key -> don't do anything (but also don't keep re-trying)
 
             loader.setAttribute("hx-get", hxGet);
             window.htmx.process(loader);
@@ -366,10 +363,11 @@
         window.hrSite = window.hrSite || {};
         window.hrSite.hideModal = hideModal;
         window.hrSite.showGlobalMessage = showGlobalMessage;
-        window.hrSite = window.hrSite || {};
+
         window.hrSite.cart = window.hrSite.cart || {};
         window.hrSite.cart.show = showFloatingCart;
         window.hrSite.cart.hide = hideFloatingCart;
+
         window.hrModal = {open: openModal, close: hideModal};
     }
 

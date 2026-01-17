@@ -6,14 +6,6 @@ from django.contrib.admin import ModelAdmin
 from hr_live.models import Act, Booker, Show, Venue, Musician
 
 
-# @admin.register(Address)
-# class AddressAdmin(ModelAdmin):
-#     list_editable = ("street_address", "city", "subdivision", "postal_code", "country")
-#     list_filter = ("city", "subdivision", "postal_code", "country")
-#     list_display = ("id", "street_address", "city", "subdivision", "postal_code", "country")
-#     list_display_links = ("id",)
-
-
 @admin.register(Act)
 class ActAdmin(ModelAdmin):
     list_display = ('id','name', 'website')

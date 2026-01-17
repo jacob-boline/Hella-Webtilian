@@ -1,4 +1,4 @@
-# hr_shop/image_resolver.py
+# hr_shop/utils/image_resolver.py
 
 
 def resolve_product_image_for_values(product, option_value_ids):

@@ -4,11 +4,11 @@ import json
 import logging
 import time
 from dataclasses import dataclass
-from enum import Enum
-from urllib.parse import quote
 from datetime import timedelta
 from decimal import Decimal, ROUND_HALF_UP
+from enum import Enum
 from typing import Dict, Any, Optional, Tuple
+from urllib.parse import quote
 
 import stripe
 from django.conf import settings
@@ -17,18 +17,15 @@ from django.core.cache import cache
 from django.db import transaction, IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
-from django.template.loader import render_to_string
 
 from hr_common.models import Address
-from hr_core.utils.email import normalize_email
-from hr_core.utils.tokens import (
-    generate_order_receipt_token,
-    verify_checkout_email_token,
-    verify_order_receipt_token,
-)
+from hr_common.utils.email import normalize_email
+from hr_common.utils.unified_logging import log_event
+from hr_email.service import EmailProviderError, send_app_email
 from hr_shop.cart import get_cart, Cart, CART_SESSION_KEY
 from hr_shop.exceptions import EmailSendError, RateLimitExceeded
 from hr_shop.forms import CheckoutDetailsForm
@@ -39,11 +36,14 @@ from hr_shop.models import (
 )
 from hr_shop.services.email_confirmation import (
     is_email_confirmed_for_checkout,
-    send_checkout_confirmation_email,
+    send_checkout_confirmation_email
+)
+from hr_shop.tokens import (
+    generate_order_receipt_token,
+    verify_checkout_email_token,
+    verify_order_receipt_token
 )
 from hr_shop.views.cart import view_cart
-from hr_email.service import EmailProviderError, send_app_email
-from hr_shop.unified_logging import log_event
 
 logger = logging.getLogger(__name__)
 
@@ -105,7 +105,7 @@ def _cart_snapshot(request):
         snap.append({
             "variant_id": line["variant"].id,
             "qty": int(line["quantity"]),
-            "unit_price": str(line["unit_price"]),
+            "unit_price": str(line["unit_price"])
         })
     return snap
 
@@ -118,7 +118,7 @@ def _get_existing_customer_for_user(user):
 
 def _get_or_create_customer(email: str, user, form: CheckoutDetailsForm) -> Customer:
     customer, created = Customer.objects.get_or_create(
-        email=normalize_email(email),
+        email=email,
         defaults={
             "user": user if user and user.is_authenticated else None,
             "first_name": form.cleaned_data["first_name"].strip(),
@@ -127,7 +127,7 @@ def _get_or_create_customer(email: str, user, form: CheckoutDetailsForm) -> Cust
             "suffix": form.cleaned_data.get("suffix", "").strip() or None,
             "phone": form.cleaned_data.get("phone") or None,
             "wants_saved_info": form.cleaned_data["save_info_for_next_time"]
-        },
+        }
     )
 
     if not created:
@@ -164,7 +164,7 @@ def _get_or_create_customer(email: str, user, form: CheckoutDetailsForm) -> Cust
     return customer
 
 
-def _get_most_recent_address_for_customer(customer: Customer):
+def _get_most_recent_address_for_customer(customer: Customer) -> Address or None:
     if not customer:
         return None
     last_order = (
@@ -186,9 +186,8 @@ def _get_or_create_address_from_form(form: CheckoutDetailsForm) -> Address:
         city=form.cleaned_data["city"].strip(),
         subdivision=form.cleaned_data["subdivision"].strip(),
         postal_code=form.cleaned_data["postal_code"].strip(),
-        country="United States",
+        country="United States"
     )
-    # Requires AddressManager.get_or_create_by_components + fingerprint field on Address
     address, _created = Address.objects.get_or_create_by_components(**components)
     return address
 
@@ -200,14 +199,14 @@ def _get_or_create_active_draft(*, customer, email, address, note, cart_payload)
         "address": address,
         "note": note or "",
         "cart": cart_payload,
-        "expires_at": now + timedelta(hours=1),
+        "expires_at": now + timedelta(hours=1)
     }
     try:
         with transaction.atomic():
             draft, _created = CheckoutDraft.objects.update_or_create(
                 customer=customer,
                 used_at__isnull=True,
-                defaults=defaults,
+                defaults=defaults
             )
             return draft
     except IntegrityError:
@@ -216,7 +215,7 @@ def _get_or_create_active_draft(*, customer, email, address, note, cart_payload)
         with transaction.atomic():
             draft = CheckoutDraft.objects.select_for_update().get(
                 customer=customer,
-                used_at__isnull=True,
+                used_at__isnull=True
             )
             for k, v in defaults.items():
                 setattr(draft, k, v)
@@ -248,7 +247,7 @@ def _restore_cart_from_draft(request, draft: CheckoutDraft):
             continue
         request.session[CART_SESSION_KEY][str(vid)] = {
             "quantity": int(item.get("qty", 1)),
-            "unit_price": str(item.get("unit_price", "0.00")),
+            "unit_price": str(item.get("unit_price", "0.00"))
         }
 
     request.session.modified = True
@@ -269,7 +268,7 @@ def _render_checkout_awaiting_confirmation(request, *, email: str, message: str,
 
 
 def _get_last_confirmation_sent_at(email: str):
-    return cache.get(("checkout_confirm_sent_at", normalize_email(email)))
+    return cache.get(("checkout_confirm_sent_at", email))
 
 
 def _render_checkout_review(request, *, ctx: dict):
@@ -295,7 +294,7 @@ def _render_checkout_review(request, *, ctx: dict):
         "total": total,
         "customer": customer,
         "address": address,
-        "note": note,
+        "note": note
     })
 
 
@@ -320,7 +319,7 @@ def _iter_cart_items_for_order(request):
         yield {
             "variant": variant,
             "quantity": quantity,
-            "unit_price": unit_price,
+            "unit_price": unit_price
         }
 
 
@@ -329,12 +328,12 @@ def _stripe_session_payment_intent_id(session_id: str) -> str | None:
         return None
 
     stripe.api_key = settings.STRIPE_SECRET_KEY
+
     try:
         sess = stripe.checkout.Session.retrieve(session_id)
     except stripe.error.StripeError:
         return None
 
-    # Stripe uses "payment_intent" (not "payment_intent_id")
     return sess.get("payment_intent")
 
 
@@ -359,7 +358,7 @@ def _user_is_authorized_for_payment_result(request, order, token) -> bool:
     if token_order_id != int(order.id):
         return False
 
-    return normalize_email(claims.get('email', '')) == normalize_email(order.email or '')
+    return normalize_email(claims.get('email', '')) == order.email
 
 
 def _stripe_session_result(session_id: str | None) -> Tuple[str, Optional[str], Optional[str]]:
@@ -378,7 +377,7 @@ def _stripe_session_result(session_id: str | None) -> Tuple[str, Optional[str], 
         return StripePaymentOutcome(
             StripePaymentResult.UNKNOWN,
             "Missing checkout session id for this order.",
-            "missing_session_id",
+            "missing_session_id"
         ).as_tuple()
 
     stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -397,7 +396,7 @@ def _stripe_session_result(session_id: str | None) -> Tuple[str, Optional[str], 
             "stripe.session.temporary_issue",
             where=where,
             session_id=session_id,
-            error=str(err),
+            error=str(err)
         )
         return StripePaymentOutcome(StripePaymentResult.PENDING)
 
@@ -408,7 +407,7 @@ def _stripe_session_result(session_id: str | None) -> Tuple[str, Optional[str], 
             "stripe.session.auth_error",
             where=where,
             session_id=session_id,
-            error=str(err),
+            error=str(err)
         )
         return StripePaymentOutcome(StripePaymentResult.UNKNOWN, "Payment configuration error.", "stripe_auth_error")
 
@@ -420,7 +419,7 @@ def _stripe_session_result(session_id: str | None) -> Tuple[str, Optional[str], 
             where=where,
             session_id=session_id,
             error=str(err),
-            exc_info=True,
+            exc_info=True
         )
         return StripePaymentOutcome(StripePaymentResult.UNKNOWN, "Payment processor error.", "stripe_error")
 
@@ -433,7 +432,7 @@ def _stripe_session_result(session_id: str | None) -> Tuple[str, Optional[str], 
             logging.WARNING,
             "stripe.session.invalid",
             session_id=session_id,
-            error=str(e),
+            error=str(e)
         )
         return StripePaymentOutcome(StripePaymentResult.UNKNOWN, "Invalid checkout session.", "invalid_session").as_tuple()
     except (APIConnectionError, RateLimitError) as e:
@@ -478,7 +477,7 @@ def _stripe_session_result(session_id: str | None) -> Tuple[str, Optional[str], 
         return StripePaymentOutcome(
             StripePaymentResult.EXPIRED,
             "The checkout session expired before payment completed.",
-            "session_expired",
+            "session_expired"
         ).as_tuple()
 
     # ---- fallthrough: complete but unpaid/unknown -> consult PaymentIntent
@@ -494,7 +493,7 @@ def _stripe_session_result(session_id: str | None) -> Tuple[str, Optional[str], 
             "stripe.payment_intent.invalid",
             payment_intent_id=pi_id,
             session_id=session_id,
-            error=str(e),
+            error=str(e)
         )
         return StripePaymentOutcome(StripePaymentResult.UNKNOWN, "Invalid payment intent.", "invalid_payment_intent").as_tuple()
     except (APIConnectionError, RateLimitError) as e:
@@ -563,7 +562,7 @@ def _is_allowed_to_email_receipt(request, order: Order) -> bool:
 
     # 4) Email must match exactly (normalized)
     claim_email = normalize_email(claims.get("email") or "")
-    order_email = normalize_email(order.email or "")
+    order_email = order.email
 
     return bool(claim_email) and claim_email == order_email
 
@@ -615,7 +614,7 @@ def _render_order_payment_result_modal(request, order: Order, token: str):
         "payment_failure_code": failure_code,
 
         "receipt_token": token,
-        "cta_dismissed": cta_dismissed,
+        "cta_dismissed": cta_dismissed
     })
 
     if cart_was_cleared:
@@ -627,7 +626,6 @@ def _render_order_payment_result_modal(request, order: Order, token: str):
 # ---------------------------------------------------------------------------
 # Views
 # ---------------------------------------------------------------------------
-
 
 @require_GET
 def checkout_details(request):
@@ -676,10 +674,10 @@ def checkout_details_submit(request):
         return render(request, "hr_shop/checkout/_checkout_details.html", {"form": form})
 
     user = getattr(request, "user", None)
-    email = form.cleaned_data["email"].strip()
+    email = normalize_email(form.cleaned_data["email"].strip())
 
     if user and user.is_authenticated:
-        if normalize_email(email) != normalize_email(user.email):
+        if email != user.email:
             form.add_error("email", "Please use the email address associated with your account.")
             return render(request, "hr_shop/checkout/_checkout_details.html", {"form": form})
 
@@ -703,7 +701,7 @@ def checkout_details_submit(request):
         CustomerAddress.objects.update_or_create(
             customer=customer,
             address=address,
-            defaults={"is_default_shipping": True},
+            defaults={"is_default_shipping": True}
         )
 
     # Create/update an active draft
@@ -712,7 +710,7 @@ def checkout_details_submit(request):
         email=customer.email,
         address=address,
         note=note,
-        cart_payload=_cart_snapshot(request),
+        cart_payload=_cart_snapshot(request)
     )
 
     if is_email_confirmed_for_checkout(request, email):
@@ -722,14 +720,14 @@ def checkout_details_submit(request):
         send_checkout_confirmation_email(
             request=request,
             email=email,
-            draft_id=draft.id,  # requires token/service support
+            draft_id=draft.id  # requires token/service support
         )
     except RateLimitExceeded:
         return render(request, "hr_shop/checkout/_checkout_awaiting_confirmation.html", {
             "email": email,
             "message": "Too many confirmation emails sent. Please check your inbox (including spam folder) or try again in an hour.",
             "rate_limited": True,
-            "sent_at": None,
+            "sent_at": None
         })
     except EmailSendError:
         messages.error(request, "Could not send confirmation email. Please try again.")
@@ -767,6 +765,7 @@ def checkout_resume(request):
 
         if order:
             # owner -> token optional; everyone else -> sign
+            # noinspection HardcodedPassword
             token = ""
             if not (request.user.is_authenticated and getattr(order, "user_id", None) == request.user.id):
                 token = generate_order_receipt_token(order.id, order.email or "")
@@ -781,7 +780,7 @@ def checkout_resume(request):
             message="Please confirm your email to continue.",
             rate_limited=False,
             sent_at=None,
-            error=False,
+            error=False
         )
 
     return _render_checkout_review(request, ctx=ctx)
@@ -791,7 +790,7 @@ def checkout_resume(request):
 def order_payment_result(request, order_id: int):
     order = get_object_or_404(
         Order.objects.select_related("customer", "shipping_address"),
-        pk=order_id,
+        pk=order_id
     )
 
     token = (request.GET.get("t") or "").strip()
@@ -829,7 +828,7 @@ def order_send_receipt_email(request, order_id: int):
     subject = f"Hella Reptilian Order #{order.id} receipt"
     html_body = render_to_string("hr_shop/emails/order_receipt.html", {
         "order": order,
-        "receipt_url": receipt_url,
+        "receipt_url": receipt_url
     })
 
     try:
@@ -837,14 +836,14 @@ def order_send_receipt_email(request, order_id: int):
             to_emails=[order.email],
             subject=subject,
             html_body=html_body,
-            custom_id=f"order_receipt_{order.id}",
+            custom_id=f"order_receipt_{order.id}"
         )
         log_event(
             logger,
             logging.INFO,
             "checkout.receipt.sent",
             order_id=order_id,
-            email=order.email,
+            email=order.email
         )
 
         return HttpResponse(status=204, headers={
@@ -859,7 +858,7 @@ def order_send_receipt_email(request, order_id: int):
             order_id=order.id,
             email=order.email,
             error=str(exc),
-            exc_info=True,
+            exc_info=True
         )
         return HttpResponse(status=500, headers={
             'HX-Trigger': json.dumps({'showMessage': 'Receipt email failed to send. Try again shortly.'})
@@ -873,7 +872,7 @@ def order_send_receipt_email(request, order_id: int):
             order_id=order.id,
             email=order.email,
             error=str(e),
-            exc_info=True,
+            exc_info=True
         )
         return HttpResponse(status=500, headers={
             'HX-Trigger': json.dumps({'showMessage': 'Receipt email failed to send. Try again shortly.'})
@@ -902,6 +901,7 @@ def email_confirmation_process_response(request, token: str):
 
     email = payload.get("email")
     draft_id = payload.get("draft_id")
+
     if not email or not draft_id:
         messages.error(request, "Invalid confirmation link.")
         return redirect("hr_shop:checkout_details")
@@ -982,20 +982,20 @@ def email_confirmation_resend(request):
         email=customer.email,
         address=ctx["address"],
         note=ctx["note"],
-        cart_payload=cart_payload,
+        cart_payload=cart_payload
     )
 
     try:
         send_checkout_confirmation_email(
             request=request,
             email=customer.email,
-            draft_id=draft.id,
+            draft_id=draft.id
         )
         return render(request, "hr_shop/checkout/_checkout_awaiting_confirmation.html", {
             "email": customer.email,
             "message": "We've sent another confirmation link. Please check your inbox.",
             "rate_limited": False,
-            "sent_at": timezone.now(),
+            "sent_at": timezone.now()
         })
 
     except RateLimitExceeded:
@@ -1003,7 +1003,7 @@ def email_confirmation_resend(request):
             "email": customer.email,
             "message": "Too many emails sent. Please check your inbox (including spam folder) or try again later.",
             "rate_limited": True,
-            "sent_at": None,
+            "sent_at": None
         })
 
     except EmailSendError:
@@ -1012,7 +1012,7 @@ def email_confirmation_resend(request):
             "message": "Could not send email. Please try again.",
             "rate_limited": False,
             "sent_at": None,
-            "error": True,
+            "error": True
         })
 
 
@@ -1072,12 +1072,12 @@ def checkout_create_order(request):
         order = Order.objects.create(
             user=request.user if request.user.is_authenticated else None,
             customer=customer,
-            email=normalize_email(customer.email),
+            email=customer.email,
             shipping_address=shipping_address,
             total=Decimal("0.00"),
             order_status=OrderStatus.RECEIVED,
             payment_status=PaymentStatus.UNPAID,
-            note=note or None,
+            note=note or None
         )
 
         subtotal = Decimal("0.00")
@@ -1091,7 +1091,7 @@ def checkout_create_order(request):
                 order=order,
                 variant=variant,
                 quantity=quantity,
-                unit_price=unit_price,
+                unit_price=unit_price
             )
             subtotal += line_total
 

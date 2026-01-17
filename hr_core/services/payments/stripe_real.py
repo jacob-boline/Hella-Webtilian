@@ -1,6 +1,8 @@
-# hr_shop/gateways/stripe_real.py
+# hr_core/services/payments/stripe_real.py
+
 import stripe
 from .base import PaymentGateway, CheckoutSession
+
 
 class StripeGateway(PaymentGateway):
     def __init__(self, api_key, webhook_secret):

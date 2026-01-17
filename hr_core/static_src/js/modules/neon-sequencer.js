@@ -1,3 +1,4 @@
+// hr_core/static_src/js/modules/neon-sequencer.js
 (function () {
     const BASE_SEQUENCES = [
         'neon-sequence-a', 'neon-sequence-c', 'neon-sequence-d',

@@ -1,4 +1,4 @@
-# hr_common/manager.py
+# hr_common/managers.py
 
 from django.db import models, IntegrityError, transaction
 

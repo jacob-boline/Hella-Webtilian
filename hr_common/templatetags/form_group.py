@@ -34,7 +34,7 @@ def form_group(
     help=None,
     group_classes="field-group",
     placeholder=None,
-    extra_attrs=None,
+    extra_attrs=None
 ):
     if label is _UNSET:
         label_text = field.label
@@ -45,7 +45,7 @@ def form_group(
 
     required_flag = required if required is not None else field.field.required
 
-    # Django's help_text is on field.field.help_text, not bound field
+    # Default to Django's help_text if non is given
     help_text = help if help is not None else (field.field.help_text or "")
 
     state = _field_state(field)
@@ -73,15 +73,15 @@ def form_group(
     rendered_field = field.as_widget(attrs=widget_attrs)
 
     return {
-        "field": field,
+        "field":          field,
         "rendered_field": rendered_field,
-        "label": label_text,
-        "required": required_flag,
-        "help": help_text,
-        "group_classes": group_classes,
-        "state": state,
-        "has_errors": has_errors,
-        "field_id": field_id,
-        "help_id": help_id,
-        "error_id": error_id,
+        "label":          label_text,
+        "required":       required_flag,
+        "help":           help_text,
+        "group_classes":  group_classes,
+        "state":          state,
+        "has_errors":     has_errors,
+        "field_id":       field_id,
+        "help_id":        help_id,
+        "error_id":       error_id
     }

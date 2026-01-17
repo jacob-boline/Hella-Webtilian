@@ -10,6 +10,7 @@ from urllib.parse import urljoin
 from django.conf import settings
 from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.sessions.models import Session
 from django.core.cache import cache
 from django.db import transaction
 from django.http import HttpResponse
@@ -17,26 +18,24 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.http import urlencode
 from django.views.decorators.http import require_GET, require_POST
 
 from hr_access.forms import AccountCreationForm, AccountEmailChangeForm
 from hr_access.models import User
-from hr_core.utils.email import normalize_email
-from hr_core.utils.tokens import (
+from hr_common.utils.unified_logging import log_event
+from hr_common.utils.email import normalize_email
+from hr_common.utils.htmx_responses import hx_login_required
+from hr_access.tokens import (
     verify_account_signup_token,
     generate_account_signup_token,
     generate_email_change_token,
     verify_email_change_token,
 )
+from hr_email.service import EmailProviderError, send_app_email
 from hr_shop.exceptions import RateLimitExceeded, EmailSendError
 from hr_shop.models import Order
 from hr_shop.services.customers import attach_customer_to_user
-from hr_email.service import EmailProviderError, send_app_email
-from hr_access.unified_logging import log_event
-from django.contrib.sessions.models import Session
-from django.utils.http import urlencode
-
-from hr_core.utils.http import hx_login_required
 
 logger = getLogger()
 
@@ -73,10 +72,10 @@ def send_account_verify_email(request, user: User) -> str:
     Mirrors the checkout confirmation flow (rate limiting + cache tracking)
     """
     if not user.email:
-        raise ValueError("User email is required for signup verification.")
+        raise ValueError("User email is required for signup verification.")  # TODO Review
 
     if not _can_send_signup_email(user.email):
-        raise RateLimitExceeded("Too many confirmation emails sent. Please check your inbox or try again.")
+        raise RateLimitExceeded("Too many confirmation emails sent. Please check your inbox or try again.")  # TODO Review
 
     token = generate_account_signup_token(user_id=user.id, email=user.email)
 
@@ -87,10 +86,6 @@ def send_account_verify_email(request, user: User) -> str:
         confirm_url = urljoin(base.rstrip('/') + '/', path.lstrip('/'))
     else:
         confirm_url = request.build_absolute_uri(path)
-
-    # confirm_url = request.build_absolute_uri(
-    #     f"{reverse('hr_access:account_signup_confirm')}?u={user.id}&t={token}"
-    # )
 
     subject = "Confirm your Hella Reptilian! account"
     html_body = render_to_string(
@@ -125,7 +120,7 @@ def send_account_verify_email(request, user: User) -> str:
             email=user.email,
             error=str(exc),
         )
-        raise EmailSendError("Could not send confirmation email. Please try again.") from exc
+        raise EmailSendError("Could not send confirmation email. Please try again.") from exc  # TODO Review
 
     _increment_signup_email_count(user.email)
     cache.set(
@@ -161,7 +156,7 @@ def _get_last_email_change_sent_at(user_id: int):
 
 def send_email_change_verification(request, user: User, new_email: str) -> str:
     if not _can_send_email_change(user.id):
-        raise RateLimitExceeded("Too many confirmation emails sent. Please try again later.")
+        raise RateLimitExceeded("Too many confirmation emails sent. Please try again later.")  # TODO Review
 
     token = generate_email_change_token(user_id=user.id, new_email=new_email)
     confirm_url = request.build_absolute_uri(
@@ -203,7 +198,7 @@ def send_email_change_verification(request, user: User, new_email: str) -> str:
             user_id=user.id,
             error=str(exc),
         )
-        raise EmailSendError("Could not send confirmation email. Please try again.") from exc
+        raise EmailSendError("Could not send confirmation email. Please try again.") from exc  # TODO Review
 
     _increment_email_change_email_count(user.id)
     cache.set(
@@ -288,16 +283,16 @@ def account_signup_confirm(request):
     data = verify_account_signup_token(token)
     if not data:
         log_event(logger, logging.WARNING, 'access.signup_confirmation.invalid_token', user_id=user.id)
-        return HttpResponse("Invalid or expired confirmation link.", status=400)
+        return HttpResponse("Invalid or expired confirmation link.", status=400)  # TODO HX-Trigger
 
     # bind token to the intended user + email
     if int(data["user_id"]) != int(user.id):
         log_event(logger, logging.WARNING, 'access.signup_confirmation.user_mismatch', user_id=user.id)
-        return HttpResponse("Invalid confirmation link.", status=400)
+        return HttpResponse("Invalid confirmation link.", status=400)  # TODO HX-Trigger
 
     if normalize_email(data["email"]) != user.email:
         log_event(logger, logging.WARNING, 'access.signup_confirmation.email_mismatch', user_id=user.id, token_email=data.get('email'), user_email=user.email)
-        return HttpResponse("Invalid confirmation link.", status=400)
+        return HttpResponse("Invalid confirmation link.", status=400)  # TODO HX-Trigger
 
     if not user.is_active:
         user.is_active = True
@@ -428,18 +423,18 @@ def account_change_email_confirm(request):
 
     data = verify_email_change_token(token)
     if not data:
-        return HttpResponse("Invalid or expired confirmation link.", status=400)
+        return HttpResponse("Invalid or expired confirmation link.", status=400)  # TODO HX-Trigger
 
     if not user.is_active:
-        return HttpResponse("Account is inactive.", status=400)
+        return HttpResponse("Account is inactive.", status=400)  # TODO HX-Trigger
 
     if int(data["user_id"]) != int(user.id):
-        return HttpResponse("Invalid confirmation link.", status=400)
+        return HttpResponse("Invalid confirmation link.", status=400)  # TODO HX-Trigger
 
     new_email = normalize_email(data["email"])
 
     if User.objects.filter(email__iexact=new_email).exclude(pk=user.id).exists():
-        return HttpResponse("This email is already in use.", status=400)
+        return HttpResponse("This email is already in use.", status=400)  # TODO use HX-Trigger
 
     if user.email != new_email:
         user.email = new_email
@@ -525,8 +520,7 @@ def account_delete_account(request):
 @require_GET
 def account_get_post_purchase_create_account(request, order_id: int):
     """
-    From thank-you modal (guest order):
-    - Show the account creation form with email locked to the order email.
+    Follows hank-you modal for guest orders
     """
     if request.user.is_authenticated:
         return render(request, "hr_access/post_purchase/_post_purchase_account_done.html")
@@ -597,17 +591,18 @@ def account_submit_post_purchase_create_account(request, order_id: int):
 def account_submit_post_purchase_claim_orders(request, order_id: int):
     """
     After post-purchase account creation:
-    user selects which other guest account_get_orders (same email) to link to their account.
+    Presents user with any other orders linked to the email (prior guest orders) used to make their new account.
+    User may claim/deny as desired.
     """
     if not request.user.is_authenticated:
-        return HttpResponse(status=401)
+        return HttpResponse(status=401)  # TODO trigger global message
 
     order = get_object_or_404(Order, pk=order_id)
     email = order.email
 
     # Ownership gate: only link account_get_orders if the account email matches order email
     if request.user.email != email:
-        return HttpResponse(status=403)
+        return HttpResponse(status=403)  # TODO trigger global message
 
     raw_ids = request.POST.getlist("order_ids")
     order_ids = [int(x) for x in raw_ids if str(x).isdigit()]

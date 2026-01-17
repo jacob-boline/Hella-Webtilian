@@ -1,7 +1,7 @@
-# hr_core/db/fields.py
+# hr_common/db/fields.py
 
 from django.db import models
-from hr_core.utils.email import normalize_email
+from hr_common.utils.email import normalize_email
 
 
 class NormalizedEmailField(models.EmailField):

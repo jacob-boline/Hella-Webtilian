@@ -1,4 +1,4 @@
-# hr_core/utils/pagination.py
+# hr_common/utils/pagination.py
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 

@@ -1,4 +1,4 @@
-// hr_shop/static/hr_shop/js/merchModule.js
+// hr_core/static_src/js/modules/merch.js
 
 export function initMerch(root = document) {
     // One-time init for global delegated listeners

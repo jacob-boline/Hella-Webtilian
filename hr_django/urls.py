@@ -1,3 +1,5 @@
+# hr_django/urls.py
+
 """
 URL configuration for hellaWebtilian project.
 
@@ -19,7 +21,6 @@ from django.contrib.auth import views as auth_views
 from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
-from django.views.generic.base import RedirectView
 
 urlpatterns = [
     path('about/', include('hr_about.urls')),

@@ -1,3 +1,5 @@
+# hr_bulletin/apps.py
+
 from django.apps import AppConfig
 
 

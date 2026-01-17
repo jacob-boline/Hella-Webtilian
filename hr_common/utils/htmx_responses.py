@@ -1,3 +1,27 @@
+# hr_common/utils/htmx_responses.py
+
+"""
+HTMX request helpers and response utilities.
+
+Purpose:
+- Provide small primitives for detecting HTMX requests (`is_htmx`)
+- Provide decorators that behave sensibly in an HTMX-first app:
+    - HTMX: return status + HX-Trigger events the client understands
+    - non-HTMX: fall back to redirects / exceptions (MVP placeholders)
+- Provide an HTMX-aware CSRF failure view that can surface a helpful message
+  and prompt re-auth when a session likely expired.
+
+Why
+- The standard redirect for auth/csrf failures is generally not the
+  best behavior in an SPA.
+- Instead, this allows for certain events to (not) be triggered
+  in a context appropriate manner.
+
+Conventions:
+- HTMX errors communicate via HX-Trigger JSON payloads.
+- Non-HTMX fallbacks are intentionally simple until full-page versions exist.
+"""
+
 from functools import wraps
 import json
 
@@ -17,11 +41,11 @@ def hx_login_required(view):
             # Explicitely handled here, but *could* just emit the 401 and let the global 401 handler take over
             resp = HttpResponse(status=401)
             resp["HX-Trigger"] = json.dumps({
+                "closeModal": None,
                 "authRequired": {
                     "message": "Please sign in.",
                     "focus": "#id_username",
-                    "open_drawer": True,
-                    "close_modal": True
+                    "open_drawer": True
                 }
             })
             return resp
@@ -38,11 +62,11 @@ def hx_superuser_required(view):
             if is_htmx(request):
                 resp = HttpResponse(status=401)
                 resp["HX-Trigger"] = json.dumps({
+                    "closeModal": None,
                     "authRequired": {
                         "message": "Please sign in.",
                         "open_drawer": True,
-                        "focus": "#id_username",
-                        "close_modal": True
+                        "focus": "#id_username"
                     }
                 })
                 return resp
@@ -72,11 +96,16 @@ def likely_session_expired(request) -> bool:
 
 
 def is_htmx(request):
+    """True if request was initiated by HTMX (HX-Request: true)."""
     return request.headers.get("HX-Request") == "true"
 
 
-# DO NOT REMOVE reason="", CSRF_FAILURE_VIEW will call this with it as an argument and will TypeError if not present
 def csrf_failure(request, _reason="", **_kwargs):
+    """
+    HTMX-aware CSRF failure view.
+
+    Note: Keep `_reason=""` or type hint the return to TypeError, as Django's CSRF_FAILURE_VIEW calls this with `reason=...`
+    """
     if not is_htmx(request):
         return HttpResponse("Forbidden (CSRF verification failed).", status=403)
 
@@ -85,11 +114,11 @@ def csrf_failure(request, _reason="", **_kwargs):
         resp = HttpResponse(status=403)
         resp["HX-Trigger"] = json.dumps({
             "showMessage": msg,
+            "closeModal": None,
             "authRequired": {
                 "message": msg,
                 "open_drawer": True,
-                "focus": "#id_username",
-                "close_modal": True,
+                "focus": "#id_username"
             }
         })
         return resp

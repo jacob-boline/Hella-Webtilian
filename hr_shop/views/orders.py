@@ -1,14 +1,14 @@
-# hr_access/views/account_get_orders.py
+# hr_shop/views/orders.py
 
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_GET
 
-from hr_core.utils.email import normalize_email
+from hr_common.utils.htmx_responses import hx_login_required
 from hr_shop.models import Customer, Order
-from hr_core.utils.http import hx_login_required
 
 PER_PAGE = 20
+
 
 @hx_login_required
 def _orders_queryset_for_user(user):
@@ -19,7 +19,7 @@ def _orders_queryset_for_user(user):
     - Orders tied to any Customer rows related to the user OR matching email
     - Orders that match the user's email directly
     """
-    email = normalize_email(user.email or "")
+    email = user.email
 
     customer_ids = (
         Customer.objects
@@ -33,6 +33,7 @@ def _orders_queryset_for_user(user):
         .order_by("-created_at")
         .distinct()
     )
+
 
 @hx_login_required
 def _paginate(qs, *, page: int, per: int):

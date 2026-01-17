@@ -21,7 +21,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Zilla+Slab+Highlight:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Syne+Mono&display=swap" rel="stylesheet">
 
-    {# Single-origin: always load the Vite entry from the manifest via django-vite #}
     {% vite_asset 'js/main.js' %}
 
     <script src="https://unpkg.com/htmx.org@2.0.3" defer></script>
@@ -82,7 +81,7 @@
         <button type="button"
                 id="nav-close-btn"
                 data-drawer-close
-                class="rounded-lg text-sm p-1.5 top-2.5 right-2.5 inline-flex items-center relative">  {# -right-2.5 + left: 0, -relative +fixed + z-40 #}
+                class="rounded-lg text-sm p-1.5 top-2.5 right-2.5 inline-flex items-center relative">
             <i class="fa-regular fa-circle-xmark"></i>
             <span class="sr-only">Close menu</span>
         </button>
@@ -125,13 +124,12 @@
     {# ---- Page Content ---- #}
     {% block content %}{% endblock %}
 
-    <div
-            id="modal-loader"
-            hidden
-            hx-trigger="hr:loadModal"
-            hx-target="#modal-content"
-            hx-swap="innerHTML transition:true"
-    ></div>
+    <div id="modal-loader"
+         hidden
+         hx-trigger="hr:loadModal"
+         hx-target="#modal-content"
+         hx-swap="innerHTML transition:true">
+    </div>
 
 </div>
 

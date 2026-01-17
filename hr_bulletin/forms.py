@@ -1,7 +1,7 @@
 # hr_bulletin/forms.py
 
 from django import forms
-from .models import Post
+from hr_bulletin.models import Post
 
 
 class PostForm(forms.ModelForm):

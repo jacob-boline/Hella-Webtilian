@@ -2,7 +2,7 @@
 
 from django.urls import path
 
-from hr_access.views import orders, admin, auth, account
+from hr_access.views import account, admin, auth, orders
 from hr_access.views.password_reset import (
     AccountPasswordResetView,
     AccountPasswordResetDoneView,
@@ -15,7 +15,7 @@ app_name = 'hr_access'
 
 urlpatterns = [
 
-    # Panels / sidebar
+    # Sidebar
     path('sidebar/load/',            auth.account_get_sidebar_panel, name='account_get_sidebar_panel'),
     path('sidebar/load/user-panel/', auth.account_get_user_panel,    name='account_get_user_panel'),
 
@@ -25,7 +25,7 @@ urlpatterns = [
     path('login/',                  auth.auth_login,                name='auth_login'),
     path('logout/',                 auth.auth_logout,               name='auth_logout'),
 
-    # Password change
+    # Account (settings + seurity)
     path('account/settings/',                    account.account_settings,             name='account_settings'),
     path('password/change/',                     account.account_change_password,      name='account_change_password'),
     path('account/email/change/',                account.account_change_email,         name='account_change_email'),
@@ -42,7 +42,7 @@ urlpatterns = [
     path('password/reset/<uidb64>/<token>/', AccountPasswordResetConfirmView.as_view(),  name='password_reset_confirm'),
     path('password/reset/complete/',         AccountPasswordResetCompleteView.as_view(), name='password_reset_complete'),
 
-    # Orders (modal vs full page handled inside view)
+    # Orders
     path('account_get_orders/',                        orders.account_get_orders,                    name='account_get_orders'),
     path('account_get_orders/unclaimed/',              orders.account_get_unclaimed_orders,          name='account_get_unclaimed_orders'),
     path('account_get_orders/claim/',                  orders.account_submit_claim_unclaimed_orders, name='account_submit_claim_unclaimed_orders'),
@@ -50,6 +50,7 @@ urlpatterns = [
     path("account_get_orders/<int:order_id>/",         order_detail_modal,                           name="order_detail_modal"),
     path("account_get_orders/<int:order_id>/receipt/", orders.account_get_order_receipt,             name="account_get_order_receipt"),
 
+    # User management
     path('manage/superuser/remove/<int:user_id>/',          admin.admin_demote_superuser,           name='admin_demote_superuser'),
     path('manage/superuser/confirm-removal/<int:user_id>/', admin.admin_confirm_privilege_demotion, name='admin_confirm_privilege_demotion'),
     path('manage/staff/add/',                               admin.admin_create_site_admin,          name='admin_create_site_admin'),

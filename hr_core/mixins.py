@@ -1,16 +1,19 @@
 # hr_core/mixins.py
 
 
-class HtmxTemplateMixin:
-    """
-    Lets a CBV choose between a full-page template and an HTMX/modal partial.
+from __future__ import annotations
+from typing import Optional
+from django.views.generic.base import TemplateResponseMixin
 
-    Use:
-        - template_name      -> full page (extends base.html)
-        - htmx_template_name -> modal/partial
-    """
 
-    htmx_template_name = None
+class HtmxTemplateMixin(TemplateResponseMixin):
+    """
+    Progressive enhancement helper.
+
+    When used with a TemplateResponseMixin-based CBV (TemplateView/DetailView/etc.),
+    allows swapping the template to an HTMX-specific partial.
+    """
+    htmx_template_name: Optional[str] = None
 
     def get_template_names(self):
         if self.htmx_template_name:

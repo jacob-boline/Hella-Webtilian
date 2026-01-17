@@ -1,4 +1,4 @@
-# hr_core/management/commands/initialize.py
+# hr_core/management/commands/init.py
 
 import os
 import shutil

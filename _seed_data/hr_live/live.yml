@@ -1,4 +1,4 @@
-# seed_data/hr_live/live.yml
+# _seed_data/hr_live/live.yml
 
 bookers:
   - key: "main_booker"

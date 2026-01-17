@@ -1,4 +1,4 @@
-// hr_core/static/hr_core/js/modules/tab-handoff.js
+// hr_core/static_src/js/modules/tab-handoff.js
 
 const CHANNEL_NAME = 'hr_site_handoff_v1';
 const bc = ('BroadcastChannel' in window) ? new BroadcastChannel(CHANNEL_NAME) : null;

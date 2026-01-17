@@ -1,12 +1,10 @@
-{# hr_access/_user_panel.html #}
+{# hr_access/templates/hr_access/_user_panel.html #}
 
 <div class="user-panel">
-    <button
-        class="sidebar-btn sidebar-btn--link user-profile-btn"
-        hx-get="{% url 'hr_access:account_settings' %}"
-        hx-target="#modal-content"
-        hx-swap="innerHTML transition:true">
-
+    <button class="sidebar-btn sidebar-btn--link user-profile-btn"
+            hx-get="{% url 'hr_access:account_settings' %}"
+            hx-target="#modal-content"
+            hx-swap="innerHTML transition:true">
         <div class="user-identity">
             <span class="user-username">{{ request.user.username }}</span>
             <span class="user-email">{{ request.user.email }}</span>
@@ -15,51 +13,46 @@
 
     <hr>
 
-    <button
-        class="sidebar-menu-item"
-        hx-get="{% url 'hr_access:account_get_orders' %}"
-        hx-target="#modal-content"
-        hx-swap="innerHTML transition:true">
+    <button class="sidebar-menu-item"
+            hx-get="{% url 'hr_access:account_get_orders' %}"
+            hx-target="#modal-content"
+            hx-swap="innerHTML transition:true">
         Orders
     </button>
 
     {% if unclaimed_count %}
-        <button
-            class="sidebar-menu-item sidebar-btn--alert"
-            hx-get="{% url 'hr_access:account_get_unclaimed_orders' %}"
-            hx-target="#modal-content"
-            hx-swap="innerHTML transition:true">
+        <button class="sidebar-menu-item sidebar-btn--alert"
+                hx-get="{% url 'hr_access:account_get_unclaimed_orders' %}"
+                hx-target="#modal-content"
+                hx-swap="innerHTML transition:true">
             <span>Unclaimed Orders</span>
             <span class="badge badge--alert">!</span>
         </button>
     {% endif %}
 
-    <button
-        class="sidebar-menu-item"
-        hx-get="{% url 'hr_access:account_settings' %}"
-        hx-target="#modal-content"
-        hx-swap="innerHTML transition:true">
+    <button class="sidebar-menu-item"
+            hx-get="{% url 'hr_access:account_settings' %}"
+            hx-target="#modal-content"
+            hx-swap="innerHTML transition:true">
         Account
     </button>
 
     <hr>
 
     {% if request.user.is_staff or request.user.is_superuser %}
-        <button
-            class="sidebar-menu-item"
-            hx-get="{% url 'hr_shop:product_manager' %}"
-            hx-target="#modal-content"
-            hx-swap="innerHTML transition:true">
+        <button class="sidebar-menu-item"
+                hx-get="{% url 'hr_shop:product_manager' %}"
+                hx-target="#modal-content"
+                hx-swap="innerHTML transition:true">
             Products
         </button>
         <hr>
     {% endif %}
 
-    <button
-        class="sidebar-menu-item"
-        hx-post="{% url 'hr_access:auth_logout' %}"
-        hx-target="#sidebar-access"
-        hx-swap="innerHTML transition:true">
+    <button class="sidebar-menu-item"
+            hx-post="{% url 'hr_access:auth_logout' %}"
+            hx-target="#sidebar-access"
+            hx-swap="innerHTML transition:true">
         Log out
     </button>
 

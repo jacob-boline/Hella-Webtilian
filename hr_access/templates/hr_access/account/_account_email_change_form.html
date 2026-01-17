@@ -1,4 +1,5 @@
 {# hr_access/templates/hr_access/account/_account_email_change_form.html #}
+
 {% load form_fields %}
 
 <article class="change-email-modal checkout-details-modal m-shell">
@@ -7,17 +8,14 @@
         <p class="auth-description">Enter your new email and confirm with your password.</p>
     </header>
 
-        {% include 'hr_common/_non_field_errors.html' %}
+    {% include 'hr_common/_non_field_errors.html' %}
 
-    <form
-        method="post"
-        action="{% url 'hr_access:account_change_email' %}"
-        hx-post="{% url 'hr_access:account_change_email' %}"
-        hx-target="#modal-content"
-        hx-swap="innerHTML transition:true"
-        novalidate
-        class="m-body"
-    >
+    <form hx-post="{% url 'hr_access:account_change_email' %}"
+          hx-target="#modal-content"
+          hx-swap="innerHTML transition:true"
+          novalidate
+          class="m-body">
+
         {% csrf_token %}
         {% form_field form.new_email %}
         {% form_field form.password %}

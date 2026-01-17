@@ -1,4 +1,4 @@
-# hr_core/utils/permissions.py
+# hr_access/permissions.py
 
 # TODO move this into hr_core/utils/http as a decorator (and move the decorators into something like hr_core/decorators?)
 def is_site_admin(user) -> bool:

@@ -1,4 +1,4 @@
-// hr_core/static/hr_core/js/core-utils.js
+// hr_core/static_src/js/utils/core-utils.js
 
 (function () {
     const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;

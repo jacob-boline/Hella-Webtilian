@@ -1,4 +1,4 @@
-// hr_core/static/hr_core/js/events.js
+// hr_core/static_src/js/modules/events.js
 //
 // App-level custom-events.
 
@@ -10,6 +10,7 @@
     let lastIntent = null;
     let pendingIntent = null;
     let _authRequiredLockUntil = 0;
+
 
     function safeCall(fn, ...args) {
         try { return typeof fn === 'function' ? fn(...args) : undefined; }
@@ -85,30 +86,39 @@
         });
     }
 
+    // --------------------------- //
+    //        LISTENERS            //
+    // --------------------------- //
+
+
     document.body.addEventListener('authSuccess', () => {
         requestAnimationFrame(() => {
             requestAnimationFrame(replayPendingIntent);
         });
     });
 
-    // ------------------------------
-    // 0) Global HTMX 401 handler -> authRequired
-    // ------------------------------
-    // Converts any HTMX 401 response into a single, app-level event.
+
+    // -----------------------------------------------------------------
+    //   0) Global HTMX 401 handler -> authRequired
+    //
+    //   Converts any HTMX 401 response into a single, app-level event.
+    // -----------------------------------------------------------------
+
     document.body.addEventListener('htmx:responseError', (event) => {
         if (!isHtmxUnauthorized(event)) return;
 
         const xhr = event?.detail?.xhr;
         pendingIntent = xhr._hrIntent || lastIntent || null;
 
+        safeCall(window.hrSite?.hideModal);
+
         triggerAuthRequired({
             message: 'Please sign in.',
             open_drawer: true,
-            focus: '#id_username',
-            close_modal: true,
-            will_retry: pendingIntent && ['GET', 'HEAD'].includes(pendingIntent.verb)
+            focus: '#id_username'
         });
     });
+
 
     document.body.addEventListener('htmx:configRequest', (event) => {
         const intent = buildIntentFromHtmxConfig(event);
@@ -121,30 +131,26 @@
         lastIntent = intent;
     });
 
+
     // ------------------------------
     // 0b) authRequired -> close modal, open drawer, focus username
     // ------------------------------
     document.body.addEventListener('authRequired', (event) => {
         const now = Date.now();
         if (now < _authRequiredLockUntil) return;
+
         _authRequiredLockUntil = now + 400;
 
         const detail = getDetail(event);
 
-        // 1) Close modal
-        if (detail.close_modal) {
-            safeCall(window.hrSite?.hideModal);
-        }
-
-        // 2) Message (optional)
+        // 1) Message (optional)
         const msg =
             (typeof detail === 'string' ? detail : null) ||
-            detail.message ||
-            detail.text ||
-            '';
+            detail.message || detail.text || '';
+
         if (msg) safeCall(window.hrSite?.showGlobalMessage, msg, detail.duration || 5000);
 
-        // 3) Open drawer/sidebar
+        // 2) Open drawer/sidebar
         if (detail.open_drawer) {
             if (typeof window.hrSite?.openDrawer === 'function') {
                 safeCall(window.hrSite?.openDrawer);
@@ -153,7 +159,7 @@
             }
         }
 
-        // 4) Focus username (after drawer anim / layout)
+        // 3) Focus username (after drawer anim / layout)
         const selector = detail.focus || '#id_username';
 
         const shouldAvoidStealingFocus = () => {
@@ -178,26 +184,24 @@
         });
     });
 
+
     // ------------------------------
     // 1) showMessage -> global message bar
     // ------------------------------
     document.body.addEventListener('showMessage', (event) => {
         const detail = getDetail(event);
 
-        // support both:
-        //   {message: "hi", duration: 5000}
-        //   "hi"
+        const duration = detail.duration || 5000;
+
         const msg =
             (typeof detail === 'string' ? detail : null) ||
-            detail.message ||
-            detail.text ||
-            '';
+            detail.message || detail.text || '';
 
-        const duration = detail.duration || 5000;
         if (!msg) return;
 
         safeCall(window.hrSite?.showGlobalMessage, msg, duration);
     });
+
 
     // ------------------------------
     // 2) closeModal -> close modal only
@@ -213,13 +217,6 @@
     document.body.addEventListener('updateCart', (event) => {
         const detail = getDetail(event);
         const count = Number(detail.item_count ?? detail.count ?? 0);
-
-        // // Sidebar badge (authenticated panel)
-        // const sidebarBadge = document.getElementById('cart-count');
-        // if (sidebarBadge) {
-        //     sidebarBadge.textContent = String(count);
-        //     sidebarBadge.style.display = count > 0 ? 'inline-flex' : 'none';
-        // }
 
         const floatingBadge = document.getElementById('floating-cart-count');
         if (floatingBadge) floatingBadge.textContent = String(count);
@@ -242,11 +239,13 @@
 
         if (imgEl && detail.image_url) imgEl.src = detail.image_url;
         if (priceEl && detail.price) priceEl.textContent = `$${detail.price}`;
+
         if (buyBtn && detail.variant_slug) {
             buyBtn.setAttribute('hx-post', `/shop/cart/add/${detail.variant_slug}/`);
             buyBtn.setAttribute('hx-swap', 'none');
         }
     });
+
 
     // ------------------------------
     // 6) accessChanged -> refresh sidebar access panel (optional)
@@ -270,19 +269,5 @@
 
         window.htmx.ajax('GET', url, { target: '#sidebar-access', swap: 'innerHTML' });
     });
-
-
-    //  // ------------------------------
-    // // 3) closeModalShowGlobalMessage -> close modal then show message
-    // // (kept for backward compat, but you can stop using it)
-    // // ------------------------------
-    // document.body.addEventListener('closeModalShowGlobalMessage', (event) => {
-    //     const detail = getDetail(event);
-    //     const msg = detail.message || detail.text || 'Success.';
-    //     const duration = detail.duration || 5000;
-    //
-    //     safeCall(window.hrSite?.hideModal);
-    //     safeCall(window.hrSite?.showGlobalMessage, msg, duration);
-    // });
 
 })();

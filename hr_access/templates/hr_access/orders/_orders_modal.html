@@ -1,4 +1,4 @@
-{# hr_access/_orders_modal.html #}
+{# hr_access/templates/hr_access/orders/_orders_modal.html #}
 
 <article class="view-cart-modal orders-modal m-shell">
     <header class="m-head">
@@ -33,13 +33,11 @@
                         </div>
 
                         <div class="orders-actions">
-                            <button
-                                type="button"
-                                class="card-btn btn-neon btn-blue"
-                                hx-get="{% url 'hr_access:order_detail_modal' order_id=order.id %}"
-                                hx-target="#modal-content"
-                                hx-swap="innerHTML transition:true"
-                            >
+                            <button type="button"
+                                    class="card-btn btn-neon btn-blue"
+                                    hx-get="{% url 'hr_access:order_detail_modal' order_id=order.id %}"
+                                    hx-target="#modal-content"
+                                    hx-swap="innerHTML transition:true">
                                 View
                             </button>
                         </div>
@@ -56,18 +54,18 @@
 
     <footer class="m-foot m-actions">
         {% if orders and has_more %}
-            <button
-                type="button"
-                class="card-btn btn-neon btn-blue"
-                hx-get="{% url 'hr_access:orders_page' n=page|add:1 %}"
-                hx-target="#modal-content"
-                hx-swap="innerHTML transition:true"
-            >
+            <button type="button"
+                    class="card-btn btn-neon btn-blue"
+                    hx-get="{% url 'hr_access:orders_page' n=page|add:1 %}"
+                    hx-target="#modal-content"
+                    hx-swap="innerHTML transition:true">
                 Load more
             </button>
         {% endif %}
 
-        <button type="button" class="card-btn btn-neon btn-blue" data-modal-close>
+        <button type="button"
+                class="card-btn btn-neon btn-blue"
+                data-modal-close>
             Close
         </button>
     </footer>

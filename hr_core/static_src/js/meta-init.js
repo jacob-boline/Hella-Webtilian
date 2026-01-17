@@ -1,4 +1,4 @@
-// hr_core/static/hr_core/js/meta-init.js
+// hr_core/static_src/js/meta-init.js
 //
 // NOTE: Updated to call initCheckoutModule (details + pay in one shot)
 

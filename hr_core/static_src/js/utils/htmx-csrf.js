@@ -1,4 +1,4 @@
-// hr_core/static/hr_core/js/htmx-csrf.js
+// hr_core/static_src/js/utils/htmx-csrf.js
 
 (function () {
     function getCookie(name) {

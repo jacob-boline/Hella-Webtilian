@@ -7,11 +7,11 @@
 
     {% include 'hr_common/_non_field_errors.html' %}
 
-    <form
-            hx-post="{% url 'hr_access:auth_login' %}"
-            hx-target="#sidebar-access"
-            hx-swap="innerHTML transition:true"
-            class="form login-form">
+    <form hx-post="{% url 'hr_access:auth_login' %}"
+          hx-target="#sidebar-access"
+          hx-swap="innerHTML transition:true"
+          class="form login-form">
+
         {% csrf_token %}
 
         <div>
@@ -27,8 +27,7 @@
         </div>
 
         <div class="small">
-            <button
-                    type="button"
+            <button type="button"
                     class="link-btn"
                     hx-get="{% url 'hr_access:password_reset' %}"
                     hx-target="#modal-content"
@@ -42,8 +41,7 @@
                 Sign In
             </button>
 
-            <button
-                    type="button"
+            <button type="button"
                     class="card-btn btn-neon btn-blue btn-sm"
                     hx-get="{% url 'hr_access:account_signup' %}"
                     hx-target="#modal-content"

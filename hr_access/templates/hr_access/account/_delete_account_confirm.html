@@ -11,13 +11,11 @@
                 This will disable your account and log you out. You can contact support if you need help restoring access.
             </p>
             <div class="modal-actions grid grid-cols-1 md:grid-cols-2">
-                <button
-                    type="button"
-                    class="card-btn btn-neon btn-red"
-                    hx-post="{% url 'hr_access:account_delete_account' %}"
-                    hx-target="#modal-content"
-                    hx-swap="innerHTML"
-                >
+                <button type="button"
+                        class="card-btn btn-neon btn-red"
+                        hx-post="{% url 'hr_access:account_delete_account' %}"
+                        hx-target="#modal-content"
+                        hx-swap="innerHTML transition:true">
                     Confirm delete
                 </button>
                 <button type="button" class="card-btn btn-neon btn-blue" data-modal-close>Cancel</button>

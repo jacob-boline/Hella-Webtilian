@@ -1,4 +1,4 @@
-// hr_about/static/hr_about/js/carousel.js
+// hr_core/static_src/js/modules/carousel.js
 
 export function initCarousel(root = document) {
     const container = root.querySelector('#about-carousel');

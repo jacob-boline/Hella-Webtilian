@@ -1,5 +1,11 @@
 # hr_access/signals.py
 
+# =========================================================== #
+#  This module allows for group management to be handled      #
+#  fully  and automatically by roles. Changing a user's role  #
+#  will also change their group membership accordingly.       #
+# =========================================================== #
+
 from __future__ import annotations
 
 from django.contrib.auth import get_user_model
