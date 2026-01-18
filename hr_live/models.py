@@ -26,11 +26,11 @@ def fmt(obj):
 
 
 class Individual(models.Model):
-    first_name = models.CharField(max_length=50, blank=False, null=False, verbose_name="First Name")
-    last_name = models.CharField(max_length=50, blank=False, null=True, verbose_name="Last Name")
-    phone_number = PhoneNumberField(blank=True, null=True, unique=True, verbose_name="Phone")
-    email = models.EmailField(blank=True, null=True, unique=True, validators=[EmailValidator()], verbose_name="Email")
-    note = models.TextField(max_length=255, blank=True, null=True, verbose_name="Note")
+    first_name   = models.CharField(max_length=50,  blank=False, null=False, verbose_name="First Name")
+    last_name    = models.CharField(max_length=50,  blank=False, null=True,  verbose_name="Last Name")
+    note         = models.TextField(max_length=255, blank=True,  null=True,  verbose_name="Note")
+    email        = models.EmailField(               blank=True,  null=True,  verbose_name="Email", unique=True)
+    phone_number = PhoneNumberField(                blank=True,  null=True,  verbose_name="Phone", unique=True)
 
     class Meta:
         abstract = True
@@ -58,19 +58,18 @@ class Day(models.Model):
         ('SAT', 'Saturday'),
         ('SUN', 'Sunday')
     )
-
     name = models.CharField(choices=DAY_CHOICES, max_length=10, blank=True, null=True, verbose_name="Day of the Week")
 
 
 class Venue(models.Model):
-    name = models.CharField(max_length=100, blank=False, null=False, unique=True, verbose_name="Name")
-    website = models.URLField(max_length=250, blank=False, null=True, unique=True, validators=[URLValidator()])
-    phone_number = PhoneNumberField(blank=True, null=True, unique=True, verbose_name="Phone")
-    email = models.EmailField(blank=True, null=True, unique=True, verbose_name="Email", validators=[EmailValidator()])
-    note = models.TextField(max_length=5000, blank=True, null=True, verbose_name="Note")
-    bookers = models.ManyToManyField("Booker", related_name="venues", verbose_name="Bookers")
-    address = models.ForeignKey(Address, related_name="venue", verbose_name="Address", on_delete=models.PROTECT, null=True)
-    slug = models.SlugField(max_length=140, unique=True, blank=True)
+    address      = models.ForeignKey(      Address,  related_name="venue",     null=True,  verbose_name="Address", on_delete=models.PROTECT)
+    bookers      = models.ManyToManyField("Booker",  related_name="venues",                verbose_name="Bookers")
+    note         = models.TextField(max_length=5000, blank=True,               null=True,  verbose_name="Note")
+    name         = models.CharField(max_length=100,  blank=False, unique=True, null=False, verbose_name="Name")
+    slug         = models.SlugField(max_length=140,  blank=True,  unique=True)
+    website      = models.URLField( max_length=250,  blank=False, unique=True, null=True,                        validators=[URLValidator()])
+    email        = models.EmailField(                blank=True,  unique=True, null=True,  verbose_name="Email", validators=[EmailValidator()])
+    phone_number = PhoneNumberField(                 blank=True,  unique=True, null=True,  verbose_name="Phone")
 
     objects = VenueManager()
 
@@ -215,11 +214,11 @@ class Musician(Individual):
 
 
 class Act(models.Model):
-    name = models.CharField(max_length=255, blank=False, null=False, unique=True)
-    website = models.URLField(max_length=255, blank=False, null=True, unique=True, validators=[URLValidator()])
-    members = models.ManyToManyField(Musician, related_name="projects", verbose_name="Members")
-    contacts = models.ManyToManyField(Musician, related_name="contacts", verbose_name="Contacts")
-    note = models.TextField(max_length=5000, blank=True, null=True, verbose_name="Note")
+    members  = models.ManyToManyField(Musician,  related_name="projects", verbose_name="Members")
+    contacts = models.ManyToManyField(Musician,  related_name="contacts", verbose_name="Contacts")
+    name     = models.CharField(max_length=255,  blank=False, null=False, unique=True)
+    website  = models.URLField( max_length=255,  blank=False, null=True,  unique=True, validators=[URLValidator()])
+    note     = models.TextField(max_length=5000, blank=True,  null=True,  verbose_name="Note")
 
     objects = ActManager()
 
@@ -238,7 +237,7 @@ class Act(models.Model):
         return 'Acts'
 
     def get_fields(self):
-        members_qs = self.members.all()
+        members_qs  = self.members.all()
         contacts_qs = self.contacts.all()
 
         return {
@@ -257,10 +256,7 @@ class Act(models.Model):
             .filter(date__gte=today)
             .select_related("venue")
             .prefetch_related(
-                Prefetch(
-                    "lineup",
-                    queryset=Act.objects.only("id", "name")
-                )
+                Prefetch("lineup", queryset=Act.objects.only("id", "name"))
             )
             .only('id', 'date', 'time', 'venue')
         )
@@ -286,21 +282,18 @@ class Show(models.Model):
         ('published', 'Published')
     ]
 
-    date = models.DateField(null=True, blank=False, default=None, verbose_name="Date")
-    time = models.TimeField(null=True, blank=False, default=None, verbose_name="Time")
-    # to add a list of timezones add the following: choices=[(tz, tz) for tz in zoneinfo.available_timezones()],
-    timezone = models.CharField(max_length=50, default="America/Chicago", verbose_name="Timezone")
-    venue = models.ForeignKey(Venue, related_name="shows", verbose_name="Venue", on_delete=models.PROTECT)
-    booker = models.ForeignKey(Booker, related_name="shows", verbose_name="Booker", on_delete=models.PROTECT, null=True)
-    lineup = models.ManyToManyField(Act, related_name="shows", verbose_name="Lineup")
-    image = models.ImageField(upload_to=show_image_storage, max_length=100, null=True)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING, null=True, related_name="created")
+    created_by  = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING, null=True, related_name="created")
     modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING, null=True, related_name="updated")
-    slug = models.SlugField(max_length=140, unique=True, blank=True, help_text="URL identifier auto-generated from date and venue.", )
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='draft')
-
-    # doors = models.DateTimeField(null=True, blank=False, default=None, verbose_name="Show Time")
-    # note = models.TextField(max_length=5000, blank=True, null=True, verbose_name="Note")
+    venue       = models.ForeignKey(Venue,    related_name="shows", verbose_name="Venue",  on_delete=models.PROTECT)
+    booker      = models.ForeignKey(Booker,   related_name="shows", verbose_name="Booker", on_delete=models.PROTECT, null=True)
+    lineup      = models.ManyToManyField(Act, related_name="shows", verbose_name="Lineup")
+    date        = models.DateField(null=True, blank=False, default=None, verbose_name="Date")
+    time        = models.TimeField(null=True, blank=False, default=None, verbose_name="Time")
+    image       = models.ImageField(upload_to=show_image_storage, max_length=100, null=True)
+    slug        = models.SlugField(max_length=140, unique=True, blank=True, help_text="URL identifier auto-generated from date and venue.", )
+    status      = models.CharField(max_length=10, default='draft', choices=STATUS_CHOICES)
+    timezone    = models.CharField(max_length=50, default="America/Chicago", verbose_name="Timezone")
+    # to add a list of timezones add the following: choices=[(tz, tz) for tz in zoneinfo.available_timezones()],
 
     objects = ShowManager()
 
@@ -309,9 +302,9 @@ class Show(models.Model):
         ordering = ["date"]
 
     def __str__(self) -> str:
-        date_str = self._formatted_date_short()
+        date_str  = self._formatted_date_short()
+        time_str  = self._formatted_time_short()
         venue_str = self.venue.name if self.venue_id else "Venue TBD"
-        time_str = self._formatted_time_short()
 
         return f"{date_str} -- {venue_str} -- {time_str}"
 
@@ -392,9 +385,9 @@ class Show(models.Model):
 
 
 class VenueBookerDay(models.Model):
-    venue = models.ForeignKey(Venue, on_delete=models.CASCADE, unique=False, blank=False, null=False)
+    venue  = models.ForeignKey(Venue,  on_delete=models.CASCADE, unique=False, blank=False, null=False)
     booker = models.ForeignKey(Booker, on_delete=models.CASCADE, unique=False, blank=False, null=True)
-    day = models.ForeignKey(Day, on_delete=models.PROTECT, unique=False, blank=False, null=True)
+    day    = models.ForeignKey(Day,    on_delete=models.PROTECT, unique=False, blank=False, null=True)
 
     class Meta:
         unique_together = ('venue', 'day')

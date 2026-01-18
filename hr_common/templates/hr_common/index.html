@@ -1,0 +1,183 @@
+{# hr_common/templates/hr_common/index.html #}
+
+{% extends "hr_site/base.html" %}
+{% load static shop_tags shop_images %}
+
+{% block title %}Hella Reptilian — Home{% endblock %}
+w
+{% block content %}
+
+    <div id="section-wipe-0" class="section-wipe z-20 absolute"></div>
+
+    <section id="parallax-section-shows" class="parallax-section relative flex items-center justify-center min-h-vhfix">
+        <div class="parallax-background absolute inset-0 bg-cover bg-center"></div>
+        <div class="parallax-content relative isolate z-10 mx-auto max-w-6xl px-5 py-vh-18 text-center flex flex-col items-center justify-center min-h-vhfix bg-transparent">
+            <h1>Upcoming Shows</h1>
+
+            {% if shows %}
+                {% for show in shows %}
+                    {% include "hr_live/_concert_card.html" with show=show %}
+                {% endfor %}
+            {% else %}
+                <p class="opacity-70 italic">
+                    No upcoming shows at the moment. Check back soon!
+                </p>
+            {% endif %}
+        </div>
+    </section>
+
+    <div id="section-wipe-1" class="section-wipe z-20 absolute"></div>
+
+    <section id="parallax-section-merch" class="parallax-section merch-section relative flex items-center justify-center min-h-vhfix">
+        <div class="parallax-background absolute inset-0 bg-cover bg-center"></div>
+        <div class="parallax-content relative isolate z-10 mx-auto max-w-6xl px-5 py-vh-18 text-center flex flex-col items-center justify-center min-h-vhfix bg-transparent">
+            <h1>Merch</h1>
+
+            <div id="merch-grid" class="merch-grid">
+                {% for product in products %}
+                    {% get_display_variant product as display_variant %}
+                    {% if display_variant %}
+                        {% variant_image display_variant as display_image %}
+                        <article class="merch-card" data-sku="{{ display_variant.sku }}">
+                            <button class="merch-img"
+                                    type="button"
+                                    aria-label="Open details for {{ product.name }}{% if display_variant.name %} ({{ display_variant.name }}){% endif %}"
+                                    hx-get="{% url "hr_shop:get_product_modal_partial" product_slug=product.slug %}"
+                                    hx-target="#modal-content"
+                                    hx-swap="innerHTML transition:true">
+
+                                {% if display_image %}
+                                    <img src="{{ display_image.image.url }}"
+                                         alt="{{ product.name }}{% if display_variant.name %} ({{ display_variant.name }}){% endif %}"
+                                         class="merch-thumb-img">
+                                {% else %}
+                                    <img src="{% static 'hr_shop/img/placeholder_2.png' %}"
+                                         alt="{{ product.name }}{% if display_variant.name %} ({{ display_variant.name }}){% endif %}"
+                                         class="merch-thumb-img">
+                                {% endif %}
+                            </button>
+
+                            <div class="merch-meta">
+                                <h3 class="merch-title">
+                                    {{ product.name }}
+                                </h3>
+                                <div class="merch-price">
+                                    ${{ display_variant.price }}
+                                </div>
+                            </div>
+
+                            <div class="merch-actions">
+                                <button class="card-btn btn-neon btn-blue"
+                                        type="button"
+                                        hx-get="{% url 'hr_shop:get_product_modal_partial' product_slug=product.slug %}"
+                                        hx-target="#modal-content"
+                                        hx-swap="innerHTML transition:true">
+                                    <i class="fas fa-circle-info"></i> Details
+                                </button>
+
+                                <button class="card-btn btn-neon btn-green"
+                                        type="button"
+                                        hx-post="{% url 'hr_shop:add_to_cart' variant_slug=display_variant.slug %}"
+                                        hx-vals='{"quantity": 1}'
+                                        hx-swap="none">
+                                    <i class="fas fa-cart-plus"></i> Add to cart
+                                </button>
+                            </div>
+                        </article>
+                    {% endif %}
+                {% empty %}
+                    <p>No merch available yet. Check back soon.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <div id="section-wipe-2" class="section-wipe z-20 absolute"></div>
+
+    <section id="parallax-section-about" class="parallax-section relative flex items-center justify-center min-h-vhfix">
+        <div class="parallax-background absolute inset-0 bg-cover bg-center"></div>
+
+        <div class="parallax-content relative isolate z-10 max-w-6xl px-5 py-vh-18 text-center flex flex-col items-center justify-center min-h-vhfix bg-transparent">
+            <h1>About</h1>
+            <div class="about-wrapper">
+                <div class="about-card">
+                    <div class="about">
+                        <div class="about-intro">
+                            <p>
+                                A few weeks ago, on this very planet, some guys starting playing music.
+                                They tried sounding like these other guys who also played music,
+                                but they made those other dude's music sound more bad and less good.
+                                So, they just started making their own stuff.
+                            </p>
+                        </div>
+                        <div id="about-carousel-container">
+                            {% include "hr_about/_about_carousel.html" with slides=slides %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="about-quote-wrap">
+                    <div class="about-fade-bridge" aria-hidden="true"></div>
+                    <div id="about-quotes-container">
+                        {% include "hr_about/_about_quotes.html" with quotes=quotes %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <div id="section-wipe-3" class="section-wipe z-20 absolute"></div>
+
+    <section id="parallax-section-bulletin" class="parallax-section relative flex items-center justify-center min-h-vhfix">
+        <div class="parallax-background absolute inset-0 bg-cover bg-center"></div>
+        <div class="parallax-content relative isolate z-10 mx-auto max-w-6xl px-5 py-vh-18 text-center flex flex-col items-center justify-center min-h-vhfix bg-transparent">
+            <h1>Bulletin</h1>
+            <div id="bulletin-root"
+                 class="bulletin-root"
+                 hx-get="{% url 'hr_bulletin:bulletin_list_partial' %}"
+                 hx-trigger="load"
+                 hx-target="#bulletin-root"
+                 hx-swap="innerHTML">
+                <p class="bulletin-loading">Loading posts...</p>
+            </div>
+        </div>
+    </section>
+
+    {#    {% if landing_modal == "email_confirmed" %}#}
+    {#      <div#}
+    {#        hidden#}
+    {#        hx-get="{% url 'hr_shop:email_confirmation_success' %}"#}
+    {#        hx-trigger="load"#}
+    {#        hx-target="#modal-content"#}
+    {#        hx-swap="innerHTML"#}
+    {#      ></div>#}
+    {#    {% endif %}#}
+
+    {% if landing_modal == "email_confirmed" %}
+        <script>
+            function openLandingModalWhenReady () {
+                const loader = document.getElementById('modal-loader');
+                if (!loader || !window.htmx) return false;
+
+                loader.setAttribute('hx-get', "{% url 'hr_shop:email_confirmation_success' %}");
+                htmx.process(loader);
+                htmx.trigger(loader, 'hr:loadModal');
+                return true;
+            }
+
+            // try immediately
+            if (!openLandingModalWhenReady()) {
+                // try once HTMX is ready
+                document.addEventListener('htmx:load', () => openLandingModalWhenReady(), {once: true});
+
+                // fallback: one short retry in case htmx:load doesn't fire how you expect
+                setTimeout(openLandingModalWhenReady, 50);
+            }
+        </script>
+    {% endif %}
+
+
+{% endblock content %}
+
+{% block extra_scripts %}{% endblock extra_scripts %}

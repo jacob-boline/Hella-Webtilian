@@ -19,5 +19,7 @@ node_modules
 /ZeppelinRemoteNotebooks/
 /.env
 .env
-.env
+/env/
 .django-secret
+/hr_config/env/
+/logs/

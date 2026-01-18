@@ -1,4 +1,5 @@
 /* hr_core/static_src/css/flows/cart.css */
+
 /* ===========================
    Cart modal container
    =========================== */
@@ -45,7 +46,7 @@
     height: 128px;
     border-radius: 24px;
     object-fit: cover;
-    box-shadow: 0 0 10px rgba(0, 234, 255, 0.25);
+    box-shadow: 0 0 10px var(--neon-cyan-alpha-30);
 }
 
 /* main text block */
@@ -72,8 +73,6 @@
     opacity: 0.8;
 }
 
-/* quantity */
-
 .item-quantity {
     grid-area: qty;
     display: flex;
@@ -89,8 +88,6 @@
 .item-quantity input[type="number"] {
     width: 64px;
 }
-
-/* line subtotal + remove */
 
 .item-subtotal-wrapper {
     grid-area: subtotal;
@@ -113,7 +110,7 @@
 .cart-remove-btn {
     padding:      .25rem .75rem;
     border-radius: 100vmax;
-    border:        1px solid rgba(255, 80, 80, 0.8);
+    border:        1px solid var(--red-alpha-75);
     margin-left:   0.75rem;
     background:    transparent;
     color:         #ff8a8a;
@@ -123,9 +120,9 @@
 }
 
 .cart-remove-btn:hover {
-    background-color: rgba(255, 80, 80, 0.15);
+    background-color: var(--red-alpha-15);
     color: var(--text);
-    box-shadow: 0 0 10px rgba(255, 80, 80, 0.4);
+    box-shadow: 0 0 10px var(--red-alpha-45);
 }
 
 /* ===========================

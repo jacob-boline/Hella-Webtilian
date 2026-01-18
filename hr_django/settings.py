@@ -87,7 +87,6 @@ INSTALLED_APPS = [
     "hr_live",
     "hr_payment",
     "hr_shop",
-    "hr_site",
     "hr_storage",
 
     # Third-party
@@ -205,7 +204,7 @@ STATIC_URL = "/static/"
 
 # Important:
 # - STATIC_ROOT should be a *collection* directory for collectstatic (often "staticfiles")
-# - Your source static is under hr_core/static, hr_site/static, etc.
+# - Your source static is under hr_core/static,, etc.
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Ensure your built Vite output (hr_core/static/hr_core/dist/...) is discoverable.
@@ -294,7 +293,6 @@ LOGGING = {
         "hr_live": {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
         "hr_payment": {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
         "hr_shop": {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
-        "hr_site": {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
         "hr_storage": {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
     },
     "root": {

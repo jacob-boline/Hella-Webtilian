@@ -238,7 +238,7 @@
     margin-left:     24px;
     background:      var(--black-alpha-30);
     border:          1px solid var(--white-alpha-15);
-    box-shadow:      0 0 18px rgba(0, 234, 255, 0.15);
+    box-shadow:      0 0 18px var(--neon-cyan-alpha-15);
     backdrop-filter: blur(10px);
     border-radius:   100vmax;
     cursor:          pointer;
@@ -311,7 +311,7 @@
 .cart-btn:hover {
     color:            aquamarine;
     border-color:     aquamarine;
-    box-shadow:       0 0 14px rgba(0, 234, 255, 0.9);
+    box-shadow:       0 0 14px var(--neon-cyan-alpha-90);
     background-color: var(--black-alpha-75);
 }
 
@@ -369,8 +369,8 @@ input:-webkit-autofill:focus {
 /* could make this conditional by using .form-control:has(.class:focus) */
 .form-control:focus-within {
     box-shadow: inset 0 0 0 1px var(--neon-blue),
-                      0 0  12px rgba(0, 234, 255, 0.55),
-                      0 0  14px rgba(0, 234, 255, 0.35);
+                      0 0  12px var(--neon-cyan-alpha-60),
+                      0 0  14px var(--neon-cyan-alpha-30);
 }
 
 .field-group:focus-within label {
@@ -434,7 +434,7 @@ form.login-form div.form-control {
     text-transform: uppercase;
     text-shadow:    0 0 0.35rem var(--white-alpha-60),
                     0 0 0.75rem var(--white-alpha-45),
-                    0 0 1.5rem rgba(200, 200, 255, 0.35);
+                    0 0 1.5rem var(--dark-gray-alpha-30);
     line-height:    1.1;
 }
 
@@ -446,24 +446,14 @@ form.login-form div.form-control {
     line-height:    1.2;
 }
 
-/*.user-profile-btn:hover .user-username,*/
-/*.user-profile-btn:hover .user-email,*/
 .user-identity:hover .user-username,
 .user-identity:hover .user-email {
     color:       var(--text);
     text-shadow: 0 0 0.35rem var(--white-alpha-90),
                  0 0 0.85rem var(--white-alpha-60),
-                 0 0 1.35rem rgba(200, 200, 255, 0.45);
+                 0 0 1.35rem var(--dark-gray-alpha-45);
 }
 
-/*.user-profile-btn:focus-visible .user-username,*/
-/*.user-profile-btn:focus-visible .user-email {*/
-/*    color:      var(--text);*/
-/*    text-shadow: 0 0 0.4rem var(--white-alpha-90),*/
-/*                 0 0 1rem var(--white-alpha-75),*/
-/*                 0 0 1.6rem rgba(200, 200, 255, 0.55);*/
-/*    transform:   scale(1.015);*/
-/*}*/
 
 /* ===========================
    Misc

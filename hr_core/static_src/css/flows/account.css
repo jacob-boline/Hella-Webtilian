@@ -383,13 +383,13 @@
 }
 
 .account-status-panel--orders {
-    border-color:          rgba(0, 234, 255, 0.2);
-    box-shadow:   0 0 14px rgba(0, 234, 255, 0.15);
+    border-color:          var(--neon-cyan-alpha-30);
+    box-shadow:   0 0 14px var(--neon-cyan-alpha-15);
 }
 
 .account-status-panel--danger {
-    border-color:          rgba(255, 107, 107, 0.35);
-    box-shadow:   0 0 12px rgba(255, 107, 107, 0.15);
+    border-color:          var(--red-alpha-30);
+    box-shadow:   0 0 12px var(--red-alpha-15);
 }
 
 /* =====================
@@ -548,7 +548,6 @@
     text-overflow: ellipsis;
 }
 
-/* Only enforce the wide-table minimum when the container is actually wide enough */
 @container modal (min-width: 720px) {
     .order-claim-row {
         min-width: 720px;
@@ -575,7 +574,6 @@
 
 /* ===========================
    Unclaimed Orders: success variant
-   (reuses form-errors structure)
    =========================== */
 
 .form-errors.is-success {
@@ -681,7 +679,6 @@
     min-height:     0;
 }
 
-/* Make the list the scroll region */
 #modal-content:has(.unclaimed-orders-modal) .unclaimed-orders-modal .order-claim-list {
     flex:                1 1 auto;
     min-height:          0;
@@ -744,9 +741,9 @@
     margin-right:    auto;
 }
 
-/* ===========================
+/* ============================
    Change email / password misc
-   =========================== */
+   ============================ */
 
 .change-email-modal .m-actions {
     margin-top: 1.5rem;

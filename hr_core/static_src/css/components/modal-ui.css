@@ -278,7 +278,7 @@
 .modal select:focus,
 .modal textarea:focus {
     border-color:     var(--neon-blue);
-    box-shadow:       0 0 0 1px rgba(0, 234, 255, 0.5);
+    box-shadow:       0 0 0 1px var(--neon-cyan-alpha-45);
     background-color: var(--black-alpha-90);
 }
 
@@ -299,7 +299,7 @@
     margin:        0 0 1rem;
     padding:       0.75rem 1rem;
     border-radius: 8px;
-    background:    rgba(255, 107, 107, 0.15);
+    background:    var(--red-alpha-15);
     border:        1px solid var(--neon-red);
     color:         #FECACA;
     font-size:     0.85rem;
@@ -346,7 +346,7 @@
 }
 
 /* ===========================
-   Cart total row (grid, stable)
+   Cart total row
    =========================== */
 
 .modal-summary-row {
@@ -402,7 +402,7 @@
 }
 
 /* ===========================
-   Rhythm helpers (optional)
+   Rhythm helpers
    =========================== */
 
 .modal-row-divider {

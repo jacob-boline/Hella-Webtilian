@@ -80,9 +80,13 @@
     /* RGB Channel */
     --white: 255, 255, 255;
     --black: 0, 0, 0;
+    --dark-gray: 200, 200, 255;
+    --neon-cyan: 0, 234, 255;
+
     --dark1: 15 23 42;
     --gray1: 148, 163, 184;
     --green: 255 255 100;
+    --red: 255, 80, 80;
 
 
     /* Alpha Channel */
@@ -102,11 +106,23 @@
     --white-alpha-75: rgba(var(--white), 0.75);
     --white-alpha-90: rgba(var(--white), 0.90);
 
+    --dark-gray-alpha-30: rgba(var(--dark-gray), 0.30);
+    --dark-gray-alpha-45: rgba(var(--dark-gray), 0.45);
+    --dark-gray-alpha-60: rgba(var(--dark-gray), 0.60);
+
+    --neon-cyan-alpha-15: rgba(var(--neon-cyan), 0.15);
+    --neon-cyan-alpha-30: rgba(var(--neon-cyan), 0.30);
+    --neon-cyan-alpha-45: rgba(var(--neon-cyan), 0.45);
+    --neon-cyan-alpha-60: rgba(var(--neon-cyan), 0.60);
+    --neon-cyan-alpha-90: rgba(var(--neon-cyan), 0.90);
+
+    --red-alpha-15: rgba(var(--red), 0.15);
+    --red-alpha-30: rgba(var(--red), 0.30);
+    --red-alpha-45: rgba(var(--red), 0.45);
+    --red-alpha-75: rgba(var(--red), 0.75);
 
     /* HEX Colors */
     --bg-dark:       #1E1E1E;
-    --card-bg-start: #2A2A2A;
-    --card-bg-end:   #1B1B1B;
     --accent:        #FA0;
     --gold:          #FFA500;
     --glow:          #FD6;
@@ -163,9 +179,6 @@
     --padding-md: clamp(1.5rem,  6%, 3.0rem);
     --padding-lg: clamp(3.0rem, 12%, 6.0rem);
 
-    --card-bg-1: #2A2A2A;
-    --card-bg-2: #1B1B1B;
-
     --panel-bg: #F3F4F6;
     --panel-hi: #FFF;
     --panel-lo: #DADDE3;
@@ -204,7 +217,6 @@ body.modal-open {
 }
 
 body {
-    /*font-family: "Space Grotesk", sans-serif;*/
     font-family: Quantico, sans-serif;
     color: var(--text);
     background-color: var(--bg-dark);
@@ -321,7 +333,7 @@ nav.navbar {
     text-align:     center;
     text-shadow:    0 0  4px var(--white-alpha-60),
                     0 0 16px var(--white-alpha-45),
-                    0 0 24px rgba(200, 200, 255, 0.4);
+                    0 0 24px var(--dark-gray-alpha-45);
     text-transform: uppercase;
     letter-spacing: 0.25em;
     animation:      pulse-glow 2.5s infinite ease-in-out;
@@ -333,13 +345,13 @@ nav.navbar {
         text-shadow:
             0 0 0.25rem var(--white-alpha-60),
             0 0 0.75rem var(--white-alpha-45),
-            0 0 1.5rem rgba(200, 200, 255, 0.4);
+            0 0 1.5rem var(--dark-gray-alpha-45);
     }
     50% {
         text-shadow:
             0 0 0.75rem var(--white-alpha-75),
             0 0 1.5rem var(--white-alpha-60),
-            0 0 3rem rgba(200, 200, 255, 0.6);
+            0 0 3rem var(--dark-gray-alpha-60);
     }
 }
 
@@ -380,7 +392,7 @@ nav.navbar {
     border-radius: 1rem;
     border:        1px solid var(--white-alpha-15);
     background:    radial-gradient(circle at top left, var(--black-alpha-60), var(--black-alpha-90));
-    box-shadow:    0 0 24px rgba(0, 234, 255, 0.25);
+    box-shadow:    0 0 24px var(--neon-cyan-alpha-30);
 }
 
 .modal-panel {
@@ -484,7 +496,7 @@ nav.navbar {
     backdrop-filter: blur(10px);
     color:           var(--text);
     cursor:          pointer;
-    box-shadow:      0 0 18px rgba(0, 234, 255, 0.15);
+    box-shadow:      0 0 18px var(--neon-cyan-alpha-15);
     transition:      transform  .2s ease,
                      opacity     1s ease,
                      background .2s ease;
