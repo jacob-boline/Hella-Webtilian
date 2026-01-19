@@ -7,9 +7,7 @@ Handles sending confirmation emails and rate limiting.
 
 import logging
 import os
-from urllib.parse import urljoin
 
-from django.conf import settings
 from django.core.cache import cache
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -17,6 +15,7 @@ from django.utils import timezone
 
 from hr_common.utils.email import normalize_email
 from hr_common.utils.unified_logging import log_event
+from hr_core.utils.urls import build_external_absolute_url
 from hr_email.service import EmailProviderError, send_app_email
 from hr_shop.exceptions import RateLimitExceeded, EmailSendError
 from hr_shop.models import ConfirmedEmail
@@ -62,28 +61,11 @@ def send_checkout_confirmation_email(request, email: str, draft_id: int) -> str:
     normalized_email = normalize_email(email)
 
     if not can_send_confirmation_email(normalized_email):
-        log_event(
-            logger,
-            logging.WARNING,
-            "checkout_email.rate_limit_exceeded",
-            email=normalized_email,
-        )
+        log_event(logger, logging.WARNING, "checkout_email.rate_limit_exceeded", email=normalized_email)
         raise RateLimitExceeded("Too many confirmation emails sent. Please check your inbox or try again later.")
 
     token = generate_checkout_email_token(email=normalized_email, draft_id=draft_id)
-
-    # confirm_path = reverse("hr_shop:email_confirmation_process_response", args=[token])
-    # confirm_url = request.build_absolute_uri(confirm_path)
-
-    confirm_path = reverse("hr_shop:email_confirmation_process_response", args=[token])
-
-    base = getattr(settings, "EXTERNAL_BASE_URL", "").strip().rstrip("/")
-    if base:
-        confirm_url = urljoin(base + "/", confirm_path.lstrip("/"))
-    else:
-        # fallback if you haven't set EXTERNAL_BASE_URL
-        confirm_url = request.build_absolute_uri(confirm_path)
-
+    confirm_url = build_external_absolute_url(request, reverse("hr_shop:email_confirmation_process_response"), query={"t": token})
     subject = "Confirm your email to complete your order - Hella Reptilian"
 
     plain_message = f"""
@@ -101,11 +83,7 @@ Hella Reptilian
 
     html_message = render_to_string(
         "hr_shop/emails/guest_checkout_email_confirmation.html",
-        {
-            "confirm_url": confirm_url,
-            "email": normalized_email,
-            "year": timezone.now().year
-        }
+        {"confirm_url": confirm_url, "email": normalized_email, "year": timezone.now().year}
     )
 
     try:
@@ -116,33 +94,15 @@ Hella Reptilian
             html_body=html_message,
             custom_id=f"checkout_confirm_{draft_id}"
         )
-        log_event(
-            logger,
-            logging.INFO,
-            "checkout_email.send_result",
-            email=normalized_email,
-            result=result,
-        )
+        log_event(logger, logging.INFO, "checkout_email.send_result", email=normalized_email, result=result)
 
     except EmailProviderError as exc:
-        log_event(
-            logger,
-            logging.ERROR,
-            "checkout_email.send_failed",
-            email=normalized_email,
-            error=str(exc),
-        )
+        log_event(logger, logging.ERROR, "checkout_email.send_failed", email=normalized_email, error=str(exc))
         raise EmailSendError("Could not send confirmation email. Please try again.") from exc
 
     increment_email_send_count(normalized_email)
     cache.set(SENT_AT_KEY.format(email=normalized_email), timezone.now(), timeout=SENT_AT_TTL)
-    log_event(
-        logger,
-        logging.INFO,
-        "checkout_email.sent",
-        email=normalized_email,
-        draft_id=draft_id,
-    )
+    log_event(logger, logging.INFO, "checkout_email.sent", email=normalized_email, draft_id=draft_id)
 
     return confirm_url
 

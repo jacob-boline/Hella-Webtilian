@@ -39,9 +39,19 @@ else:
 DEBUG = _env_bool("DEBUG", False)
 WHITENOISE_USE_FINDERS = DEBUG
 
-USE_X_FORWARDED_HOST = True
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-EXTERNAL_BASE_URL = os.getenv('EXTERNAL_BASE_URL', '').rstrip('/')
+SPSH_NAME = os.environ.get("SECURE_PROXY_SSL_HEADER_NAME")
+SPSH_VALUE = os.environ.get("SECURE_PROXY_SSEL_HEADER_VALUE")
+SECURE_PROXY_SSL_HEADER = (SPSH_NAME, SPSH_VALUE) if SPSH_NAME and SPSH_VALUE else None
+USE_X_FORWARDED_HOST = _env_bool("USER_X_FORWARDED_HOST")
+
+USE_NGROK = _env_bool("USE_NGROK")
+if USE_NGROK:
+    EXTERNAL_BASE_URL = os.getenv('EXTERNAL_BASE_URL', '').rstrip('/')
+    if not EXTERNAL_BASE_URL:
+        raise RuntimeError("USE_NGROK=1 but EXTERNAL_BASE_URL is empty.")
+    if not (EXTERNAL_BASE_URL.startswith("http://") or EXTERNAL_BASE_URL.startswith("https://")):
+        raise RuntimeError("EXTERNAL_BASE_URL must start with http:// or https://")
+
 ALLOWED_HOSTS        = [h.strip() for h in os.environ.get("ALLOWED_HOSTS", "").split(",") if h.strip()]
 CSRF_TRUSTED_ORIGINS = [h.strip() for h in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",") if h.strip()]
 INTERNAL_IPS = ["127.0.0.1"]

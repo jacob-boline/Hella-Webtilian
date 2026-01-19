@@ -5,9 +5,7 @@ from __future__ import annotations
 import json
 import logging
 from logging import getLogger
-from urllib.parse import urljoin
 
-from django.conf import settings
 from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.sessions.models import Session
@@ -26,6 +24,7 @@ from hr_access.models import User
 from hr_common.utils.unified_logging import log_event
 from hr_common.utils.email import normalize_email
 from hr_common.utils.htmx_responses import hx_login_required
+from hr_core.utils.urls import build_external_absolute_url
 from hr_access.tokens import (
     verify_account_signup_token,
     generate_account_signup_token,
@@ -79,22 +78,15 @@ def send_account_verify_email(request, user: User) -> str:
 
     token = generate_account_signup_token(user_id=user.id, email=user.email)
 
-    path = f"{reverse('hr_access:account_signup_confirm')}?u={user.id}&t={token}"
-    base  = getattr(settings, 'EXTERNAL_BASE_URL', '').strip()
-
-    if base:
-        confirm_url = urljoin(base.rstrip('/') + '/', path.lstrip('/'))
-    else:
-        confirm_url = request.build_absolute_uri(path)
-
+    confirm_url = build_external_absolute_url(
+        request,
+        reverse("hr_access:account_signup_confirm"),
+        query={"u": user.id, "t": token},
+    )
     subject = "Confirm your Hella Reptilian! account"
     html_body = render_to_string(
         "hr_access/registration/signup_confirmation_email.html",
-        {
-            "confirm_url": confirm_url,
-            "email": user.email,
-            "year": timezone.now().year
-        }
+        {"confirm_url": confirm_url, "email": user.email, "year": timezone.now().year}
     )
     text_body = (
         f"Please confirm your email to activate your account.\n\n"
@@ -113,28 +105,12 @@ def send_account_verify_email(request, user: User) -> str:
             custom_id=f"account_signup_confirm_{user.id}"
         )
     except EmailProviderError as exc:
-        log_event(
-            logger,
-            logging.ERROR,
-            "access.signup_confirmation.send_failed",
-            email=user.email,
-            error=str(exc),
-        )
+        log_event(logger, logging.ERROR, "access.signup_confirmation.send_failed", email=user.email, error=str(exc))
         raise EmailSendError("Could not send confirmation email. Please try again.") from exc  # TODO Review
 
     _increment_signup_email_count(user.email)
-    cache.set(
-        SIGNUP_SENT_AT_KEY.format(email=user.email),
-        timezone.now(),
-        timeout=SIGNUP_RATE_LIMIT_WINDOW_SECONDS
-    )
-    log_event(
-        logger,
-        logging.INFO,
-        "access.signup_confirmation.sent",
-        email=user.email,
-        user_id=user.id,
-    )
+    cache.set(SIGNUP_SENT_AT_KEY.format(email=user.email), timezone.now(), timeout=SIGNUP_RATE_LIMIT_WINDOW_SECONDS)
+    log_event(logger, logging.INFO, "access.signup_confirmation.sent", email=user.email, user_id=user.id)
     return confirm_url
 
 
@@ -159,26 +135,21 @@ def send_email_change_verification(request, user: User, new_email: str) -> str:
         raise RateLimitExceeded("Too many confirmation emails sent. Please try again later.")  # TODO Review
 
     token = generate_email_change_token(user_id=user.id, new_email=new_email)
-    confirm_url = request.build_absolute_uri(
-        f"{reverse('hr_access:account_change_email_confirm')}?{urlencode({'u': user.id, 't': token})}"
+
+    confirm_url = build_external_absolute_url(
+        request,
+        reverse("hr_access:account_change_email_confirm"),
+        query={"u": user.id, "t": token}
     )
 
     subject = "Confirm your new email"
     html_body = render_to_string(
         "hr_access/account/email_change_email.html",
-        {
-            "confirm_url": confirm_url,
-            "email": new_email,
-            "username": user.username,
-        }
+        {"confirm_url": confirm_url, "email": new_email, "username": user.username}
     )
     text_body = render_to_string(
         "hr_access/account/email_change_email.txt",
-        {
-            "confirm_url": confirm_url,
-            "email": new_email,
-            "username": user.username,
-        }
+        {"confirm_url": confirm_url, "email": new_email, "username": user.username}
     )
 
     try:
@@ -190,29 +161,12 @@ def send_email_change_verification(request, user: User, new_email: str) -> str:
             custom_id=f"account_email_change_{user.id}",
         )
     except EmailProviderError as exc:
-        log_event(
-            logger,
-            logging.ERROR,
-            "access.email_change_confirmation.send_failed",
-            email=new_email,
-            user_id=user.id,
-            error=str(exc),
-        )
+        log_event(logger, logging.ERROR, "access.email_change_confirmation.send_failed", email=new_email, user_id=user.id, error=str(exc))
         raise EmailSendError("Could not send confirmation email. Please try again.") from exc  # TODO Review
 
     _increment_email_change_email_count(user.id)
-    cache.set(
-        EMAIL_CHANGE_SENT_AT_KEY.format(user_id=user.id),
-        timezone.now(),
-        timeout=EMAIL_CHANGE_RATE_LIMIT_WINDOW_SECONDS,
-    )
-    log_event(
-        logger,
-        logging.INFO,
-        "access.email_change_confirmation.sent",
-        email=new_email,
-        user_id=user.id,
-    )
+    cache.set(EMAIL_CHANGE_SENT_AT_KEY.format(user_id=user.id), timezone.now(), timeout=EMAIL_CHANGE_RATE_LIMIT_WINDOW_SECONDS)
+    log_event(logger, logging.INFO, "access.email_change_confirmation.sent", email=new_email, user_id=user.id)
     return confirm_url
 
 
@@ -229,7 +183,6 @@ def account_signup(request):
             return render(request, "hr_access/registration/_signup.html", {"form": form})
 
         user = form.create_user(role=User.Role.USER, is_active=False)
-
         log_event(logger, logging.INFO, 'access.account_signup.user_created.inactive_until_verified', user_id=user.id)
 
         try:
@@ -304,13 +257,7 @@ def account_signup_confirm(request):
     try:
         attach_customer_to_user(user)
     except Exception:
-        log_event(
-            logger,
-            logging.ERROR,
-            'access.signup_confirmation.attach_customer_failed',
-            user_id=user.id,
-            exc_info=True
-        )
+        log_event(logger, logging.ERROR, 'access.signup_confirmation.attach_customer_failed', user_id=user.id, exc_info=True)
 
     log_event(logger, logging.INFO, 'access.signup_confirmation.confirmed', user_id=user.id)
 
