@@ -1,25 +1,31 @@
-db.sqlite3
-node_modules
-.idea
-.python-version
-/.idea/
-/static/
-/media/
-/venv/
-/.venv/
-# Default ignored files
-/shelf/
-/workspace.xml
-# Editor-based HTTP Client requests
-/httpRequests/
-# Datasource local storage ignored files
-/dataSources/
-/dataSources.local.xml
-# Zeppelin ignored files
-/ZeppelinRemoteNotebooks/
-/.env
+# --- Local env / secrets ---
 .env
-/env/
 .django-secret
-/hr_config/env/
-/logs/
+/python-version
+/.python-version
+
+# Virtualenvs
+.venv/
+venv/
+env/
+
+# --- Django runtime ---
+db.sqlite3
+static/
+media/
+logs/
+
+# --- Node / front-end ---
+node_modules/
+
+# --- IDEs / editors ---
+.idea/
+shelf/
+workspace.xml
+httpRequests/
+dataSources/
+dataSources.local.xml
+ZeppelinRemoteNotebooks/
+
+# --- Project-specific config dirs ---
+hr_config/env/
