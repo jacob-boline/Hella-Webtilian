@@ -39,7 +39,7 @@
                             hx-post="{% url 'hr_shop:set_cart_quantity' variant_id=item.variant.id %}"
                             hx-trigger="change"
                             hx-target="#modal-content"
-                            hx-swap="innerHTML">
+                            hx-swap="innerHTML transition:true">
                     </div>
 
                     <div class="item-subtotal-wrapper">
@@ -50,7 +50,7 @@
                             class="cart-remove-btn"
                             hx-post="{% url 'hr_shop:remove_from_cart' variant_id=item.variant.id %}"
                             hx-target="#modal-content"
-                            hx-swap="innerHTML">
+                            hx-swap="innerHTML transition:true">
                             Remove
                         </button>
                     </div>

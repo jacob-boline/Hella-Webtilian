@@ -29,14 +29,14 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest, HttpResponse, Http404
 from structlog.contextvars import clear_contextvars
 
-from utils.unified_logging import (
+from hr_common.utils.unified_logging import (
     REQUEST_ID_HEADER,
     REQUEST_ID_META_KEY,
     generate_request_id,
     reset_request_id,
     set_request_id,
 )
-from utils.htmx_responses import is_htmx, likely_session_expired
+from hr_common.utils.htmx_responses import is_htmx, likely_session_expired
 
 
 class RequestIdMiddleware:

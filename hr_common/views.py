@@ -30,7 +30,7 @@ def index(request):
         shows_count=shows.count(),
         has_modal=bool(modal)
     )
-    return render(request, "hr_site/templates/hr_common/index.html", {
+    return render(request, "hr_common/index.html", {
         'products': products,
         'slides': slides,
         'quotes': quotes,
@@ -77,4 +77,4 @@ def display_message_box_modal(request, *args, **kwargs):
         has_cancel=bool(context["cancel_url"])
     )
 
-    return render(request, "hr_site/templates/hr_common/display_message_box_modal.html", context)
+    return render(request, "hr_common/display_message_box_modal.html", context)
