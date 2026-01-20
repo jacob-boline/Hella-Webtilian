@@ -6,6 +6,7 @@ Handles sending confirmation emails and rate limiting.
 """
 
 import logging
+from logging import getLogger
 import os
 
 from django.core.cache import cache
@@ -21,7 +22,7 @@ from hr_shop.exceptions import RateLimitExceeded, EmailSendError
 from hr_shop.models import ConfirmedEmail
 from hr_shop.tokens import generate_checkout_email_token
 
-logger = logging.getLogger(__name__)
+logger = getLogger()
 
 EXTERNAL_BASE_URL = os.getenv('EXTERNAL_BASE_URL', '').rstrip('/')
 

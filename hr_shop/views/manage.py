@@ -1,9 +1,13 @@
 # hr_shop/views/manage.py
 
+import logging
+from logging import getLogger
+
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, render
 
+from hr_common.utils.unified_logging import log_event
 from hr_shop.forms import (
     ProductEditForm,
     ProductOptionTypeForm,
@@ -12,6 +16,8 @@ from hr_shop.forms import (
     ProductVariantForm
 )
 from hr_shop.models import Product, ProductOptionType, ProductOptionValue, ProductVariant
+
+logger = getLogger()
 
 
 def _render_product_list(request, form=None):
@@ -139,7 +145,14 @@ def create_product(request):
 
     form = ProductQuickForm(request.POST)
     if form.is_valid():
-        form.save()
+        product = form.save()
+        log_event(
+            logger,
+            logging.INFO,
+            "manage.product.created",
+            user_id=request.user.id if request.user.is_authenticated else None,
+            product_id=product.id,
+        )
         form = ProductQuickForm()
 
     return _render_product_list(request, form=form)
@@ -154,6 +167,13 @@ def update_product(request, pk):
     form = ProductEditForm(request.POST, instance=product)
     if form.is_valid():
         form.save()
+        log_event(
+            logger,
+            logging.INFO,
+            "manage.product.updated",
+            user_id=request.user.id if request.user.is_authenticated else None,
+            product_id=product.id,
+        )
         return _render_product_panel(request, product)
 
     return _render_product_panel(request, product, product_form=form)
@@ -171,6 +191,14 @@ def create_option_type(request, product_pk):
         opt_type = form.save(commit=False)
         opt_type.product = product
         opt_type.save()
+        log_event(
+            logger,
+            logging.INFO,
+            "manage.option_type.created",
+            user_id=request.user.id if request.user.is_authenticated else None,
+            product_id=product.id,
+            option_type_id=opt_type.id,
+        )
 
     return _render_product_panel(request, product, option_type_form=form)
 
@@ -184,6 +212,14 @@ def update_option_type(request, pk):
     form = ProductOptionTypeForm(request.POST, instance=opt_type)
     if form.is_valid():
         form.save()
+        log_event(
+            logger,
+            logging.INFO,
+            "manage.option_type.updated",
+            user_id=request.user.id if request.user.is_authenticated else None,
+            option_type_id=opt_type.id,
+            product_id=opt_type.product_id,
+        )
         return _render_option_type_panel(request, opt_type)
 
     return _render_option_type_panel(request, opt_type, option_type_form=form)
@@ -196,7 +232,16 @@ def delete_option_type(request, pk):
 
     opt_type = get_object_or_404(ProductOptionType, pk=pk)
     product_pk = opt_type.product_id
+    option_type_id = opt_type.id
     opt_type.delete()
+    log_event(
+        logger,
+        logging.INFO,
+        "manage.option_type.deleted",
+        user_id=request.user.id if request.user.is_authenticated else None,
+        option_type_id=option_type_id,
+        product_id=product_pk,
+    )
 
     product = get_object_or_404(Product, pk=product_pk)
     return _render_product_panel(request, product, reset_option_type_panel=True)
@@ -214,6 +259,14 @@ def create_option_value(request, option_type_pk):
         value = form.save(commit=False)
         value.option_type = opt_type
         value.save()
+        log_event(
+            logger,
+            logging.INFO,
+            "manage.option_value.created",
+            user_id=request.user.id if request.user.is_authenticated else None,
+            option_type_id=opt_type.id,
+            option_value_id=value.id,
+        )
 
     return _render_option_type_panel(request, opt_type, value_form=form)
 
@@ -227,6 +280,14 @@ def update_option_value(request, pk):
     form = ProductOptionValueForm(request.POST, instance=val)
     if form.is_valid():
         form.save()
+        log_event(
+            logger,
+            logging.INFO,
+            "manage.option_value.updated",
+            user_id=request.user.id if request.user.is_authenticated else None,
+            option_value_id=val.id,
+            option_type_id=val.option_type_id,
+        )
         return _render_option_type_panel(request, val.option_type)
 
     option_type = get_object_or_404(ProductOptionType, pk=val.option_type_id)
@@ -248,7 +309,16 @@ def delete_option_value(request, pk):
 
     val = get_object_or_404(ProductOptionValue, pk=pk)
     opt_type_pk = val.option_type_id
+    option_value_id = val.id
     val.delete()
+    log_event(
+        logger,
+        logging.INFO,
+        "manage.option_value.deleted",
+        user_id=request.user.id if request.user.is_authenticated else None,
+        option_value_id=option_value_id,
+        option_type_id=opt_type_pk,
+    )
 
     opt_type = get_object_or_404(ProductOptionType, pk=opt_type_pk)
     return _render_option_type_panel(request, opt_type)
@@ -266,6 +336,14 @@ def create_variant(request, product_pk):
         variant = form.save(commit=False)
         variant.product = product
         variant.save()
+        log_event(
+            logger,
+            logging.INFO,
+            "manage.variant.created",
+            user_id=request.user.id if request.user.is_authenticated else None,
+            product_id=product.id,
+            variant_id=variant.id,
+        )
 
     return _render_product_panel(request, product, variant_form=form)
 
@@ -280,6 +358,14 @@ def update_variant(request, pk):
     form = ProductVariantForm(request.POST, instance=variant)
     if form.is_valid():
         form.save()
+        log_event(
+            logger,
+            logging.INFO,
+            "manage.variant.updated",
+            user_id=request.user.id if request.user.is_authenticated else None,
+            product_id=product.id,
+            variant_id=variant.id,
+        )
         return _render_product_panel(request, product)
 
     return _render_product_panel(
@@ -296,7 +382,16 @@ def delete_variant(request, pk):
 
     variant = get_object_or_404(ProductVariant, pk=pk)
     product_pk = variant.product_id
+    variant_id = variant.id
     variant.delete()
+    log_event(
+        logger,
+        logging.INFO,
+        "manage.variant.deleted",
+        user_id=request.user.id if request.user.is_authenticated else None,
+        product_id=product_pk,
+        variant_id=variant_id,
+    )
 
     product = get_object_or_404(Product, pk=product_pk)
     return _render_product_panel(request, product)

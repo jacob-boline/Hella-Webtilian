@@ -1,14 +1,19 @@
 # hr_shop/views/products.py
 
 import json
+import logging
+from logging import getLogger
 
 from django.http import HttpResponseBadRequest, HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.templatetags.static import static
 from django.views.decorators.http import require_POST, require_GET
 
+from hr_common.utils.unified_logging import log_event
 from hr_shop.models import Product
 from hr_shop.utils.image_resolver import resolve_variant_for_values
+
+logger = getLogger()
 
 
 def get_product_modal_partial(request, product_slug):
@@ -68,6 +73,13 @@ def update_details_modal(request, product_slug):
                 pass
 
     if not selected_value_ids:
+        log_event(
+            logger,
+            logging.WARNING,
+            "product.variant_selection.missing_options",
+            user_id=request.user.id if request.user.is_authenticated else None,
+            product_slug=product_slug,
+        )
         return HttpResponseBadRequest('No options selected')
 
     variant = resolve_variant_for_values(product, selected_value_ids)

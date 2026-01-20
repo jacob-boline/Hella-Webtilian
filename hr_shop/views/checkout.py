@@ -2,6 +2,7 @@
 
 import json
 import logging
+from logging import getLogger
 import time
 from dataclasses import dataclass
 from datetime import timedelta
@@ -45,7 +46,7 @@ from hr_shop.tokens import (
 )
 from hr_shop.views.cart import view_cart
 
-logger = logging.getLogger(__name__)
+logger = getLogger()
 
 _RECEIPT_RESEND_COOLDOWN_SECONDS = 30
 
@@ -671,6 +672,12 @@ def checkout_details(request):
 def checkout_details_submit(request):
     form = CheckoutDetailsForm(request.POST)
     if not form.is_valid():
+        log_event(
+            logger,
+            logging.INFO,
+            "checkout.details.form_invalid",
+            user_id=request.user.id if request.user.is_authenticated else None,
+        )
         return render(request, "hr_shop/checkout/_checkout_details.html", {"form": form})
 
     user = getattr(request, "user", None)
@@ -679,6 +686,14 @@ def checkout_details_submit(request):
     if user and user.is_authenticated:
         if email != user.email:
             form.add_error("email", "Please use the email address associated with your account.")
+            log_event(
+                logger,
+                logging.WARNING,
+                "checkout.details.email_mismatch",
+                user_id=user.id,
+                form_email=email,
+                user_email=user.email,
+            )
             return render(request, "hr_shop/checkout/_checkout_details.html", {"form": form})
 
     customer = _get_or_create_customer(email, user, form)
@@ -705,12 +720,23 @@ def checkout_details_submit(request):
         )
 
     # Create/update an active draft
+    cart_payload = _cart_snapshot(request)
     draft = _get_or_create_active_draft(
         customer=customer,
         email=customer.email,
         address=address,
         note=note,
-        cart_payload=_cart_snapshot(request)
+        cart_payload=cart_payload
+    )
+    log_event(
+        logger,
+        logging.INFO,
+        "checkout.details.saved",
+        user_id=request.user.id if request.user.is_authenticated else None,
+        customer_id=customer.id,
+        address_id=address.id,
+        draft_id=draft.id,
+        cart_item_count=len(cart_payload),
     )
 
     if is_email_confirmed_for_checkout(request, email):
@@ -749,6 +775,12 @@ def checkout_resume(request):
 
     ctx = _get_checkout_context(request)
     if not ctx:
+        log_event(
+            logger,
+            logging.INFO,
+            "checkout.resume.session_missing",
+            user_id=request.user.id if request.user.is_authenticated else None,
+        )
         return checkout_details(request)
 
     customer = ctx["customer"]
@@ -764,6 +796,14 @@ def checkout_resume(request):
         )
 
         if order:
+            log_event(
+                logger,
+                logging.INFO,
+                "checkout.resume.order_found",
+                user_id=request.user.id if request.user.is_authenticated else None,
+                order_id=order.id,
+                draft_id=latest_draft.id,
+            )
             # owner -> token optional; everyone else -> sign
             # noinspection HardcodedPassword
             token = ""
@@ -796,6 +836,14 @@ def order_payment_result(request, order_id: int):
     token = (request.GET.get("t") or "").strip()
 
     if not _user_is_authorized_for_payment_result(request, order, token):
+        log_event(
+            logger,
+            logging.WARNING,
+            "checkout.receipt.unauthorized",
+            user_id=request.user.id if request.user.is_authenticated else None,
+            order_id=order.id,
+            has_token=bool(token),
+        )
         return HttpResponse("Not authorized to view this receipt.", status=403)
 
     return _render_order_payment_result_modal(request, order, token)
@@ -806,15 +854,36 @@ def order_send_receipt_email(request, order_id: int):
     order = get_object_or_404(Order, pk=order_id)
 
     if not _is_allowed_to_email_receipt(request, order):
+        log_event(
+            logger,
+            logging.WARNING,
+            "checkout.receipt.send_forbidden",
+            user_id=request.user.id if request.user.is_authenticated else None,
+            order_id=order.id,
+        )
         return HttpResponse(status=403)
 
     if not order.email:
+        log_event(
+            logger,
+            logging.WARNING,
+            "checkout.receipt.missing_email",
+            user_id=request.user.id if request.user.is_authenticated else None,
+            order_id=order.id,
+        )
         return HttpResponse(status=400, headers={
             'HX-Trigger': json.dumps({'showMessage': 'No email address is associated with this order.'})
         })
 
     rl_key = f"receipt_resend:{order.id}"
     if not _rate_limit_ok(request, key=rl_key, cooldown_s=_RECEIPT_RESEND_COOLDOWN_SECONDS):
+        log_event(
+            logger,
+            logging.WARNING,
+            "checkout.receipt.rate_limited",
+            user_id=request.user.id if request.user.is_authenticated else None,
+            order_id=order.id,
+        )
         return HttpResponse(status=429, headers={
             'HX-Trigger': json.dumps({'showMessage': "Please wait a moment before resending the receipt."})
         })
@@ -896,6 +965,12 @@ def email_confirmation_status(request):
 def email_confirmation_process_response(request, token: str):
     payload = verify_checkout_email_token(token)
     if not payload:
+        log_event(
+            logger,
+            logging.WARNING,
+            "checkout.confirmation.invalid_token",
+            user_id=request.user.id if request.user.is_authenticated else None,
+        )
         messages.error(request, "This confirmation link is invalid or has expired.")
         return redirect("hr_shop:checkout_details")
 
@@ -903,6 +978,14 @@ def email_confirmation_process_response(request, token: str):
     draft_id = payload.get("draft_id")
 
     if not email or not draft_id:
+        log_event(
+            logger,
+            logging.WARNING,
+            "checkout.confirmation.missing_payload",
+            user_id=request.user.id if request.user.is_authenticated else None,
+            draft_id=draft_id,
+            email=email,
+        )
         messages.error(request, "Invalid confirmation link.")
         return redirect("hr_shop:checkout_details")
 
@@ -919,10 +1002,27 @@ def email_confirmation_process_response(request, token: str):
         )
 
         if not draft:
+            log_event(
+                logger,
+                logging.WARNING,
+                "checkout.confirmation.draft_missing",
+                user_id=request.user.id if request.user.is_authenticated else None,
+                draft_id=draft_id,
+                email=norm_email,
+            )
             messages.warning(request, "That checkout session no longer exists. Please restart checkout.")
             return redirect("hr_shop:checkout_details")
 
         if normalize_email(draft.email) != norm_email:
+            log_event(
+                logger,
+                logging.WARNING,
+                "checkout.confirmation.email_mismatch",
+                user_id=request.user.id if request.user.is_authenticated else None,
+                draft_id=draft.id,
+                draft_email=draft.email,
+                token_email=norm_email,
+            )
             messages.error(request, "This confirmation link does not match your checkout email.")
             return redirect("hr_shop:checkout_details")
 
@@ -931,6 +1031,13 @@ def email_confirmation_process_response(request, token: str):
             if draft.order_id:
                 return redirect("hr_shop:order_payment_result", order_id=draft.order_id)
 
+            log_event(
+                logger,
+                logging.WARNING,
+                "checkout.confirmation.draft_expired",
+                user_id=request.user.id if request.user.is_authenticated else None,
+                draft_id=draft.id,
+            )
             messages.warning(request, "This checkout link expired. Please restart checkout.")
             return redirect("hr_shop:checkout_details")
 
@@ -957,6 +1064,15 @@ def email_confirmation_process_response(request, token: str):
         if not existing_cart:
             _restore_cart_from_draft(request, draft)
 
+    log_event(
+        logger,
+        logging.INFO,
+        "checkout.confirmation.processed",
+        user_id=request.user.id if request.user.is_authenticated else None,
+        draft_id=draft_id,
+        customer_id=draft.customer_id,
+    )
+
     success_url = reverse('hr_shop:email_confirmation_success')
     url = reverse('index')
     return redirect(f'{url}?modal=email_confirmed&handoff=email_confirmed&modal_url={success_url}#parallax-section-merch')
@@ -970,6 +1086,12 @@ def email_confirmation_success(request):
 def email_confirmation_resend(request):
     ctx = _get_checkout_context(request)
     if not ctx:
+        log_event(
+            logger,
+            logging.WARNING,
+            "checkout.confirmation.resend.session_missing",
+            user_id=request.user.id if request.user.is_authenticated else None,
+        )
         messages.error(request, "Your session is invalid or has expired. Please try again.")
         return redirect("hr_shop:checkout_details")
 
@@ -1020,10 +1142,23 @@ def email_confirmation_resend(request):
 def checkout_review(request):
     ctx = _get_checkout_context(request)
     if not ctx:
+        log_event(
+            logger,
+            logging.WARNING,
+            "checkout.review.session_missing",
+            user_id=request.user.id if request.user.is_authenticated else None,
+        )
         messages.error(request, "Your session is invalid or has expired. Please try again.")
         return redirect("hr_shop:checkout_details")
 
     if not is_email_confirmed_for_checkout(request, ctx["customer"].email):
+        log_event(
+            logger,
+            logging.INFO,
+            "checkout.review.email_unconfirmed",
+            user_id=request.user.id if request.user.is_authenticated else None,
+            customer_id=ctx["customer"].id,
+        )
         messages.warning(request, "Please confirm your email address to continue.")
         return redirect("hr_shop:checkout_details")
 
@@ -1034,11 +1169,23 @@ def checkout_review(request):
 def checkout_create_order(request):
     items = list(_iter_cart_items_for_order(request))
     if not items:
+        log_event(
+            logger,
+            logging.WARNING,
+            "checkout.order.empty_cart",
+            user_id=request.user.id if request.user.is_authenticated else None,
+        )
         messages.error(request, "Your cart is empty.")
         return redirect("hr_shop:view_cart")
 
     ctx = _get_checkout_context(request)
     if not ctx:
+        log_event(
+            logger,
+            logging.WARNING,
+            "checkout.order.session_missing",
+            user_id=request.user.id if request.user.is_authenticated else None,
+        )
         messages.error(request, "Your session is invalid or has expired. Please try again.")
         return redirect("hr_shop:checkout_details")
 
@@ -1047,6 +1194,13 @@ def checkout_create_order(request):
     note = ctx["note"]
 
     if not is_email_confirmed_for_checkout(request, customer.email):
+        log_event(
+            logger,
+            logging.WARNING,
+            "checkout.order.email_unconfirmed",
+            user_id=request.user.id if request.user.is_authenticated else None,
+            customer_id=customer.id,
+        )
         messages.error(request, "Please confirm your email address before placing an order.")
         return redirect("hr_shop:checkout_review")
 
@@ -1066,6 +1220,14 @@ def checkout_create_order(request):
         )
 
         if draft and draft.order_id:
+            log_event(
+                logger,
+                logging.INFO,
+                "checkout.order.existing",
+                user_id=request.user.id if request.user.is_authenticated else None,
+                draft_id=draft.id,
+                order_id=draft.order_id,
+            )
             redirect_url = reverse("hr_shop:order_payment_result", args=[draft.order_id])
             return HttpResponse(status=204, headers={"HX-Redirect": redirect_url})
 
@@ -1105,6 +1267,17 @@ def checkout_create_order(request):
             draft.order = order
             draft.used_at = timezone.now()
             draft.save(update_fields=["order", "used_at"])
+
+    log_event(
+        logger,
+        logging.INFO,
+        "checkout.order.created",
+        user_id=request.user.id if request.user.is_authenticated else None,
+        order_id=order.id,
+        customer_id=customer.id,
+        item_count=len(items),
+        total=str(order.total),
+    )
 
     # IMPORTANT: Do NOT create Stripe sessions here.
     # Embedded Checkout session creation is driven by the pay UI via:

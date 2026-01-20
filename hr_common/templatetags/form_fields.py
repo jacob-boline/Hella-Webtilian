@@ -2,6 +2,7 @@
 
 
 import logging
+from logging import getLogger
 
 from django import template
 from django.forms import BoundField
@@ -9,7 +10,7 @@ from django.forms import BoundField
 from hr_common.utils.unified_logging import log_event
 
 register = template.Library()
-logger = logging.getLogger(__name__)
+logger = getLogger()
 
 
 def _field_state(bound_field: BoundField) -> str:

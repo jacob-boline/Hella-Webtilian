@@ -1,13 +1,19 @@
 # hr_shop/views/orders.py
 
+import logging
+from logging import getLogger
+
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_GET
 
+from hr_common.utils.unified_logging import log_event
 from hr_common.utils.htmx_responses import hx_login_required
 from hr_shop.models import Customer, Order
 
 PER_PAGE = 20
+
+logger = getLogger()
 
 
 @hx_login_required
@@ -100,5 +106,13 @@ def order_detail_modal(request, order_id: int):
     )
 
     order = get_object_or_404(qs, pk=order_id)
+
+    log_event(
+        logger,
+        logging.INFO,
+        "orders.detail.viewed",
+        user_id=request.user.id if request.user.is_authenticated else None,
+        order_id=order.id,
+    )
 
     return render(request, "hr_access/orders/_order_detail_modal.html", {"order": order})
