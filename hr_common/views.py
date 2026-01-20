@@ -1,6 +1,7 @@
 # hr_common/views.py
 
 import logging
+from logging import getLogger
 
 from django.shortcuts import render
 from django.utils import timezone
@@ -10,7 +11,7 @@ from hr_common.utils.unified_logging import log_event
 from hr_live.models import Show
 from hr_shop.models import Product
 
-logger = logging.getLogger(__name__)
+logger = getLogger()
 
 
 def index(request):

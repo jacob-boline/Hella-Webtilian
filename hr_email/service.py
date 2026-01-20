@@ -52,6 +52,13 @@ def send_app_email(
     mode = get_provider_send_mode(provider)
 
     if not to_emails:
+        log_event(
+            logger,
+            logging.WARNING,
+            "email.send.no_recipients",
+            provider=provider,
+            mode=mode,
+        )
         raise EmailProviderError("No recipients provided.")
 
     # Ensure we have at least a text part for SMTP providers.
@@ -78,6 +85,15 @@ def send_app_email(
                 from_email=_mailjet_address(effective_from),
                 reply_to=_mailjet_address(reply_to) if reply_to else None,
             )
+            log_event(
+                logger,
+                logging.INFO,
+                "email.mailjet.sent",
+                provider=provider,
+                mode=mode,
+                to_count=len(to_emails),
+                custom_id=custom_id,
+            )
             return {"provider": provider, "mode": mode, "result": result}
         except MailjetSendError as exc:
             log_event(
@@ -101,6 +117,14 @@ def send_app_email(
         missing.append("EMAIL_HOST_PASSWORD")
 
     if missing:
+        log_event(
+            logger,
+            logging.ERROR,
+            "email.smtp.config_missing",
+            provider=provider,
+            mode="smtp",
+            missing=missing,
+        )
         raise EmailProviderError(f"SMTP config missing: {', '.join(missing)}")
 
     connection = get_connection(
@@ -125,6 +149,16 @@ def send_app_email(
         msg.attach_alternative(html_body, "text/html")
 
     sent = msg.send(fail_silently=False)
+    log_event(
+        logger,
+        logging.INFO,
+        "email.smtp.sent",
+        provider=provider,
+        mode="smtp",
+        to_count=len(to_emails),
+        sent_count=sent,
+        custom_id=custom_id,
+    )
     return {"provider": provider, "mode": "smtp", "result": {"sent": sent}}
 
 
