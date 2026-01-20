@@ -1,7 +1,7 @@
 {# hr_shop/templates/hr_shop/shop/_product_detail_modal.html #}
 
 
-{% load static shop_images %}
+{% load static shop_images responsive_images %}
 
 <article class="modal-product m-shell" data-product-slug="{{ product.slug }}">
     <div class="m-body m-split">
@@ -17,9 +17,12 @@
             {% endif %}
 
             {% if modal_image %}
-                <img src="{{ modal_image.image.url }}"
+                <img src="{{ modal_image.image.url|variant_img_url:'768' }}"
+                     srcset="{{ modal_image.image.url|variant_img_srcset }}"
+                     sizes="(max-width: 640px) 92vw, (max-width: 1024px) 70vw, 900px"
                      alt="{{ product.name }}"
-                     class="modal-image">
+                     class="modal-image"
+                     decoding="async">
             {% else %}
                 <img src="{% static 'hr_shop/img/placeholder_2.png' %}"
                      alt="{{ product.name }}"

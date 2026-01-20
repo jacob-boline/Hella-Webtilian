@@ -112,7 +112,7 @@ class Command(BaseCommand):
                 vdir=vdir,
                 value_map=value_map,
                 default_price=default_price,
-                start_index=next_index,
+                start_index=next_index
             )
 
         # If nothing marked display, choose first variant
@@ -176,7 +176,7 @@ class Command(BaseCommand):
             vdir: Path,
             value_map,
             default_price: Decimal,
-            start_index: int,
+            start_index: int
     ) -> int:
         """
         Each folder under the product dir like:
@@ -276,8 +276,8 @@ class Command(BaseCommand):
                     "name":               variant_name,
                     "price":              group_price,
                     "active":             True,
-                    "is_display_variant": False,
-                },
+                    "is_display_variant": False
+                }
             )
             if not created:
                 variant.name = variant_name
@@ -304,7 +304,7 @@ class Command(BaseCommand):
             # Ensure inventory
             InventoryItem.objects.get_or_create(
                 variant=variant,
-                defaults={"on_hand": 25, "reserved": 0},
+                defaults={"on_hand": 25, "reserved": 0}
             )
 
             # 🔴 IMPORTANT: attach the shared group image to this variant

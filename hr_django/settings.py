@@ -14,314 +14,314 @@ from hr_config.structlog_config import (
     get_structlog_renderer
 )
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+# BASE_DIR = Path(__file__).resolve().parent.parent
+#
+# load_dotenv(BASE_DIR / ".env")
+#
+# def _env_bool(name: str, default: bool = False) -> bool:
+#     value = os.environ.get(name)
+#     if value is None:
+#         return default
+#     return str(value).strip().lower() in ("1", "true", "yes", "on")
+#
+# # -----------------------------
+# # Core settings
+# # -----------------------------
+# SECRET_FILE = BASE_DIR / ".django_secret"
+#
+# if SECRET_FILE.exists():
+#     SECRET_KEY = SECRET_FILE.read_text().strip()
+# else:
+#     SECRET_KEY = get_random_secret_key()
+#     SECRET_FILE.write_text(SECRET_KEY)
+#     SECRET_FILE.chmod(0o600)
 
-load_dotenv(BASE_DIR / ".env")
+# DEBUG = _env_bool("DEBUG", False)
+# WHITENOISE_USE_FINDERS = DEBUG
 
-def _env_bool(name: str, default: bool = False) -> bool:
-    value = os.environ.get(name)
-    if value is None:
-        return default
-    return str(value).strip().lower() in ("1", "true", "yes", "on")
+# SPSH_NAME = os.environ.get("SECURE_PROXY_SSL_HEADER_NAME")
+# SPSH_VALUE = os.environ.get("SECURE_PROXY_SSL_HEADER_VALUE")
+# SECURE_PROXY_SSL_HEADER = (SPSH_NAME, SPSH_VALUE) if SPSH_NAME and SPSH_VALUE else None
+# USE_X_FORWARDED_HOST = _env_bool("USE_X_FORWARDED_HOST")
 
-# -----------------------------
-# Core settings
-# -----------------------------
-SECRET_FILE = BASE_DIR / ".django_secret"
+# USE_NGROK = _env_bool("USE_NGROK")
+# if USE_NGROK:
+#     EXTERNAL_BASE_URL = os.getenv('EXTERNAL_BASE_URL', '').rstrip('/')
+#     if not EXTERNAL_BASE_URL:
+#         raise RuntimeError("USE_NGROK=1 but EXTERNAL_BASE_URL is empty.")
+#     if not (EXTERNAL_BASE_URL.startswith("http://") or EXTERNAL_BASE_URL.startswith("https://")):
+#         raise RuntimeError("EXTERNAL_BASE_URL must start with http:// or https://")
 
-if SECRET_FILE.exists():
-    SECRET_KEY = SECRET_FILE.read_text().strip()
-else:
-    SECRET_KEY = get_random_secret_key()
-    SECRET_FILE.write_text(SECRET_KEY)
-    SECRET_FILE.chmod(0o600)
-
-DEBUG = _env_bool("DEBUG", False)
-WHITENOISE_USE_FINDERS = DEBUG
-
-SPSH_NAME = os.environ.get("SECURE_PROXY_SSL_HEADER_NAME")
-SPSH_VALUE = os.environ.get("SECURE_PROXY_SSEL_HEADER_VALUE")
-SECURE_PROXY_SSL_HEADER = (SPSH_NAME, SPSH_VALUE) if SPSH_NAME and SPSH_VALUE else None
-USE_X_FORWARDED_HOST = _env_bool("USER_X_FORWARDED_HOST")
-
-USE_NGROK = _env_bool("USE_NGROK")
-if USE_NGROK:
-    EXTERNAL_BASE_URL = os.getenv('EXTERNAL_BASE_URL', '').rstrip('/')
-    if not EXTERNAL_BASE_URL:
-        raise RuntimeError("USE_NGROK=1 but EXTERNAL_BASE_URL is empty.")
-    if not (EXTERNAL_BASE_URL.startswith("http://") or EXTERNAL_BASE_URL.startswith("https://")):
-        raise RuntimeError("EXTERNAL_BASE_URL must start with http:// or https://")
-
-ALLOWED_HOSTS        = [h.strip() for h in os.environ.get("ALLOWED_HOSTS", "").split(",") if h.strip()]
-CSRF_TRUSTED_ORIGINS = [h.strip() for h in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",") if h.strip()]
-INTERNAL_IPS = ["127.0.0.1"]
-AUTHENTICATION_BACKENDS = ["hr_access.auth_backend.CustomBackend"]
-CSRF_FAILURE_VIEW = 'hr_common.utils.htmx_responses.csrf_failure'
+# ALLOWED_HOSTS        = [h.strip() for h in os.environ.get("ALLOWED_HOSTS", "").split(",") if h.strip()]
+# CSRF_TRUSTED_ORIGINS = [h.strip() for h in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",") if h.strip()]
+# INTERNAL_IPS = ["127.0.0.1"]
+# AUTHENTICATION_BACKENDS = ["hr_access.auth_backend.CustomBackend"]
+# CSRF_FAILURE_VIEW = 'hr_common.utils.htmx_responses.csrf_failure'
 
 # -----------------------------
 # Apps
 # -----------------------------
-INSTALLED_APPS = [
-    # Django core
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-
-    # Static handling (whitenoise)
-    "whitenoise.runserver_nostatic",
-    "django.contrib.staticfiles",
-
-    # Project apps
-    "hr_core.apps.CoreConfig",
-    "hr_about",
-    "hr_access",
-    "hr_bulletin",
-    "hr_common",
-    "hr_email",
-    "hr_live",
-    "hr_payment",
-    "hr_shop",
-    "hr_storage",
-
-    # Third-party
-    "debug_toolbar",
-    "phonenumber_field",
-    "django_browser_reload",
-    "imagekit",
-    "django_vite"
-]
+# INSTALLED_APPS = [
+#     # Django core
+#     "django.contrib.admin",
+#     "django.contrib.auth",
+#     "django.contrib.contenttypes",
+#     "django.contrib.sessions",
+#     "django.contrib.messages",
+#
+#     # Static handling (whitenoise)
+#     "whitenoise.runserver_nostatic",
+#     "django.contrib.staticfiles",
+#
+#     # Project apps
+#     "hr_core.apps.CoreConfig",
+#     "hr_about",
+#     "hr_access",
+#     "hr_bulletin",
+#     "hr_common",
+#     "hr_email",
+#     "hr_live",
+#     "hr_payment",
+#     "hr_shop",
+#     "hr_storage",
+#
+#     # Third-party
+#     "debug_toolbar",
+#     "phonenumber_field",
+#     "django_browser_reload",
+#     "imagekit",
+#     "django_vite"
+# ]
 
 # -----------------------------
 # Middleware
 # -----------------------------
-MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
-    "hr_core.middleware.RequestIdMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.contrib.messages.middleware.MessageMiddleware",
-    "hr_core.middleware.HtmxExceptionMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware"
-]
+# MIDDLEWARE = [
+#     "django.middleware.security.SecurityMiddleware",
+#     "whitenoise.middleware.WhiteNoiseMiddleware",
+#     "hr_core.middleware.RequestIdMiddleware",
+#     "django.contrib.sessions.middleware.SessionMiddleware",
+#     "django.middleware.common.CommonMiddleware",
+#     "django.middleware.csrf.CsrfViewMiddleware",
+#     "django.contrib.auth.middleware.AuthenticationMiddleware",
+#     "django.contrib.messages.middleware.MessageMiddleware",
+#     "hr_core.middleware.HtmxExceptionMiddleware",
+#     "django.middleware.clickjacking.XFrameOptionsMiddleware"
+# ]
 
-if DEBUG:
-    MIDDLEWARE.insert(2, "debug_toolbar.middleware.DebugToolbarMiddleware")
-    MIDDLEWARE.append("django_browser_reload.middleware.BrowserReloadMiddleware")
+# if DEBUG:
+#     MIDDLEWARE.insert(2, "debug_toolbar.middleware.DebugToolbarMiddleware")
+#     MIDDLEWARE.append("django_browser_reload.middleware.BrowserReloadMiddleware")
 
 # -----------------------------
 # URLs / Templates
 # -----------------------------
-ROOT_URLCONF = "hr_django.urls"
-
-TEMPLATES = [
-    {
-        "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],
-        "APP_DIRS": True,
-        "OPTIONS": {
-            "context_processors": [
-                "django.template.context_processors.debug",
-                "django.template.context_processors.request",
-                "django.contrib.auth.context_processors.auth",
-                "django.contrib.messages.context_processors.messages",
-                "django.template.context_processors.media",
-
-                # Project
-                "hr_shop.context_processors.cart_context"
-            ]
-        }
-    }
-]
-
-WSGI_APPLICATION = "hr_django.wsgi.application"
+# ROOT_URLCONF = "hr_django.urls"
+#
+# TEMPLATES = [
+#     {
+#         "BACKEND": "django.template.backends.django.DjangoTemplates",
+#         "DIRS": [BASE_DIR / "templates"],
+#         "APP_DIRS": True,
+#         "OPTIONS": {
+#             "context_processors": [
+#                 "django.template.context_processors.debug",
+#                 "django.template.context_processors.request",
+#                 "django.contrib.auth.context_processors.auth",
+#                 "django.contrib.messages.context_processors.messages",
+#                 "django.template.context_processors.media",
+#
+#                 # Project
+#                 "hr_shop.context_processors.cart_context"
+#             ]
+#         }
+#     }
+# ]
+#
+# WSGI_APPLICATION = "hr_django.wsgi.application"
 
 # -----------------------------
 # Database
 # -----------------------------
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3"
-    }
-}
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3"
+#     }
+# }
 
 # -----------------------------
 # Auth
 # -----------------------------
-AUTH_USER_MODEL = "hr_access.User"
+# AUTH_USER_MODEL = "hr_access.User"
+#
+# LOGIN_URL = reverse_lazy('hr_access:auth_login')
+# LOGIN_REDIRECT_URL = "/"
+# LOGOUT_REDIRECT_URL = "/"
 
-LOGIN_URL = reverse_lazy('hr_access:auth_login')
-LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "/"
-
-AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"}
-]
-
-# -----------------------------
-# i18n / tz
-# -----------------------------
-LANGUAGE_CODE = "en-us"
-TIME_ZONE = "UTC"
-USE_I18N = True
-USE_TZ = True
+# AUTH_PASSWORD_VALIDATORS = [
+#     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+#     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+#     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+#     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"}
+# ]
+#
+# # -----------------------------
+# # i18n / tz
+# # -----------------------------
+# LANGUAGE_CODE = "en-us"
+# TIME_ZONE = "UTC"
+# USE_I18N = True
+# USE_TZ = True
 
 # -----------------------------
 # Media
 # -----------------------------
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+# MEDIA_URL = "/media/"
+# MEDIA_ROOT = BASE_DIR / "media"
+#
+# # -----------------------------
+# # Static
+# # -----------------------------
+# STATIC_URL = "/static/"
+#
+# # Important:
+# # - STATIC_ROOT should be a *collection* directory for collectstatic (often "staticfiles")
+# STATIC_ROOT = BASE_DIR / "staticfiles"
+#
+# STATICFILES_DIRS = [
+#     BASE_DIR / "hr_core" / "static"
+# ]
+#
+# STATICFILES_FINDERS = (
+#     "django.contrib.staticfiles.finders.FileSystemFinder",
+#     "django.contrib.staticfiles.finders.AppDirectoriesFinder"
+# )
 
-# -----------------------------
-# Static
-# -----------------------------
-STATIC_URL = "/static/"
+# STORAGES = {
+#     "default":     {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+#     "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"}
+# }
 
-# Important:
-# - STATIC_ROOT should be a *collection* directory for collectstatic (often "staticfiles")
-STATIC_ROOT = BASE_DIR / "staticfiles"
+# DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-STATICFILES_DIRS = [
-    BASE_DIR / "hr_core" / "static"
-]
-
-STATICFILES_FINDERS = (
-    "django.contrib.staticfiles.finders.FileSystemFinder",
-    "django.contrib.staticfiles.finders.AppDirectoriesFinder"
-)
-
-STORAGES = {
-    "default":     {"BACKEND": "django.core.files.storage.FileSystemStorage"},
-    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"}
-}
-
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-LOG_DIR = Path(os.environ.get("LOG_DIR", BASE_DIR / "logs"))
-LOG_DIR.mkdir(parents=True, exist_ok=True)
-
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "structlog": {
-            "()": "structlog.stdlib.ProcessorFormatter",
-            "processor": get_structlog_renderer(),
-            "foreign_pre_chain": get_structlog_processors()
-        },
-    },
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-            "formatter": "structlog"
-        },
-        "file": {
-            "class": "concurrent_log_handler.ConcurrentTimedRotatingFileHandler",
-            "formatter": "structlog",
-            "filename": str(LOG_DIR / "django.log"),
-            "when": "midnight",
-            "backupCount": 30,
-            "encoding": "utf-8",
-            "utc": True,
-            "delay": True
-        },
-        "error_file": {
-            "class": "concurrent_log_handler.ConcurrentTimedRotatingFileHandler",
-            "formatter": "structlog",
-            "filename": str(LOG_DIR / "django-error.log"),
-            "when": "midnight",
-            "backupCount": 30,
-            "encoding": "utf-8",
-            "utc": True,
-            "level": "ERROR",
-            "delay": True
-        },
-        # For db loggingn later:
-        # Example: "db": {"class": "hr_core.logging_handlers.DatabaseLogHandler", ...}
-    },
-    "loggers": {
-        "django":         {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
-        "django.request": {"handlers": ["console", "file", "error_file"], "level": "ERROR","propagate": False},
-        "hr_about":       {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
-        "hr_access":      {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
-        "hr_bulletin":    {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
-        "hr_common":      {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
-        "hr_config":      {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
-        "hr_core":        {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
-        "hr_django":      {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
-        "hr_email":       {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
-        "hr_live":        {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
-        "hr_payment":     {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
-        "hr_shop":        {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
-        "hr_storage":     {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False}
-    },
-    "root": {
-        "handlers": ["console", "file", "error_file"],
-        "level": "INFO"
-    }
-}
+# LOG_DIR = Path(os.environ.get("LOG_DIR", BASE_DIR / "logs"))
+# LOG_DIR.mkdir(parents=True, exist_ok=True)
+#
+# LOGGING = {
+#     "version": 1,
+#     "disable_existing_loggers": False,
+#     "formatters": {
+#         "structlog": {
+#             "()": "structlog.stdlib.ProcessorFormatter",
+#             "processor": get_structlog_renderer(),
+#             "foreign_pre_chain": get_structlog_processors()
+#         },
+#     },
+#     "handlers": {
+#         "console": {
+#             "class": "logging.StreamHandler",
+#             "formatter": "structlog"
+#         },
+#         "file": {
+#             "class": "concurrent_log_handler.ConcurrentTimedRotatingFileHandler",
+#             "formatter": "structlog",
+#             "filename": str(LOG_DIR / "django.log"),
+#             "when": "midnight",
+#             "backupCount": 30,
+#             "encoding": "utf-8",
+#             "utc": True,
+#             "delay": True
+#         },
+#         "error_file": {
+#             "class": "concurrent_log_handler.ConcurrentTimedRotatingFileHandler",
+#             "formatter": "structlog",
+#             "filename": str(LOG_DIR / "django-error.log"),
+#             "when": "midnight",
+#             "backupCount": 30,
+#             "encoding": "utf-8",
+#             "utc": True,
+#             "level": "ERROR",
+#             "delay": True
+#         },
+#         # For db loggingn later:
+#         # Example: "db": {"class": "hr_core.logging_handlers.DatabaseLogHandler", ...}
+#     },
+#     "loggers": {
+#         "django":         {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
+#         "django.request": {"handlers": ["console", "file", "error_file"], "level": "ERROR","propagate": False},
+#         "hr_about":       {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
+#         "hr_access":      {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
+#         "hr_bulletin":    {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
+#         "hr_common":      {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
+#         "hr_config":      {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
+#         "hr_core":        {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
+#         "hr_django":      {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
+#         "hr_email":       {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
+#         "hr_live":        {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
+#         "hr_payment":     {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
+#         "hr_shop":        {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False},
+#         "hr_storage":     {"handlers": ["console", "file", "error_file"], "level": "INFO", "propagate": False}
+#     },
+#     "root": {
+#         "handlers": ["console", "file", "error_file"],
+#         "level": "INFO"
+#     }
+# }
 
 # -----------------------------
 # Django-Vite
 # -----------------------------
-DJANGO_VITE_DEV_MODE = os.environ.get("DJANGO_VITE_DEV_MODE", "True").strip().lower() == "true"
-
-# The location where Vite writes the production build + manifest
-DJANGO_VITE_ASSETS_PATH = BASE_DIR / "hr_core" / "static" / "hr_core" / "dist"
-DJANGO_VITE_MANIFEST_PATH = DJANGO_VITE_ASSETS_PATH / "manifest.json"
-
-# django-vite reads the manifest automatically when dev_mode=False.
-# Keep dev_server_host/port optional for local dev workflow.
-DJANGO_VITE = {
-    "default": {
-        "dev_mode": DJANGO_VITE_DEV_MODE,
-        "dev_server_host": os.environ.get("VITE_DEV_SERVER_HOST", "127.0.0.1"),
-        "dev_server_port": int(os.environ.get("VITE_DEV_SERVER_PORT", "5173")),
-        "static_url_prefix": "hr_core/dist/",
-        "manifest_path": str(DJANGO_VITE_MANIFEST_PATH)
-    }
-}
+# DJANGO_VITE_DEV_MODE = os.environ.get("DJANGO_VITE_DEV_MODE", "True").strip().lower() == "true"
+#
+# # The location where Vite writes the production build + manifest
+# DJANGO_VITE_ASSETS_PATH = BASE_DIR / "hr_core" / "static" / "hr_core" / "dist"
+# DJANGO_VITE_MANIFEST_PATH = DJANGO_VITE_ASSETS_PATH / "manifest.json"
+#
+# # django-vite reads the manifest automatically when dev_mode=False.
+# # Keep dev_server_host/port optional for local dev workflow.
+# DJANGO_VITE = {
+#     "default": {
+#         "dev_mode": DJANGO_VITE_DEV_MODE,
+#         "dev_server_host": os.environ.get("VITE_DEV_SERVER_HOST", "127.0.0.1"),
+#         "dev_server_port": int(os.environ.get("VITE_DEV_SERVER_PORT", "5173")),
+#         "static_url_prefix": "hr_core/dist/",
+#         "manifest_path": str(DJANGO_VITE_MANIFEST_PATH)
+#     }
+# }
 
 # -----------------------------
 # Stripe
 # -----------------------------
-STRIPE_SECRET_KEY     = os.getenv("STRIPE_SECRET_KEY", "")
-STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
-STRIPE_PUBLIC_KEY     = os.getenv("STRIPE_PUBLIC_KEY", "")
+# STRIPE_SECRET_KEY     = os.getenv("STRIPE_SECRET_KEY", "")
+# STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
+# STRIPE_PUBLIC_KEY     = os.getenv("STRIPE_PUBLIC_KEY", "")
 
-SITE_URL = os.getenv("SITE_URL", "http://localhost:8000")
+# SITE_URL = os.getenv("SITE_URL", "http://localhost:8000")
 
 
-# -----------------------------
-# Email
-# -----------------------------
-DEFAULT_FROM_EMAIL  = os.environ.get("DEFAULT_FROM_EMAIL", "Hella Reptilian <mail@hellareptilian.com>")
-EMAIL_PROVIDER      = os.environ.get("EMAIL_PROVIDER", "mailjet").strip().lower()
-EMAIL_BACKEND       = os.environ.get("EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")
-EMAIL_HOST          = os.environ.get("EMAIL_HOST", "in-v3.mailjet.com")
-EMAIL_PORT          = int(os.environ.get("EMAIL_PORT", "587"))
-EMAIL_USE_TLS       = _env_bool("EMAIL_USE_TLS", True)
-EMAIL_USE_SSL       = _env_bool("EMAIL_USE_SSL", False)
-EMAIL_HOST_USER     = os.environ.get("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+# # -----------------------------
+# # Email
+# # -----------------------------
+# DEFAULT_FROM_EMAIL  = os.environ.get("DEFAULT_FROM_EMAIL", "Hella Reptilian <mail@hellareptilian.com>")
+# EMAIL_PROVIDER      = os.environ.get("EMAIL_PROVIDER", "mailjet").strip().lower()
+# EMAIL_BACKEND       = os.environ.get("EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")
+# EMAIL_HOST          = os.environ.get("EMAIL_HOST", "in-v3.mailjet.com")
+# EMAIL_PORT          = int(os.environ.get("EMAIL_PORT", "587"))
+# EMAIL_USE_TLS       = _env_bool("EMAIL_USE_TLS", True)
+# EMAIL_USE_SSL       = _env_bool("EMAIL_USE_SSL", False)
+# EMAIL_HOST_USER     = os.environ.get("EMAIL_HOST_USER")
+# EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+#
+# MAILJET_API_KEY     = os.environ.get("MAILJET_API_KEY") or EMAIL_HOST_USER
+# MAILJET_API_SECRET  = os.environ.get("MAILJET_API_SECRET") or EMAIL_HOST_PASSWORD
+#
+# if not DEBUG:
+#     if not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD:
+#         raise RuntimeError("Email credentials must be set when DEBUG=False.")
 
-MAILJET_API_KEY     = os.environ.get("MAILJET_API_KEY") or EMAIL_HOST_USER
-MAILJET_API_SECRET  = os.environ.get("MAILJET_API_SECRET") or EMAIL_HOST_PASSWORD
-
-if not DEBUG:
-    if not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD:
-        raise RuntimeError("Email credentials must be set when DEBUG=False.")
-
-DEBUG_TOOLBAR_CONFIG = {
-    "DISABLE_PANELS": [
-        "debug_toolbar.panels.staticfiles.StaticFilesPanel"
-    ]
-}
+# DEBUG_TOOLBAR_CONFIG = {
+#     "DISABLE_PANELS": [
+#         "debug_toolbar.panels.staticfiles.StaticFilesPanel"
+#     ]
+# }

@@ -1,5 +1,6 @@
 # --- Local env / secrets ---
-.env
+dev.env
+env/.env
 .django-secret
 /python-version
 /.python-version

@@ -293,7 +293,7 @@ class ProductImage(models.Model):
     """
     A reusable image. One ProductImage can be shared by many variants.
     """
-    image = models.ImageField(upload_to="products/")
+    image = models.ImageField(upload_to="variants/")
     alt_text = models.CharField(max_length=255, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

@@ -1,7 +1,7 @@
 {# hr_common/templates/hr_common/index.html #}
 
 {% extends "hr_common/base.html" %}
-{% load static shop_tags shop_images %}
+{% load static shop_tags shop_images responsive_images %}
 
 {% block title %}Hella Reptilian — Home{% endblock %}
 w
@@ -47,9 +47,13 @@ w
                                     hx-swap="innerHTML transition:true">
 
                                 {% if display_image %}
-                                    <img src="{{ display_image.image.url }}"
+                                    <img src="{{ display_image.image.url|variant_img_url:512 }}"
+                                         srcset="{{ display_image.image.url|variant_img_srcset }}"
+                                         sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 320px"
                                          alt="{{ product.name }}{% if display_variant.name %} ({{ display_variant.name }}){% endif %}"
-                                         class="merch-thumb-img">
+                                         class="merch-thumb-img"
+                                         loading="lazy"
+                                         decoding="async">
                                 {% else %}
                                     <img src="{% static 'hr_shop/img/placeholder_2.png' %}"
                                          alt="{{ product.name }}{% if display_variant.name %} ({{ display_variant.name }}){% endif %}"
