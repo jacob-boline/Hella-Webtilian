@@ -4,12 +4,12 @@
     "src": "../static/hr_core/fonts/KARNIVBL.ttf"
   },
   "js/main.js": {
-    "file": "assets/main-B-4mEbM1.js",
+    "file": "assets/main-DtXih0Oh.js",
     "name": "main",
     "src": "js/main.js",
     "isEntry": true,
     "css": [
-      "assets/main-Cqn9uYw3.css"
+      "assets/main-B0wFNwvX.css"
     ],
     "assets": [
       "assets/KARNIVBL-BCOKIt6A.ttf"

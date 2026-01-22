@@ -65,21 +65,21 @@ div.parallax-content p {
 /* ===========================
    Section background images
    =========================== */
-/* noinspection CssOverwrittenProperties */
 #section-wipe-0.section-wipe {
-  background-image: url("/media/wipes/bryan-goff-we1ky8_ZTHg-unsplash.jpg");
+  background-image: url("/media/wipes/solar_eclipse_build_black.jpg");
 }
 
 /* noinspection CssInvalidFunction,CssUnknownTarget */
-@supports (background-image: image-set(url("x.webp") type("image/webp") 1x)) {
-  #section-wipe-0.section-wipe {
-    background-image: image-set(
-      url("/media/wipes/opt_webp/bryan-goff-we1ky8_ZTHg-unsplash-960x160.webp") type("image/webp") 1x,
-      url("/media/wipes/opt_webp/bryan-goff-we1ky8_ZTHg-unsplash-1920x320.webp") type("image/webp") 2x,
-      url("/media/wipes/opt_webp/bryan-goff-we1ky8_ZTHg-unsplash-2560x426.webp") type("image/webp") 3x
-    );
-  }
-}
+/*@supports (background-image: image-set(url("x.webp") type("image/webp") 1x)) {*/
+/*  #section-wipe-0.section-wipe {*/
+/*    background-image: image-set(*/
+/*      url("/media/wipes/opt_webp/solar_eclipse_build_black-960w.webp")  type("image/webp")   1x,*/
+/*      url("/media/wipes/opt_webp/solar_eclipse_build_black-1440w.webp") type("image/webp") 1.5x,*/
+/*      url("/media/wipes/opt_webp/solar_eclipse_build_black-1920w.webp") type("image/webp")   2x,*/
+/*      url("/media/wipes/opt_webp/solar_eclipse_build_black-2560w.webp") type("image/webp")   3x*/
+/*    );*/
+/*  }*/
+/*}*/
 
 /* Shows section */
 #parallax-section-shows .parallax-background {
@@ -87,14 +87,14 @@ div.parallax-content p {
 }
 
 /* noinspection CssInvalidFunction,CssUnknownTarget */
-@supports (background-image: image-set(url("x.webp") type("image/webp") 1x)) {
-  #parallax-section-shows .parallax-background {
-    background-image: image-set(
-      url("/media/backgrounds/bg_opt/parallax_bg_1-0-960.webp") type("image/webp") 1x,
-      url("/media/backgrounds/bg_opt/parallax_bg_1-0-1920.webp") type("image/webp") 2x
-    );
-  }
-}
+/*@supports (background-image: image-set(url("x.webp") type("image/webp") 1x)) {*/
+/*  #parallax-section-shows .parallax-background {*/
+/*    background-image: image-set(*/
+/*      url("/media/backgrounds/bg_opt/parallax_bg_1-0-960w.webp")  type("image/webp") 1x,*/
+/*      url("/media/backgrounds/bg_opt/parallax_bg_1-0-1920w.webp") type("image/webp") 2x*/
+/*    );*/
+/*  }*/
+/*}*/
 
 /* Wipe between shows → merchModule */
 #section-wipe-1.section-wipe {
@@ -102,15 +102,16 @@ div.parallax-content p {
 }
 
 /* noinspection CssInvalidFunction,CssUnknownTarget */
-@supports (background-image: image-set(url("x.webp") type("image/webp") 1x)) {
-  #section-wipe-1.section-wipe {
-    background-image: image-set(
-      url("/media/wipes/opt_webp/sci_fi_fork_in_road-960x160.webp") type("image/webp") 1x,
-      url("/media/wipes/opt_webp/sci_fi_fork_in_road-1920x320.webp") type("image/webp") 2x,
-      url("/media/wipes/opt_webp/sci_fi_fork_in_road-2560x426.webp") type("image/webp") 3x
-    );
-  }
-}
+/*@supports (background-image: image-set(url("x.webp") type("image/webp") 1x)) {*/
+/*  #section-wipe-1.section-wipe {*/
+/*    background-image: image-set(*/
+/*      url("/media/wipes/opt_webp/sci_fi_fork_in_road-960w.webp")  type("image/webp")   1x,*/
+/*      url("/media/wipes/opt_webp/sci_fi_fork_in_road-1440w.webp") type("image/webp") 1.5x,*/
+/*      url("/media/wipes/opt_webp/sci_fi_fork_in_road-1920w.webp") type("image/webp")   2x,*/
+/*      url("/media/wipes/opt_webp/sci_fi_fork_in_road-2560w.webp") type("image/webp")   3x*/
+/*    );*/
+/*  }*/
+/*}*/
 
 /* Merch section */
 #parallax-section-merch .parallax-background {
@@ -118,30 +119,31 @@ div.parallax-content p {
 }
 
 /* noinspection CssInvalidFunction,CssUnknownTarget */
-@supports (background-image: image-set(url("x.webp") type("image/webp") 1x)) {
-  #parallax-section-merch .parallax-background {
-    background-image: image-set(
-      url("/media/backgrounds/bg_opt/parallax_bg_2-7-960.webp") type("image/webp") 1x,
-      url("/media/backgrounds/bg_opt/parallax_bg_2-7-1920.webp") type("image/webp") 2x
-    );
-  }
-}
+/*@supports (background-image: image-set(url("x.webp") type("image/webp") 1x)) {*/
+/*  #parallax-section-merch .parallax-background {*/
+/*    background-image: image-set(*/
+/*      url("/media/backgrounds/bg_opt/parallax_bg_2-7-960w.webp")  type("image/webp") 1x,*/
+/*      url("/media/backgrounds/bg_opt/parallax_bg_2-7-1920w.webp") type("image/webp") 2x*/
+/*    );*/
+/*  }*/
+/*}*/
 
 /* Wipe between merchModule → about */
 #section-wipe-2.section-wipe {
-  background-image: url("/media/wipes/vimal-s-1F-dLqrnn-E-unsplash.jpg");
+  background-image: url("/media/wipes/blue_black_pillars.jpg");
 }
 
 /* noinspection CssInvalidFunction,CssUnknownTarget */
-@supports (background-image: image-set(url("x.webp") type("image/webp") 1x)) {
-  #section-wipe-2.section-wipe {
-    background-image: image-set(
-      url("/media/wipes/opt_webp/vimal-s-1F-dLqrnn-E-unsplash-960x160.webp") type("image/webp") 1x,
-      url("/media/wipes/opt_webp/vimal-s-1F-dLqrnn-E-unsplash-1920x320.webp") type("image/webp") 2x,
-      url("/media/wipes/opt_webp/vimal-s-1F-dLqrnn-E-unsplash-2560x426.webp") type("image/webp") 3x
-    );
-  }
-}
+/*@supports (background-image: image-set(url("x.webp") type("image/webp") 1x)) {*/
+/*  #section-wipe-2.section-wipe {*/
+/*    background-image: image-set(*/
+/*      url("/media/wipes/opt_webp/blue_black_pillars-960w.webp")  type("image/webp")   1x,*/
+/*      url("/media/wipes/opt_webp/blue_black_pillars-1440w.webp") type("image/webp") 1.5x,*/
+/*      url("/media/wipes/opt_webp/blue_black_pillars-1920w.webp") type("image/webp")   2x,*/
+/*      url("/media/wipes/opt_webp/blue_black_pillars-2560w.webp") type("image/webp")   3x*/
+/*    );*/
+/*  }*/
+/*}*/
 
 /* About section */
 #parallax-section-about .parallax-background {
@@ -149,14 +151,14 @@ div.parallax-content p {
 }
 
 /* noinspection CssInvalidFunction,CssUnknownTarget */
-@supports (background-image: image-set(url("x.webp") type("image/webp") 1x)) {
-  #parallax-section-about .parallax-background {
-    background-image: image-set(
-      url("/media/backgrounds/bg_opt/parallax_bg_3-0-960.webp") type("image/webp") 1x,
-      url("/media/backgrounds/bg_opt/parallax_bg_3-0-1920.webp") type("image/webp") 2x
-    );
-  }
-}
+/*@supports (background-image: image-set(url("x.webp") type("image/webp") 1x)) {*/
+/*  #parallax-section-about .parallax-background {*/
+/*    background-image: image-set(*/
+/*      url("/media/backgrounds/bg_opt/parallax_bg_3-0-960w.webp")  type("image/webp") 1x,*/
+/*      url("/media/backgrounds/bg_opt/parallax_bg_3-0-1920w.webp") type("image/webp") 2x*/
+/*    );*/
+/*  }*/
+/*}*/
 
 /* Wipe between about → bulletin */
 #section-wipe-3.section-wipe {
@@ -164,15 +166,16 @@ div.parallax-content p {
 }
 
 /* noinspection CssInvalidFunction,CssUnknownTarget */
-@supports (background-image: image-set(url("x.webp") type("image/webp") 1x)) {
-  #section-wipe-3.section-wipe {
-    background-image: image-set(
-      url("/media/wipes/opt_webp/old_english_tree_rows-960x160.webp") type("image/webp") 1x,
-      url("/media/wipes/opt_webp/old_english_tree_rows-1920x320.webp") type("image/webp") 2x,
-      url("/media/wipes/opt_webp/old_english_tree_rows-2560x426.webp") type("image/webp") 3x
-    );
-  }
-}
+/*@supports (background-image: image-set(url("x.webp") type("image/webp") 1x)) {*/
+/*  #section-wipe-3.section-wipe {*/
+/*    background-image: image-set(*/
+/*      url("/media/wipes/opt_webp/old_english_tree_rows-960w.webp")  type("image/webp")   1x,*/
+/*      url("/media/wipes/opt_webp/old_english_tree_rows-1440w.webp") type("image/webp") 1.5x,*/
+/*      url("/media/wipes/opt_webp/old_english_tree_rows-1920w.webp") type("image/webp")   2x,*/
+/*      url("/media/wipes/opt_webp/old_english_tree_rows-2560w.webp") type("image/webp")   3x*/
+/*    );*/
+/*  }*/
+/*}*/
 
 /* Bulletin section */
 #parallax-section-bulletin .parallax-background {
@@ -180,14 +183,14 @@ div.parallax-content p {
 }
 
 /* noinspection CssInvalidFunction,CssUnknownTarget */
-@supports (background-image: image-set(url("x.webp") type("image/webp") 1x)) {
-  #parallax-section-bulletin .parallax-background {
-    background-image: image-set(
-      url("/media/backgrounds/bg_opt/parallax_bg_4-3-960.webp") type("image/webp") 1x,
-      url("/media/backgrounds/bg_opt/parallax_bg_4-3-1920.webp") type("image/webp") 2x
-    );
-  }
-}
+/*@supports (background-image: image-set(url("x.webp") type("image/webp") 1x)) {*/
+/*  #parallax-section-bulletin .parallax-background {*/
+/*    background-image: image-set(*/
+/*      url("/media/backgrounds/bg_opt/parallax_bg_4-3-960w.webp")  type("image/webp") 1x,*/
+/*      url("/media/backgrounds/bg_opt/parallax_bg_4-3-1920w.webp") type("image/webp") 2x*/
+/*    );*/
+/*  }*/
+/*}*/
 
 /* ===========================
    Reduced motion fallback

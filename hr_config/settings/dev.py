@@ -8,11 +8,14 @@ from dotenv import load_dotenv
 from hr_config.settings import sqlite as sqlite_settings
 from hr_config.settings.common import env_bool, BASE_DIR  # noqa
 
-
 # ===============================================
 #  Environment
 # ===============================================
 load_dotenv(BASE_DIR / 'hr_config' / 'env' / 'dev.env', override=False)
+print('IS_LOADING_DEV_ENV', os.environ.get('IS_LOADING_DEV_ENV'))
+print("DJANGO_VITE_DEV_MODE:", os.environ.get("DJANGO_VITE_DEV_MODE"))
+print("VITE_DEV_SERVER_HOST:", os.environ.get("VITE_DEV_SERVER_HOST"))
+print("VITE_DEV_SERVER_PORT:", os.environ.get("VITE_DEV_SERVER_PORT"))
 
 DEBUG = True
 
@@ -80,3 +83,10 @@ if LOG_SQL:
     for h in ("console", "file"):
         if h in LOGGING["handlers"]:
             LOGGING["handlers"][h]["level"] = "DEBUG"
+
+
+print('IS_LOADING_DEV_ENV', os.environ.get('IS_LOADING_DEV_ENV'))
+print("DJANGO_VITE_DEV_MODE:", os.environ.get("DJANGO_VITE_DEV_MODE"))
+print("VITE_DEV_SERVER_HOST:", os.environ.get("VITE_DEV_SERVER_HOST"))
+print("VITE_DEV_SERVER_PORT:", os.environ.get("VITE_DEV_SERVER_PORT"))
+print('USING_SETTINGS:', __name__)

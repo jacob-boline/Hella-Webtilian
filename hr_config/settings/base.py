@@ -1,11 +1,9 @@
 # hr_config/settings/base.py
 
-
 from django.core.management.utils import get_random_secret_key
 from django.urls import reverse_lazy
 
 from hr_config.settings.common import BASE_DIR
-
 
 # TODO - In Docker, it will be safer to move SECRET_KEY to the environment.
 #        Otherwise, if the file is recreated below, sessions/tokens = invalid.
@@ -33,20 +31,21 @@ STATIC_HANDLING_APPS = [
 ]
 PROJECT_APPS = [
     "hr_core",
-    "hr_about",
+    "hr_about.apps.AboutConfig",
     "hr_access",
-    "hr_bulletin",
+    "hr_bulletin.apps.BulletinConfig",
     "hr_common",
     "hr_email",
     "hr_live",
     "hr_payment",
-    "hr_shop",
+    "hr_shop.apps.ShopConfig",
     "hr_storage"
 ]
 THIRD_PARTY_APPS = [
     "phonenumber_field",
     "imagekit",
-    "django_vite"
+    "django_vite",
+    "django_rq",
 ]
 
 INSTALLED_APPS = DJANGO_CORE_APPS + STATIC_HANDLING_APPS + PROJECT_APPS + THIRD_PARTY_APPS
@@ -117,6 +116,17 @@ STATICFILES_DIRS = [
     BASE_DIR / "hr_core" / "static"
 ]
 
+# -----------------------------
+# RQ (background jobs)
+# -----------------------------
+RQ_QUEUES = {
+    "default": {
+        "HOST": "127.0.0.1",
+        "PORT": 6379,
+        "DB": 0,
+        "DEFAULT_TIMEOUT": 600,  # seconds
+    }
+}
 
 # -----------------------------
 # i18n / tz

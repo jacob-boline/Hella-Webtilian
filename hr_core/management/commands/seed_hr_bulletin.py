@@ -1,5 +1,6 @@
 # hr_core/management/commands/seed_hr_bulletin.py
 
+import shutil
 from datetime import timedelta
 from pathlib import Path
 
@@ -69,7 +70,7 @@ POST_METADATA = {
 
 
 class Command(BaseCommand):
-    help = "Seed hr_bulletin posts + tags from seed_data/hr_bulletin/outline.yml."
+    help = "Seed hr_bulletin posts + tags from _seed_data/hr_bulletin/outline.yml."
 
     def handle(self, *args, **options):
         self._seed_hr_bulletin()
@@ -79,7 +80,7 @@ class Command(BaseCommand):
         if not base.exists():
             self.stdout.write(
                 self.style.WARNING(
-                    f"  → No seed_data/hr_bulletin directory found at {base}"
+                    f"  → No _seed_data/hr_bulletin directory found at {base}"
                 )
             )
             return
@@ -93,7 +94,7 @@ class Command(BaseCommand):
             )
             return
 
-        cfg = yaml.safe_load(outline_yml.read_text()) or {}
+        cfg = yaml.safe_load(outline_yml.read_text(encoding="utf-8-sig")) or {}
         posts_cfg = cfg.get("posts") or []
 
         if not posts_cfg:
@@ -103,9 +104,17 @@ class Command(BaseCommand):
             return
 
         author = self._get_author()
+        if not author:
+            self.stdout.write(
+                self.style.WARNING("  → No users exist; cannot assign post.author. Skipping.")
+            )
+            return
+
         now = timezone.now()
 
         self.stdout.write("  → hr_bulletin…")
+
+        self._wipe_posts_hero_media()
 
         for idx, post_cfg in enumerate(posts_cfg, start=1):
             artist = post_cfg.get("key") or "Unknown Artist"
@@ -146,23 +155,71 @@ class Command(BaseCommand):
                     ]
                 )
 
-            self._attach_hero_image(post, image)
+            self._attach_hero_image(post, image, seed_base=base)
             self._sync_tags(post, tags)
 
         self.stdout.write("    • hr_bulletin seed data applied.")
+
+
+    def _wipe_posts_hero_media(self):
+        """
+        Clear generated hero media so reseeds don't accumulate stale files.
+        Safe: only runs when DEBUG=True.
+        """
+        if not settings.DEBUG:
+            self.stdout.write(self.style.WARNING("    • Skipping hero wipe (DEBUG=False)."))
+            return
+
+        media_root = Path(settings.MEDIA_ROOT)
+        hero_dir = media_root / "posts" / "hero"
+
+        # adjust if your optimizer outputs elsewhere
+        opt_dirs = [
+            hero_dir / "opt",
+            hero_dir / "opt_webp",
+        ]
+
+        # wipe optimized dirs first
+        for d in opt_dirs:
+            if d.exists() and d.is_dir():
+                shutil.rmtree(d)
+                self.stdout.write(f"    • Deleted {d}")
+
+        # wipe files directly under posts/hero (keep the folder)
+        if hero_dir.exists() and hero_dir.is_dir():
+            for p in hero_dir.iterdir():
+                if p.is_file():
+                    p.unlink()
+            self.stdout.write(f"    • Cleared files in {hero_dir}")
+        else:
+            self.stdout.write(f"    • Not found: {hero_dir}")
+
 
     @staticmethod
     def _get_author():
         User = get_user_model()
         return User.objects.order_by("id").first()
 
-    def _attach_hero_image(self, post: Post, image_path: str):
+    def _attach_hero_image(self, post: Post, image_path: str, seed_base: Path):
+        """
+        image_path is expected to be one of:
+          - absolute path
+          - relative to _seed_data/hr_bulletin (recommended: img/<file>)
+          - relative to BASE_DIR (legacy)
+        """
         if not image_path:
             return
 
         resolved_path = Path(image_path)
+
         if not resolved_path.is_absolute():
-            resolved_path = Path(settings.BASE_DIR) / image_path
+            # Prefer paths relative to _seed_data/hr_bulletin
+            candidate = seed_base / image_path
+            if candidate.exists():
+                resolved_path = candidate
+            else:
+                # Fallback to BASE_DIR-relative legacy paths
+                resolved_path = Path(settings.BASE_DIR) / image_path
 
         if not resolved_path.exists():
             self.stdout.write(
@@ -172,9 +229,7 @@ class Command(BaseCommand):
             )
             return
 
-        if post.hero and Path(post.hero.name).name == resolved_path.name:
-            return
-
+        # Always re-attach from seed source; Post.save() will dedupe by content hash.
         with resolved_path.open("rb") as handle:
             post.hero.save(resolved_path.name, File(handle), save=True)
 
@@ -186,4 +241,3 @@ class Command(BaseCommand):
             tag_objs.append(tag)
 
         post.tags.set(tag_objs)
-

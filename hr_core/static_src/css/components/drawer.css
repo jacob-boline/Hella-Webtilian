@@ -255,6 +255,7 @@
 #nav-close-btn:hover {
     color:            aquamarine;
     background-color: rgba(128, 128, 128, 0.3);
+    transform:        translateY(-1px);
 }
 
 @media (prefers-color-scheme: dark) {

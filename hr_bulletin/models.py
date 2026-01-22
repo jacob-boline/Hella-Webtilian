@@ -1,5 +1,8 @@
 # hr_bulletin/models.py
 
+import hashlib
+import os
+
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
@@ -64,6 +67,106 @@ class Post(models.Model):
     def is_published(self):
         return self.status == 'published' and (not self.publish_at or self.publish_at <= timezone.now())
 
+    # -------------------------
+    # Hash-based hero dedupe
+    # -------------------------
+
+    @staticmethod
+    def _sha256_stream(file_obj, chunk_size: int = 1024 * 1024) -> str:
+        """
+        Compute sha256 for a file-like object, restoring stream position afterward.
+        """
+        h = hashlib.sha256()
+
+        pos = None
+        try:
+            pos = file_obj.tell()
+        except Exception:
+            pos = None
+
+        try:
+            if hasattr(file_obj, "seek"):
+                try:
+                    file_obj.seek(0)
+                except Exception:
+                    pass
+
+            while True:
+                chunk = file_obj.read(chunk_size)
+                if not chunk:
+                    break
+                h.update(chunk)
+        finally:
+            if pos is not None and hasattr(file_obj, "seek"):
+                try:
+                    file_obj.seek(pos)
+                except Exception:
+                    pass
+
+        return h.hexdigest()
+
+    def _dedupe_hero_by_hash(self) -> None:
+        """
+        Store/reuse hero images by content hash.
+
+        IMPORTANT: We keep the final stored path *flat* under posts/hero/
+        so your existing variant pipeline continues to work:
+
+          Original: posts/hero/<sha256><ext>
+          Variants:  posts/hero/opt/<sha256>-640w.webp, etc.
+
+        This avoids Django's name-collision suffixing and prevents duplicate copies.
+        """
+        if not self.hero:
+            return
+
+        # Only process newly assigned uploads (seeded or staff upload).
+        if getattr(self.hero, "_committed", True):
+            return
+
+        storage = self.hero.storage
+
+        # Try to access underlying file object
+        try:
+            fobj = self.hero.file
+        except Exception:
+            # As a fallback, open via FieldFile
+            try:
+                self.hero.open("rb")
+                fobj = self.hero.file
+            except Exception:
+                return
+
+        sha = self._sha256_stream(fobj)
+
+        # Preserve extension (lowercased). If missing, default .bin
+        _, ext = os.path.splitext(self.hero.name or "")
+        ext = (ext or "").lower() or ".bin"
+
+        # Flat destination to keep your current opt/ layout stable
+        relpath = f"posts/hero/{sha}{ext}"
+
+        # If it already exists, just point at it
+        if storage.exists(relpath):
+            self.hero.name = relpath
+            self.hero._committed = True
+            return
+
+        # Save once under the deterministic name, then point FieldFile at it
+        if hasattr(fobj, "seek"):
+            try:
+                fobj.seek(0)
+            except Exception:
+                pass
+
+        storage.save(relpath, fobj)
+        self.hero.name = relpath
+        self.hero._committed = True
+
     def save(self, *args, **kwargs):
         sync_slug_from_source(self, self.title, slug_field_name="slug", allow_update=True, max_length=220)
+
+        # Ensure hero is deduped before model save triggers file handling
+        self._dedupe_hero_by_hash()
+
         super().save(*args, **kwargs)

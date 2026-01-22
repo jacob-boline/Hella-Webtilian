@@ -1,10 +1,10 @@
 # hr_core/templatetags/responsive_images.py
 
 
-from urllib.parse import urlsplit, urlunsplit
-from django import template
 from typing import Union
+from urllib.parse import urlsplit, urlunsplit
 
+from django import template
 
 register = template.Library()
 
@@ -66,7 +66,7 @@ def variant_img_url(url: str, size: Union[int, str]) -> str:
     if s not in ALLOWED_VARIANT_SIZES:
         raise ValueError(f"variant_img_url: invalid size {size!r}")
 
-    return _swap_dir_and_suffix(url, "opt_webp", f"-{s}")
+    return _swap_dir_and_suffix(url, "opt_webp", f"-{s}w")
 
 
 @register.filter

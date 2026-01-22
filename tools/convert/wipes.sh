@@ -1,9 +1,8 @@
 #!/usr/bin/env zsh
-# Crop to 6:1 (no stretch) then export WebP wipes at fixed sizes.
+# Wipes: center-crop to 6:1, then export WebP at widths (naming: -<w>w.webp)
 
 set -euo pipefail
 umask 022
-
 
 SRC="/mnt/c/users/jacob/code/hella-webtilian/media/wipes"
 OUT="$SRC/opt_webp"
@@ -14,21 +13,23 @@ mkdir -p "$OUT"
 
 export MAGICK_THREAD_LIMIT=1
 
-# Target sizes (6:1)
-sizes=( "960x160" "1440x240" "1920x320" "2560x426" )
+widths=(960 1440 1920 2560)
 
 for f in "$SRC"/*.(jpg|jpeg|png|webp|JPG|JPEG|PNG|WEBP)(N); do
   base="${f:t}"
   name="${base:r}"
   echo "Processing: $base" | tee -a "$LOG"
 
-  for size in $sizes; do
-    out="$OUT/${name}-${size}.webp"
+  for w in $widths; do
+    h=$(( w / 6 ))
+    size="${w}x${h}"
+    out="$OUT/${name}-${w}w.webp"
 
-    # Center-crop to 6:1, then resize exactly to $size (no distortion).
-    # Explanation of the core trick:
-    #   -resize "${size}^" : scale so the image fully covers the box (may exceed in one dimension)
-    #   -gravity center -extent "$size" : crop the overflow to exact dimensions from the center
+    if [[ -f "$out" && "$out" -nt "$f" ]]; then
+      echo "  skip (up-to-date): ${name}-${w}w" | tee -a "$LOG"
+      continue
+    fi
+
     if ! convert -limit memory 768MiB -limit map 768MiB -limit disk 3GiB \
         "$f" \
         -auto-orient \
@@ -39,7 +40,7 @@ for f in "$SRC"/*.(jpg|jpeg|png|webp|JPG|JPEG|PNG|WEBP)(N); do
         -quality 82 \
         -define webp:method=6 \
         "$out" >>"$LOG" 2>&1; then
-      echo "FAILED: $base -> $size" | tee -a "$LOG"
+      echo "FAILED: $base -> ${w}w" | tee -a "$LOG"
       break
     fi
   done
