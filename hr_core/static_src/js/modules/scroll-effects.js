@@ -1,6 +1,6 @@
 // hr_core/static_src/js/modules/scroll-effects.js
 
-import {wrapDateTimeChars, applyStitchedLetters} from "./ui-text.js";
+import {applyStitchedLetters, wrapDateTimeChars} from "./ui-text.js";
 
 (function () {
     // -----------------------------
@@ -55,25 +55,58 @@ import {wrapDateTimeChars, applyStitchedLetters} from "./ui-text.js";
     // Module init
     // -----------------------------
     function initScrollEffects () {
-        const {config, bannerAPI, getVH, debounce} = readRuntimeDeps();
+        const { config, bannerAPI, getVH, debounce } = readRuntimeDeps();
         const parallaxSpeed = getParallaxSpeed(config);
 
         const wipes = document.querySelectorAll(".section-wipe");
         const parallaxSections = document.querySelectorAll(".parallax-section");
 
-        // "Quiet efficiency": track visible sections without per-frame DOM queries
+        // track visible sections without per-frame DOM queries
         const inViewSections = new Set();
 
         const STATE = {
             wipeData: new Map(),
-            activeWipe: null,
+            sectionData: new Map(), // section -> { topDoc }
             rafId: null,
             rafLayout: null,
             observers: {
-                wipe: null,
                 section: null,
             },
+            frame: {
+                scrollTop: 0,
+                vh: 0,
+                dirty: true,
+            },
+            // Optimization 2: keep RAF updating briefly after scroll events stop
+            scroll: {
+                lastTs: 0,
+                keepAliveMs: 120,
+            },
         };
+
+        // -----------------------------
+        // Per-frame reads (batching)
+        // -----------------------------
+        function beginFrameReads () {
+            // Read once per RAF tick
+            STATE.frame.scrollTop = window.scrollY;
+            STATE.frame.vh = getVH();
+            STATE.frame.dirty = false;
+        }
+
+        function markFrameDirty () {
+            STATE.frame.dirty = true;
+        }
+
+        function getFrameVH () {
+            if (STATE.frame.dirty) beginFrameReads();
+            return STATE.frame.vh;
+        }
+
+        function getFrameScrollTop () {
+            if (STATE.frame.dirty) beginFrameReads();
+            return STATE.frame.scrollTop;
+        }
 
         // -----------------------------
         // Layout + measurement
@@ -85,6 +118,31 @@ import {wrapDateTimeChars, applyStitchedLetters} from "./ui-text.js";
                 const content = section.querySelector(".parallax-content");
                 const background = section.querySelector(".parallax-background");
                 if (!content || !background) return;
+
+                if (section.classList.contains("parallax-sticky-bg")) {
+                    // Bounded stage: min(vh, content height) but clamped to N * vh
+                    const mult = Number(
+                        getComputedStyle(document.documentElement)
+                            .getPropertyValue("--bulletin-stage-mult")
+                    ) || 2;
+
+                    const contentH = content.getBoundingClientRect().height;
+                    const maxStage = viewportHeight * mult;
+
+                    const stageH = Math.max(viewportHeight, Math.min(contentH, maxStage));
+
+                    // Store for parallax math
+                    section.dataset.stageHeight = String(stageH);
+
+                    // Set a CSS var so CSS can overlap content by the stage height
+                    section.style.setProperty("--bulletin-stage-h", `${stageH}px`);
+
+                    // Let section grow naturally with infinite content
+                    section.style.height = "";
+                    background.style.height = "";
+
+                    return;
+                }
 
                 const adjusted = Math.max(
                     content.getBoundingClientRect().height,
@@ -103,7 +161,6 @@ import {wrapDateTimeChars, applyStitchedLetters} from "./ui-text.js";
                     const top = next.getBoundingClientRect().top + window.scrollY;
                     wipe.style.top = `${top}px`;
                 }
-                // preserve existing behavior
                 delete wipe.dataset.baseHeight;
             });
         }
@@ -119,7 +176,17 @@ import {wrapDateTimeChars, applyStitchedLetters} from "./ui-text.js";
                 const scrollSpeedRatio = (viewportHeight + wipeHeight) / viewportHeight;
                 const wipeOffset = rect.top + window.scrollY + 50;
 
-                STATE.wipeData.set(wipe, {scrollSpeedRatio, wipeOffset});
+                STATE.wipeData.set(wipe, { scrollSpeedRatio, wipeOffset });
+            });
+        }
+
+        // Optimization 1: Cache section "document top" so we don't call getBoundingClientRect()
+        // on every animation frame during scroll.
+        function computeSectionData () {
+            STATE.sectionData.clear();
+            parallaxSections.forEach((section) => {
+                const topDoc = section.getBoundingClientRect().top + window.scrollY;
+                STATE.sectionData.set(section, { topDoc });
             });
         }
 
@@ -127,14 +194,19 @@ import {wrapDateTimeChars, applyStitchedLetters} from "./ui-text.js";
         // Parallax updates
         // -----------------------------
         function updateParallaxForSection (section, scrollTop) {
+            if (section.classList.contains("parallax-sticky-bg")) {
+                updateBulletinStickyParallax(section, scrollTop);
+                return;
+            }
+
             const background = section.querySelector(".parallax-background");
             if (!background) return;
 
-            // Preserve existing math:
-            // sectionOffset derived from viewport rect + scrollTop
-            const sectionOffset = section.getBoundingClientRect().top + scrollTop;
+            const topDoc = STATE.sectionData.get(section)?.topDoc;
+            if (topDoc == null) return;
 
-            background.style.transform = `translate3d(0, ${(scrollTop - sectionOffset) * parallaxSpeed}px, 0)`;
+            background.style.transform =
+                `translate3d(0, ${(scrollTop - topDoc) * parallaxSpeed}px, 0)`;
         }
 
         function updateParallax (scrollTop) {
@@ -149,29 +221,32 @@ import {wrapDateTimeChars, applyStitchedLetters} from "./ui-text.js";
         // -----------------------------
         // Wipe scroll behavior
         // -----------------------------
-        function updateActiveWipeTransform () {
-            if (!STATE.activeWipe) return;
+        function updateWipesTransform () {
+            // With only ~4 wipes, update all of them deterministically each frame.
+            if (!STATE.wipeData.size) return;
 
-            const data = STATE.wipeData.get(STATE.activeWipe);
-            if (!data) return;
+            const scrollPosition = getFrameScrollTop();
+            const viewportHeight = getFrameVH();
 
-            const {scrollSpeedRatio, wipeOffset} = data;
-            const scrollPosition = window.scrollY;
-            const viewportHeight = getVH();
+            wipes.forEach((wipe) => {
+                const data = STATE.wipeData.get(wipe);
+                if (!data) return;
 
-            const progress =
-                (scrollPosition - wipeOffset + viewportHeight) / viewportHeight;
+                const { scrollSpeedRatio, wipeOffset } = data;
 
-            if (progress < 0) return;
+                const fasterScroll =
+                    (scrollPosition - wipeOffset + viewportHeight) / scrollSpeedRatio;
 
-            const fasterScroll =
-                (scrollPosition - wipeOffset + viewportHeight) / scrollSpeedRatio;
+                const y = Math.max(0, fasterScroll);
 
-            STATE.activeWipe.style.transform = `translate3d(0, -${fasterScroll}px, 0)`;
+                wipe.style.transform = `translate3d(0, -${y}px, 0)`;
+            });
         }
 
+        // Keep for API compatibility if anything calls it
         function onWipeScroll () {
-            updateActiveWipeTransform();
+            markFrameDirty();
+            scheduleScrollRaf();
         }
 
         // -----------------------------
@@ -181,27 +256,6 @@ import {wrapDateTimeChars, applyStitchedLetters} from "./ui-text.js";
             const obs = STATE.observers[key];
             if (obs) obs.disconnect();
             STATE.observers[key] = null;
-        }
-
-        function observeWipes () {
-            disconnectObserver("wipe");
-
-            STATE.observers.wipe = new IntersectionObserver(
-                (entries) => {
-                    entries.forEach((entry) => {
-                        if (entry.isIntersecting) {
-                            STATE.activeWipe = entry.target;
-                            window.addEventListener("scroll", onWipeScroll, {passive: true});
-                        } else if (STATE.activeWipe === entry.target) {
-                            STATE.activeWipe = null;
-                            window.removeEventListener("scroll", onWipeScroll);
-                        }
-                    });
-                },
-                {threshold: 0}
-            );
-
-            wipes.forEach((wipe) => STATE.observers.wipe.observe(wipe));
         }
 
         function observeSections () {
@@ -221,12 +275,36 @@ import {wrapDateTimeChars, applyStitchedLetters} from "./ui-text.js";
                         }
                     });
                 },
-                {threshold: 0}
+                { threshold: 0 }
             );
 
             parallaxSections.forEach((section) =>
                 STATE.observers.section.observe(section)
             );
+        }
+
+        // -----------------------------
+        function clamp (n, min, max) {
+            return Math.max(min, Math.min(max, n));
+        }
+
+        function updateBulletinStickyParallax (section, scrollTop) {
+            const bg = section.querySelector(".parallax-background");
+            if (!bg) return;
+
+            const vh = getFrameVH();
+            const stageH = Number(section.dataset.stageHeight || 0) || vh;
+
+            const maxTravel = Math.max(0, stageH - vh);
+
+            const topDoc = STATE.sectionData.get(section)?.topDoc;
+            if (topDoc == null) return;
+
+            const into = clamp(scrollTop - topDoc, 0, maxTravel);
+
+            const y = into * parallaxSpeed;
+
+            bg.style.transform = `translate3d(0, ${y}px, 0)`;
         }
 
         // -----------------------------
@@ -237,21 +315,44 @@ import {wrapDateTimeChars, applyStitchedLetters} from "./ui-text.js";
             safeCall(bannerAPI.updateFade);
         }
 
-        function onScrollRaf () {
+        function scheduleScrollRaf () {
             if (STATE.rafId) return;
 
             STATE.rafId = requestAnimationFrame(() => {
-                const scrollTop = window.scrollY;
+                // batch reads once
+                beginFrameReads();
+
+                const scrollTop = STATE.frame.scrollTop;
+
                 updateParallax(scrollTop);
+                updateWipesTransform();
                 runBannerHooks(scrollTop);
+
+                // next scroll/frame should re-read
+                markFrameDirty();
+
+                // Optimization 2: keep animating briefly after the last scroll event
+                const now = performance.now();
+                if (now - STATE.scroll.lastTs < STATE.scroll.keepAliveMs) {
+                    STATE.rafId = null;
+                    scheduleScrollRaf();
+                    return;
+                }
+
                 STATE.rafId = null;
             });
         }
 
-        function isScrollLocked() {
+        function onScroll () {
+            STATE.scroll.lastTs = performance.now();
+            markFrameDirty();
+            scheduleScrollRaf();
+        }
+
+        function isScrollLocked () {
             return (
-                document.body.classList.contains('modal-open') ||
-                document.body.classList.contains('drawer-open')
+                document.body.classList.contains("modal-open") ||
+                document.body.classList.contains("drawer-open")
             );
         }
 
@@ -265,38 +366,32 @@ import {wrapDateTimeChars, applyStitchedLetters} from "./ui-text.js";
                 initializeParallaxLayout();
                 positionWipesToNextSection();
                 computeWipeData();
-                syncActiveWipe();
+                computeSectionData();
 
-                // Preserve existing behavior: clear active wipe on reflow
-                STATE.activeWipe = null;
+                // Update once after reflow
+                markFrameDirty();
+                beginFrameReads();
 
-                const scrollTop = window.scrollY;
+                const scrollTop = STATE.frame.scrollTop;
                 updateParallax(scrollTop);
+                updateWipesTransform();
                 safeCall(bannerAPI.setBannerState, scrollTop);
-                // Keep banner fade consistent after reflow/layout shifts
                 safeCall(bannerAPI.updateFade);
 
+                markFrameDirty();
                 STATE.rafLayout = null;
             });
         }
 
-        function syncActiveWipe() {
-            const vh = getVH();
-
-            let active = null;
-            for (const wipe of wipes) {
-                const rect = wipe.getBoundingClientRect();
-                if (rect.bottom > 0 && rect.top < vh) {
-                    active = wipe;
-                    break;
-                }
-            }
-            STATE.activeWipe = active;
-            if (!STATE.wipeData.size) computeWipeData();
-            updateActiveWipeTransform();
-        }
-
         const reflowDebounced = debounce(reflowParallax, 80);
+
+        // Any image load can shift section tops; reflow wipes/parallax.
+        document.addEventListener("load", (e) => {
+            const el = e.target;
+            if (!el || el.tagName !== "IMG") return;
+            if (!el.closest?.("#parallax-wrapper")) return;
+            reflowDebounced();
+        }, true);
 
         // -----------------------------
         // Init sequence (preserve order)
@@ -307,19 +402,25 @@ import {wrapDateTimeChars, applyStitchedLetters} from "./ui-text.js";
         initializeParallaxLayout();
         positionWipesToNextSection();
         computeWipeData();
-        observeWipes();
+        computeSectionData();
         observeSections();
 
-        const initialScroll = window.scrollY;
+        markFrameDirty();
+        beginFrameReads();
+
+        const initialScroll = STATE.frame.scrollTop;
         updateParallax(initialScroll);
+        updateWipesTransform();
         safeCall(bannerAPI.setBannerState, initialScroll);
         safeCall(bannerAPI.updateFade);
         safeCall(bannerAPI.setupRecolorObserver);
 
+        markFrameDirty();
+
         // -----------------------------
         // Event wiring (preserve behavior)
         // -----------------------------
-        window.addEventListener("scroll", onScrollRaf, {passive: true});
+        window.addEventListener("scroll", onScroll, { passive: true });
 
         window.addEventListener("resize", reflowDebounced);
         window.addEventListener("orientationchange", reflowDebounced);
@@ -330,7 +431,7 @@ import {wrapDateTimeChars, applyStitchedLetters} from "./ui-text.js";
 
         window.hrSite = window.hrSite || {};
         window.hrSite.reflowParallax = reflowParallax;
-        window.hrSite.syncActiveWipe = syncActiveWipe;
+        window.hrSite.onWipeScroll = onWipeScroll;
     }
 
     // Run after DOM is ready

@@ -7,8 +7,8 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_GET
 
-from hr_common.utils.unified_logging import log_event
 from hr_common.utils.htmx_responses import hx_login_required
+from hr_common.utils.unified_logging import log_event
 from hr_shop.models import Customer, Order
 
 PER_PAGE = 20
@@ -55,23 +55,23 @@ def _paginate(qs, *, page: int, per: int):
     return rows[:per], has_more
 
 
-@hx_login_required
-def orders(request):
-    """
-    First page of account_get_orders, rendered into a modal partial.
-    """
-    qs = _orders_queryset_for_user(request.user)
-
-    rows, has_more = _paginate(qs, page=1, per=PER_PAGE)
-
-    ctx = {
-        "account_get_orders": rows,
-        "has_more": has_more,
-        "page": 1
-    }
-    return render(request, "hr_access/orders/_orders_modal.html", ctx)
-
-
+# @hx_login_required
+# def orders(request):
+#     """
+#     First page of account_get_orders, rendered into a modal partial.
+#     """
+#     qs = _orders_queryset_for_user(request.user)
+#
+#     rows, has_more = _paginate(qs, page=1, per=PER_PAGE)
+#
+#     ctx = {
+#         "account_get_orders": rows,
+#         "has_more": has_more,
+#         "page": 1
+#     }
+#     return render(request, "hr_access/orders/_orders_modal.html", ctx)
+#
+#
 @hx_login_required
 def orders_page(request, n: int):
     """

@@ -32,9 +32,11 @@ def bulletin_list(request):
 
 @require_GET
 def bulletin_list_partial(request):
-    page_number = request.GET.get('page', 1)
+    page_number = request.GET.get("page", 1)
+
     paginator = Paginator(Post.objects.frontpage(), 3)
     page_obj = paginator.get_page(page_number)
+
     log_event(
         logger,
         logging.INFO,
@@ -42,8 +44,16 @@ def bulletin_list_partial(request):
         page_number=page_obj.number,
         total_count=paginator.count,
     )
+
     ctx = {"page_obj": page_obj, "posts": page_obj.object_list}
-    return render(request, "hr_bulletin/_list.html", ctx)
+    resp = render(request, "hr_bulletin/_list.html", ctx)
+
+    # Tell the client what to load next (stable sentinel pattern)
+    if page_obj.has_next():
+        resp["X-Next-Page"] = str(page_obj.next_page_number())
+    # else: no header => client removes sentinel / stops
+
+    return resp
 
 
 @require_GET

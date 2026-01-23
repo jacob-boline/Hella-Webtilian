@@ -1,0 +1,17 @@
+/* hr_core/static_src/css/flows/account/change-email.css */
+
+/* ============================
+   Change email misc
+   ============================ */
+
+.change-email-modal .m-actions {
+    margin-top: 1.5rem;
+}
+
+.change-email-modal {
+    padding: 0 0 0.5rem;
+}
+
+.change-email-modal .auth-description {
+    padding: 0.5rem 0;
+}

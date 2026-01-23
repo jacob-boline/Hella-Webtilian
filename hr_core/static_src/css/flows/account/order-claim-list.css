@@ -1,0 +1,181 @@
+/* hr_core/static_src/css/flows/account/order-claim-list.css */
+
+/* ================
+   Order claim list
+   ================ */
+
+.order-claim-list {
+    width:               100%;
+    display:             flex;
+    flex-direction:      column;
+    gap:                 0.25rem;
+    margin:              0.75rem 0 1rem;
+    padding:             0 0.75rem 0.75rem;
+    border-radius:       12px;
+    background:          var(--black-alpha-30);
+    border:              1px solid var(--white-alpha-15);
+    overflow:            hidden auto;
+    overscroll-behavior: contain;
+}
+
+.order-claim-header {
+    position:       sticky;
+    top:            0;
+    z-index:        2;
+    margin:         -0.75rem -0.75rem 0.25rem;
+    padding:        0.75rem calc(1.25rem + 18px) 0.75rem calc(1.25rem + 6px);
+    border-radius:  12px 12px 0 0;
+    font-size:      0.85rem;
+    font-weight:    700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color:          var(--neon-red);
+    background:     var(--black-alpha-90);
+    border-bottom:  1px solid var(--white-alpha-15);
+    pointer-events: auto;
+}
+
+.order-claim-header span {
+    pointer-events: none;
+}
+
+.order-claim-header input[type="checkbox"] {
+    cursor:    pointer;
+    transform: scale(0.9);
+    opacity:   0.85;
+}
+
+.order-claim-header input[type="checkbox"]:hover {
+    opacity: 1;
+}
+
+:is(.order-claim-header, .order-claim-row) {
+    display:               grid;
+    grid-template-columns: 18px
+                           minmax( 6ch, 1.00fr)
+                           minmax(12ch, 1.50fr)
+                           minmax( 8ch, 1.25fr)
+                           minmax(10ch, 1.50fr)
+                           minmax(10ch, 1.50fr);
+    gap:                   0.75rem;
+    align-items:           center;
+    white-space:           nowrap;
+}
+
+/* Small modal: reflow header + rows consistently, drop a column */
+
+.order-claim-row {
+    gap:           0.75rem;
+    align-items:   center;
+    padding:       0.5rem 1.25rem 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--white-alpha-15);
+    cursor:        pointer;
+    min-width:     0;
+    transition:    background-color .2s ease,
+                   box-shadow       .2s ease;
+;
+}
+
+.order-row > * {
+    min-width: 0; /* let grid items shrink */
+}
+
+.col-date,
+.col-status {
+    overflow:      hidden;
+    text-overflow: ellipsis;
+    white-space:   nowrap;
+}
+
+.order-claim-header > *,
+.order-claim-row > * {
+    min-width: 0;
+}
+
+.order-claim-row:last-child {
+    border-bottom: none;
+}
+
+.order-claim-id {
+    font-weight: 700;
+    color:       var(--neon-blue);
+    white-space: nowrap;
+}
+
+.order-claim-meta {
+    font-size:     0.75rem;
+    color:         var(--muted-text);
+    white-space:   nowrap;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+}
+
+@container modal (max-width: 820px) {
+    :is(.order-claim-header, .order-claim-row) {
+        font-size: 0.65rem;
+        gap:       0.5rem;
+        min-width: 0;
+    }
+
+    .order-claim-meta {
+        font-size: 0.6rem
+    }
+
+    .order-claim-list {
+        overflow-x: hidden;
+    }
+}
+
+@container modal (max-width: 620px) {
+    .payment-status-header,
+    .payment-status {
+        display: none;
+    }
+
+    .order-claim-header,
+    .order-claim-row {
+        gap: 0.25rem;
+        grid-template-columns: 18px
+                        minmax( 6ch, 1.00fr)
+                        minmax(12ch, 1.50fr)
+                        minmax( 8ch, 1.25fr)
+                        minmax(10ch, 1.50fr);
+    }
+
+    .order-claim-header {
+        padding: 0.75rem calc(0.5rem + 18px) 0.75rem calc(0.5rem + 6px);
+    }
+
+    .order-claim-row {
+        padding: 0.5rem 0.5rem 0.5rem 0;
+    }
+}
+
+@container modal (max-width: 480px) {
+    .order-status-header,
+    .order-status {
+        display: none;
+    }
+
+    .order-claim-header,
+    .order-claim-row {
+        gap: 0;
+        grid-template-columns: 18px
+                        minmax( 6ch, 1.00fr)
+                        minmax(12ch, 1.50fr)
+                        minmax( 8ch, 1.25fr);
+    }
+
+    .order-claim-header {
+        padding: 0.5rem 0.75rem 0.5rem 0.75rem;
+    }
+
+    .order-claim-row {
+        padding: 0.5rem 0;
+    }
+
+    .order-claim-list {
+        padding-left: 0.75rem;
+        padding-right: 0.5rem;
+    }
+}

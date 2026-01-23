@@ -1,0 +1,155 @@
+/* hr_core/static_src/css/flows/account/unclaimed-orders.css */
+
+
+/* ================
+   Unclaimed Orders
+   ================ */
+
+.unclaimed-orders-modal {
+    display:        flex;
+    flex-direction: column;
+    flex:           1 1 auto;
+    min-height:     0;
+    max-height:     100%;
+    width:          100%;
+    max-width:      100%;
+}
+
+.unclaimed-orders-modal .unclaimed-orders-layout {
+    display:        flex;
+    flex-direction: column;
+    flex:           1 1 auto;
+    min-height:     0;
+}
+
+.unclaimed-orders-modal form {
+    display:        flex;
+    flex-direction: column;
+    flex:           1 1 auto;
+    min-height:     0;
+}
+
+/* highlight claimed rows */
+.order-claim-row.is-claimed {
+    background:    rgba(20, 83, 45, 0.55);
+    border-radius: 10px;
+    box-shadow:    0 0 12px rgba(57, 255, 20, 0.10);
+}
+
+/* animate out */
+.order-claim-row.is-vanishing {
+    opacity:    0;
+    transform:  translateX(18px);
+    filter:     blur(1px);
+    transition: opacity   .2s ease,
+                transform .2s ease,
+                filter    .2s ease;
+}
+
+/* optional: collapse space after fade */
+.order-claim-row.is-collapsing {
+    max-height:          0;
+    padding-top:         0;
+    padding-bottom:      0;
+    margin-top:          0;
+    margin-bottom:       0;
+    border-bottom-width: 0;
+    overflow:            hidden;
+    transition: max-height   .2s ease,
+                padding      .2s ease,
+                margin       .2s ease,
+                border-width .2s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .order-claim-row.is-vanishing,
+    .order-claim-row.is-collapsing {
+        transition: none;
+        transform:  none;
+        filter:     none;
+    }
+}
+
+.unclaimed-orders-modal p.text-muted {
+    margin-top: 1rem;
+    font-size:  0.85rem;
+}
+
+.unclaimed-orders-modal .modal-actions.inline.uniform,
+.unclaimed-orders-modal .modal-actions.stack.uniform {
+    flex:            0 0 auto;
+    margin-top:      auto;
+    background:      var(--black-alpha-75);
+    padding-top:     0.75rem;
+    padding-bottom:  0.75rem;
+}
+
+.unclaimed-orders-modal .modal-actions.inline.uniform {
+    gap:     3rem;
+    padding: 0.75rem;
+}
+
+/* Progressive enhancement:
+   in browsers that support :has(), make the modal's list the only scroll region,
+   and keep actions sticky at the bottom. */
+#modal-content:has(.unclaimed-orders-modal) {
+    display:        flex;
+    flex-direction: column;
+    min-height:     0;
+    overflow:       hidden; /* scroll the list, not the modal */
+}
+
+#modal-content:has(.unclaimed-orders-modal) .unclaimed-orders-modal,
+#modal-content:has(.unclaimed-orders-modal) .unclaimed-orders-layout,
+#modal-content:has(.unclaimed-orders-modal) .unclaimed-orders-modal form {
+    display:        flex;
+    flex-direction: column;
+    flex:           1 1 auto;
+    min-height:     0;
+}
+
+#modal-content:has(.unclaimed-orders-modal) .unclaimed-orders-modal .order-claim-list {
+    flex:                1 1 auto;
+    min-height:          0;
+    margin-bottom:       0;
+    overflow:            auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter:    stable;
+}
+
+/* Keep actions visible while list scrolls */
+#modal-content:has(.unclaimed-orders-modal) .unclaimed-orders-modal .modal-actions {
+    position:       sticky;
+    bottom:         0;
+    z-index:        3;
+    flex-direction: row;
+    transition:     margin-top .2s ease;
+}
+
+
+@container modal (min-width: 640px) {
+    #modal-content:has(.unclaimed-orders-modal) .unclaimed-orders-modal .modal-actions {
+        flex-direction: row;
+        gap:            3rem;
+        margin-top:     0.5rem;
+        margin-bottom:  0;
+        flex:           0 0 auto;
+    }
+
+    #modal-content:has(.unclaimed-orders-modal) .unclaimed-orders-modal .modal-actions button {
+        max-width:  420px;
+        align-self: center;
+    }
+}
+
+@container modal (max-width: 639.98px) {
+    #modal-content:has(.unclaimed-orders-modal) .unclaimed-orders-modal .modal-actions {
+        flex-direction: column;
+        gap:            0.75rem;
+        margin-top:     0.5rem;
+    }
+
+    .unclaimed-orders-modal p.text-muted {
+        font-size: 0.65rem;
+    }
+}

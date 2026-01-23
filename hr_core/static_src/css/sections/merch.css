@@ -1,4 +1,6 @@
 /* hr_core/static_src/css/sections/merch.css */
+
+
 /* ===========================
    Merch section wrapper
    =========================== */
@@ -25,9 +27,9 @@
     border-radius:  0.75rem;
     color:          var(--text);
     background:     linear-gradient(
-                            145deg,
-                            rgba(14, 22, 16, 0.75),
-                            rgba(4, 6, 8, 0.92)
+                        145deg,
+                        rgba(14, 22, 16, 0.75),
+                        rgba(4, 6, 8, 0.92)
                     );
     box-shadow:           0 0 2.00rem var(--black-alpha-75),
                           0 0 1.50rem rgba(0, 255, 180, 0.08),
@@ -214,26 +216,20 @@
     min-width:      0;
 }
 
-.modal-title {
-    margin:    0;
-    font-size: 1.75rem;
-}
-
 .product-modal-price {
-    margin: 0;
-    font-weight: 700;
-    display: inline-block;
-    padding: 0.5rem 1rem;
-    border-radius: 14px;
-    background: var(--black-alpha-75);
-    backdrop-filter: blur(10px);
+    margin:          0;
+    font-weight:     700;
+    display:         inline-block;
+    padding:         0.5rem 1rem;
+    border-radius:   14px;
+    background:      var(--black-alpha-75);
     box-shadow:
-        0 0 12px rgb(var(--green) / 0.30),
-        inset 0 0 8px var(--black-alpha-60);
-    text-align: center;
-    align-self: center;
-    justify-self: stretch;
-    font-size: 1.15rem;
+                           0 0 12px rgb(var(--green) / 0.30),
+                     inset 0 0  8px var(--black-alpha-60);
+    text-align:      center;
+    align-self:      center;
+    justify-self:    stretch;
+    font-size:       1.15rem;
 }
 
 .modal-product .modal-description {
@@ -351,7 +347,7 @@
 /* Small-medium */
 @container modal (max-width: 767.98px) {
     .modal-title {
-        font-size:  1.25rem;
+        font-size:  1.5rem;
         text-align: center;
     }
 
@@ -367,10 +363,6 @@
 @container modal (min-width: 768px) and (max-width: 1099.98px) {
     .modal-product {
         padding: 0 0.75rem 0.25rem;
-    }
-
-    .modal-title {
-        font-size: 1.5rem;
     }
 
     .product-modal-price {

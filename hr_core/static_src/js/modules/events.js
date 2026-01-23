@@ -11,7 +11,6 @@
     let pendingIntent = null;
     let _authRequiredLockUntil = 0;
 
-
     function safeCall(fn, ...args) {
         try { return typeof fn === 'function' ? fn(...args) : undefined; }
         catch (e) {
@@ -90,7 +89,6 @@
     //        LISTENERS            //
     // --------------------------- //
 
-
     document.body.addEventListener('authSuccess', () => {
         requestAnimationFrame(() => {
             requestAnimationFrame(replayPendingIntent);
@@ -166,7 +164,7 @@
             const a = document.activeElement;
             if (!a) return false;
             const tag = (a.tagName || '').toLowerCase();
-            return tag === 'input' || tag === 'textarea' || a .isContentEditable === true;
+            return tag === 'input' || tag === 'textarea' || a.isContentEditable === true;
         };
 
         const focusNow = () => {
@@ -208,6 +206,74 @@
     // ------------------------------
     document.body.addEventListener('closeModal', () => {
         safeCall(window.hrSite?.hideModal);
+    });
+
+
+    // ------------------------------
+    // 3) unclaimedOrdersClaimed -> highlight claimed rows, then slide/fade out
+    //
+    // Expected payload (via HX-Trigger):
+    //   { ids: [1,2,3], count: 3 }
+    //
+    // Requires:
+    // - each row: .order-claim-row
+    // - checkbox value: <input name="order_ids" value="...">
+    // - CSS classes (recommended):
+    //   .order-claim-row.is-claimed, .order-claim-row.is-vanishing, .order-claim-row.is-collapsing
+    // ------------------------------
+    document.body.addEventListener('unclaimedOrdersClaimed', (event) => {
+        const detail = getDetail(event);
+        const ids = new Set((detail.ids || []).map(String));
+        if (!ids.size) return;
+
+        const rows = Array.from(document.querySelectorAll('.order-claim-row'));
+        const matched = rows.filter(row => {
+            const box = row.querySelector('input[name="order_ids"]');
+            return box && ids.has(String(box.value));
+        });
+
+        if (!matched.length) return;
+
+        // Beat timings tuned for "confirm then vanish"
+        const HIGHLIGHT_MS = 900;   // 0.9s highlight before fading
+        const FADE_MS = 240;        // should roughly match CSS transition time
+        const COLLAPSE_MS = 240;    // collapse space after fade
+        const REMOVE_MS = 260;      // buffer to ensure collapse completes
+
+        // 1) Mark claimed (color)
+        matched.forEach(row => row.classList.add('is-claimed'));
+
+        // 2) Fade/slide
+        setTimeout(() => {
+            matched.forEach(row => row.classList.add('is-vanishing'));
+
+            // 3) Collapse + remove
+            setTimeout(() => {
+                matched.forEach(row => {
+                    row.classList.add('is-collapsing');
+
+                    // animate max-height from current height -> 0
+                    row.style.maxHeight = row.scrollHeight + 'px';
+                    // force reflow so maxHeight is applied before collapsing
+                    row.offsetHeight;
+                    row.style.maxHeight = '0px';
+                });
+
+                setTimeout(() => {
+                    matched.forEach(row => row.remove());
+
+                    // Optional: clear "select all" if it's checked
+                    const selectAll = document.getElementById('select-all-unclaimed');
+                    if (selectAll) selectAll.checked = false;
+
+                    // Optional: if list is empty, disable submit button, etc.
+                    // safeCall(window.hrSite?.showGlobalMessage, `Claimed ${detail.count || matched.length} order(s).`, 3000);
+
+                }, REMOVE_MS);
+
+            }, Math.max(FADE_MS, 0));
+
+        }, Math.max(HIGHLIGHT_MS, 0));
     });
 
 

@@ -49,7 +49,9 @@ w
                                 {% if display_image %}
                                     <img src="{{ display_image.image.url|variant_img_url:512 }}"
                                          srcset="{{ display_image.image.url|variant_img_srcset }}"
-                                         sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 320px"
+                                         sizes="(max-width: 1440px) 33vw, (max-width: 1024px) 50vw, 100vw"
+                                         width="768"
+                                         height="768"
                                          alt="{{ product.name }}{% if display_variant.name %} ({{ display_variant.name }}){% endif %}"
                                          class="merch-thumb-img"
                                          loading="lazy"
@@ -133,20 +135,31 @@ w
 
     <div id="section-wipe-3" class="section-wipe z-20 absolute"></div>
 
-    <section id="parallax-section-bulletin" class="parallax-section relative flex items-center justify-center min-h-vhfix">
-        <div class="parallax-background absolute inset-0 bg-cover bg-center"></div>
+    <section id="parallax-section-bulletin"
+             class="parallax-section parallax-sticky-bg relative min-h-vhfix">
+        <div class="parallax-background bg-cover bg-center"></div>
+
         <div class="parallax-content relative isolate z-10 mx-auto max-w-6xl px-5 py-vh-18 text-center flex flex-col items-center justify-center min-h-vhfix bg-transparent">
             <h1>Bulletin</h1>
-            <div id="bulletin-root"
-                 class="bulletin-root"
-                 hx-get="{% url 'hr_bulletin:bulletin_list_partial' %}"
-                 hx-trigger="load"
-                 hx-target="#bulletin-root"
-                 hx-swap="innerHTML">
+
+            <div id="bulletin-root" class="bulletin-root">
                 <p class="bulletin-loading">Loading posts...</p>
+
+                <!-- where posts get appended -->
+                <div id="bulletin-feed"></div>
+
+                <!-- sentinel stays forever -->
+                <div id="bulletin-sentinel"
+                      class="bulletin-sentinel"
+                      hx-get="{% url 'hr_bulletin:bulletin_list_partial' %}?page=1"
+                      hx-trigger="revealed"
+                      hx-target="#bulletin-feed"
+                      hx-swap="beforeend">
+                </div>
             </div>
         </div>
     </section>
+
 
     {#    {% if landing_modal == "email_confirmed" %}#}
     {#      <div#}

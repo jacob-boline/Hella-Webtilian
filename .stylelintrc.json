@@ -1,25 +1,24 @@
 {
-  "extends": [
-    "stylelint-config-standard",
-    "stylelint-config-clean-order"
-  ],
-
-  "plugins": [
-    "stylelint-use-nesting",
-    "stylelint-plugin-defensive-css"
-  ],
-
+  "extends": ["stylelint-config-standard"],
   "rules": {
     "alpha-value-notation": null,
-    "color-function-notation": null,
     "color-function-alias-notation": null,
-    "font-family-name-quotes": null,
-    "selector-class-pattern": null,
+    "color-function-notation": null,
+    "color-hex-length": null,
     "comment-empty-line-before": null,
-    "comment-whitespace-inside": null,
+    "custom-property-empty-line-before": null,
+    "declaration-empty-line-before": null,
+    "declaration-block-single-line-max-declarations": null,
+    "font-family-name-quotes": null,
     "media-feature-range-notation": null,
+    "rule-empty-line-before": null,
     "selector-not-notation": null,
+    "no-descending-specificity": null,
+    "declaration-block-no-shorthand-property-overrides": null,
+    "comment-whitespace-inside": null,
+    "import-notation": null,
     "value-keyword-case": null,
-    "plugin/use-defensive-css": [true, { "severity":  "warning" }]
+    "selector-class-pattern": "^[a-z][a-z0-9-]*(?:__(?:[a-z0-9]+(?:-[a-z0-9]+)*))?(?:--(?:[a-z0-9]+(?:-[a-z0-9]+)*))?$"
+
   }
 }

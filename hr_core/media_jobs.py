@@ -47,18 +47,18 @@ RECIPES: dict[str, Recipe] = {
         widths=(640, 960, 1280, 1600, 1920),
         crop=CropSpec(3, 2)
     ),
-    # "background": Recipe(
-    #     src_rel_dir="backgrounds",
-    #     out_subdir="bg_opt",
-    #     widths=(960, 1920),
-    #     crop=None
-    # ),
-    # "wipe": Recipe(
-    #     src_rel_dir="wipes",
-    #     out_subdir="opt_webp",
-    #     widths=(960, 1440, 1920, 2560),
-    #     crop=None,
-    # )
+    "background": Recipe(
+        src_rel_dir="backgrounds",
+        out_subdir="bg_opt",
+        widths=(960, 1920),
+        crop=None
+    ),
+    "wipe": Recipe(
+        src_rel_dir="wipes",
+        out_subdir="opt_webp",
+        widths=(960, 1440, 1920, 2560),
+        crop=None,
+    )
 }
 
 

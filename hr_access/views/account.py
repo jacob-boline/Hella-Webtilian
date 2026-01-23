@@ -21,16 +21,16 @@ from django.views.decorators.http import require_GET, require_POST
 
 from hr_access.forms import AccountCreationForm, AccountEmailChangeForm
 from hr_access.models import User
-from hr_common.utils.unified_logging import log_event
-from hr_common.utils.email import normalize_email
-from hr_common.utils.htmx_responses import hx_login_required
-from hr_core.utils.urls import build_external_absolute_url
 from hr_access.tokens import (
     verify_account_signup_token,
     generate_account_signup_token,
     generate_email_change_token,
     verify_email_change_token,
 )
+from hr_common.utils.email import normalize_email
+from hr_common.utils.htmx_responses import hx_login_required
+from hr_common.utils.unified_logging import log_event
+from hr_core.utils.urls import build_external_absolute_url
 from hr_email.service import EmailProviderError, send_app_email
 from hr_shop.exceptions import RateLimitExceeded, EmailSendError
 from hr_shop.models import Order
@@ -389,9 +389,9 @@ def account_change_email_confirm(request):
 
     modal_url = f"{reverse('hr_access:account_email_change_success')}?{urlencode({'email': new_email})}"
     params = urlencode({
-        "modal": "email_change",
-        "handoff": "email_change",
-        "modal_url": modal_url
+        'modal':    'email_change',
+        'handoff':  'email_change',
+        'modal_url': modal_url
     })
     return redirect(f"{reverse('index')}?{params}")
 
@@ -560,17 +560,27 @@ def account_submit_post_purchase_claim_orders(request, order_id: int):
             .select_for_update()
             .filter(id__in=order_ids, user__isnull=True, email__iexact=email)
         )
-        claimed_count = qs.update(user=request.user)
+        # claimed_count = qs.update(user=request.user)
 
-    remaining = (
-        Order.objects
-        .filter(email__iexact=email, user__isnull=True)
-        .exclude(pk=order.id)
-        .order_by("-created_at")[:25]
+    # remaining = (
+    #     Order.objects
+    #     .filter(email__iexact=email, user__isnull=True)
+    #     .exclude(pk=order.id)
+    #     .order_by("-created_at")[:25]
+    # )
+
+    unclaimed_orders = (
+        Order.objects.filter(email__iexact=email, user__isnull=True).exclue(pk=order.id).order_by('-created_at')
     )
 
-    return render(request, "hr_access/post_purchase/_post_purchase_account_success.html", {
-        "order": order,
-        "other_orders": remaining,
-        "claimed_count": claimed_count,
+    return render(request, 'hr_access/orders/_unclaimed_orders_modal.html', {
+        'email': email,
+        'unclaimed_orders': unclaimed_orders,
+        'error': None
     })
+
+    # return render(request, "hr_access/post_purchase/_post_purchase_account_success.html", {
+    #     "order": order,
+    #     "other_orders": remaining,
+    #     "claimed_count": claimed_count,
+    # })

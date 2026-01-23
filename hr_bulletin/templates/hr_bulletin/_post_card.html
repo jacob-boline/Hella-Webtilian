@@ -8,7 +8,9 @@
         <div class="bulletin-hero">
             <img src="{{ post.hero.url|post_hero_url:960 }}"
                  srcset="{{ post.hero.url|post_hero_srcset }}"
-                 sizes="(max-width: 768px) 92vw, (max-width: 1200px) 80vw, 1100px"
+                 sizes="(max-width: 768px) calc(100vw - 1.5rem), (max-width: 1000px) calc(100vw - 2rem), 980px"
+                 width="1600"
+                 height="900"
                  alt="{{ post.title }}"
                  loading="lazy"
                  decoding="async">

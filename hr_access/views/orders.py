@@ -2,13 +2,16 @@
 
 from __future__ import annotations
 
+import json
+
+from django.db import transaction
 from django.db.models import Prefetch
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_GET, require_POST
-from django.db import transaction
 
-from hr_shop.models import Order, OrderItem
 from hr_common.utils.htmx_responses import hx_login_required
+from hr_shop.models import Order, OrderItem
 
 
 @hx_login_required
@@ -70,11 +73,14 @@ def account_get_unclaimed_orders(request):
     email = request.user.email
 
     if not email:
-        return render(request, "hr_access/orders/_unclaimed_orders_modal.html", {
-            "email": "",
-            "account_get_orders": [],
-            "error": "No email address is associated with your account."
-        }, status=400)
+        return HttpResponse(status=400, headers={
+            'HX-Trigger': json.dumps({'showMessage': 'No email address is associated with your account.'})
+        })
+        # return render(request, "hr_access/orders/_unclaimed_orders_modal.html", {
+        #     "email": "",
+        #     "account_get_orders": [],
+        #     "error": "No email address is associated with your account."
+        # }, status=400)
 
     unclaimed_orders = (
         Order.objects
@@ -94,46 +100,76 @@ def account_get_unclaimed_orders(request):
 def account_submit_claim_unclaimed_orders(request):
     email = request.user.email
     if not email:
-        return render(request, 'hr_access/orders/_unclaimed_orders_modal.html', {
-            'email': '',
-            'unclaimed_orders': [],
-            'error': 'No email address is associated with your account.',
-            'claimed_count': 0
-        }, status=400)
+        return HttpResponse(status=400, headers={
+            'HX-Trigger': json.dumps({
+                'showMessage': 'No email address is associated with your account.'
+            })
+        })
+        # return render(request, 'hr_access/orders/_unclaimed_orders_modal.html', {
+        #     'email': '',
+        #     'unclaimed_orders': [],
+        #     'error': 'No email address is associated with your account.',
+        #     'claimed_count': 0
+        # }, status=400)
 
     raw_ids = request.POST.getlist("order_ids")
-    order_ids = [int(x) for x in raw_ids if str(x).isdigit()]
+    target_ids = [int(x) for x in raw_ids if str(x).isdigit()]
+    # claimed_count = len(claimed_ids)
 
-    if not order_ids:
-        unclaimed_orders = (
-            Order.objects
-            .filter(user__isnull=True, email__iexact=email)
-            .order_by("-created_at")[:50]
-        )
-        return render(request, "hr_access/orders/_unclaimed_orders_modal.html", {
-            "email": email,
-            "unclaimed_orders": unclaimed_orders,
-            "error": "Select at least one order to claim.",
-            "claimed_count": 0
+    if not target_ids:
+        # unclaimed_orders = (
+        #     Order.objects
+        #     .filter(user__isnull=True, email__iexact=email)
+        #     .order_by("-created_at")[:50]
+        # )
+
+        return HttpResponse(status=400, headers={
+            'HX-Trigger': json.dumps({
+                'showMessage': 'You must select one or more orders in order to claim.'
+            })
         })
+
+        # return render(
+        #     request,
+        #     "hr_access/orders/_unclaimed_orders_modal.html", {
+        #         "email": email,
+        #         "unclaimed_orders": unclaimed_orders,
+        #         "error": "Select at least one order to claim.",
+        #         "claimed_count": 0
+        #     },
+        #     status=400
+        # )
 
     with transaction.atomic():
         qs = (
             Order.objects
             .select_for_update()
-            .filter(id__in=order_ids, user__isnull=True, email__iexact=email)
+            .filter(id__in=target_ids, user__isnull=True, email__iexact=email)
         )
+        claimed_ids = list(qs.values_list('id', flat=True))
         claimed_count = qs.update(user=request.user)
+    #
+    # remaining = (
+    #     Order.objects
+    #     .filter(user__isnull=True, email__iexact=email)
+    #     .order_by("-created_at")[:50]
+    # )
 
-    remaining = (
-        Order.objects
-        .filter(user__isnull=True, email__iexact=email)
-        .order_by("-created_at")[:50]
-    )
-
-    return render(request, "hr_access/orders/_unclaimed_orders_modal.html", {
-        "email": email,
-        "unclaimed_orders": remaining,
-        "error": None,
-        "claimed_count": claimed_count
+    resp = HttpResponse(status=204)
+    resp['HX-Trigger'] = json.dumps({
+        'unclaimedOrdersClaimed': {
+            'ids': claimed_ids,
+            'count': claimed_count
+        }
     })
+
+    return resp
+
+
+
+    # return render(request, "hr_access/orders/_unclaimed_orders_modal.html", {
+    #     "email": email,
+    #     "unclaimed_orders": remaining,
+    #     "error": None,
+    #     "claimed_count": claimed_count
+    # })

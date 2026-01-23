@@ -1,0 +1,156 @@
+/* hr_core/static_src/css/flows/account/account-orders.css */
+
+/* ===========================
+   Account: Orders modal
+   =========================== */
+
+.orders-modal {
+    text-align: left;
+    color:      var(--text);
+}
+
+.orders-unclaimed-note {
+    margin:    0.75rem auto;
+    font-size: 0.85rem;
+    color:     var(--muted-text);
+}
+
+.orders-unclaimed-link {
+    color:                 var(--neon-cyan);
+    border-top:            none;
+    border-left:           none;
+    text-decoration:       underline;
+    text-underline-offset: 3px;
+    background-color:      transparent;
+}
+
+.orders-list {
+    display:        flex;
+    flex-direction: column;
+    gap:            0.5rem;
+}
+
+/* ===========================
+   Account orders list scrolling
+   =========================== */
+
+.account-orders-modal {
+    display:        flex;
+    flex-direction: column;
+    flex:           1 1 auto;
+    min-height:     0;
+    max-height:     100%;
+    width:          100%;
+}
+
+/* keep Close visible */
+.account-orders-modal .m-foot {
+    position:        sticky;
+    bottom:          0;
+    flex:            0 0 auto;
+    background:      var(--black-alpha-75);
+    padding-top:     0.75rem;
+    padding-bottom:  0.75rem;
+    width:           auto;
+    margin-left:     auto;
+    margin-right:    auto;
+}
+
+.account-orders-modal .orders-list {
+    padding:             0.75rem;
+    border-radius:       12px;
+    background:          var(--black-alpha-30);
+    border:              1px solid var(--white-alpha-15);
+    flex:                1 1 auto;
+    min-height:          0;
+    overflow:            hidden auto;
+    margin-top:          0.5rem;
+    overscroll-behavior: contain;
+}
+
+/* row card */
+.orders-summary-card {
+    display:               grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items:           center;
+    gap:                   1rem;
+    padding:               1rem 0;
+    border-bottom:         1px solid var(--white-alpha-15);
+}
+
+.orders-summary-card:last-of-type {
+    border-bottom: none;
+}
+
+.orders-main {
+    display:        flex;
+    flex-direction: column;
+    gap:            0.25rem;
+    min-width:      0;
+}
+
+.orders-title {
+    margin:        0;
+    font-weight:   600;
+    color:         var(--neon-red);
+    white-space:   nowrap;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+}
+
+.orders-meta {
+    display:   flex;
+    flex-wrap: wrap;
+    gap:       0.5rem;
+    font-size: 0.75rem;
+    color:     var(--muted-text);
+    min-width: 0;
+}
+
+.orders-meta > span {
+    white-space: nowrap;
+}
+
+.orders-status {
+    color:          var(--accent);
+    font-weight:    600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.orders-total {
+    margin:      0;
+    font-weight: 600;
+    color:       var(--neon-green);
+    font-size:   0.85rem;
+}
+
+.orders-actions {
+    display:         flex;
+    justify-content: flex-end;
+    align-items:     center;
+    gap:             0.75rem;
+    white-space:     nowrap;
+}
+
+.orders-empty {
+    margin:     0.75rem 0 0;
+    color:      var(--muted-text);
+    font-style: italic;
+}
+
+@container modal (max-width: 600px) {
+    .orders-summary-card {
+        grid-template-columns: 1fr;
+        gap:                   0.75rem;
+    }
+
+    .orders-actions {
+        justify-content: space-between;
+        width:           100%;
+    }
+
+    .orders-total {
+        font-size: 0.9rem;
+    }
+}

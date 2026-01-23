@@ -6,8 +6,8 @@ Handles sending confirmation emails and rate limiting.
 """
 
 import logging
-from logging import getLogger
 import os
+from logging import getLogger
 
 from django.core.cache import cache
 from django.template.loader import render_to_string
@@ -66,7 +66,8 @@ def send_checkout_confirmation_email(request, email: str, draft_id: int) -> str:
         raise RateLimitExceeded("Too many confirmation emails sent. Please check your inbox or try again later.")
 
     token = generate_checkout_email_token(email=normalized_email, draft_id=draft_id)
-    confirm_url = build_external_absolute_url(request, reverse("hr_shop:email_confirmation_process_response"), query={"t": token})
+    confirm_path = reverse("hr_shop:email_confirmation_process_response", kwargs={'token': token})
+    confirm_url = build_external_absolute_url(request, confirm_path)
     subject = "Confirm your email to complete your order - Hella Reptilian"
 
     plain_message = f"""

@@ -1,4 +1,5 @@
 /* hr_core/static_src/css/main.css */
+@import '@fortawesome/fontawesome-free/css/all.min.css';
 @import './base/core.css';
 @import './base/parallax.css';
 @import './utilities/a11y.css';

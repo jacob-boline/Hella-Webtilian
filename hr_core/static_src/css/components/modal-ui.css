@@ -158,9 +158,9 @@
 
 .modal-title {
     text-align:     center;
-    margin:         0;
+    margin:         0 auto;
     font-family:   "Megrim", cursive;
-    font-size:      var(--m-title);
+    font-size:      1.75rem;
     letter-spacing: 0.08em;
     color:          var(--glow);
     text-shadow:    0 0 0.5rem darkorange;

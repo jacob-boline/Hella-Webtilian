@@ -8,6 +8,11 @@
     font-family: "Bungee Hairline";
     font-display: swap;
     src: url("/static/hr_core/fonts/BungeeHairline-Regular.ttf") format("truetype");
+
+    ascent-override:  90%;
+    descent-override: 20%;
+    line-gap-override: 0%;
+    size-adjust:     100%;
 }
 
 @font-face {
@@ -134,8 +139,6 @@
     --muted-text:    #AAA;
     --faint-text:    #888;
 
-    
-
     --neon-duration: 6.5s;
 
     /* wipe edge tuning */
@@ -192,6 +195,10 @@
 
     --card-bg-1: #2A2A2A;
     --card-bg-2: #1B1B1B;
+
+    --bulletin-stage-mult: 2;          /* 2x viewport height */
+    --bulletin-stage-fade: 20vh;       /* fade out amount */
+    --bulletin-stage-h:    calc(var(--vh) * 100);
 }
 
 /* ===========================
@@ -221,16 +228,16 @@ body.modal-open {
 }
 
 body {
-    font-family: Quantico, sans-serif;
-    color: var(--text);
+    font-family:      Quantico, sans-serif;
+    color:            var(--text);
     background-color: var(--bg-dark);
 }
 
 body.modal-open {
-    width: 100%;
+    width:    100%;
     position: fixed;
-    left: 0;
-    right: 0;
+    left:     0;
+    right:    0;
 }
 
 /* ===========================
@@ -275,7 +282,7 @@ nav.navbar {
 .parallax-content {
     position:       relative;
     z-index:        10;
-    min-width:      100vmin;
+    min-width:      100%;
     min-height:     calc(var(--vh) * 100);
     padding-top:    var(--section-pad);
     padding-bottom: var(--section-pad);
@@ -336,28 +343,27 @@ nav.navbar {
     color:          var(--text);
     text-align:     center;
     text-shadow:    0 0  4px var(--white-alpha-60),
-                    0 0 16px var(--white-alpha-45),
-                    0 0 24px var(--dark-gray-alpha-45);
+                    0 0 16px var(--white-alpha-45);
     text-transform: uppercase;
     letter-spacing: 0.25em;
-    animation:      pulse-glow 2.5s infinite ease-in-out;
+    /*animation:      pulse-glow 2.5s infinite ease-in-out;*/
 }
 
-@keyframes pulse-glow {
-    0%,
-    100% {
-        text-shadow:
-            0 0 0.25rem var(--white-alpha-60),
-            0 0 0.75rem var(--white-alpha-45),
-            0 0 1.5rem var(--dark-gray-alpha-45);
-    }
-    50% {
-        text-shadow:
-            0 0 0.75rem var(--white-alpha-75),
-            0 0 1.5rem var(--white-alpha-60),
-            0 0 3rem var(--dark-gray-alpha-60);
-    }
-}
+/*@keyframes pulse-glow {*/
+/*    0%,*/
+/*    100% {*/
+/*        text-shadow:*/
+/*            0 0 0.25rem var(--white-alpha-60),*/
+/*            0 0 0.75rem var(--white-alpha-45);*/
+/*            !*0 0 1.5rem var(--dark-gray-alpha-45);*!*/
+/*    }*/
+/*    50% {*/
+/*        text-shadow:*/
+/*            0 0 0.75rem var(--white-alpha-75),*/
+/*            0 0 1.5rem var(--white-alpha-60);*/
+/*            !*0 0 3rem var(--dark-gray-alpha-60);*!*/
+/*    }*/
+/*}*/
 
 /* ===========================
    Modal
@@ -416,12 +422,12 @@ nav.navbar {
 }
 
 #modal-content {
+    margin-top:          -2rem;
     view-transition-name: modal-content;
     max-width:            100%;
     width:                100%;
     max-height:           calc(var(--modal-max-h) - (2 * var(--m-pad)));
-    overflow:             auto;
-    overflow-x:           hidden;
+    overflow:             hidden auto;
     flex:                 1 1 auto;
     min-height:           0;
     min-block-size:       0;
@@ -466,6 +472,7 @@ nav.navbar {
 }
 
 .modal-close-btn {
+    z-index:          1000;
     align-self:       flex-end;
     position:         sticky;
     top:              0;
@@ -487,7 +494,8 @@ nav.navbar {
 
 .floating-cart-btn {
     position:        fixed;
-    top:             calc(var(--vh) * 7);
+    /*noinspection CssInvalidPropertyValue*/
+    top:             7svh;
     right:           1rem;
     z-index:         1500;
     display:         inline-flex;
@@ -505,16 +513,15 @@ nav.navbar {
                      opacity     1s ease,
                      background .2s ease;
 }
+/*noinspection CssInvalidPropertyValue*/
+@supports not (height: 100svh) {
+    .floating-cart-btn { top: 7vh; }
+}
 
 .floating-cart-btn:hover {
     color:            aquamarine;
-    background: rgba(128, 128, 128, 0.3);
-    /*background-color: rgba(0,0,0,0.3);*/
-    transform:  translateY(-1px);
-    /*box-shadow: 0 0  8px var(--white-alpha-90),*/
-    /*            0 0 12px var(--white-alpha-60),*/
-    /*            0 0 24px var(--white-alpha-15);*/
-    /*background: var(--black-alpha-45);*/
+    background:       rgba(128, 128, 128, 0.3);
+    transform:        translateY(-1px);
 }
 
 .floating-cart-btn:active {
@@ -574,7 +581,7 @@ nav.navbar {
 }
 
 .state-title {
-    margin: -2.5rem 0 .5rem;
+    margin: -2.5rem 0 0.5rem;
     color:   var(--accent);
 }
 

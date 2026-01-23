@@ -21,6 +21,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Zilla+Slab+Highlight:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Syne+Mono&display=swap" rel="stylesheet">
 
+    <link rel="preload" href="{% static 'hr_core/fonts/KARNIVBL.ttf' %}" as="font" type="font/ttf" crossorigin>
+    <link rel="preload" href="{% static 'hr_core/fonts/Quantico-Regular.ttf' %}" as="font" type="font/ttf" crossorigin>
+
     {% if debug %}
       <script type="module" src="http://127.0.0.1:5173/@vite/client"></script>
       <script type="module" src="http://127.0.0.1:5173/js/main.js"></script>
@@ -28,7 +31,6 @@
       {% vite_asset 'js/main.js' %}
     {% endif %}
 
-    <script src="https://unpkg.com/htmx.org@2.0.3" defer></script>
     <script src="https://js.stripe.com/v3" defer></script>
 
     {% block extra_head %}{% endblock %}
@@ -137,11 +139,6 @@
     </div>
 
 </div>
-
-{# ---- Global scripts ---- #}
-<script src="https://kit.fontawesome.com/962310de1f.js" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/feather-icons"></script>
-<script>feather.replace();</script>
 
 {# ---- page-specific scripts hook ---- #}
 {% block extra_scripts %}{% endblock %}

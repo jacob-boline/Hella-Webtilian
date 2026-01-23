@@ -9,7 +9,10 @@
                 <img class="about-stage-img"
                      src="{{ first.image.url|about_img_url:960 }}"
                      srcset="{{ first.image.url|about_img_srcset }}"
-                     sizes="(max-width: 768px) 92vw, (max-width: 1200px) 80vw, 1100px"
+{#                     sizes="(max-width: 768px) 92vw, (max-width: 1200px) 80vw, 1100px"#}
+                     sizes="(max-width: 640px) 88vw, 1024px"
+                     width="1920"
+                     height="1080"
                      alt="{{ first.title }}"
                      loading="lazy"
                      decoding="async">

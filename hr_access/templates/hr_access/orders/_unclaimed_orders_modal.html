@@ -4,14 +4,6 @@
     <div class="unclaimed-orders-layout">
         <h2 class="sub-header modal-title">Unclaimed orders</h2>
 
-        <div class="claim-flash-slot" aria-live="polite" aria-atomic="true">
-            <div class="form-errors is-success claim-flash {% if claimed_count %}is-active{% endif %}" role="status">
-                {% if claimed_count %}
-                    <p>Claimed {{ claimed_count }} order{{ claimed_count|pluralize }}.</p>
-                {% endif %}
-            </div>
-        </div>
-
         {% if error %}
             <div class="form-errors">
                 <p>{{ error }}</p>
@@ -26,21 +18,20 @@
             </p>
 
             {% if unclaimed_orders %}
-                <form method="post"
-                      hx-post="{% url 'hr_access:account_submit_claim_unclaimed_orders' %}"
+                <form hx-post="{% url 'hr_access:account_submit_claim_unclaimed_orders' %}"
                       hx-target="#modal-content"
-                      hx-swap="innerHTML transition:true">
+                      hx-swap="none">
 
                     {% csrf_token %}
 
                     <div class="order-claim-list">
                         <div class="order-claim-header">
                             <input type="checkbox" id="select-all-unclaimed" aria-label="Select all orders">
-                            <span>ID</span>
+                            <span class="order-id-header">ID</span>
                             <span>Date</span>
                             <span>Total</span>
-                            <span>Payment</span>
-                            <span>Status</span>
+                            <span class="payment-status-header">Payment</span>
+                            <span class="order-status-header">Status</span>
                         </div>
                         {% for o in unclaimed_orders %}
                             <label class="order-claim-row">
@@ -49,33 +40,25 @@
                                        value="{{ o.id }}"
                                        class="unclaimed-order-checkbox">
                                 <span class="order-claim-id">#{{ o.id }}</span>
-                                <span class="order-claim-meta">{{ o.created_at|date:"M j, Y g:i A" }}</span>
+                                <span class="order-claim-meta">{{ o.created_at|date:"m/d/Y" }}</span>
                                 <span class="order-claim-meta">${{ o.total|floatformat:2 }}</span>
-                                <span class="order-claim-meta">{{ o.payment_status }}</span>
-                                <span class="order-claim-meta">{{ o.order_status }}</span>
+                                <span class="order-claim-meta payment-status">{{ o.payment_status }}</span>
+                                <span class="order-claim-meta order-status">{{ o.order_status }}</span>
                             </label>
                         {% endfor %}
                     </div>
 
-                    <div class="modal-actions inline uniform grid grid-cols-1 md:grid-cols-2">
-                        <button type="submit" class="card-btn btn-neon btn-blue btn-sm">Claim selected</button>
-                        <button type="button" class="card-btn btn-neon btn-yellow btn-sm" data-modal-close>Not now</button>
+                    <div class="modal-actions inline uniform grid grid-cols-1 lg:grid-cols-2">
+                        <button type="submit" class="card-btn btn-neon btn-green btn-sm">Claim selected</button>
+                        <button type="button"
+                                class="card-btn btn-neon btn-blue btn-sm"
+                                hx-get="{% url 'hr_access:account_get_unclaimed_orders' %}"
+                                hx-target="#modal-content"
+                                hx-swap="innerHTML transition:true">
+                            View Your Orders
+                        </button>
                     </div>
                 </form>
-
-                <script>
-                    (function () {
-                        const selectAll = document.getElementById("select-all-unclaimed");
-                        const boxes = document.querySelectorAll(".unclaimed-order-checkbox");
-                        if (!selectAll || !boxes.length) return;
-
-                        selectAll.addEventListener("change", () => {
-                            boxes.forEach(b => {
-                                b.checked = selectAll.checked;
-                            });
-                        });
-                    })();
-                </script>
 
             {% else %}
                 <p class="text-muted">No unclaimed orders found for this email.</p>

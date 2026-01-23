@@ -217,6 +217,12 @@
     min-height: calc(var(--vh) * 100);
 }
 
+.min-h-vhfix { /*noinspection CssInvalidPropertyValue*/
+    min-height: 100svh; }
+@supports not (/*noinspection CssInvalidPropertyValue*/height:100svh) {
+    .min-h-vhfix { min-height: calc(var(--vh) * 100); }
+}
+
 .py-vh-18 {
     padding-block: calc(var(--vh) * 18);
 }

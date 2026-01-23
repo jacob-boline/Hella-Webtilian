@@ -227,6 +227,30 @@
             }, 200);
         }, true);
 
+        document.body.addEventListener("htmx:afterSettle", async (e) => {
+            const target = e.target;
+            if (!target) return;
+
+            const inBulletin = target.id === "bulletin-root" || target.closest?.("#bulletin-root");
+            if (!inBulletin) return;
+
+            if (document.body.classList.contains("modal-open") || document.body.classList.contains("drawer-open")) return;
+
+            // decode any imgs in the swapped chunk to avoid late layout jump
+            const imgs = target.querySelectorAll?.("img") || [];
+            await Promise.all(Array.from(imgs).map(img => img.decode ? img.decode().catch(() => {
+            }) : Promise.resolve()));
+
+            // settle pass
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    window.hrSite?.reflowParallax?.();
+                    window.hrSite?.syncActiveWipe?.();
+                    window.dispatchEvent(new Event("scroll"));
+                });
+            });
+        });
+
         // ------------------------------
         // Drawer navigation
         // ------------------------------

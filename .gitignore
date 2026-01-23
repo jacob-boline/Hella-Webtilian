@@ -30,3 +30,5 @@ ZeppelinRemoteNotebooks/
 
 # --- Project-specific config dirs ---
 hr_config/env/
+
+.stylelintrc.json.old

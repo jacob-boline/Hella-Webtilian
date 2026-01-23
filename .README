@@ -1,3 +1,15 @@
+DEV RUN ORDER:
+
+    1) stripe listen --forward-to localhost:8000/payment/webhooks/stripe/
+    2) docker start redis  (or docker run -d --name redis -p 6379:6379 redis:7-alpine)
+        - test with "docker exec -it redis redis-cli ping"
+    3) Add redis worker:
+        - "python manage.py rqworker default --worker-class rq.worker.SimpleWorker"
+    3) If first run (or to reset environment) "python manage.py init"
+    4) process wipe/bg images "python manage.py mediasweep"
+    5) start vite "npm run vite:dev"
+    6) start in debug
+
  Create apps + models above; run migrations
 
  Admin: register models; create superuser

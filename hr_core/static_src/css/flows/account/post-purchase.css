@@ -1,0 +1,17 @@
+/* hr_core/static_src/css/flows/account/post-purchase.css */
+
+/* ===========================
+   Account: Post-purchase blocks
+   =========================== */
+
+.post-purchase-account {
+    width: 100%;
+}
+
+.post-purchase-account .flex-col-center p {
+    margin: 1rem 0;
+}
+
+.post-purchase-account input {
+    margin-top: 0.5rem;
+}

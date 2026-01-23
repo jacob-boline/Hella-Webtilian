@@ -1,16 +1,16 @@
 {# hr_bulletin/templates/hr_bulletin/_list.html #}
-
 {% for post in posts %}
-    {% include "hr_bulletin/_post_card.html" with post=post %}
-    {% if page_obj.has_next and forloop.last %}
-        <span hx-get="{% url 'hr_bulletin:bulletin_list_partial' %}?page={{ page_obj.next_page_number }}"
-              hx-swap="beforeend"
-              hx-target="#bulletin-root"
-              hx-select=".bulletin-post"
-              hx-trigger="revealed">
-        </span>
-    {% endif %}
-{% empty %}
-    <p class="bulletin-empty">No posts yet.</p>
+  {% include "hr_bulletin/_post_card.html" with post=post %}
 {% endfor %}
 
+{% if page_obj.has_next %}
+  <div id="bulletin-sentinel"
+       hx-get="{% url 'hr_bulletin:bulletin_list_partial' %}?page={{ page_obj.next_page_number }}"
+       hx-trigger="revealed"
+       hx-target="#bulletin-feed"
+       hx-swap="beforeend"
+       hx-swap-oob="true">
+  </div>
+{% else %}
+  <div id="bulletin-sentinel" hx-swap-oob="true"></div>
+{% endif %}

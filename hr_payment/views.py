@@ -2,7 +2,6 @@
 
 import logging
 from decimal import Decimal, ROUND_HALF_UP
-from urllib.parse import quote
 
 import stripe
 from django.conf import settings
@@ -10,11 +9,13 @@ from django.db import transaction
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from hr_common.utils.unified_logging import log_event
+from hr_core.utils.urls import build_external_absolute_url
 from hr_payment.models import PaymentAttempt, PaymentAttemptStatus
 from hr_payment.models import WebhookEvent
 from hr_shop.models import Order, PaymentStatus
@@ -22,6 +23,20 @@ from hr_shop.tokens import generate_order_receipt_token
 
 logger = logging.getLogger(__name__)
 
+
+def _stripe_return_url(request, *, order_id: int, token: str) -> str:
+    # modal endpoint that returns the result partial
+    modal_path = reverse('hr_shop:order_payment_result', args=[order_id])
+    modal_abs = build_external_absolute_url(request, modal_path, query={'t': token})
+    return build_external_absolute_url(
+        request,
+        '/',
+        query={
+            'handoff': 'order_payment_result',
+            'modal': 'order_payment_result',
+            'modal_url': modal_abs
+        }
+    ) + '#parallax-section-shows'
 
 @require_POST
 def checkout_stripe_session(request, order_id: int):
@@ -115,13 +130,10 @@ def checkout_stripe_session(request, order_id: int):
         )
 
         # quote token for URL-escaped characters
-        token = quote(generate_order_receipt_token(order.id, order.email), safe="")
+        token = generate_order_receipt_token(order.id, order.email)
         # token passed back from stripe payment endpoint and used to look up order and open thank you page
-        return_url = (
-                settings.SITE_URL +
-                f"/?modal=order_payment_result&order_id={order.id}&t={token}" +
-                "#parallax-section-shows"
-        )
+
+        return_url = _stripe_return_url(request, order_id=order.id, token=token)
 
         session_kwargs = {
             "ui_mode":              "embedded",

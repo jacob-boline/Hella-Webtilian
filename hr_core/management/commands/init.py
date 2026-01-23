@@ -6,8 +6,8 @@ import subprocess
 from pathlib import Path
 
 from django.conf import settings
-from django.core.management import BaseCommand, call_command
 from django.contrib.auth import get_user_model
+from django.core.management import BaseCommand, call_command
 
 
 class Command(BaseCommand):
@@ -74,7 +74,6 @@ class Command(BaseCommand):
 
         no_input = options["no_input"]
         no_seed = options["no_seed"]
-        no_npm = options["no_npm"]
         keep_media = options['keep_media']
         wipe_media = options['wipe_media']
 
@@ -147,9 +146,8 @@ class Command(BaseCommand):
         media_root = Path(settings.MEDIA_ROOT)
         to_wipe = [
             media_root / "hr_about",
-            media_root / "hr_shop",
-            media_root / "hr_live",
-            media_root / "hr_bulletin",
+            media_root / "variants",
+            media_root / "posts",
         ]
         for p in to_wipe:
             if p.exists() and p.is_dir():
