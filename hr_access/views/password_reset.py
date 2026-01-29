@@ -13,9 +13,12 @@ from django.contrib.auth.views import (
 from django.shortcuts import redirect, render
 from django.urls import reverse, reverse_lazy
 
+import logging
 
-def _is_htmx(request) -> bool:
-    return request.headers.get("HX-Request") == "true"
+from hr_common.utils.http.htmx import is_htmx
+from hr_common.utils.unified_logging import log_event
+
+logger = logging.getLogger(__name__)
 
 
 class AccountPasswordResetView(PasswordResetView):
@@ -27,7 +30,8 @@ class AccountPasswordResetView(PasswordResetView):
 
     def form_valid(self, form):
         resp = super().form_valid(form)
-        if _is_htmx(self.request):
+        log_event(logger, logging.INFO, "access.password_reset.requested")
+        if is_htmx(self.request):
             return render(self.request, "hr_access/password_reset/_password_reset_done.html")
         return resp
 
@@ -41,7 +45,7 @@ class AccountPasswordResetConfirmView(PasswordResetConfirmView):
     success_url = reverse_lazy("hr_access:password_reset_complete")
 
     def dispatch(self, request, *args, **kwargs):
-        if _is_htmx(request) or request.GET.get("handoff") == "0":
+        if is_htmx(request) or request.GET.get("handoff") == "0":
             return super().dispatch(request, *args, **kwargs)
 
         qs = request.GET.copy()
@@ -54,11 +58,13 @@ class AccountPasswordResetConfirmView(PasswordResetConfirmView):
                 "modal_url": modal_url,
             }
         )
+        log_event(logger, logging.INFO, "access.password_reset.handoff_redirect")
         return redirect(f"{reverse('index')}?{params}")
 
     def form_valid(self, form):
         self.object = form.save()
-        if _is_htmx(self.request):
+        log_event(logger, logging.INFO, "access.password_reset.completed")
+        if is_htmx(self.request):
             return render(self.request, "hr_access/password_reset/_password_reset_complete.html")
         return super().form_valid(form)
 
