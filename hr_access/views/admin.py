@@ -30,17 +30,12 @@ def admin_create_site_admin(request):
 
         user = form.create_user(role=User.Role.SITE_ADMIN)
 
-        return HttpResponse(
-            status=204,
-            headers={
-                "HX-Trigger": json.dumps(
-                    {
-                        "dialogChanged": None,
-                        "showMessage": f"Created site admin {user.username}",
-                    }
-                )
-            },
-        )
+        return HttpResponse(status=204, headers={
+            "HX-Trigger": json.dumps({
+                "dialogChanged": None,
+                "showMessage": f"Created site admin {user.username}"
+            })
+        })
 
     from django.shortcuts import render
 
@@ -56,8 +51,7 @@ def admin_confirm_privilege_demotion(request, user_id: int):
 
     confirm_url = reverse("hr_access:admin_demote_superuser", args=[target.pk])
 
-    return display_message_box_modal(
-        request,
+    return display_message_box_modal(request,
         title="Confirm removal of elevated privileges",
         message=(
             f"You are about to change privileges for {target.username} ({target.email}). "
@@ -69,7 +63,7 @@ def admin_confirm_privilege_demotion(request, user_id: int):
         confirm_method="post",
         confirm_label="Yes, remove privileges",
         cancel_url=reverse("hr_access:admin_cancel_privilege_demotion", args=[target.pk]),
-        cancel_label="Cancel",
+        cancel_label="Cancel"
     )
 
 
@@ -80,13 +74,12 @@ def admin_demote_superuser(request, user_id: int):
 
     # Guard against demoting the last superuser
     if target.is_superuser and not User.objects.exclude(pk=target.pk).filter(is_superuser=True).exists():
-        return display_message_box_modal(
-            request,
+        return display_message_box_modal(request,
             title="Cannot remove last superuser",
             message="You must have at least one superuser account. Create another superuser first.",
             level="error",
             confirm_url="",
-            confirm_label="OK",
+            confirm_label="OK"
         )
 
     target.is_superuser = False
@@ -94,13 +87,12 @@ def admin_demote_superuser(request, user_id: int):
         target.role = User.Role.SITE_ADMIN
     target.save()
 
-    return display_message_box_modal(
-        request,
+    return display_message_box_modal(request,
         title="Privileges updated",
         message=f"{target.username}'s elevated privileges have been removed.",
         level="success",
         confirm_url="",
-        confirm_label="Close",
+        confirm_label="Close"
     )
 
 
