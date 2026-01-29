@@ -67,7 +67,7 @@ def checkout_stripe_session(request, order_id: int):
       - Otherwise create a new PaymentAttempt and a new embedded Checkout session.
     """
 
-    if settings.DEBUG_TOKENS:
+    if getattr(settings, "DEBUG_TOKENS", False):
         log_event(logger, logging.DEBUG, "checkout.token.debug",
             header_token=bool(request.headers.get("X-Checkout-Token")),
             cookie_token=bool(request.COOKIES.get("guest_checkout_token")),
