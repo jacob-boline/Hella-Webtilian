@@ -230,7 +230,7 @@
         const d = e.detail;
         if (!d || typeof d !== 'object') return;
 
-        const url = d.url;
+        const url = d.url || d.hxGet;
         if (!url || typeof url !== 'string') return;
 
         const loader = document.getElementById('modal-loader');

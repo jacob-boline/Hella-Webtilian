@@ -18,6 +18,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
 
 from hr_common.models import Address
@@ -27,6 +28,7 @@ from hr_common.utils.unified_logging import log_event
 from hr_core.utils.urls import build_external_absolute_url
 from hr_email.service import EmailProviderError, send_app_email
 from hr_shop.cart import Cart, CART_SESSION_KEY, get_cart
+from hr_shop.views.cart import _render_cart_modal
 from hr_shop.exceptions import EmailSendError, RateLimitExceeded
 from hr_shop.forms import CheckoutDetailsForm
 from hr_shop.models import CheckoutDraft, ConfirmedEmail, Customer, CustomerAddress, Order, OrderItem, OrderStatus, PaymentStatus, ProductVariant
@@ -509,7 +511,7 @@ def _restore_checkout_context_from_guest_token(request) -> tuple[dict | None, bo
     if not existing_cart:
         _restore_cart_from_draft(request, draft)
 
-    return {"customer": draft.customer, "address": draft.address, "note": draft.note or "", "_guest_token": token}, False
+    return {"customer": draft.customer, "address": draft.address, "note": draft.note or "", "_guest_token": token, "_draft": draft}, False
 
 
 
@@ -684,6 +686,7 @@ def checkout_resume(request):
     # 1) Try session context
     ctx = _get_checkout_context(request)
     guest_token = None
+    draft = None
     clear_cookie = False
 
     # 2) Guest recovery: token -> draft -> restore session ctx
@@ -691,13 +694,11 @@ def checkout_resume(request):
         ctx, clear_cookie = _restore_checkout_context_from_guest_token(request)
         if ctx:
             guest_token = ctx.get('_guest_token')
+            draft = ctx.get("_draft")
             log_event(logger, logging.INFO, "checkout.resume.restored_from_guest_token")
         else:
             log_event(logger, logging.INFO, "checkout.resume.session_missing")
-            resp = hx_load_modal(
-                reverse("hr_shop:view_cart"),
-                after_settle={}
-            )
+            resp = _render_cart_modal(request)
             if clear_cookie:
                pass
                 # resp.delete_cookie('guest_checkout_token')
@@ -708,12 +709,15 @@ def checkout_resume(request):
 
     order = None
 
-    if guest_token and getattr(guest_token, 'order_id', None):
+    if guest_token and getattr(guest_token, "order_id", None):
         order = (
-            Order.objects.select_related('customer', 'shipping_address')
+            Order.objects.select_related("customer", "shipping_address")
             .filter(pk=int(guest_token.order_id))
             .first()
         )
+
+    if not order and draft and getattr(draft, "order_id", None):
+        order = Order.objects.select_related("customer", "shipping_address").filter(pk=draft.order_id).first()
 
     if not order:
         latest_draft = _latest_draft_for_customer(customer)
@@ -1036,6 +1040,7 @@ def checkout_create_order(request):
 
 
 @require_GET
+@ensure_csrf_cookie
 def checkout_pay(request, order_id: int):
     order = get_object_or_404(Order, pk=int(order_id))
 
