@@ -18,6 +18,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
 
 from hr_common.models import Address
@@ -27,6 +28,7 @@ from hr_common.utils.unified_logging import log_event
 from hr_core.utils.urls import build_external_absolute_url
 from hr_email.service import EmailProviderError, send_app_email
 from hr_shop.cart import Cart, CART_SESSION_KEY, get_cart
+from hr_shop.views.cart import _render_cart_modal
 from hr_shop.exceptions import EmailSendError, RateLimitExceeded
 from hr_shop.forms import CheckoutDetailsForm
 from hr_shop.models import CheckoutDraft, ConfirmedEmail, Customer, CustomerAddress, Order, OrderItem, OrderStatus, PaymentStatus, ProductVariant
@@ -694,10 +696,7 @@ def checkout_resume(request):
             log_event(logger, logging.INFO, "checkout.resume.restored_from_guest_token")
         else:
             log_event(logger, logging.INFO, "checkout.resume.session_missing")
-            resp = hx_load_modal(
-                reverse("hr_shop:view_cart"),
-                after_settle={}
-            )
+            resp = _render_cart_modal(request)
             if clear_cookie:
                pass
                 # resp.delete_cookie('guest_checkout_token')
@@ -1036,6 +1035,7 @@ def checkout_create_order(request):
 
 
 @require_GET
+@ensure_csrf_cookie
 def checkout_pay(request, order_id: int):
     order = get_object_or_404(Order, pk=int(order_id))
 
