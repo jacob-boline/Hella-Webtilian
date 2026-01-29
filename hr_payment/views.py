@@ -23,7 +23,7 @@ from hr_shop.tokens.order_receipt_token import generate_order_receipt_token
 
 logger = logging.getLogger(__name__)
 
-def _forbid_guest_payment(msg='Not authorized. Please restart checkout.', clear_cookie=False):
+def _forbid_guest_payment(msg='Not authorized. Please restart checkout.', clear_cookie=True):
     resp = JsonResponse({'error': msg}, status=403)
     if clear_cookie:
         resp.delete_cookie('guest_checkout_token')
@@ -280,10 +280,9 @@ def checkout_stripe_session(request, order_id: int):
                 attach_customer=attach_customer,
                 error=str(exc),
                 error_type=getattr(exc, "__class__", type(exc)).__name__,
-                user_id=getattr(user, "id", None),
-                customer_id=getattr(order, "customer_id", None),
+                customer_id=getattr(order, "customer_id", None)
             )
-            return JsonResponse({"error": "Payment session could not be created."}, status=502)
+            return JsonResponse({"error": "Payment session could not be created."}, status=500)
 
         attempt.provider_session_id = sess.get("id")
         attempt.client_secret = sess.get("client_secret")

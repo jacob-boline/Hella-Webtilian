@@ -13,6 +13,7 @@ from hr_config.settings.common import BASE_DIR, env_bool  # noqa
 load_dotenv(BASE_DIR / "hr_config" / "env" / "dev.env", override=False)
 
 DEBUG = True
+DEBUG_TOKENS = True
 
 from hr_config.settings.base import *  # noqa
 

@@ -26,13 +26,18 @@ def account_get_orders(request):
     base_qs = (
         Order.objects.filter(user=request.user)
         .select_related("shipping_address", "customer")
-        .prefetch_related(Prefetch("items", queryset=OrderItem.objects.select_related("variant", "variant__product")))
+        .prefetch_related(
+            Prefetch("items", queryset=OrderItem.objects.select_related("variant", "variant__product")))
         .order_by("-created_at")
     )
 
     order_list = list(base_qs[:21])
 
-    ctx = {"orders": order_list[:20], "has_more": len(order_list) > 20, "unclaimed_count": (Order.objects.filter(user__isnull=True, email__iexact=email).count() if email else 0)}
+    ctx = {
+        "orders": order_list[:20],
+        "has_more": len(order_list) > 20,
+        "unclaimed_count": (Order.objects.filter(user__isnull=True, email__iexact=email).count() if email else 0)
+    }
 
     log_event(logger, logging.INFO, "access.orders.list_rendered", order_count=len(ctx["orders"]), has_more=ctx["has_more"])
     return render(request, "hr_access/orders/_orders_modal_body.html", ctx)

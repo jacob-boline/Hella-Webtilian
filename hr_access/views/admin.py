@@ -66,7 +66,7 @@ def admin_confirm_privilege_demotion(request, user_id: int):
         confirm_method="post",
         confirm_label="Yes, remove privileges",
         cancel_url=reverse("hr_access:admin_cancel_privilege_demotion", args=[target.pk]),
-        cancel_label="Cancel",
+        cancel_label="Cancel"
     )
     log_event(logger, logging.INFO, "access.admin.demote.confirm_rendered", target_user_id=target.id)
     return resp
@@ -86,7 +86,7 @@ def admin_demote_superuser(request, user_id: int):
             message="You must have at least one superuser account. Create another superuser first.",
             level="error",
             confirm_url="",
-            confirm_label="OK",
+            confirm_label="OK"
         )
 
     target.is_superuser = False
@@ -101,7 +101,7 @@ def admin_demote_superuser(request, user_id: int):
         message=f"{target.username}'s elevated privileges have been removed.",
         level="success",
         confirm_url="",
-        confirm_label="Close",
+        confirm_label="Close"
     )
     return merge_hx_trigger_after_settle(resp, {"dialogChanged": None})
 
