@@ -511,7 +511,7 @@ def _restore_checkout_context_from_guest_token(request) -> tuple[dict | None, bo
     if not existing_cart:
         _restore_cart_from_draft(request, draft)
 
-    return {"customer": draft.customer, "address": draft.address, "note": draft.note or "", "_guest_token": token}, False
+    return {"customer": draft.customer, "address": draft.address, "note": draft.note or "", "_guest_token": token, "_draft": draft}, False
 
 
 
@@ -686,6 +686,7 @@ def checkout_resume(request):
     # 1) Try session context
     ctx = _get_checkout_context(request)
     guest_token = None
+    draft = None
     clear_cookie = False
 
     # 2) Guest recovery: token -> draft -> restore session ctx
@@ -693,6 +694,7 @@ def checkout_resume(request):
         ctx, clear_cookie = _restore_checkout_context_from_guest_token(request)
         if ctx:
             guest_token = ctx.get('_guest_token')
+            draft = ctx.get("_draft")
             log_event(logger, logging.INFO, "checkout.resume.restored_from_guest_token")
         else:
             log_event(logger, logging.INFO, "checkout.resume.session_missing")
@@ -707,12 +709,15 @@ def checkout_resume(request):
 
     order = None
 
-    if guest_token and getattr(guest_token, 'order_id', None):
+    if guest_token and getattr(guest_token, "order_id", None):
         order = (
-            Order.objects.select_related('customer', 'shipping_address')
+            Order.objects.select_related("customer", "shipping_address")
             .filter(pk=int(guest_token.order_id))
             .first()
         )
+
+    if not order and draft and getattr(draft, "order_id", None):
+        order = Order.objects.select_related("customer", "shipping_address").filter(pk=draft.order_id).first()
 
     if not order:
         latest_draft = _latest_draft_for_customer(customer)

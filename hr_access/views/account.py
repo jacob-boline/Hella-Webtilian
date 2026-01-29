@@ -2,14 +2,12 @@
 
 from __future__ import annotations
 
-import json
 import logging
 
 from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.sessions.models import Session
 from django.core.cache import cache
-from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
@@ -22,7 +20,14 @@ from hr_access.forms import AccountCreationForm, AccountEmailChangeForm
 from hr_access.models import User
 from hr_access.tokens.account_signup import generate_account_signup_token, verify_account_signup_token
 from hr_access.tokens.email_change import generate_email_change_token, verify_email_change_token
+from hr_access.services.post_purchase import (
+    build_post_purchase_form,
+    create_post_purchase_account,
+    get_post_purchase_unclaimed_orders,
+)
 from hr_common.utils.email import normalize_email
+from hr_common.utils.http.htmx import hx_trigger, merge_hx_trigger_after_settle
+from hr_common.utils.http.messages import show_message
 from hr_common.utils.htmx_responses import hx_login_required
 from hr_common.utils.unified_logging import log_event
 from hr_core.utils.urls import build_external_absolute_url
@@ -151,7 +156,7 @@ def account_signup(request):
     if request.method == "POST":
         form = AccountCreationForm(request.POST)
         if not form.is_valid():
-            log_event(logger, logging.INFO, "access.account_signup.form_invalid", user_id=request.user.id or -1)
+            log_event(logger, logging.INFO, "access.account_signup.form_invalid")
             return render(request, "hr_access/registration/_signup.html", {"form": form})
 
         user = form.create_user(role=User.Role.USER, is_active=False)
@@ -187,8 +192,8 @@ def account_signup(request):
                 "message": "Could not send confirmation email. Please try again.",
             }
         resp = render(request, "hr_access/registration/_signup_check_email.html", context)
-        resp["HX-Trigger"] = json.dumps({"showMessage": context.get("message") or "Check your email to confirm your account."})
-        return resp
+        message = context.get("message") or "Check your email to confirm your account."
+        return merge_hx_trigger_after_settle(resp, {"showMessage": show_message(message)})
 
     # GET
     return render(request, "hr_access/registration/_signup.html", {"form": AccountCreationForm()})
@@ -199,7 +204,7 @@ def account_signup_confirm(request):
     raw_token = (request.GET.get("t") or "").strip()
     token = verify_account_signup_token(raw_token)
     if not token:
-        log_event(logger, logging.WARNING, "access.signup_confirmation.invalid_token", user_id=request.user.id if request.user.is_authenticated else None)
+        log_event(logger, logging.WARNING, "access.signup_confirmation.invalid_token")
         return HttpResponse("Invalid or expired confirmation link.", status=400)  # TODO HX-Trigger
 
     user = get_object_or_404(User, pk=int(token.user_id))
@@ -228,7 +233,7 @@ def account_signup_confirm(request):
 
     log_event(logger, logging.INFO, "access.signup_confirmation.confirmed", user_id=user.id)
 
-    return HttpResponse(status=204, headers={"HX-Trigger": json.dumps({"accessChanged": None, "showMessage": "Email confirmed. You are now signed in."})})
+    return hx_trigger({"accessChanged": None, "showMessage": show_message("Email confirmed. You are now signed in.")}, status=204)
 
 
 @hx_login_required
@@ -245,11 +250,13 @@ def account_change_password(request):
         if form.is_valid():
             user = form.save()
             update_session_auth_hash(request, user)
-
-            return HttpResponse(
-                status=204, headers={"HX-Trigger": json.dumps({"showMessage": {"message": "Your password has been changed.", "duration": 5000}, "closeModal": None})}
+            log_event(logger, logging.INFO, "access.account_password.changed")
+            return hx_trigger(
+                {"showMessage": show_message("Your password has been changed.", duration=5000), "closeModal": None},
+                status=204
             )
 
+        log_event(logger, logging.INFO, "access.account_password.form_invalid")
         return render(request, template, {"form": form})
 
     form = PasswordChangeForm(user=request.user)
@@ -262,6 +269,7 @@ def account_settings(request):
     email = request.user.email
     order_count = Order.objects.filter(user=request.user).count()
     unclaimed_count = Order.objects.filter(user__isnull=True, email__iexact=email).count() if email else 0
+    log_event(logger, logging.INFO, "access.account_settings.rendered", order_count=order_count, unclaimed_count=unclaimed_count)
 
     return render(request, "hr_access/account/_account_settings_modal.html", {
             "last_login": request.user.last_login,
@@ -288,6 +296,7 @@ def account_change_email(request):
                     "rate_limited": False,
                     "error": False
                 }
+                log_event(logger, logging.INFO, "access.email_change.requested", email=new_email)
             except RateLimitExceeded:
                 ctx = {
                     "email": new_email,
@@ -295,6 +304,7 @@ def account_change_email(request):
                     "rate_limited": True,
                     "error": False
                 }
+                log_event(logger, logging.WARNING, "access.email_change.rate_limited", email=new_email)
             except EmailSendError:
                 ctx = {
                     "email": new_email,
@@ -302,8 +312,10 @@ def account_change_email(request):
                     "rate_limited": False,
                     "error": True
                 }
+                log_event(logger, logging.ERROR, "access.email_change.send_failed", email=new_email)
             return render(request, "hr_access/account/_account_email_change_check_email.html", ctx)
 
+        log_event(logger, logging.INFO, "access.email_change.form_invalid")
         return render(request, template, {"form": form})
 
     form = AccountEmailChangeForm(request.user)
@@ -318,22 +330,27 @@ def account_change_email_confirm(request):
 
     data = verify_email_change_token(token)
     if not data:
+        log_event(logger, logging.WARNING, "access.email_change.invalid_token", token_present=bool(token), user_id=user.id)
         return HttpResponse("Invalid or expired confirmation link.", status=400)  # TODO HX-Trigger
 
     if not user.is_active:
+        log_event(logger, logging.WARNING, "access.email_change.user_inactive", user_id=user.id)
         return HttpResponse("Account is inactive.", status=400)  # TODO HX-Trigger
 
     if int(data["user_id"]) != int(user.id):
+        log_event(logger, logging.WARNING, "access.email_change.user_mismatch", user_id=user.id, token_user_id=data["user_id"])
         return HttpResponse("Invalid confirmation link.", status=400)  # TODO HX-Trigger
 
     new_email = normalize_email(data["email"])
 
     if User.objects.filter(email__iexact=new_email).exclude(pk=user.id).exists():
+        log_event(logger, logging.WARNING, "access.email_change.email_in_use", email=new_email, user_id=user.id)
         return HttpResponse("This email is already in use.", status=400)  # TODO use HX-Trigger
 
     if user.email != new_email:
         user.email = new_email
         user.save(update_fields=["email", "updated_at"])
+        log_event(logger, logging.INFO, "access.email_change.updated", email=new_email, user_id=user.id)
 
     modal_url = f"{reverse('hr_access:account_email_change_success')}?{urlencode({'email': new_email})}"
     params = urlencode({"modal": "email_change", "handoff": "email_change", "modal_url": modal_url})
@@ -344,8 +361,7 @@ def account_change_email_confirm(request):
 def account_email_change_success(request):
     email = request.GET.get("email")
     resp = render(request, "hr_access/account/_account_email_change_success.html", {"email": email})
-    resp["HX-Trigger"] = json.dumps({"accessChanged": None, "showMessage": "Email updated."})
-    return resp
+    return merge_hx_trigger_after_settle(resp, {"accessChanged": None, "showMessage": show_message("Email updated.")})
 
 
 @hx_login_required
@@ -367,7 +383,8 @@ def account_logout_all_sessions(request):
 
     logout(request)
 
-    return HttpResponse(status=204, headers={"HX-Trigger": json.dumps({"accessChanged": None, "showMessage": f"Logged out of {deleted} session(s)."})})
+    log_event(logger, logging.INFO, "access.account_logout_all.completed", deleted_sessions=deleted)
+    return hx_trigger({"accessChanged": None, "showMessage": show_message(f"Logged out of {deleted} session(s).")}, status=204)
 
 
 @hx_login_required
@@ -386,7 +403,8 @@ def account_delete_account(request):
 
     logout(request)
 
-    return HttpResponse(status=204, headers={"HX-Trigger": json.dumps({"accessChanged": None, "showMessage": "Account deleted."})})
+    log_event(logger, logging.INFO, "access.account_deleted")
+    return hx_trigger({"accessChanged": None, "showMessage": show_message("Account deleted.")}, status=204)
 
 
 @require_GET
@@ -395,11 +413,13 @@ def account_get_post_purchase_create_account(request, order_id: int):
     Follows hank-you modal for guest orders
     """
     if request.user.is_authenticated:
+        log_event(logger, logging.INFO, "access.post_purchase.already_authenticated", order_id=order_id)
         return render(request, "hr_access/post_purchase/_post_purchase_account_done.html")
 
     order = get_object_or_404(Order, pk=order_id)
-    form = AccountCreationForm(locked_email=order.email)
+    form = build_post_purchase_form(order)
 
+    log_event(logger, logging.INFO, "access.post_purchase.signup_form_rendered", order_id=order_id)
     return render(request, "hr_access/post_purchase/_post_purchase_account_form.html", {"order": order, "form": form})
 
 
@@ -413,35 +433,24 @@ def account_submit_post_purchase_create_account(request, order_id: int):
     - Return success fragment with list of other unclaimed account_get_orders for optional linking
     """
     if request.user.is_authenticated:
+        log_event(logger, logging.INFO, "access.post_purchase.submit.already_authenticated", order_id=order_id)
         return render(request, "hr_access/post_purchase/_post_purchase_account_done.html")
 
     order = get_object_or_404(Order, pk=order_id)
-    locked_email = order.email
-
-    # Hard-lock email (prevents tampering even if email is in POST)
-    post = request.POST.copy()
-    post["email"] = locked_email
-
-    form = AccountCreationForm(post, locked_email=locked_email)
+    form = build_post_purchase_form(order, request.POST)
     if not form.is_valid():
+        log_event(logger, logging.INFO, "access.post_purchase.signup_form_invalid", order_id=order_id)
         return render(request, "hr_access/post_purchase/_post_purchase_account_form.html", {"order": order, "form": form})
 
-    with transaction.atomic():
-        user = form.create_user(role=User.Role.USER)
+    result = create_post_purchase_account(order, request.POST)
+    if not result:
+        log_event(logger, logging.INFO, "access.post_purchase.signup_form_invalid", order_id=order_id)
+        return render(request, "hr_access/post_purchase/_post_purchase_account_form.html", {"order": order, "form": form})
 
-        cust = getattr(order, "customer", None)
-        if cust and cust.user_id is None:
-            cust.user = user
-            cust.save(update_fields=["user", "updated_at"])
-
-        if getattr(order, "user_id", None) is None:
-            order.user = user
-            order.save(update_fields=["user", "updated_at"])
-
+    user, other_orders = result
     login(request, user)
 
-    other_orders = Order.objects.filter(email__iexact=locked_email, user__isnull=True).exclude(pk=order.id).order_by("-created_at")[:25]
-
+    log_event(logger, logging.INFO, "access.post_purchase.account_created", order_id=order.id, other_orders_count=len(other_orders))
     return render(request, "hr_access/post_purchase/_post_purchase_account_success.html", {"order": order, "other_orders": other_orders})
 
 
@@ -453,15 +462,18 @@ def account_submit_post_purchase_claim_orders(request, order_id: int):
     User may claim/deny as desired.
     """
     if not request.user.is_authenticated:
-        return HttpResponse(status=401)  # TODO trigger global message
+        log_event(logger, logging.WARNING, "access.post_purchase.claim_orders.unauthenticated", order_id=order_id)
+        return hx_trigger({"showMessage": show_message("Please sign in to claim orders.")}, status=401)
 
     order = get_object_or_404(Order, pk=order_id)
     email = order.email
 
     # Ownership gate: only link account_get_orders if the account email matches order email
     if request.user.email != email:
-        return HttpResponse(status=403)  # TODO trigger global message
+        log_event(logger, logging.WARNING, "access.post_purchase.claim_orders.email_mismatch", order_id=order_id, order_email=email)
+        return hx_trigger({"showMessage": show_message("This order does not match your account email.")}, status=403)
 
-    unclaimed_orders = Order.objects.filter(email__iexact=email, user__isnull=True).exclue(pk=order.id).order_by("-created_at")
+    unclaimed_orders = get_post_purchase_unclaimed_orders(email, exclude_order_id=order.id)
 
+    log_event(logger, logging.INFO, "access.post_purchase.claim_orders.rendered", order_id=order_id, unclaimed_count=len(unclaimed_orders))
     return render(request, "hr_access/orders/_unclaimed_orders_modal.html", {"email": email, "unclaimed_orders": unclaimed_orders, "error": None})
