@@ -7,7 +7,7 @@
 @font-face {
     font-family: "Bungee Hairline";
     font-display: swap;
-    src: url("/static/hr_core/fonts/BungeeHairline-Regular.ttf") format("truetype");
+    src: url("/static/hr_core/fonts/BungeeHairline-Regular.woff2") format("woff2");
 
     ascent-override:  90%;
     descent-override: 20%;
@@ -18,13 +18,13 @@
 @font-face {
     font-family: "Megrim";
     font-display: swap;
-    src: url("/static/hr_core/fonts/Megrim-Regular.ttf") format("truetype");
+    src: url("/static/hr_core/fonts/Megrim-Regular.woff2") format("woff2");
 }
 
 @font-face {
     font-family: "Quantico";
     font-display: swap;
-    src: url("/static/hr_core/fonts/Quantico-Regular.ttf") format("truetype");
+    src: url("/static/hr_core/fonts/Quantico-Regular.woff2") format("woff2");
     font-weight: 400;
     font-style: normal;
 }
@@ -32,7 +32,7 @@
 @font-face {
     font-family: "Quantico";
     font-display: swap;
-    src: url("/static/hr_core/fonts/Quantico-Bold.ttf") format("truetype");
+    src: url("/static/hr_core/fonts/Quantico-Bold.woff2") format("woff2");
     font-weight: 700;
     font-style: normal;
 }
@@ -40,7 +40,7 @@
 @font-face {
     font-family: "Quantico";
     font-display: swap;
-    src: url("/static/hr_core/fonts/Quantico-Italic.ttf") format("truetype");
+    src: url("/static/hr_core/fonts/Quantico-Italic.woff2") format("woff2");
     font-weight: 400;
     font-style: italic;
 }
@@ -48,7 +48,7 @@
 @font-face {
     font-family: "Quantico";
     font-display: swap;
-    src: url("/static/hr_core/fonts/Quantico-BoldItalic.ttf") format("truetype");
+    src: url("/static/hr_core/fonts/Quantico-BoldItalic.woff2") format("woff2");
     font-weight: 700;
     font-style: italic;
 }
@@ -59,22 +59,22 @@
     src: url("/static/hr_core/fonts/KARNIVBL.ttf") format("truetype");
 }
 
-@font-face {
-    font-family: "Tilt Prism";
-    font-display: swap;
-    src: url("/static/hr_core/fonts/TiltPrism-Regular.ttf") format("truetype");
-}
+/*@font-face {*/
+/*    font-family: "Tilt Prism";*/
+/*    font-display: swap;*/
+/*    src: url("/static/hr_core/fonts/TiltPrism-Regular.woff2") format("woff2");*/
+/*}*/
 
 @font-face {
     font-family: "Exo 2";
     font-display: swap;
-    src: url("/static/hr_core/fonts/Exo2-VariableFont_wght.ttf") format("truetype");
+    src: url("/static/hr_core/fonts/Exo2-VariableFont_wght.woff2") format("woff2");
 }
 
 @font-face {
     font-family: "Syne Mono";
     font-display: swap;
-    src: url("/static/hr_core/fonts/SyneMono-Regular.ttf") format("truetype");
+    src: url("/static/hr_core/fonts/SyneMono-Regular.woff2") format("woff2");
 }
 
 /* ===========================
@@ -275,6 +275,10 @@ nav.navbar {
     opacity:   1;
 }
 
+#global-message-bar.prehide {
+    visibility: visible !important;
+}
+
 /* ===========================
    Shared layout helpers
    =========================== */
@@ -471,6 +475,10 @@ nav.navbar {
     color: var(--neon-red);
 }
 
+#modal.prehide {
+    visibility: visible !important;
+}
+
 /* ===========================
    Floating cart button
    =========================== */
@@ -499,6 +507,10 @@ nav.navbar {
 /*noinspection CssInvalidPropertyValue*/
 @supports not (height: 100svh) {
     .floating-cart-btn { top: 7vh; }
+}
+
+.floating-cart-btn.prehide {
+    visibility: visible !important;
 }
 
 .floating-cart-btn:hover {

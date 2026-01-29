@@ -40,6 +40,11 @@
 /* ===========================
    Drawer navigation panel
    =========================== */
+/*#drawer-navigation.show { outline-color: lime; }*/
+/*html:not(.js-ready) #drawer-navigation {*/
+/*    transition: none !important;*/
+/*}*/
+
 
 #drawer-navigation {
     position:                   fixed;
@@ -64,6 +69,15 @@
     overscroll-behavior:        contain;
     transition:                 transform .2s ease-in-out;
 }
+
+
+#drawer-navigation.prehide {
+    visibility: visible !important;
+}
+
+/*html.js-ready #drawer-navigation {*/
+/*    transition: transform .2s ease-in-out;*/
+/*}*/
 
 @media (max-width: 991.98px) {
     #drawer-navigation form {
@@ -108,6 +122,10 @@
 /* ===========================
    Drawer / open-button controls
    =========================== */
+
+#open-nav-btn-container.prehide {
+    visibility: visible !important;
+}
 
 .user-panel hr {
     margin-top:     0.5rem;
@@ -267,7 +285,7 @@
 @media (prefers-color-scheme: dark) {
      #drawer-navigation .sidebar-btn:hover {
          color:      var(--gold);
-         transition: all .2s ease-in-out;
+         transition: color .2s ease-in-out;
      }
 }
 

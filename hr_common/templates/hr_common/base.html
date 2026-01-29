@@ -18,13 +18,13 @@
     <link rel="apple-touch-icon" href="{% static 'icons/apple-touch-icon.png' %}">
     <link rel="manifest" href="{% static 'icons/site.webmanifest' %}">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Zilla+Slab+Highlight:wght@400;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Syne+Mono&display=swap" rel="stylesheet">
+{#    <link rel="preconnect" href="https://fonts.googleapis.com">#}
+{#    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>#}
+{#    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Zilla+Slab+Highlight:wght@400;700&display=swap" rel="stylesheet">#}
+{#    <link href="https://fonts.googleapis.com/css2?family=Syne+Mono&display=swap" rel="stylesheet">#}
 
-    <link rel="preload" href="{% static 'hr_core/fonts/KARNIVBL.ttf' %}" as="font" type="font/ttf" crossorigin>
-    <link rel="preload" href="{% static 'hr_core/fonts/Quantico-Regular.ttf' %}" as="font" type="font/ttf" crossorigin>
+{#    <link rel="preload" href="{% static 'hr_core/fonts/KARNIVBL.woff2' %}" as="font" type="font/woff2" crossorigin>#}
+{#    <link rel="preload" href="{% static 'hr_core/fonts/Quantico-Regular.woff2' %}" as="font" type="font/woff2" crossorigin>#}
 
     {% if debug %}
       <script type="module" src="http://127.0.0.1:5173/@vite/client"></script>
@@ -38,9 +38,9 @@
     {% block extra_head %}{% endblock %}
 </head>
 
-<body>
+<body style="background-color: black;">
 
-<div id="global-message-bar" class="global-message-bar">
+<div id="global-message-bar" class="global-message-bar prehide" style="visibility: hidden;">
     <span id="global-message-content"></span>
 </div>
 
@@ -76,7 +76,7 @@
     <section id="banner-scroller"></section>
 
     {# ---- Sidebar / Drawer ---- #}
-    <div id="open-nav-btn-container">
+    <div id="open-nav-btn-container" class="prehide" style="visibility:hidden;">
         <button class="rounded-lg text-sm p-1.5 top-2.5 left-0 inline-flex items-center z-40 fixed"
                 id="nav-open-btn"
                 type="button"
@@ -86,7 +86,7 @@
         </button>
     </div>
 
-    <div id="drawer-navigation" tabindex="-1">
+    <div id="drawer-navigation" class="prehide" style="visibility: hidden;" tabindex="-1">
         <button type="button"
                 id="nav-close-btn"
                 data-drawer-close
@@ -101,19 +101,26 @@
                hx-swap="innerHTML">
         </aside>
 
-        <iframe src="https://bandcamp.com/EmbeddedPlayer/album=1766078263/size=large/bgcol=333333/linkcol=4ec5ec/tracklist=false/transparent=true/" seamless><a href="https://hellareptilian.bandcamp.com/album/into-hella-we-ride-demo">Into Hella We Ride! [Demo] by Hella Reptilian!</a></iframe>
+        <iframe src="https://bandcamp.com/EmbeddedPlayer/album=1766078263/size=large/bgcol=333333/linkcol=4ec5ec/tracklist=false/transparent=true/"
+                class="bc-embed"
+                width="360"
+                height="480"
+                loading="lazy"
+                title="Bandcamp player: Into Hella We Ride! [Demo]"
+                seamless>
+            <a href="https://hellareptilian.bandcamp.com/album/into-hella-we-ride-demo">Into Hella We Ride! [Demo] by Hella Reptilian!</a>
+        </iframe>
     </div>
 
     {# ---- Global Cart Icon w/ Item Counter #}
-    <button
-            id="floating-cart-btn"
-            class="floating-cart-btn {% if cart_item_count|default:0 <= 0 %}is-hidden{% endif %}"
+    <button id="floating-cart-btn"
+            style="visibility: hidden;"
+            class="prehide floating-cart-btn {% if cart_item_count|default:0 <= 0 %}is-hidden{% endif %}"
             type="button"
             aria-label="Open cart"
             hx-get="{% url 'hr_shop:checkout_resume' %}"
             hx-target="#modal-content"
-            hx-swap="innerHTML transition:true"
-    >
+            hx-swap="innerHTML transition:true">
         <i class="fa fa-shopping-cart" aria-hidden="true"></i>
         <span id="floating-cart-count" class="floating-cart-count">
             {{ cart_item_count }}
@@ -121,7 +128,7 @@
     </button>
 
     {# ---- Global modal shell ---- #}
-    <div id="modal" class="modal hidden product-modal" aria-hidden="true">
+    <div id="modal" class="prehide modal hidden product-modal" style="visibility:hidden;" aria-hidden="true">
         <div class="modal-backdrop" data-modal-close></div>
         <div class="modal-panel">
             <button class="modal-close-btn" data-modal-close>&times;</button>

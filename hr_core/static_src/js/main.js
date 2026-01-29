@@ -3,7 +3,6 @@
 import feather from "feather-icons";
 import * as htmx from "htmx.org";
 import "../css/main.css";
-
 import "./meta-init.js";
 import './modules/account.js'
 import './modules/banner.js'
@@ -18,6 +17,7 @@ import './utils/core-utils.js';
 import './utils/globals.js';
 import './utils/htmx-csrf.js';
 import './utils/vh-fix.js';
+
 
 window.htmx = htmx?.default ?? htmx;
 window.addEventListener("DOMContentLoaded", () => feather.replace());

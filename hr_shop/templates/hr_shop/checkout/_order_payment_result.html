@@ -64,7 +64,7 @@
     </div>
 
     {% if payment_result != 'paid' %}
-        <div class="m-actions m-grid">
+        <div class="m-actions m-foot m-grid">
             <button type="button"
                     class="card-btn btn-neon btn-blue btn-sm"
                     hx-get="{% url 'hr_shop:checkout_pay' order.id %}"

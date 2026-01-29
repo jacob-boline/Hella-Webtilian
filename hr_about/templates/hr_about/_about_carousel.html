@@ -17,7 +17,7 @@
                      decoding="async">
             {% endwith %}
         {% else %}
-            <img class="about-stage-img" src="" alt="No images available">
+            <img class="about-stage-img" width="1920" height="1080" src="" alt="No images available">
         {% endif %}
     </figure>
 
@@ -34,7 +34,7 @@
                             data-src="{{ slide.image.url }}"
                             data-alt="{{ slide.title }}"
                             data-index="{{ forloop.counter0 }}">
-                        <img src="{{ slide.image.url }}" alt="{{ slide.title }}">
+                        <img src="{{ slide.image.url }}" alt="{{ slide.title }}" width="78" height="78">
                     </button>
                 </li>
             {% endfor %}

@@ -13,7 +13,7 @@
     justify-content: center;
     width:           80vw;
     min-width:       400px;
-    padding:         48px 2rem;
+    padding:         3rem 2rem;
 }
 
 @media (max-width: 600px) {
@@ -28,8 +28,7 @@
 .concert-card {
     display:               grid;
     grid-template-columns: 1fr;
-    column-gap:            1rem;
-    row-gap:               1rem;
+    gap:                   1rem;
     align-items:           center;
     width:                 80vw;
     max-width:             clamp(320px, 92vw, 1600px);
@@ -40,8 +39,8 @@
     font-family:           "Megrim", cursive;
     color:                 var(--text);
     background:            linear-gradient(145deg, var(--card-bg-1), var(--card-bg-2));
-    box-shadow:             8px  8px 16px #131313,
-                           -8px -8px 16px #2F2F2F;
+    box-shadow:            0.5rem  0.5rem 1rem #131313,
+                          -0.5rem -0.5rem 1rem #2F2F2F;
 }
 
 /* Left date/venue panel */
@@ -49,17 +48,17 @@
     display:         flex;
     flex-direction:  column;
     justify-content: space-between;
-    gap:            .75rem;
+    gap:             0.75rem;
     height:          100%;
     margin:          0;
-    border-radius:  .75rem 0 0 .75rem;
+    border-radius:   0.75rem 0 0 0.75rem;
     padding:         1rem 1rem 0;
     align-self:      stretch;
     color:           var(--ink-900);
-    background:      linear-gradient(145deg,       var(--panel-bg), #ECEFF3);
-    box-shadow:      inset  .45rem  .45rem 1.00rem var(--panel-lo),
-                     inset -.45rem -.45rem 1.00rem var(--panel-hi),
-                             0      .25rem  .75rem var(--black-alpha-15);
+    background:      linear-gradient( 145deg,        var(--panel-bg), #ECEFF3);
+    box-shadow:      inset  0.45rem  0.45rem 1.00rem var(--panel-lo),
+                     inset -0.45rem -0.45rem 1.00rem var(--panel-hi),
+                            0        0.25rem 0.75rem var(--black-alpha-15);
 }
 
 .date-block {
@@ -72,8 +71,8 @@
 
 .directions-container {
     margin-top:      auto;
-    margin-left:    -1rem;
-    margin-right:   -1rem;
+    margin-left:     -1rem;
+    margin-right:    -1rem;
     display:         flex;
     justify-content: flex-end;
 }
@@ -91,38 +90,36 @@
 }
 
 .date-panel .time {
-    margin-top: .35rem;
-    font-size:   clamp(.95rem, 2.2vw, 1.75rem);
+    margin-top:  0.35rem;
+    font-size:   clamp(0.95rem, 2.2vw, 1.75rem);
     font-weight: 700;
     color:       var(--ink-900);
 }
 
 .date-panel .venue {
-    margin-top:     .35rem;
-    font-size:       clamp(.8rem, 1.8vw, 1.5rem);
-    color:           var(--muted);
-    text-transform:  uppercase;
+    margin-top:     0.35rem;
+    font-size:      clamp(0.8rem, 1.8vw, 1.5rem);
+    color:          var(--muted);
+    text-transform: uppercase;
     letter-spacing: .06em;
 }
 
 .card-center {
-    position:               relative;
-    display:                flex;
-    justify-content:        center;
-    align-items:            center;
-    background:             linear-gradient(
-                                135deg,
-                                var(--white-alpha-15)      0%,
-                                rgba(255, 160, 255, 0.10) 20%,
-                                rgba( 10,  10,  10, 0.92) 70%,
-                                var(--black-alpha-90)    100%
-                             );
-    border-radius:           0 .75rem .75rem 0;
-    /*backdrop-filter:         blur(18px);*/
-    /*-webkit-backdrop-filter: blur(18px);*/
-    box-shadow:              0 18px 32px var(--black-alpha-75),
-                             0  0   20px var(--black-alpha-75);
-    overflow:                hidden;
+    position:        relative;
+    display:         flex;
+    justify-content: center;
+    align-items:     center;
+    background:      linear-gradient(
+                             135deg,
+                             var(--white-alpha-15)      0%,
+                             rgba(255, 160, 255, 0.10) 20%,
+                             rgba(10, 10, 10, 0.92)    70%,
+                             var(--black-alpha-90)    100%
+                     );
+    border-radius:   0 0.75rem 0.75rem 0;
+    box-shadow:      0 18px 32px var(--black-alpha-75),
+                     0  0   20px var(--black-alpha-75);
+    overflow:        hidden;
 }
 
 .card-center::before {
@@ -141,7 +138,7 @@
     z-index:        1;
     display:        flex;
     flex-direction: column;
-    gap:           .75rem;
+    gap:            0.75rem;
     align-items:    center;
     padding:        1.5rem 2rem;
 }
@@ -155,666 +152,169 @@
     transition:  color       .2s ease,
                  text-shadow .2s ease,
                  transform   .2s ease;
-    text-shadow: 0 0  4px rgba(157,0,255,0.8),
-                 0 0 12px rgba(157,0,255,0.5);
+    text-shadow: 0 0  4px rgba(157, 0, 255, 0.8),
+                 0 0 12px rgba(157, 0, 255, 0.5);
 }
 
 .act-name.neon-ready {
-  animation-duration:        var(--neon-duration, 6.5s);
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite;
-  animation-direction:       alternate;
-  animation-fill-mode:       both;
-  animation-play-state:      paused;
+    animation-duration:        var(--neon-duration, 6.5s);
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    animation-direction:       alternate;
+    animation-fill-mode:       both;
+    animation-play-state:      paused;
 }
 
 .act-name.neon-ready:hover {
-  animation-play-state: running;
+    animation-play-state: running;
 }
 
 .neon-debug-label {
     position:       absolute;
-    top:           -1.25rem;
+    top:            -1.25rem;
     right:          0;
     padding:        2px 6px;
-    font-size:     .65rem;
+    font-size:      .65rem;
     font-family:    monospace;
     color:          white;
     background:     var(--black-alpha-60);
-    border:         1px solid rgba(255,255,255,0.2);
-    border-radius: f 4px;
+    border:         1px solid rgba(255, 255, 255, 0.2);
+    border-radius:  4px;
     pointer-events: none;
     opacity:        0;
     transition:     opacity .2s ease;
 }
 
-
-/* Variant A – your original sequence */
+/* Variant A */
 @keyframes neon-sequence-a {
-  0% {
-    text-shadow: 0 0   5px currentColor,
-                 0 0  15px currentColor,
-                 0 0  30px currentColor,
-                 0 0  60px currentColor,
-                 0 0 120px currentColor;
-    opacity:     1;
-    filter:      brightness(1.25);
-  }
-  6% {
-    text-shadow: 0 0  3px currentColor,
-                 0 0 10px currentColor;
-    opacity:     0.64;
-    filter:      brightness(0.75);
-  }
-  8%  { opacity: 1;   filter: brightness(1.25); }
-
-    10% {
-    text-shadow: 0 0  4px currentColor,
-                 0 0 12px currentColor;
-    opacity:     0.64;
-    filter:      brightness(0.75);
-  }
-  12% { opacity: 1;   filter: brightness(1.2);  }
-  15% { opacity: 0.6; filter: brightness(0.7);  }
-  20% { opacity: 1;   filter: brightness(1.2);  }
-  22% {
-    text-shadow: 0 0  3px currentColor,
-                 0 0 10px currentColor;
-    opacity:     0.6;
-    filter:      brightness(0.7);
-  }
-  24% {
-    text-shadow: 0 0   5px currentColor,
-                 0 0  15px currentColor,
-                 0 0  30px currentColor,
-                 0 0  60px currentColor,
-                 0 0 120px currentColor;
-    opacity:     1;
-    filter:      brightness(1.2);
-  }
-  27% {
-    text-shadow: 0 0  3px currentColor,
-                 0 0 10px currentColor;
-    opacity:     0.6;
-    filter:      brightness(0.7);
-  }
-  28% { opacity: 1;   filter: brightness(1.2);  }
-  30% { opacity: 0.55;filter: brightness(0.7);  }
-  32% { opacity: 1;   filter: brightness(1.25); }
-  35% { opacity: 0.6; filter: brightness(0.75); }
-  36% { opacity: 1;   filter: brightness(1.25); }
-  40% { opacity: 0.6; filter: brightness(0.75); }
-  46% { opacity: 1;   filter: brightness(1.25); }
-  60% { opacity: 1;   filter: brightness(1.35); }
-  61% { opacity: 0.92;filter: brightness(1.15); }
-  62% { opacity: 1;   filter: brightness(1.35); }
-  70% { opacity: 0.95;filter: brightness(1.15); }
-  71% { opacity: 1;   filter: brightness(1.35); }
-  77% { opacity: 0.92;filter: brightness(1.2);  }
-  78% { opacity: 1;   filter: brightness(1.25); }
-  80% { opacity: 0.6; filter: brightness(0.75); }
-  82% { opacity: 1;   filter: brightness(1.25); }
-  88% { opacity: 0.6; filter: brightness(0.75); }
-  90% { opacity: 1;   filter: brightness(1.25); }
-  96% { opacity: 0.6; filter: brightness(0.75); }
-  100%{ opacity: 1;   filter: brightness(1.25); }
+   0% { opacity: 1; filter: brightness(1.25); text-shadow: 0 0 5px currentColor, 0 0 15px currentColor, 0 0 30px currentColor, 0 0 60px currentColor, 0 0 120px currentColor; }
+  24% { opacity: 1; filter: brightness(1.2);  text-shadow: 0 0 5px currentColor, 0 0 15px currentColor, 0 0 30px currentColor, 0 0 60px currentColor, 0 0 120px currentColor; }
+   6%, 10%            { opacity: 0.64; filter: brightness(0.75);   text-shadow:  0 0  3px currentColor, 0 0 10px currentColor; }
+  22%, 27%            { opacity: 0.6;  filter: brightness(0.7);    text-shadow:  0 0  3px currentColor, 0 0 10px currentColor; }
+  12%, 20%, 28%       { opacity: 1;    filter: brightness(1.2);  }
+   8%, 32%, 36%,  46% { opacity: 1;    filter: brightness(1.25); }
+  35%, 40%, 88%,  96% { opacity: 0.6;  filter: brightness(0.75); }
+  15%                 { opacity: 0.6;  filter: brightness(0.7);  }
+  30%                 { opacity: 0.55; filter: brightness(0.7);  }
+  60%, 62%, 71%       { opacity: 1;    filter: brightness(1.35); }
+  61%, 70%            { opacity: 0.92; filter: brightness(1.15); }
+  77%                 { opacity: 0.92; filter: brightness(1.2);  }
+  78%, 82%, 90%, 100% { opacity: 1;    filter: brightness(1.25); }
+  80%                 { opacity: 0.6;  filter: brightness(0.75); }
 }
 
-/* Variant B – longer bright holds, fewer jitters */
+/* Variant B */
 @keyframes neon-sequence-b {
-  0%,
-  12% {
-    opacity: 1;
-    filter:  brightness(1.3);
-    text-shadow:
-      0 0  4px currentColor,
-      0 0 12px currentColor,
-      0 0 26px currentColor,
-      0 0 48px currentColor;
-  }
-  13%,
-  18% { opacity: 0.5; filter: brightness(0.70); text-shadow: 0 0 2px currentColor, 0 0 6px currentColor; }
-  30%,
-  40% { opacity: 1.0; filter: brightness(1.35); }
-  41%,
-  48% { opacity: 0.7; filter: brightness(0.90); }
-  60% { opacity: 1.0; filter: brightness(1.40); }
-  80% { opacity: 0.6; filter: brightness(0.80); }
-  100%{ opacity: 1.0; filter: brightness(1.30); }
+    0%, 12% { opacity: 1;   filter: brightness(1.3);  text-shadow: 0 0 4px currentColor, 0 0 12px currentColor, 0 0 26px currentColor, 0 0 48px currentColor; }
+   13%, 18% { opacity: 0.5; filter: brightness(0.70); text-shadow: 0 0 2px currentColor, 0 0  6px currentColor; }
+   30%, 40% { opacity: 1;   filter: brightness(1.35); }
+   41%, 48% { opacity: 0.7; filter: brightness(0.90); }
+   60%      { opacity: 1;   filter: brightness(1.40); }
+   80%      { opacity: 0.6; filter: brightness(0.80); }
+  100%      { opacity: 1;   filter: brightness(1.30); }
 }
 
-/* Variant C – lots of quick micro flickers */
+/* Variant C */
 @keyframes neon-sequence-c {
-   0% { opacity: 1.0; filter: brightness(1.3); text-shadow: 0 0 3px currentColor, 0 0 8px currentColor, 0 0 20px currentColor; }
+   0%, 100% { opacity: 1; filter: brightness(1.3); text-shadow: 0 0 3px currentColor, 0 0 8px currentColor, 0 0 20px currentColor; }
    5% { opacity: 0.4; filter: brightness(0.60); }
-   7% { opacity: 1.0; filter: brightness(1.20); }
+   7% { opacity: 1;   filter: brightness(1.20); }
    9% { opacity: 0.5; filter: brightness(0.70); }
-  11% { opacity: 1.0; filter: brightness(1.25); }
+  11% { opacity: 1;   filter: brightness(1.25); }
   25% { opacity: 0.7; filter: brightness(0.90); }
-  40% { opacity: 1.0; filter: brightness(1.30); }
+  40% { opacity: 1;   filter: brightness(1.30); }
   55% { opacity: 0.6; filter: brightness(0.80); }
-  70% { opacity: 1.0; filter: brightness(1.35); }
+  70% { opacity: 1;   filter: brightness(1.35); }
   85% { opacity: 0.5; filter: brightness(0.75); }
-  100%{ opacity: 1.0; filter: brightness(1.3);
-  }
 }
 
+/* Variant D */
 @keyframes neon-sequence-d {
-    0% { opacity: 1.00; filter: brightness(1.30); text-shadow: 0 0 4px currentColor, 0 0 12px currentColor, 0 0 24px currentColor; }
-    5% { opacity: 0.45; filter: brightness(0.60); text-shadow: 0 0 2px currentColor; }
-    7% { opacity: 1.00; filter: brightness(1.40); text-shadow: 0 0 6px currentColor, 0 0 20px currentColor; }
-   13% { opacity: 0.50; filter: brightness(0.70); }
-   20% { opacity: 1.00; filter: brightness(1.30); }
-   30% { opacity: 0.65; filter: brightness(0.75); }
-   40% { opacity: 1.00; filter: brightness(1.40); text-shadow: 0 0 8px currentColor, 0 0 28px currentColor; }
-   60% { opacity: 0.95; filter: brightness(1.25); }
-   80% { opacity: 0.55; filter: brightness(0.60); }
-  100% { opacity: 1.00; filter: brightness(1.35); }
+   0%, 100% { opacity: 1; filter: brightness(1.30); text-shadow: 0 0 4px currentColor, 0 0 12px currentColor, 0 0 24px currentColor; }
+   5% { opacity: 0.45; filter: brightness(0.60);    text-shadow: 0 0 2px currentColor; }
+   7% { opacity: 1;    filter: brightness(1.40);    text-shadow: 0 0 6px currentColor, 0 0 20px currentColor; }
+  13% { opacity: 0.50; filter: brightness(0.70); }
+  20% { opacity: 1;    filter: brightness(1.30); }
+  30% { opacity: 0.65; filter: brightness(0.75); }
+  40% { opacity: 1;    filter: brightness(1.40);    text-shadow: 0 0 8px currentColor, 0 0 28px currentColor; }
+  60% { opacity: 0.95; filter: brightness(1.25); }
+  80% { opacity: 0.55; filter: brightness(0.60); }
 }
 
+/* Variant E */
 @keyframes neon-sequence-e {
-    0% { opacity: 1.00; filter: brightness(1.10); text-shadow: 0 0 4px currentColor, 0 0 14px currentColor; }
+    0% { opacity: 1;    filter: brightness(1.10); text-shadow: 0 0 4px currentColor, 0 0 14px currentColor; }
    15% { opacity: 0.75; filter: brightness(0.85); }
-   25% { opacity: 1.00; filter: brightness(1.20); text-shadow: 0 0 6px currentColor, 0 0 20px currentColor; }
+   25% { opacity: 1;    filter: brightness(1.20); text-shadow: 0 0 6px currentColor, 0 0 20px currentColor; }
    40% { opacity: 0.60; filter: brightness(0.70); }
-   55% { opacity: 1.00; filter: brightness(1.25); }
+   55% { opacity: 1;    filter: brightness(1.25); }
    70% { opacity: 0.80; filter: brightness(0.90); }
-  100% { opacity: 1.00; filter: brightness(1.30); }
+  100% { opacity: 1;    filter: brightness(1.30); }
 }
 
+/* Variant F */
 @keyframes neon-sequence-f {
-  0% {
-    opacity: 1;
-    filter: brightness(1.3);
-    text-shadow:
-      0 0  6px currentColor,
-      0 0 20px currentColor,
-      0 0 40px currentColor;
-  }
-
-  /* ramping up to overload */
-  20% {
-    opacity: 1;
-    filter: brightness(1.8);
-    text-shadow:
-      0 0 12px currentColor,
-      0 0 30px currentColor,
-      0 0 60px currentColor;
-  }
-
-  /* ⚪ FULL WHITE OVERPOWERED BLAST */
-  40% {
-    opacity: 1;
-    color: white; /* temporarily white-hot */
-    filter: brightness(2.6);
-    text-shadow:
-      0 0  30px white,
-      0 0  60px white,
-      0 0 120px white,
-      0 0 200px white;
-  }
-
-  /* crackle burnout */
-  55% {
-    opacity: 0.45;
-    color: var(--neon-color);
-    filter: brightness(0.6);
-    text-shadow: 0 0 4px currentColor;
-  }
-
-  /* recovering stability */
-  75% {
-    opacity: 0.85;
-    filter: brightness(1.1);
-    text-shadow:
-      0 0  8px currentColor,
-      0 0 20px currentColor;
-  }
-
-  /* stable glow by the end */
-  100% {
-    opacity: 1;
-    filter: brightness(1.3);
-    text-shadow:
-      0 0  6px currentColor,
-      0 0 24px currentColor,
-      0 0 50px currentColor;
-  }
+    0% { opacity: 1;    filter: brightness(1.3); text-shadow: 0 0  6px currentColor, 0 0 20px currentColor, 0 0 40px currentColor; }
+   20% { opacity: 1;    filter: brightness(1.8); text-shadow: 0 0 12px currentColor, 0 0 30px currentColor, 0 0 60px currentColor; }
+   40% { opacity: 1;    filter: brightness(2.6); text-shadow: 0 0 30px white, 0 0 60px white, 0 0 120px white, 0 0 200px white; color: white; }
+   55% { opacity: 0.45; filter: brightness(0.6); text-shadow: 0 0  4px currentColor; color: var(--neon-color); }
+   75% { opacity: 0.85; filter: brightness(1.1); text-shadow: 0 0  8px currentColor, 0 0 20px currentColor; }
+  100% { opacity: 1;    filter: brightness(1.3); text-shadow: 0 0  6px currentColor, 0 0 24px currentColor, 0 0 50px currentColor; }
 }
 
-/* G – repeated power-up → flash → hard off → retry */
+/* Variant G */
 @keyframes neon-sequence-g {
-  /* “off” but still faintly visible */
-  0% {
-    opacity: 0.35;
-    filter: brightness(0.55);
-    text-shadow:
-      0 0 1px currentColor,
-      0 0 3px var(--black-alpha-60);
-  }
-
-  10% {
-    opacity: 0.5;
-    filter: brightness(0.7);
-    text-shadow:
-      0 0 2px currentColor,
-      0 0 6px currentColor;
-  }
-
-  22% {
-    opacity: 0.85;
-    filter: brightness(1.1);
-    text-shadow:
-      0 0  4px currentColor,
-      0 0 14px currentColor;
-  }
-
-  28% {
-    opacity: 0.5;
-    filter: brightness(0.75);
-    text-shadow:
-      0 0 2px currentColor,
-      0 0 6px currentColor;
-  }
-
-  40% {
-    opacity: 0.95;
-    filter: brightness(1.4);
-    text-shadow:
-      0 0  5px currentColor,
-      0 0 18px currentColor,
-      0 0 32px currentColor;
-  }
-
-  48% {
-    opacity: 0.7;
-    filter: brightness(1.0);
-  }
-
-  /* overload flash – still bright but not totally nuking */
-  55% {
-    opacity: 1;
-    color: white;
-    filter: brightness(2.2);
-    text-shadow:
-      0 0 16px white,
-      0 0 40px white,
-      0 0 90px white;
-  }
-
-  /* “breaker trips” → ghost state, not invisible */
-  62% {
-    opacity: 0.4;
-    color: var(--neon-color);
-    filter: brightness(0.6);
-    text-shadow:
-      0 0 1px currentColor,
-      0 0 4px currentColor;
-  }
-
-  72% {
-    opacity: 0.55;
-    filter: brightness(0.8);
-    text-shadow:
-      0 0 2px currentColor,
-      0 0 8px currentColor;
-  }
-
-  80% {
-    opacity: 0.4;
-    filter: brightness(0.6);
-    text-shadow:
-      0 0 1px currentColor,
-      0 0 4px currentColor;
-  }
-
-  /* end-of-cycle: unstable but readable */
-  100% {
-    opacity: 0.7;
-    filter: brightness(0.95);
-    text-shadow:
-      0 0  3px currentColor,
-      0 0 10px currentColor;
-  }
+  0%, 62%, 80% { opacity: 0.4;  filter: brightness(0.6);  text-shadow: 0 0 1px currentColor, 0 0  4px currentColor; }
+  10%, 72%     { opacity: 0.55; filter: brightness(0.8);  text-shadow: 0 0 2px currentColor, 0 0  8px currentColor; }
+  22%          { opacity: 0.85; filter: brightness(1.1);  text-shadow: 0 0 4px currentColor, 0 0 14px currentColor; }
+  28%          { opacity: 0.5;  filter: brightness(0.75); text-shadow: 0 0 2px currentColor, 0 0  6px currentColor; }
+  40%          { opacity: 0.95; filter: brightness(1.4);  text-shadow: 0 0 5px currentColor, 0 0 18px currentColor, 0 0 32px currentColor; }
+  48%          { opacity: 0.7;  filter: brightness(1.0); }
+  55%          { opacity: 1;    filter: brightness(2.2);  text-shadow: 0 0 16px white, 0 0 40px white, 0 0 90px white; color: white; }
+  100%         { opacity: 0.7;  filter: brightness(0.95); text-shadow: 0 0 3px currentColor, 0 0 10px currentColor; }
 }
 
-
-/* H – broken tube with long dead intervals */
-@keyframes neon-sequence-h {
-  /* “dead” = ghosted, not vanished */
-  0% {
-    opacity: 0.35;
-    filter: brightness(0.55);
-    text-shadow:
-      0 0 1px currentColor,
-      0 0 3px var(--black-alpha-75);
-  }
-
-  8% {
-    opacity: 0.6;
-    filter: brightness(0.9);
-    text-shadow:
-      0 0 2px currentColor,
-      0 0 6px currentColor;
-  }
-
-  10% {
-    opacity: 0.4;
-    filter: brightness(0.65);
-    text-shadow:
-      0 0 1px currentColor,
-      0 0 3px currentColor;
-  }
-
-  18% {
-    opacity: 0.9;
-    filter: brightness(1.15);
-    text-shadow:
-      0 0  4px currentColor,
-      0 0 12px currentColor;
-  }
-
-  22% {
-    opacity: 0.45;
-    filter: brightness(0.7);
-    text-shadow:
-      0 0 1px currentColor,
-      0 0 3px currentColor;
-  }
-
-  /* “long dead gap” → more like a dim ghost */
-  40% {
-    opacity: 0.35;
-    filter: brightness(0.55);
-    text-shadow:
-      0 0 1px currentColor,
-      0 0 3px var(--black-alpha-75);
-  }
-
-  52% {
-    opacity: 0.7;
-    filter: brightness(0.95);
-    text-shadow:
-      0 0  3px currentColor,
-      0 0 10px currentColor;
-  }
-
-  60% {
-    opacity: 0.45;
-    filter: brightness(0.7);
-    text-shadow:
-      0 0 1px currentColor,
-      0 0 3px currentColor;
-  }
-
-  100% {
-    opacity: 0.4;
-    filter: brightness(0.6);
-    text-shadow:
-      0 0 1px currentColor,
-      0 0 3px var(--black-alpha-75);
-  }
-}
-
-
-/* I – rolling discharge / wave-like glow */
+/* Variant I – rolling discharge */
 @keyframes neon-sequence-i {
-  /* dim base */
-  0% {
-    opacity: 0.4;
-    filter: brightness(0.7);
-    text-shadow:
-      0 0 2px currentColor,
-      0 0 6px currentColor;
-  }
-
-  /* wave entering (left side notionally brightening) */
-  20% {
-    opacity: 0.8;
-    filter: brightness(1.1);
-    text-shadow:
-      -2px 0  4px currentColor,
-       0   0 14px currentColor,
-       2px 0 24px currentColor;
-  }
-
-  /* wave at center – max brightness */
-  40% {
-    opacity: 1;
-    filter: brightness(1.4);
-    text-shadow:
-      0 0  5px currentColor,
-      0 0 18px currentColor,
-      0 0 34px currentColor;
-  }
-
-  /* wave exiting towards the right */
-  60% {
-    opacity: 0.85;
-    filter: brightness(1.1);
-    text-shadow:
-       2px 0  4px currentColor,
-       0   0 14px currentColor,
-      -2px 0 24px currentColor;
-  }
-
-  /* trailing afterglow */
-  80% {
-    opacity: 0.6;
-    filter: brightness(0.85);
-    text-shadow:
-      0 0 3px currentColor,
-      0 0 8px currentColor;
-  }
-
-  100% {
-    opacity: 0.4;
-    filter: brightness(0.7);
-    text-shadow:
-      0 0 2px currentColor,
-      0 0 6px currentColor;
-  }
+  0%, 100% { opacity: 0.4;  filter: brightness(0.7);  text-shadow:  0   0 2px currentColor, 0 0  6px currentColor; }
+  20%      { opacity: 0.8;  filter: brightness(1.1);  text-shadow: -2px 0 4px currentColor, 0 0 14px currentColor,  2px 0 24px currentColor; }
+  40%      { opacity: 1;    filter: brightness(1.4);  text-shadow:  0   0 5px currentColor, 0 0 18px currentColor,  0   0 34px currentColor; }
+  60%      { opacity: 0.85; filter: brightness(1.1);  text-shadow:  2px 0 4px currentColor, 0 0 14px currentColor, -2px 0 24px currentColor; }
+  80%      { opacity: 0.6;  filter: brightness(0.85); text-shadow:  0   0 3px currentColor, 0 0  8px currentColor; }
 }
 
-/* J – electrical arc / hue-rotated flashes */
+/* Variant J – electrical arc */
 @keyframes neon-sequence-j {
-  0% {
-    opacity: 0.8;
-    filter: brightness(1.1) hue-rotate(0deg);
-    text-shadow:
-      0 0  4px currentColor,
-      0 0 14px currentColor;
-  }
-
-  /* quick cyan-ish arc */
-  10% {
-    opacity: 1;
-    filter: brightness(1.8) hue-rotate(40deg) saturate(1.4);
-    text-shadow:
-      0 0  6px #a0ffff,
-      0 0 18px #a0ffff,
-      0 0 36px #a0ffff;
-  }
-
-  14% {
-    opacity: 0.5;
-    filter: brightness(0.8) hue-rotate(-20deg);
-    text-shadow: 0 0 2px currentColor, 0 0 8px currentColor;
-  }
-
-  /* second arc, slightly different hue */
-  26% {
-    opacity: 1;
-    filter: brightness(2.0) hue-rotate(-35deg) saturate(1.5);
-    text-shadow:
-      0 0  6px #9fd1ff,
-      0 0 18px #9fd1ff,
-      0 0 38px #9fd1ff;
-  }
-
-  32% {
-    opacity: 0.55;
-    filter: brightness(0.9) hue-rotate(10deg);
-  }
-
-  /* calmer mid-phase */
-  50% {
-    opacity: 0.9;
-    filter: brightness(1.1) hue-rotate(0deg);
-    text-shadow:
-      0 0  4px currentColor,
-      0 0 12px currentColor;
-  }
-
-  /* small crackle near end */
-  70% {
-    opacity: 0.6;
-    filter: brightness(0.85) hue-rotate(25deg);
-  }
-
-  80% {
-    opacity: 1;
-    filter: brightness(1.5) hue-rotate(-15deg);
-    text-shadow:
-      0 0  5px currentColor,
-      0 0 16px currentColor,
-      0 0 30px currentColor;
-  }
-
-  100% {
-    opacity: 0.8;
-    filter: brightness(1.1) hue-rotate(0deg);
-    text-shadow:
-      0 0  4px currentColor,
-      0 0 12px currentColor;
-  }
+  0%, 50%, 100% { opacity: 0.8;  filter: brightness(1.1)  hue-rotate(0deg);   text-shadow: 0 0 4px currentColor, 0 0 14px currentColor; }
+  10%           { opacity: 1;    filter: brightness(1.8)  hue-rotate(40deg)   saturate(1.4); text-shadow: 0 0 6px #A0FFFF, 0 0 18px #A0FFFF, 0 0 36px #A0FFFF; }
+  14%           { opacity: 0.5;  filter: brightness(0.8)  hue-rotate(-20deg); text-shadow: 0 0 2px currentColor, 0 0 8px currentColor; }
+  26%           { opacity: 1;    filter: brightness(2.0)  hue-rotate(-35deg)  saturate(1.5); text-shadow: 0 0 6px #9FD1FF, 0 0 18px #9FD1FF, 0 0 38px #9FD1FF; }
+  32%           { opacity: 0.55; filter: brightness(0.9)  hue-rotate(10deg); }
+  70%           { opacity: 0.6;  filter: brightness(0.85) hue-rotate(25deg); }
+  80%           { opacity: 1;    filter: brightness(1.5)  hue-rotate(-15deg); text-shadow: 0 0 5px currentColor, 0 0 16px currentColor, 0 0 30px currentColor; }
 }
 
-/* K – rare supernova flash */
+/* Variant K – Supernova */
 @keyframes neon-sequence-k {
-  0% {
-    opacity: 0.8;
-    color: var(--neon-color);
-    filter: brightness(1.0);
-    text-shadow:
-      0 0  4px currentColor,
-      0 0 14px currentColor;
-  }
-
-  20% {
-    opacity: 1;
-    filter: brightness(1.8);
-    text-shadow:
-      0 0  8px currentColor,
-      0 0 26px currentColor,
-      0 0 40px currentColor;
-  }
-
-  /* supernova blast */
-  28% {
-    opacity: 1;
-    color: white;
-    filter: brightness(2.6);
-    text-shadow:
-      0 0  20px white,
-      0 0  50px white,
-      0 0 110px white,
-      0 0 180px white;
-  }
-
-  40% {
-    opacity: 0.4;
-    color: var(--neon-color);
-    filter: brightness(0.7);
-    text-shadow:
-      0 0 1px currentColor,
-      0 0 4px currentColor;
-  }
-
-  55% {
-    opacity: 0.55;
-    filter: brightness(0.9);
-    text-shadow:
-      0 0 2px currentColor,
-      0 0 8px currentColor;
-  }
-
-  75% {
-    opacity: 0.8;
-    filter: brightness(1.1);
-    text-shadow:
-      0 0  3px currentColor,
-      0 0 12px currentColor;
-  }
-
-  100% {
-    opacity: 0.9;
-    filter: brightness(1.2);
-    text-shadow:
-      0 0  4px currentColor,
-      0 0 14px currentColor;
-  }
+    0% { opacity: 0.8;  filter: brightness(1.0); text-shadow: 0 0  4px currentColor, 0 0 14px currentColor;                     color: var(--neon-color); }
+   20% { opacity: 1;    filter: brightness(1.8); text-shadow: 0 0  8px currentColor, 0 0 26px currentColor, 0 0 40px currentColor; }
+   28% { opacity: 1;    filter: brightness(2.6); text-shadow: 0 0 20px white, 0 0 50px white, 0 0 110px white, 0 0 180px white; color: white; }
+   40% { opacity: 0.4;  filter: brightness(0.7); text-shadow: 0 0  1px currentColor, 0 0  4px currentColor;                     color: var(--neon-color); }
+   55% { opacity: 0.55; filter: brightness(0.9); text-shadow: 0 0  2px currentColor, 0 0  8px currentColor; }
+   75% { opacity: 0.8;  filter: brightness(1.1); text-shadow: 0 0  3px currentColor, 0 0 12px currentColor; }
+  100% { opacity: 0.9;  filter: brightness(1.2); text-shadow: 0 0  4px currentColor, 0 0 14px currentColor; }
 }
 
-
-/* L – warm filament fade-out */
+/* Variant L */
 @keyframes neon-sequence-l {
-  /* cold filament, barely orange */
-  0% {
-    opacity: 0.2;
-    color: #ffb36b;
-    filter: brightness(0.6);
-    text-shadow:
-      0 0 2px #ffb36b,
-      0 0 4px #ffb36b;
-  }
-
-  /* warming up */
-  20% {
-    opacity: 0.6;
-    filter: brightness(1.0);
-    text-shadow:
-      0 0  4px #ffcc88,
-      0 0 10px #ffb36b;
-  }
-
-  /* peak warm glow */
-  40% {
-    opacity: 1;
-    filter: brightness(1.4);
-    text-shadow:
-      0 0  6px #ffe0aa,
-      0 0 16px #ffcc88,
-      0 0 28px #ffb36b;
-  }
-
-  /* beginning to cool */
-  60% {
-    opacity: 0.7;
-    filter: brightness(1.0);
-    text-shadow:
-      0 0  4px #ffb36b,
-      0 0 10px #ff9b4d;
-  }
-
-  /* dimmer, cooling filament */
-  80% {
-    opacity: 0.35;
-    filter: brightness(0.7);
-    text-shadow:
-      0 0 2px #ff9440,
-      0 0 6px #ff7a33;
-  }
-
-  /* nearly off again */
-  100% {
-    opacity: 0.15;
-    filter: brightness(0.5);
-    text-shadow:
-      0 0 1px #ff7a33,
-      0 0 3px #803c1a;
-  }
+    0% { opacity: 0.2;  filter: brightness(0.6); text-shadow: 0 0 2px #FFB36B, 0 0  4px #FFB36B; color: #FFB36B; }
+   20% { opacity: 0.6;  filter: brightness(1.0); text-shadow: 0 0 4px #FC8,    0 0 10px #FFB36B; }
+   40% { opacity: 1;    filter: brightness(1.4); text-shadow: 0 0 6px #FFE0AA, 0 0 16px #FC8,  0 0 28px #FFB36B; }
+   60% { opacity: 0.7;  filter: brightness(1.0); text-shadow: 0 0 4px #FFB36B, 0 0 10px #FF9B4D; }
+   80% { opacity: 0.35; filter: brightness(0.7); text-shadow: 0 0 2px #FF9440, 0 0  6px #FF7A33; }
+  100% { opacity: 0.15; filter: brightness(0.5); text-shadow: 0 0 1px #FF7A33, 0 0  3px #803C1A; }
 }
+
 
 .card-btn.directions-btn {
     display:         inline-flex;
@@ -823,14 +323,16 @@
     justify-content: center;
     font-family:     "Bungee Hairline", sans-serif;
     text-decoration: none;
-    transition:      transform .2s ease, box-shadow .2s ease;
+    transition:      transform  .2s ease,
+                     color      .2s ease,
+                     box-shadow .2s ease;
 }
 
 .date-panel .directions-btn--inline {
     display:         flex;
     align-items:     center;
     justify-content: center;
-    width:           100%; /* full-width strip */
+    width:           100%;
     padding:         0.45rem 0.85rem;
     font-family:     "Bungee Hairline", sans-serif;
     font-size:       0.9rem;
@@ -840,14 +342,16 @@
     color:           var(--text);
     background:      #181818;
     text-decoration: none;
-    border-radius:   0 0 0 0.75rem; /* shares bottom-left radius with panel */
-    border-right:    2px solid var(--text); /* white right border like you wanted */
+    border-radius:   0 0 0 0.75rem;
+    border-right:    2px solid var(--text);
     border-left:     2px solid var(--text);
     border-bottom:   2pt solid var(--text);
     border-top:      1px solid var(--white-alpha-15);
-    box-shadow:       3px  3px 6px var(--black-alpha-90),
-                     -3px -3px 6px var(--white-alpha-15);
-    transition:      color .2s ease, box-shadow .2s ease, transform .2s ease;
+    box-shadow:      3px  3px 6px var(--black-alpha-90),
+                    -3px -3px 6px var(--white-alpha-15);
+    transition:      color      .2s ease,
+                     box-shadow .2s ease,
+                     transform  .2s ease;
 }
 
 .date-panel .directions-btn--inline i {
@@ -857,27 +361,21 @@
 
 .date-panel .directions-btn--inline:hover {
     background:  #181818;
-    box-shadow:  0   -1px  0       var(--white-alpha-15),
+    box-shadow:  0   -1px     0    var(--white-alpha-15),
                  0 0.22rem 0.55rem var(--black-alpha-90);
-    color: white;
+    color:       white;
     text-shadow: 0 0  1px rgba(20, 20, 20, 0.8),
                  0 0  4px rgba(240, 240, 240, 0.9),
                  0 0 10px rgba(205, 205, 205, 0.8),
                  0 0 18px rgba(200, 200, 200, 0.7);
-                 /*0 0 30px rgba(170, 170, 170, 0.5);*/
-    transition:  color .2s ease;
-}
-
-.date-panel .directions-btn--inline:active {
-    transform:  translateY(1px);
-    box-shadow: inset  2px  2px 4px var(--black-alpha-90),
-                inset -2px -2px 4px var(--white-alpha-15);
+    transition:  color .2s ease, opacity .2s ease;
 }
 
 .date-panel .directions-btn--inline:active {
     box-shadow: inset  3px  3px 5px var(--black-alpha-90),
                 inset -2px -2px 4px var(--white-alpha-15);
     transform:  translateY(2px);
+    transition: transform .2s ease, opacity .2s ease;
 }
 
 
@@ -885,7 +383,25 @@
    Responsive layout
    =========================== */
 
-/* Large screens: three columns — date / acts / CTA */
+/* Mobile: CTA full-width at bottom */
+@media (max-width: 719.98px) {
+    .card-right {
+        justify-content: flex-start;
+    }
+
+    .card-btn.directions-btn:not(.btn-blue):not(.btn-green) {
+        justify-content: center;
+        width:           100%;
+    }
+}
+
+/* Tablets: 3 columns */
+@media (min-width: 720px) and (max-width: 1023.98px) {
+    .concert-card {
+        grid-template-columns: 1.2fr 2fr;
+    }
+}
+
 @media (min-width: 1024px) {
     .concert-card {
         grid-template-columns: 1fr 2.5fr;
@@ -915,25 +431,6 @@
     }
 }
 
-/* Tablets: 3 columns but looser proportions */
-@media (min-width: 720px) and (max-width: 1023.98px) {
-    .concert-card {
-        grid-template-columns: 1.2fr 2fr;
-    }
-}
-
-/* Mobile: CTA full-width at bottom */
-@media (max-width: 719.98px) {
-    .card-right {
-        justify-content: flex-start;
-    }
-
-    .card-btn.directions-btn:not(.btn-blue):not(.btn-green) {
-        justify-content: center;
-        width:           100%;
-    }
-}
-
 /* ===========================
    Reduced motion
    =========================== */
@@ -947,4 +444,8 @@
     .act-name:hover {
         animation: none;
     }
+}
+
+.directions-container.prehide {
+    visibility: visible !important;
 }
