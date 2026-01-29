@@ -27,18 +27,10 @@ def _field_state(bound_field):
 
 
 @register.inclusion_tag("hr_common/_form_group.html")
-def form_group(
-    field,
-    label=_UNSET,
-    required=None,
-    help=None,
-    group_classes="field-group",
-    placeholder=None,
-    extra_attrs=None
-):
+def form_group(field, label=_UNSET, required=None, help=None, group_classes="field-group", placeholder=None, extra_attrs=None):
     if label is _UNSET:
         label_text = field.label
-    elif label is False or label == '':
+    elif label is False or label == "":
         label_text = None
     else:
         label_text = label
@@ -73,15 +65,15 @@ def form_group(
     rendered_field = field.as_widget(attrs=widget_attrs)
 
     return {
-        "field":          field,
+        "field": field,
         "rendered_field": rendered_field,
-        "label":          label_text,
-        "required":       required_flag,
-        "help":           help_text,
-        "group_classes":  group_classes,
-        "state":          state,
-        "has_errors":     has_errors,
-        "field_id":       field_id,
-        "help_id":        help_id,
-        "error_id":       error_id
+        "label": label_text,
+        "required": required_flag,
+        "help": help_text,
+        "group_classes": group_classes,
+        "state": state,
+        "has_errors": has_errors,
+        "field_id": field_id,
+        "help_id": help_id,
+        "error_id": error_id,
     }

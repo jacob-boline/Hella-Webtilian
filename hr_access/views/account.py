@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import logging
-from logging import getLogger
 
 from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
@@ -12,7 +11,7 @@ from django.contrib.sessions.models import Session
 from django.core.cache import cache
 from django.db import transaction
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
@@ -21,22 +20,18 @@ from django.views.decorators.http import require_GET, require_POST
 
 from hr_access.forms import AccountCreationForm, AccountEmailChangeForm
 from hr_access.models import User
-from hr_access.tokens import (
-    verify_account_signup_token,
-    generate_account_signup_token,
-    generate_email_change_token,
-    verify_email_change_token,
-)
+from hr_access.tokens.account_signup import generate_account_signup_token, verify_account_signup_token
+from hr_access.tokens.email_change import generate_email_change_token, verify_email_change_token
 from hr_common.utils.email import normalize_email
 from hr_common.utils.htmx_responses import hx_login_required
 from hr_common.utils.unified_logging import log_event
 from hr_core.utils.urls import build_external_absolute_url
 from hr_email.service import EmailProviderError, send_app_email
-from hr_shop.exceptions import RateLimitExceeded, EmailSendError
+from hr_shop.exceptions import EmailSendError, RateLimitExceeded
 from hr_shop.models import Order
 from hr_shop.services.customers import attach_customer_to_user
 
-logger = getLogger()
+logger = logging.getLogger(__name__)
 
 SIGNUP_RATE_LIMIT_MAX_EMAILS = 3
 SIGNUP_RATE_LIMIT_WINDOW_SECONDS = 3600
@@ -49,7 +44,7 @@ EMAIL_CHANGE_COUNT_KEY = "account_email_change_count:{user_id}"
 EMAIL_CHANGE_SENT_AT_KEY = "account_email_change_sent_at:{user_id}"
 
 
-def _increment_signup_email_count(email:str) -> int:
+def _increment_signup_email_count(email: str) -> int:
     key = SIGNUP_COUNT_KEY.format(email=email)
     count = cache.get(key, 0) + 1
     cache.set(key, count, timeout=SIGNUP_RATE_LIMIT_WINDOW_SECONDS)
@@ -78,16 +73,9 @@ def send_account_verify_email(request, user: User) -> str:
 
     token = generate_account_signup_token(user_id=user.id, email=user.email)
 
-    confirm_url = build_external_absolute_url(
-        request,
-        reverse("hr_access:account_signup_confirm"),
-        query={"u": user.id, "t": token},
-    )
+    confirm_url = build_external_absolute_url(request, reverse("hr_access:account_signup_confirm"), query={"t": token})
     subject = "Confirm your Hella Reptilian! account"
-    html_body = render_to_string(
-        "hr_access/registration/signup_confirmation_email.html",
-        {"confirm_url": confirm_url, "email": user.email, "year": timezone.now().year}
-    )
+    html_body = render_to_string("hr_access/registration/signup_confirmation_email.html", {"confirm_url": confirm_url, "email": user.email, "year": timezone.now().year})
     text_body = (
         f"Please confirm your email to activate your account.\n\n"
         f"Confirm here: {confirm_url}\n"
@@ -97,13 +85,7 @@ def send_account_verify_email(request, user: User) -> str:
     )
 
     try:
-        send_app_email(
-            to_emails=[user.email],
-            subject=subject,
-            text_body=text_body,
-            html_body=html_body,
-            custom_id=f"account_signup_confirm_{user.id}"
-        )
+        send_app_email(to_emails=[user.email], subject=subject, text_body=text_body, html_body=html_body, custom_id=f"account_signup_confirm_{user.id}")
     except EmailProviderError as exc:
         log_event(logger, logging.ERROR, "access.signup_confirmation.send_failed", email=user.email, error=str(exc))
         raise EmailSendError("Could not send confirmation email. Please try again.") from exc  # TODO Review
@@ -136,21 +118,11 @@ def send_email_change_verification(request, user: User, new_email: str) -> str:
 
     token = generate_email_change_token(user_id=user.id, new_email=new_email)
 
-    confirm_url = build_external_absolute_url(
-        request,
-        reverse("hr_access:account_change_email_confirm"),
-        query={"u": user.id, "t": token}
-    )
+    confirm_url = build_external_absolute_url(request, reverse("hr_access:account_change_email_confirm"), query={"u": user.id, "t": token})
 
     subject = "Confirm your new email"
-    html_body = render_to_string(
-        "hr_access/account/email_change_email.html",
-        {"confirm_url": confirm_url, "email": new_email, "username": user.username}
-    )
-    text_body = render_to_string(
-        "hr_access/account/email_change_email.txt",
-        {"confirm_url": confirm_url, "email": new_email, "username": user.username}
-    )
+    html_body = render_to_string("hr_access/account/email_change_email.html", {"confirm_url": confirm_url, "email": new_email, "username": user.username})
+    text_body = render_to_string("hr_access/account/email_change_email.txt", {"confirm_url": confirm_url, "email": new_email, "username": user.username})
 
     try:
         send_app_email(
@@ -179,46 +151,44 @@ def account_signup(request):
     if request.method == "POST":
         form = AccountCreationForm(request.POST)
         if not form.is_valid():
-            log_event(logger, logging.INFO, 'access.account_signup.form_invalid', user_id=request.user.id or -1)
+            log_event(logger, logging.INFO, "access.account_signup.form_invalid", user_id=request.user.id or -1)
             return render(request, "hr_access/registration/_signup.html", {"form": form})
 
         user = form.create_user(role=User.Role.USER, is_active=False)
-        log_event(logger, logging.INFO, 'access.account_signup.user_created.inactive_until_verified', user_id=user.id)
+        log_event(logger, logging.INFO, "access.account_signup.user_created.inactive_until_verified", user_id=user.id)
 
         try:
-            log_event(logger, logging.INFO, 'access.account_signup.verify_email_send_attempt', user_id=user.id, email=user.email)
+            log_event(logger, logging.INFO, "access.account_signup.verify_email_send_attempt", user_id=user.id, email=user.email)
             send_account_verify_email(request, user)
-            log_event(logger, logging.INFO, 'access.account_signup.verify_email_sent', user_id=user.id)
+            log_event(logger, logging.INFO, "access.account_signup.verify_email_sent", user_id=user.id)
             context = {
-                'email': user.email,
-                'sent_at': _get_last_signup_confirmation_sent_at(user.email),
-                'rate_limited': False,
-                'error': False,
-                'message': "We've sent a confirmation link to your email. Please check your inbox."
+                "email": user.email,
+                "sent_at": _get_last_signup_confirmation_sent_at(user.email),
+                "rate_limited": False,
+                "error": False,
+                "message": "We've sent a confirmation link to your email. Please check your inbox.",
             }
         except RateLimitExceeded:
-            log_event(logger, logging.WARNING, 'access.account_signup.rate_limit_exceeded', user_id=user.id, email=user.email, exc_info=True)
+            log_event(logger, logging.WARNING, "access.account_signup.rate_limit_exceeded", user_id=user.id, email=user.email, exc_info=True)
             context = {
-                'email':        user.email,
-                'sent_at':      _get_last_signup_confirmation_sent_at(user.email),
-                'rate_limited': True,
-                'error':        False,
-                'message':      "Too many confirmation emails sent. Please check your inbox or try again later.",
+                "email": user.email,
+                "sent_at": _get_last_signup_confirmation_sent_at(user.email),
+                "rate_limited": True,
+                "error": False,
+                "message": "Too many confirmation emails sent. Please check your inbox or try again later.",
             }
         except EmailSendError:
-            log_event(logger, logging.WARNING, 'access.account_signup.email_send_error', user_id=user.id, email=user.email, exc_info=True)
+            log_event(logger, logging.WARNING, "access.account_signup.email_send_error", user_id=user.id, email=user.email, exc_info=True)
             context = {
-                'email':        user.email,
-                'sent_at':      _get_last_signup_confirmation_sent_at(user.email),
-                'rate_limited': False,
-                'error':        True,
-                'message':      "Could not send confirmation email. Please try again.",
+                "email": user.email,
+                "sent_at": _get_last_signup_confirmation_sent_at(user.email),
+                "rate_limited": False,
+                "error": True,
+                "message": "Could not send confirmation email. Please try again.",
             }
-        response = render(request, 'hr_access/registration/_signup_check_email.html', context)
-        response['HX-Trigger'] = json.dumps({
-            'showMessage': context.get('message') or 'Check your email to confirm your account.'
-        })
-        return response
+        resp = render(request, "hr_access/registration/_signup_check_email.html", context)
+        resp["HX-Trigger"] = json.dumps({"showMessage": context.get("message") or "Check your email to confirm your account."})
+        return resp
 
     # GET
     return render(request, "hr_access/registration/_signup.html", {"form": AccountCreationForm()})
@@ -226,50 +196,39 @@ def account_signup(request):
 
 @require_GET
 def account_signup_confirm(request):
-    token = (request.GET.get("t") or "").strip()
-    user_id = request.GET.get("u") or ""
-
-    log_event(logger, logging.INFO, 'access.signup_confirmation.started', user_id=user_id)
-
-    user = get_object_or_404(User, pk=user_id)
-
-    data = verify_account_signup_token(token)
-    if not data:
-        log_event(logger, logging.WARNING, 'access.signup_confirmation.invalid_token', user_id=user.id)
+    raw_token = (request.GET.get("t") or "").strip()
+    token = verify_account_signup_token(raw_token)
+    if not token:
+        log_event(logger, logging.WARNING, "access.signup_confirmation.invalid_token", user_id=request.user.id if request.user.is_authenticated else None)
         return HttpResponse("Invalid or expired confirmation link.", status=400)  # TODO HX-Trigger
 
+    user = get_object_or_404(User, pk=int(token.user_id))
+    log_event(logger, logging.INFO, "access.signup_confirmation.started", user_id=user.id)
+
     # bind token to the intended user + email
-    if int(data["user_id"]) != int(user.id):
-        log_event(logger, logging.WARNING, 'access.signup_confirmation.user_mismatch', user_id=user.id)
+    if int(token.user_id) != int(user.id):
+        log_event(logger, logging.WARNING, "access.signup_confirmation.user_mismatch", user_id=user.id)
         return HttpResponse("Invalid confirmation link.", status=400)  # TODO HX-Trigger
 
-    if normalize_email(data["email"]) != user.email:
-        log_event(logger, logging.WARNING, 'access.signup_confirmation.email_mismatch', user_id=user.id, token_email=data.get('email'), user_email=user.email)
+    if normalize_email(token.email) != user.email:
+        log_event(logger, logging.WARNING, "access.signup_confirmation.email_mismatch", user_id=user.id, token_email=token.email, user_email=user.email)
         return HttpResponse("Invalid confirmation link.", status=400)  # TODO HX-Trigger
 
     if not user.is_active:
         user.is_active = True
         user.save(update_fields=["is_active", "updated_at"])
-        log_event(logger, logging.INFO, 'access.signup_confirmation.activated', user_id=user.id)
+        log_event(logger, logging.INFO, "access.signup_confirmation.activated", user_id=user.id)
 
     login(request, user)
 
     try:
         attach_customer_to_user(user)
     except Exception:
-        log_event(logger, logging.ERROR, 'access.signup_confirmation.attach_customer_failed', user_id=user.id, exc_info=True)
+        log_event(logger, logging.ERROR, "access.signup_confirmation.attach_customer_failed", user_id=user.id, exc_info=True)
 
-    log_event(logger, logging.INFO, 'access.signup_confirmation.confirmed', user_id=user.id)
+    log_event(logger, logging.INFO, "access.signup_confirmation.confirmed", user_id=user.id)
 
-    return HttpResponse(
-        status=204,
-        headers={
-            "HX-Trigger": json.dumps({
-                "accessChanged": None,
-                "showMessage": "Email confirmed. You are now signed in."
-            })
-        }
-    )
+    return HttpResponse(status=204, headers={"HX-Trigger": json.dumps({"accessChanged": None, "showMessage": "Email confirmed. You are now signed in."})})
 
 
 @hx_login_required
@@ -288,16 +247,7 @@ def account_change_password(request):
             update_session_auth_hash(request, user)
 
             return HttpResponse(
-                status=204,
-                headers={
-                    "HX-Trigger": json.dumps({
-                        "showMessage": {
-                            "message": "Your password has been changed.",
-                            "duration": 5000
-                        },
-                        "closeModal": None
-                    })
-                }
+                status=204, headers={"HX-Trigger": json.dumps({"showMessage": {"message": "Your password has been changed.", "duration": 5000}, "closeModal": None})}
             )
 
         return render(request, template, {"form": form})
@@ -311,17 +261,15 @@ def account_change_password(request):
 def account_settings(request):
     email = request.user.email
     order_count = Order.objects.filter(user=request.user).count()
-    unclaimed_count = (
-        Order.objects.filter(user__isnull=True, email__iexact=email).count()
-        if email else 0
-    )
+    unclaimed_count = Order.objects.filter(user__isnull=True, email__iexact=email).count() if email else 0
 
     return render(request, "hr_access/account/_account_settings_modal.html", {
-        "last_login": request.user.last_login,
-        "password_changed_at": getattr(request.user, "password_changed_at", None),
-        "order_count": order_count,
-        "unclaimed_count": unclaimed_count,
-    })
+            "last_login": request.user.last_login,
+            "password_changed_at": getattr(request.user, "password_changed_at", None),
+            "order_count": order_count,
+            "unclaimed_count": unclaimed_count
+        }
+    )
 
 
 @hx_login_required
@@ -338,21 +286,21 @@ def account_change_email(request):
                     "email": new_email,
                     "sent_at": _get_last_email_change_sent_at(request.user.id),
                     "rate_limited": False,
-                    "error": False,
+                    "error": False
                 }
             except RateLimitExceeded:
                 ctx = {
                     "email": new_email,
                     "sent_at": _get_last_email_change_sent_at(request.user.id),
                     "rate_limited": True,
-                    "error": False,
+                    "error": False
                 }
             except EmailSendError:
                 ctx = {
                     "email": new_email,
                     "sent_at": _get_last_email_change_sent_at(request.user.id),
                     "rate_limited": False,
-                    "error": True,
+                    "error": True
                 }
             return render(request, "hr_access/account/_account_email_change_check_email.html", ctx)
 
@@ -388,23 +336,16 @@ def account_change_email_confirm(request):
         user.save(update_fields=["email", "updated_at"])
 
     modal_url = f"{reverse('hr_access:account_email_change_success')}?{urlencode({'email': new_email})}"
-    params = urlencode({
-        'modal':    'email_change',
-        'handoff':  'email_change',
-        'modal_url': modal_url
-    })
+    params = urlencode({"modal": "email_change", "handoff": "email_change", "modal_url": modal_url})
     return redirect(f"{reverse('index')}?{params}")
 
 
 @require_GET
 def account_email_change_success(request):
     email = request.GET.get("email")
-    response = render(request, "hr_access/account/_account_email_change_success.html", {"email": email})
-    response["HX-Trigger"] = json.dumps({
-        "accessChanged": None,
-        "showMessage": "Email updated."
-    })
-    return response
+    resp = render(request, "hr_access/account/_account_email_change_success.html", {"email": email})
+    resp["HX-Trigger"] = json.dumps({"accessChanged": None, "showMessage": "Email updated."})
+    return resp
 
 
 @hx_login_required
@@ -426,15 +367,7 @@ def account_logout_all_sessions(request):
 
     logout(request)
 
-    return HttpResponse(
-        status=204,
-        headers={
-            "HX-Trigger": json.dumps({
-                "accessChanged": None,
-                "showMessage": f"Logged out of {deleted} session(s)."
-            })
-        }
-    )
+    return HttpResponse(status=204, headers={"HX-Trigger": json.dumps({"accessChanged": None, "showMessage": f"Logged out of {deleted} session(s)."})})
 
 
 @hx_login_required
@@ -453,15 +386,7 @@ def account_delete_account(request):
 
     logout(request)
 
-    return HttpResponse(
-        status=204,
-        headers={
-            "HX-Trigger": json.dumps({
-                "accessChanged": None,
-                "showMessage": "Account deleted."
-            })
-        }
-    )
+    return HttpResponse(status=204, headers={"HX-Trigger": json.dumps({"accessChanged": None, "showMessage": "Account deleted."})})
 
 
 @require_GET
@@ -475,10 +400,7 @@ def account_get_post_purchase_create_account(request, order_id: int):
     order = get_object_or_404(Order, pk=order_id)
     form = AccountCreationForm(locked_email=order.email)
 
-    return render(request, "hr_access/post_purchase/_post_purchase_account_form.html", {
-        "order": order,
-        "form": form
-    })
+    return render(request, "hr_access/post_purchase/_post_purchase_account_form.html", {"order": order, "form": form})
 
 
 @require_POST
@@ -502,10 +424,7 @@ def account_submit_post_purchase_create_account(request, order_id: int):
 
     form = AccountCreationForm(post, locked_email=locked_email)
     if not form.is_valid():
-        return render(request, "hr_access/post_purchase/_post_purchase_account_form.html", {
-            "order": order,
-            "form": form
-        })
+        return render(request, "hr_access/post_purchase/_post_purchase_account_form.html", {"order": order, "form": form})
 
     with transaction.atomic():
         user = form.create_user(role=User.Role.USER)
@@ -521,17 +440,9 @@ def account_submit_post_purchase_create_account(request, order_id: int):
 
     login(request, user)
 
-    other_orders = (
-        Order.objects
-        .filter(email__iexact=locked_email, user__isnull=True)
-        .exclude(pk=order.id)
-        .order_by("-created_at")[:25]
-    )
+    other_orders = Order.objects.filter(email__iexact=locked_email, user__isnull=True).exclude(pk=order.id).order_by("-created_at")[:25]
 
-    return render(request, "hr_access/post_purchase/_post_purchase_account_success.html", {
-        "order": order,
-        "other_orders": other_orders
-    })
+    return render(request, "hr_access/post_purchase/_post_purchase_account_success.html", {"order": order, "other_orders": other_orders})
 
 
 @require_POST
@@ -551,33 +462,9 @@ def account_submit_post_purchase_claim_orders(request, order_id: int):
     if request.user.email != email:
         return HttpResponse(status=403)  # TODO trigger global message
 
-    raw_ids = request.POST.getlist("order_ids")
-    order_ids = [int(x) for x in raw_ids if str(x).isdigit()]
+    unclaimed_orders = Order.objects.filter(email__iexact=email, user__isnull=True).exclue(pk=order.id).order_by("-created_at")
 
-    with transaction.atomic():
-        qs = (
-            Order.objects
-            .select_for_update()
-            .filter(id__in=order_ids, user__isnull=True, email__iexact=email)
-        )
-        # claimed_count = qs.update(user=request.user)
-
-    # remaining = (
-    #     Order.objects
-    #     .filter(email__iexact=email, user__isnull=True)
-    #     .exclude(pk=order.id)
-    #     .order_by("-created_at")[:25]
-    # )
-
-    unclaimed_orders = (
-        Order.objects.filter(email__iexact=email, user__isnull=True).exclue(pk=order.id).order_by('-created_at')
-    )
-
-    return render(request, 'hr_access/orders/_unclaimed_orders_modal.html', {
-        'email': email,
-        'unclaimed_orders': unclaimed_orders,
-        'error': None
-    })
+    return render(request, "hr_access/orders/_unclaimed_orders_modal.html", {"email": email, "unclaimed_orders": unclaimed_orders, "error": None})
 
     # return render(request, "hr_access/post_purchase/_post_purchase_account_success.html", {
     #     "order": order,

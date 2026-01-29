@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Optional, Sequence
+from collections.abc import Sequence
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives, get_connection
@@ -12,10 +12,10 @@ from django.utils.html import strip_tags
 from hr_common.utils.unified_logging import log_event
 from hr_email.mailjet import MailjetSendError, send_mailjet_email
 from hr_email.provider_settings import (
+    get_mailjet_rest_enabled,
     get_provider,
     get_provider_send_mode,
     get_smtp_email_config,
-    get_mailjet_rest_enabled,
 )
 
 logger = logging.getLogger(__name__)
@@ -29,12 +29,12 @@ def send_app_email(
     *,
     to_emails: Sequence[str],
     subject: str,
-    text_body: Optional[str] = None,
-    html_body: Optional[str] = None,
-    from_email: Optional[str] = None,
-    reply_to: Optional[str] = None,
-    custom_id: Optional[str] = None,
-    provider_override: Optional[str] = None,
+    text_body: str | None = None,
+    html_body: str | None = None,
+    from_email: str | None = None,
+    reply_to: str | None = None,
+    custom_id: str | None = None,
+    provider_override: str | None = None,
 ) -> dict:
     """
     Unified app email sender.
@@ -162,7 +162,7 @@ def send_app_email(
     return {"provider": provider, "mode": "smtp", "result": {"sent": sent}}
 
 
-def _mailjet_address(raw: Optional[str]) -> Optional[dict]:
+def _mailjet_address(raw: str | None) -> dict | None:
     """
     Convert "Name <email@domain>" or "email@domain" to Mailjet dict format.
     If None, return None.

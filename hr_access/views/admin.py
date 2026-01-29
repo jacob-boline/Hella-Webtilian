@@ -25,18 +25,25 @@ def admin_create_site_admin(request):
         form = AccountCreationForm(request.POST)
         if not form.is_valid():
             from django.shortcuts import render
+
             return render(request, "hr_access/user_admin/add_staff_form.html", {"add_staff_form": form})
 
         user = form.create_user(role=User.Role.SITE_ADMIN)
 
-        return HttpResponse(status=204, headers={
-            "HX-Trigger": json.dumps({
-                "dialogChanged": None,
-                "showMessage": f"Created site admin {user.username}",
-            })
-        })
+        return HttpResponse(
+            status=204,
+            headers={
+                "HX-Trigger": json.dumps(
+                    {
+                        "dialogChanged": None,
+                        "showMessage": f"Created site admin {user.username}",
+                    }
+                )
+            },
+        )
 
     from django.shortcuts import render
+
     return render(request, "hr_access/user_admin/add_staff_form.html", {"add_staff_form": AccountCreationForm()})
 
 
@@ -45,7 +52,7 @@ def admin_confirm_privilege_demotion(request, user_id: int):
     target = get_object_or_404(User, pk=user_id)
 
     removing_superuser = target.is_superuser
-    removing_global_role = (target.role == User.Role.GLOBAL_ADMIN)
+    removing_global_role = target.role == User.Role.GLOBAL_ADMIN
 
     confirm_url = reverse("hr_access:admin_demote_superuser", args=[target.pk])
 
@@ -100,8 +107,4 @@ def admin_demote_superuser(request, user_id: int):
 @hx_superuser_required
 @require_POST
 def admin_cancel_privilege_demotion(_request, user_id: int):
-    return HttpResponse(status=204, headers={
-        "HX-Trigger": json.dumps({
-            "messageBoxClosed": f"Canceled privilege demotion for ID {user_id}"
-        })
-    })
+    return HttpResponse(status=204, headers={"HX-Trigger": json.dumps({"messageBoxClosed": f"Canceled privilege demotion for ID {user_id}"})})

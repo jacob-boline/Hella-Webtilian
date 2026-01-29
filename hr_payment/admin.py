@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 
-from hr_payment.models import PaymentAttempt, WebhookEvent, PaymentAttemptStatus
+from hr_payment.models import PaymentAttempt, PaymentAttemptStatus, WebhookEvent
 
 
 @admin.register(PaymentAttempt)

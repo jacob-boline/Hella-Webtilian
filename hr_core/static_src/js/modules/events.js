@@ -10,30 +10,32 @@
     let lastIntent = null;
     let pendingIntent = null;
     let _authRequiredLockUntil = 0;
+    let modalMsgTimer = null;
 
-    function safeCall(fn, ...args) {
-        try { return typeof fn === 'function' ? fn(...args) : undefined; }
-        catch (e) {
+    function safeCall (fn, ...args) {
+        try {
+            return typeof fn === 'function' ? fn(...args) : undefined;
+        } catch (e) {
             console.error('[events] handler error', e);
             return undefined;
         }
     }
 
-    function getDetail(event) {
+    function getDetail (event) {
         return event?.detail ?? {};
     }
 
-    function isHtmxUnauthorized(event) {
+    function isHtmxUnauthorized (event) {
         const xhr = event?.detail?.xhr;
         return !!xhr && Number(xhr.status) === 401;
     }
 
-    function triggerAuthRequired(payload) {
+    function triggerAuthRequired (payload) {
         if (!window.htmx) return;
         window.htmx.trigger(document.body, 'authRequired', payload || {});
     }
 
-    function buildIntentFromHtmxConfig(evt) {
+    function buildIntentFromHtmxConfig (evt) {
         const d = evt.detail || {};
         const xhr = d.xhr;
         if (!xhr) return null;
@@ -59,7 +61,7 @@
         };
     }
 
-    function replayPendingIntent() {
+    function replayPendingIntent () {
         if (!pendingIntent || !window.htmx) return;
 
         const intent = pendingIntent;
@@ -189,15 +191,67 @@
     document.body.addEventListener('showMessage', (event) => {
         const detail = getDetail(event);
 
-        const duration = detail.duration || 5000;
+        const duration = (detail && typeof detail === 'object' && Number(detail.duration)) || 5000;
 
-        const msg =
-            (typeof detail === 'string' ? detail : null) ||
-            detail.message || detail.text || '';
+        const text =
+            (typeof detail === 'string' ? detail : '') ||
+            (detail && typeof detail === 'object' ? (detail.message || detail.text || '') : '');
 
-        if (!msg) return;
+        if (!text) return;
 
-        safeCall(window.hrSite?.showGlobalMessage, msg, duration);
+        // const modalEl = document.getElementById('modal');
+        // const modalOpen = modalEl && !modalEl.classList.contains('hidden') && modalEl.getAttribute('aria-hidden') !== 'true';
+        //
+        // if (modalOpen) {
+        //     const box = document.getElementById('modal-message-box');
+        //     const msg = document.getElementById('modal-message-content');
+        //     if (!box || !msg) {
+        //         safeCall(window.hrSite?.showGlobalMessage, text, duration);
+        //         return;
+        //     }
+        //
+        //     msg.textContent = text;
+        //     if (modalMsgTimer) window.clearTimeout(modalMsgTimer);
+        //
+        //     box.classList.add('is-visible');
+        //     modalMsgTimer = window.setTimeout(() => {
+        //         box.classList.remove('is-visible');
+        //         modalMsgTimer = null;
+        //     }, duration);
+        //
+        //     return;
+        // }
+
+        safeCall(window.hrSite?.showGlobalMessage, text, duration);
+    });
+
+
+    document.body.addEventListener('loadModal', (e) => {
+        const d = e.detail;
+        if (!d || typeof d !== 'object') return;
+
+        const url = d.url;
+        if (!url || typeof url !== 'string') return;
+
+        const loader = document.getElementById('modal-loader');
+        const h = window.htmx;
+        if (!loader || !h) return;
+
+        // Stash triggers to fire after modal content settles.
+        if (d.afterSwapTriggers && typeof d.afterSwapTriggers === 'object') {
+            try {
+                loader.dataset.afterSwapTriggers = JSON.stringify(d.afterSwapTriggers);
+            } catch {
+                delete loader.dataset.afterSwapTriggers;
+            }
+        } else {
+            delete loader.dataset.afterSwapTriggers;
+        }
+
+        loader.setAttribute('hx-get', url);
+        h.process(loader);
+        h.trigger(loader, 'hr:loadModal');
+
     });
 
 
@@ -237,7 +291,6 @@
         // Beat timings tuned for "confirm then vanish"
         const HIGHLIGHT_MS = 900;   // 0.9s highlight before fading
         const FADE_MS = 240;        // should roughly match CSS transition time
-        const COLLAPSE_MS = 240;    // collapse space after fade
         const REMOVE_MS = 260;      // buffer to ensure collapse completes
 
         // 1) Mark claimed (color)
@@ -262,7 +315,6 @@
                 setTimeout(() => {
                     matched.forEach(row => row.remove());
 
-                    // Optional: clear "select all" if it's checked
                     const selectAll = document.getElementById('select-all-unclaimed');
                     if (selectAll) selectAll.checked = false;
 
@@ -292,23 +344,73 @@
     // ------------------------------
     // 5) variantPreviewUpdated -> update modal image/price/buy button
     // ------------------------------
-    document.body.addEventListener('variantPreviewUpdated', (event) => {
-        const detail = getDetail(event);
-        if (!detail) return;
 
-        const modal = document.querySelector('.modal-product');
+    function normalizeToBaseVariantUrl (url) {
+        const u = String(url || "");
+        if (!u) return "";
+
+        // strip query
+        const q = u.indexOf("?");
+        const noQuery = q >= 0 ? u.slice(0, q) : u;
+
+        // If it's already a variants URL (with or without opt_webp/opt_web)
+        if (noQuery.includes("/media/variants/")) {
+            // remove extension and size suffix
+            const noExt = noQuery.replace(/\.(webp|png|jpg|jpeg)$/i, "");
+            const noSize = noExt.replace(/-\d+w$/i, "");
+
+            // If it already contains /opt_webp/ or /opt_web/, normalize to opt_webp
+            if (noSize.includes("/opt_webp/")) return noSize;
+            if (noSize.includes("/opt_web/")) return noSize.replace("/opt_web/", "/opt_webp/");
+
+            // If it's missing the folder entirely, insert it:
+            // /media/variants/Foo  -> /media/variants/opt_webp/Foo
+            return noSize.replace("/media/variants/", "/media/variants/opt_webp/");
+        }
+
+        // Otherwise derive from filename stem
+        const filename = noQuery.split("/").pop() || "";
+        const stem = filename.replace(/\.(webp|png|jpg|jpeg)$/i, "");
+        return `/media/variants/opt_webp/${stem}`;
+    }
+
+
+    function makeSrc (base, size) {
+        return `${base}-${size}w.webp`;
+    }
+
+    function makeSrcset (base) {
+        return [
+            `${makeSrc(base, 256)} 256w`,
+            `${makeSrc(base, 512)} 512w`,
+            `${makeSrc(base, 768)} 768w`,
+        ].join(", ");
+    }
+
+    document.body.addEventListener("variantPreviewUpdated", (event) => {
+        const detail = getDetail(event);
+        if (!detail?.image_url) return;
+
+        const modal = document.querySelector(".modal-product");
         if (!modal) return;
 
-        const imgEl = modal.querySelector('.modal-image');
+        const imgEl = modal.querySelector(".modal-image");
         const priceEl = modal.querySelector('[data-role="modal-price"]');
         const buyBtn = modal.querySelector('[data-role="buy-selected-variant"]');
 
-        if (imgEl && detail.image_url) imgEl.src = detail.image_url;
+        if (imgEl) {
+            const base = normalizeToBaseVariantUrl(detail.image_url);
+            imgEl.srcset = makeSrcset(base);
+            imgEl.src = makeSrc(base, 768); // fallback
+            imgEl.sizes = "(max-width: 640px) 92vw, (max-width: 1024px) 70vw, 900px";
+        }
+
         if (priceEl && detail.price) priceEl.textContent = `$${detail.price}`;
 
         if (buyBtn && detail.variant_slug) {
-            buyBtn.setAttribute('hx-post', `/shop/cart/add/${detail.variant_slug}/`);
-            buyBtn.setAttribute('hx-swap', 'none');
+            buyBtn.setAttribute("hx-post", `/shop/cart/add/${detail.variant_slug}/`);
+            buyBtn.setAttribute("hx-swap", "none");
+            if (window.htmx) window.htmx.process(buyBtn);
         }
     });
 
@@ -333,7 +435,7 @@
             return;
         }
 
-        window.htmx.ajax('GET', url, { target: '#sidebar-access', swap: 'innerHTML' });
+        window.htmx.ajax('GET', url, {target: '#sidebar-access', swap: 'innerHTML'});
     });
 
 })();

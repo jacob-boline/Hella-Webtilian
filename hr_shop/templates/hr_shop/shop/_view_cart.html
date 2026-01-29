@@ -63,8 +63,9 @@
 
     {% if cart %}
         <footer class="m-foot m-actions modal-summary-row">
-            <button class="card-btn btn-neon btn-green checkout-btn" type="button"
-                    hx-get="{% url 'hr_shop:checkout_resume' %}"
+            <button class="card-btn btn-neon btn-green checkout-btn"
+                    type="button"
+                    hx-get="{% url 'hr_shop:checkout_details' %}"
                     hx-target="#modal-content"
                     hx-swap="innerHTML transition:true">
                 Checkout

@@ -78,36 +78,24 @@ class Command(BaseCommand):
     def _seed_hr_bulletin(self):
         base = Path(settings.BASE_DIR) / "_seed_data" / "hr_bulletin"
         if not base.exists():
-            self.stdout.write(
-                self.style.WARNING(
-                    f"  → No _seed_data/hr_bulletin directory found at {base}"
-                )
-            )
+            self.stdout.write(self.style.WARNING(f"  → No _seed_data/hr_bulletin directory found at {base}"))
             return
 
         outline_yml = base / "outline.yml"
         if not outline_yml.exists():
-            self.stdout.write(
-                self.style.WARNING(
-                    f"  → No outline.yml found in {base}; nothing to seed."
-                )
-            )
+            self.stdout.write(self.style.WARNING(f"  → No outline.yml found in {base}; nothing to seed."))
             return
 
         cfg = yaml.safe_load(outline_yml.read_text(encoding="utf-8-sig")) or {}
         posts_cfg = cfg.get("posts") or []
 
         if not posts_cfg:
-            self.stdout.write(
-                self.style.WARNING("  → outline.yml contains no posts; skipping.")
-            )
+            self.stdout.write(self.style.WARNING("  → outline.yml contains no posts; skipping."))
             return
 
         author = self._get_author()
         if not author:
-            self.stdout.write(
-                self.style.WARNING("  → No users exist; cannot assign post.author. Skipping.")
-            )
+            self.stdout.write(self.style.WARNING("  → No users exist; cannot assign post.author. Skipping."))
             return
 
         now = timezone.now()
@@ -160,7 +148,6 @@ class Command(BaseCommand):
 
         self.stdout.write("    • hr_bulletin seed data applied.")
 
-
     def _wipe_posts_hero_media(self):
         """
         Clear generated hero media so reseeds don't accumulate stale files.
@@ -194,7 +181,6 @@ class Command(BaseCommand):
         else:
             self.stdout.write(f"    • Not found: {hero_dir}")
 
-
     @staticmethod
     def _get_author():
         User = get_user_model()
@@ -222,11 +208,7 @@ class Command(BaseCommand):
                 resolved_path = Path(settings.BASE_DIR) / image_path
 
         if not resolved_path.exists():
-            self.stdout.write(
-                self.style.WARNING(
-                    f"    • Image not found for '{post.title}': {resolved_path}"
-                )
-            )
+            self.stdout.write(self.style.WARNING(f"    • Image not found for '{post.title}': {resolved_path}"))
             return
 
         # Always re-attach from seed source; Post.save() will dedupe by content hash.

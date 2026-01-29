@@ -1,6 +1,7 @@
 # hr_payment/urls.py
 
 from django.urls import path
+
 from hr_payment import views
 
 app_name = "hr_payment"

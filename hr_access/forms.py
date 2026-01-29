@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 from django import forms
 from django.contrib.auth import password_validation
 from django.contrib.auth.forms import (
     AuthenticationForm,
-    UserChangeForm,
     ReadOnlyPasswordHashField,
+    UserChangeForm,
 )
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
@@ -18,7 +18,6 @@ from django.utils.translation import gettext_lazy as _
 from hr_access.constants import RESERVED_USERNAMES
 from hr_access.models import User
 from hr_common.utils.email import normalize_email
-
 
 # ------------------------------------------------------------
 # Validators
@@ -34,8 +33,9 @@ username_validator = RegexValidator(
 # Shared validation mixin
 # ------------------------------------------------------------
 
+
 class AccountValidationMixin:
-    cleaned_data: Dict[str, Any]
+    cleaned_data: dict[str, Any]
     instance: Any
     """
     Shared username/email validation for:
@@ -82,6 +82,7 @@ class AccountValidationMixin:
 # Account creation (public / claim / staff)
 # ------------------------------------------------------------
 
+
 class AccountCreationForm(AccountValidationMixin, forms.Form):
     """
     Single-password account creation form.
@@ -93,13 +94,15 @@ class AccountCreationForm(AccountValidationMixin, forms.Form):
     """
 
     email = forms.EmailField(
-        widget=forms.EmailInput(attrs={
-            "autocomplete": "off",
-            "placeholder": "email",
-            "autocapitalize": "none",
-            "spellcheck": "false",
-            "inputmode": "email",
-        })
+        widget=forms.EmailInput(
+            attrs={
+                "autocomplete": "off",
+                "placeholder": "email",
+                "autocapitalize": "none",
+                "spellcheck": "false",
+                "inputmode": "email",
+            }
+        )
     )
 
     username = forms.CharField(
@@ -108,25 +111,29 @@ class AccountCreationForm(AccountValidationMixin, forms.Form):
         strip=True,
         validators=[username_validator],
         help_text=_("5–150 chars. Letters, numbers, dots, dashes, underscores only."),
-        widget=forms.TextInput(attrs={
-            "autocomplete": "off",
-            "autocapitalize": "none",
-            "spellcheck": "false",
-            "inputmode": "text",
-            "placeholder": "username",
-        }),
+        widget=forms.TextInput(
+            attrs={
+                "autocomplete": "off",
+                "autocapitalize": "none",
+                "spellcheck": "false",
+                "inputmode": "text",
+                "placeholder": "username",
+            }
+        ),
     )
 
     password = forms.CharField(
         min_length=8,
         max_length=255,
         strip=True,
-        widget=forms.PasswordInput(attrs={
-            "autocomplete": "new-password",
-            "placeholder": "password",
-            "autocapitalize": "none",
-            "spellcheck": "false",
-        }),
+        widget=forms.PasswordInput(
+            attrs={
+                "autocomplete": "new-password",
+                "placeholder": "password",
+                "autocapitalize": "none",
+                "spellcheck": "false",
+            }
+        ),
         help_text=password_validation.password_validators_help_text_html(),
     )
 
@@ -156,23 +163,12 @@ class AccountCreationForm(AccountValidationMixin, forms.Form):
         password_validation.validate_password(pw, user=None)
         return pw
 
-    def create_user(
-        self,
-        *,
-        role: str | None = None,
-        is_staff: bool = False,
-        is_active: bool = True
-    ) -> User:
+    def create_user(self, *, role: str | None = None, is_staff: bool = False, is_active: bool = True) -> User:
         """
         Call after is_valid().
         Creates and saves a User instance.
         """
-        user = User(
-            email=self.cleaned_data["email"],
-            username=self.cleaned_data["username"],
-            is_staff=is_staff,
-            is_active=is_active
-        )
+        user = User(email=self.cleaned_data["email"], username=self.cleaned_data["username"], is_staff=is_staff, is_active=is_active)
 
         if role and hasattr(User, "Role"):
             user.role = role
@@ -185,6 +181,7 @@ class AccountCreationForm(AccountValidationMixin, forms.Form):
 # ------------------------------------------------------------
 # Authentication (login)
 # ------------------------------------------------------------
+
 
 class AccountAuthenticationForm(AuthenticationForm):
     """
@@ -199,6 +196,7 @@ class AccountAuthenticationForm(AuthenticationForm):
 # ------------------------------------------------------------
 # Admin edit form (existing users)
 # ------------------------------------------------------------
+
 
 class AccountAdminChangeForm(AccountValidationMixin, UserChangeForm):
     """
@@ -227,20 +225,24 @@ class AccountAdminChangeForm(AccountValidationMixin, UserChangeForm):
 class AccountEmailChangeForm(AccountValidationMixin, forms.Form):
     new_email = forms.EmailField(
         label=_("New email"),
-        widget=forms.EmailInput(attrs={
-            "autocomplete": "email",
-            "placeholder": _("new email"),
-            "autocapitalize": "none",
-            "spellcheck": "false",
-            "inputmode": "email",
-        })
+        widget=forms.EmailInput(
+            attrs={
+                "autocomplete": "email",
+                "placeholder": _("new email"),
+                "autocapitalize": "none",
+                "spellcheck": "false",
+                "inputmode": "email",
+            }
+        ),
     )
     password = forms.CharField(
         label=_("Current password"),
-        widget=forms.PasswordInput(attrs={
-            "autocomplete": "current-password",
-            "placeholder": _("current password"),
-        })
+        widget=forms.PasswordInput(
+            attrs={
+                "autocomplete": "current-password",
+                "placeholder": _("current password"),
+            }
+        ),
     )
 
     def __init__(self, user: User, *args, **kwargs):

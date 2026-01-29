@@ -1,14 +1,11 @@
 # hr_core/management/commands/seed_data.py
 
-from django.core.management.base import BaseCommand
 from django.core.management import call_command
+from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
-    help = (
-        "Seed all app data (hr_shop, hr_about, hr_live, hr_bulletin) "
-        "from seed_data/hr_<app_name>/."
-    )
+    help = "Seed all app data (hr_shop, hr_about, hr_live, hr_bulletin) " "from seed_data/hr_<app_name>/."
 
     def add_arguments(self, parser):
         parser.add_argument(

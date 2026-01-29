@@ -11,10 +11,10 @@ from __future__ import annotations
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.db import transaction
-from django.db.models.signals import pre_save, post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
-from hr_access.constants import SITE_ADMIN_GROUP_NAME, GLOBAL_ADMIN_GROUP_NAME
+from hr_access.constants import GLOBAL_ADMIN_GROUP_NAME, SITE_ADMIN_GROUP_NAME
 
 UserModel = get_user_model()
 
@@ -92,10 +92,7 @@ def sync_user_role_to_groups(sender, instance: UserModel, created: bool, update_
         desired_groups = []
 
     # Update flags only if needed (avoid extra writes)
-    flags_changed = (
-        instance.is_staff != desired_is_staff
-        or instance.is_superuser != desired_is_superuser
-    )
+    flags_changed = instance.is_staff != desired_is_staff or instance.is_superuser != desired_is_superuser
 
     if flags_changed:
         sender.objects.filter(pk=instance.pk).update(

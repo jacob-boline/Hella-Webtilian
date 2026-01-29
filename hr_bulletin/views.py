@@ -73,8 +73,7 @@ def bulletin_detail(request, slug):
     else:
         # published & released
         post = get_object_or_404(
-            Post.objects.filter(slug=slug, status="published").filter(publish_at__isnull=True)
-            | Post.objects.filter(slug=slug, status="published", publish_at__lte=now)
+            Post.objects.filter(slug=slug, status="published").filter(publish_at__isnull=True) | Post.objects.filter(slug=slug, status="published", publish_at__lte=now)
         )
         log_event(
             logger,
@@ -85,7 +84,6 @@ def bulletin_detail(request, slug):
         )
 
     return render(request, "hr_bulletin/detail.html", {"post": post})
-
 
 
 # # ------------------------------------------------------------------ #

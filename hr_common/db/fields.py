@@ -1,6 +1,7 @@
 # hr_common/db/fields.py
 
 from django.db import models
+
 from hr_common.utils.email import normalize_email
 
 

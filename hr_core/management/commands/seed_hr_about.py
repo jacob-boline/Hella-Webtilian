@@ -31,9 +31,7 @@ class Command(BaseCommand):
         """
         base = Path(settings.BASE_DIR) / "_seed_data" / "hr_about"
         if not base.exists():
-            self.stdout.write(
-                self.style.WARNING(f"  → No seed_data/hr_about directory found at {base}")
-            )
+            self.stdout.write(self.style.WARNING(f"  → No seed_data/hr_about directory found at {base}"))
             return
 
         self.stdout.write("  → hr_about…")
@@ -51,27 +49,18 @@ class Command(BaseCommand):
         images_dir = base / "carousel_images"
 
         if not carousel_yml.exists():
-            self.stdout.write(
-                self.style.WARNING("    • No carousel.yml found; skipping CarouselSlide seeding.")
-            )
+            self.stdout.write(self.style.WARNING("    • No carousel.yml found; skipping CarouselSlide seeding."))
             return
 
         cfg = yaml.safe_load(carousel_yml.read_text()) or {}
         slides_cfg = cfg.get("slides") or []
 
         if not slides_cfg:
-            self.stdout.write(
-                self.style.WARNING("    • carousel.yml contains no slides; skipping.")
-            )
+            self.stdout.write(self.style.WARNING("    • carousel.yml contains no slides; skipping."))
             return
 
         if not images_dir.exists():
-            self.stdout.write(
-                self.style.WARNING(
-                    f"    • No carousel_images directory found at {images_dir}; "
-                    f"slides will be created without images."
-                )
-            )
+            self.stdout.write(self.style.WARNING(f"    • No carousel_images directory found at {images_dir}; " f"slides will be created without images."))
 
         self.stdout.write("    • Seeding CarouselSlide entries…")
 
@@ -105,11 +94,7 @@ class Command(BaseCommand):
                         with image_path.open("rb") as f:
                             slide.image.save(image_path.name, File(f), save=True)
                 else:
-                    self.stdout.write(
-                        self.style.WARNING(
-                            f"      (Image '{image_name}' not found in {images_dir} for slide order {order})"
-                        )
-                    )
+                    self.stdout.write(self.style.WARNING(f"      (Image '{image_name}' not found in {images_dir} for slide order {order})"))
 
     # ------------------------------------------------------
     # Pull quotes
@@ -117,18 +102,14 @@ class Command(BaseCommand):
     def _seed_pullquotes(self, base: Path):
         pullquotes_yml = base / "pullquotes.yml"
         if not pullquotes_yml.exists():
-            self.stdout.write(
-                self.style.WARNING("    • No pullquotes.yml found; skipping PullQuote seeding.")
-            )
+            self.stdout.write(self.style.WARNING("    • No pullquotes.yml found; skipping PullQuote seeding."))
             return
 
         cfg = yaml.safe_load(pullquotes_yml.read_text()) or {}
         quotes_cfg = cfg.get("quotes") or []
 
         if not quotes_cfg:
-            self.stdout.write(
-                self.style.WARNING("    • pullquotes.yml contains no quotes; skipping.")
-            )
+            self.stdout.write(self.style.WARNING("    • pullquotes.yml contains no quotes; skipping."))
             return
 
         self.stdout.write("    • Seeding PullQuote entries…")
@@ -136,9 +117,7 @@ class Command(BaseCommand):
         for idx, q in enumerate(quotes_cfg, start=1):
             text = q.get("text") or ""
             if not text:
-                self.stdout.write(
-                    self.style.WARNING(f"      (Skipping quote #{idx}: missing text.)")
-                )
+                self.stdout.write(self.style.WARNING(f"      (Skipping quote #{idx}: missing text.)"))
                 continue
 
             attribution = q.get("attribution") or ""

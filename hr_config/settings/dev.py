@@ -5,12 +5,12 @@ import os  # noqa
 from dotenv import load_dotenv
 
 from hr_config.settings import sqlite as sqlite_settings
-from hr_config.settings.common import env_bool, BASE_DIR  # noqa
+from hr_config.settings.common import BASE_DIR, env_bool  # noqa
 
 # ===============================================
 #  Environment
 # ===============================================
-load_dotenv(BASE_DIR / 'hr_config' / 'env' / 'dev.env', override=False)
+load_dotenv(BASE_DIR / "hr_config" / "env" / "dev.env", override=False)
 
 DEBUG = True
 
@@ -25,10 +25,10 @@ DATABASES = sqlite_settings.DATABASES
 # ===============================================
 #  Network
 # ===============================================
-ALLOWED_HOSTS        = [h.strip() for h in os.environ.get("ALLOWED_HOSTS", "").split(",") if h.strip()]
+ALLOWED_HOSTS = [h.strip() for h in os.environ.get("ALLOWED_HOSTS", "").split(",") if h.strip()]
 CSRF_TRUSTED_ORIGINS = [h.strip() for h in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",") if h.strip()]
 
-INTERNAL_IPS = ['127.0.0.1']
+INTERNAL_IPS = ["127.0.0.1"]
 
 SITE_URL = os.getenv("SITE_URL", "http://localhost:8000")
 
@@ -36,10 +36,7 @@ SITE_URL = os.getenv("SITE_URL", "http://localhost:8000")
 # ===============================================
 #  Apps + Middleware
 # ===============================================
-INSTALLED_APPS += [
-    'debug_toolbar',
-    'django_browser_reload'
-]
+INSTALLED_APPS += ["debug_toolbar", "django_browser_reload"]
 
 MIDDLEWARE.insert(2, "debug_toolbar.middleware.DebugToolbarMiddleware")
 MIDDLEWARE.append("django_browser_reload.middleware.BrowserReloadMiddleware")
@@ -50,11 +47,7 @@ WHITENOISE_USE_FINDERS = True
 # ===============================================
 #  Debug Toolbar
 # ===============================================
-DEBUG_TOOLBAR_CONFIG = {
-    "DISABLE_PANELS": [
-        "debug_toolbar.panels.staticfiles.StaticFilesPanel"
-    ]
-}
+DEBUG_TOOLBAR_CONFIG = {"DISABLE_PANELS": ["debug_toolbar.panels.staticfiles.StaticFilesPanel"]}
 
 # ===============================================
 #  Ngrok
@@ -62,7 +55,7 @@ DEBUG_TOOLBAR_CONFIG = {
 USE_NGROK = env_bool("USE_NGROK")
 
 if USE_NGROK:
-    EXTERNAL_BASE_URL = os.getenv('EXTERNAL_BASE_URL', '').rstrip('/')
+    EXTERNAL_BASE_URL = os.getenv("EXTERNAL_BASE_URL", "").rstrip("/")
     if not EXTERNAL_BASE_URL:
         raise RuntimeError("USE_NGROK=1 but EXTERNAL_BASE_URL is empty.")
     if not (EXTERNAL_BASE_URL.startswith("http://") or EXTERNAL_BASE_URL.startswith("https://")):

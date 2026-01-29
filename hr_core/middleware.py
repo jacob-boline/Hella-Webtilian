@@ -23,20 +23,15 @@ Contains:
 from __future__ import annotations
 
 import json
-
 from collections.abc import Callable
+
 from django.core.exceptions import PermissionDenied
-from django.http import HttpRequest, HttpResponse, Http404
+from django.http import Http404, HttpRequest, HttpResponse
 from structlog.contextvars import clear_contextvars
 
-from hr_common.utils.unified_logging import (
-    REQUEST_ID_HEADER,
-    REQUEST_ID_META_KEY,
-    generate_request_id,
-    reset_request_id,
-    set_request_id,
-)
-from hr_common.utils.htmx_responses import is_htmx, likely_session_expired
+from hr_common.utils.htmx_responses import likely_session_expired
+from hr_common.utils.unified_logging import (generate_request_id, REQUEST_ID_HEADER, REQUEST_ID_META_KEY, reset_request_id, set_request_id)
+from utils.http.htmx import is_htmx
 
 
 class RequestIdMiddleware:
@@ -48,12 +43,12 @@ class RequestIdMiddleware:
         token = set_request_id(request_id)
         request.request_id = request_id
         try:
-            response = self.get_response(request)
+            resp = self.get_response(request)
         finally:
             clear_contextvars()
             reset_request_id(token)
-        response[REQUEST_ID_HEADER] = request_id
-        return response
+        resp[REQUEST_ID_HEADER] = request_id
+        return resp
 
 
 class HtmxExceptionMiddleware:
@@ -66,23 +61,17 @@ class HtmxExceptionMiddleware:
         except Http404:
             if is_htmx(request):
                 resp = HttpResponse(status=404)
-                resp['HX-Trigger'] = json.dumps({
-                    'showMessage': 'Not found.',
-                    'closeModal': None
-                })
+                resp["HX-Trigger"] = json.dumps({"showMessage": "Not found.", "closeModal": None})
                 return resp
             raise
 
         except PermissionDenied:
             if is_htmx(request):
-                msg = 'Not authorized.'
+                msg = "Not authorized."
                 if likely_session_expired(request):
-                    msg = 'Your session may have expired. Please sign in again.'
+                    msg = "Your session may have expired. Please sign in again."
 
                 resp = HttpResponse(status=403)
-                resp['HX-Trigger'] = json.dumps({
-                    'showMessage': msg,
-                    'closeModal': None
-                })
+                resp["HX-Trigger"] = json.dumps({"showMessage": msg, "closeModal": None})
                 return resp
             raise

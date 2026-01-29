@@ -150,11 +150,11 @@ w
 
                 <!-- sentinel stays forever -->
                 <div id="bulletin-sentinel"
-                      class="bulletin-sentinel"
-                      hx-get="{% url 'hr_bulletin:bulletin_list_partial' %}?page=1"
-                      hx-trigger="revealed"
-                      hx-target="#bulletin-feed"
-                      hx-swap="beforeend">
+                     class="bulletin-sentinel"
+                     hx-get="{% url 'hr_bulletin:bulletin_list_partial' %}?page=1"
+                     hx-trigger="revealed"
+                     hx-target="#bulletin-feed"
+                     hx-swap="beforeend">
                 </div>
             </div>
         </div>
@@ -177,9 +177,10 @@ w
                 const loader = document.getElementById('modal-loader');
                 if (!loader || !window.htmx) return false;
 
-                loader.setAttribute('hx-get', "{% url 'hr_shop:email_confirmation_success' %}");
-                htmx.process(loader);
-                htmx.trigger(loader, 'hr:loadModal');
+                {#loader.setAttribute('hx-get', "{% url 'hr_shop:email_confirmation_success' %}");#}
+                {#htmx.process(loader);#}
+                {#htmx.trigger(loader, 'hr:loadModal');#}
+                window.htmx.trigger(document.body, 'loadModal', "{% url 'hr_shop:email_confirmation_success' %}");
                 return true;
             }
 

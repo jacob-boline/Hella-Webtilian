@@ -2,8 +2,7 @@
 from __future__ import annotations
 
 import os
-import typing
-from typing import Type, cast
+from typing import cast
 
 import structlog
 from structlog.typing import BindableLogger
@@ -45,7 +44,7 @@ def configure_structlog() -> None:
             structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
         ],
         logger_factory=structlog.stdlib.LoggerFactory(),
-        wrapper_class=cast(Type[BindableLogger], structlog.stdlib.BoundLogger),
+        wrapper_class=cast(type[BindableLogger], structlog.stdlib.BoundLogger),
         cache_logger_on_first_use=True,
     )
     configure_structlog._configured = True

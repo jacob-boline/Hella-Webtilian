@@ -21,5 +21,3 @@ import './utils/vh-fix.js';
 
 window.htmx = htmx?.default ?? htmx;
 window.addEventListener("DOMContentLoaded", () => feather.replace());
-
-

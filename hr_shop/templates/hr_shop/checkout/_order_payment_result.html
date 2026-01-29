@@ -63,6 +63,18 @@
         {% endif %}
     </div>
 
+    {% if payment_result != 'paid' %}
+        <div class="m-actions m-grid">
+            <button type="button"
+                    class="card-btn btn-neon btn-blue btn-sm"
+                    hx-get="{% url 'hr_shop:checkout_pay' order.id %}"
+                    hx-target="#modal-content"
+                    hx-swap="innerHTML transition:true">
+                Retry payment
+            </button>
+        </div>
+    {% endif %}
+
     {# ================================ #}
     {# Guest CTA (paid + guest only)    #}
     {# ================================ #}
@@ -92,8 +104,7 @@
                         data-cta-dismiss
                         hx-post="{% url 'hr_shop:dismiss_post_purchase_cta' order.id %}"
                         hx-swap="outerHTML transition:true"
-                        hx-target="#post-purchase-account"
-                >
+                        hx-target="#post-purchase-account">
                     No thanks
                 </button>
             </div>

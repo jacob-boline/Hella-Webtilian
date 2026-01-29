@@ -61,21 +61,17 @@ class Command(BaseCommand):
             help="Preserve seeded media subfolders under MEDIA_ROOT.",
         )
 
-        parser.add_argument(
-            "--wipe-media",
-            action="store_true",
-            help="Force delete seeded media folders even if --no-seed is used."
-        )
+        parser.add_argument("--wipe-media", action="store_true", help="Force delete seeded media folders even if --no-seed is used.")
 
     def handle(self, *args, **options):
 
         if not settings.DEBUG:
-            raise RuntimeError('init command cannot run when DEBUG=False')
+            raise RuntimeError("init command cannot run when DEBUG=False")
 
         no_input = options["no_input"]
         no_seed = options["no_seed"]
-        keep_media = options['keep_media']
-        wipe_media = options['wipe_media']
+        keep_media = options["keep_media"]
+        wipe_media = options["wipe_media"]
 
         base_dir = Path(settings.BASE_DIR)
         db_path = base_dir / "db.sqlite3"
@@ -118,14 +114,11 @@ class Command(BaseCommand):
         self._create_superuser_from_env()
 
         # 5) Wipe Media
-        should_wipe_media = ((not keep_media) and ((not no_seed) or wipe_media))
+        should_wipe_media = (not keep_media) and ((not no_seed) or wipe_media)
         if should_wipe_media:
             self._wipe_seeded_media()
         else:
-            self.stdout.write(self.style.WARNING(
-                "→ Skipping media wipe "
-                f"({'--keep-media' if keep_media else '--no-seed'})."
-            ))
+            self.stdout.write(self.style.WARNING("→ Skipping media wipe " f"({'--keep-media' if keep_media else '--no-seed'})."))
 
         # 6) Seed data
         if not no_seed:
@@ -208,12 +201,7 @@ class Command(BaseCommand):
         password = os.environ.get("DJANGO_SU_PASSWORD")
 
         if not username or not password:
-            self.stdout.write(
-                self.style.WARNING(
-                    "  • DJANGO_SU_USERNAME and/or DJANGO_SU_PASSWORD not set; "
-                    "skipping superuser creation."
-                )
-            )
+            self.stdout.write(self.style.WARNING("  • DJANGO_SU_USERNAME and/or DJANGO_SU_PASSWORD not set; " "skipping superuser creation."))
             return
 
         if not email:
@@ -221,9 +209,7 @@ class Command(BaseCommand):
 
         User = get_user_model()
         if User.objects.filter(username=username).exists():
-            self.stdout.write(
-                self.style.WARNING(f"  • Superuser '{username}' already exists; skipping.")
-            )
+            self.stdout.write(self.style.WARNING(f"  • Superuser '{username}' already exists; skipping."))
             return
 
         User.objects.create_superuser(username=username, email=email, password=password)
@@ -246,10 +232,7 @@ class Command(BaseCommand):
 
         if not npm_exe:
             self.stdout.write(
-                self.style.ERROR(
-                    "  • Failed to start `npm run dev`: could not resolve `npm`.\n"
-                    "    Try running `npm --version` and `Get-Command npm` in this terminal."
-                )
+                self.style.ERROR("  • Failed to start `npm run dev`: could not resolve `npm`.\n" "    Try running `npm --version` and `Get-Command npm` in this terminal.")
             )
             return
 
@@ -259,6 +242,4 @@ class Command(BaseCommand):
             subprocess.Popen(cmd, cwd=str(base_dir), env=env)
             self.stdout.write(self.style.SUCCESS(f"  • `npm run dev` started using {npm_exe}."))
         except Exception as e:
-            self.stdout.write(
-                self.style.ERROR(f"  • Error starting `npm run dev`: {e}")
-            )
+            self.stdout.write(self.style.ERROR(f"  • Error starting `npm run dev`: {e}"))

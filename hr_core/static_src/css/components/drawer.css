@@ -232,9 +232,9 @@
 /* The magic 2px above and below account for top/bottom borders of the floating cart btn in order to mirror its height */
 
 #nav-open-btn {
-    opacity:         0;
     /*noinspection CssInvalidPropertyValue*/
     top:             calc(7svh - 2px);
+    opacity:         0;
     margin-left:     24px;
     background:      var(--black-alpha-30);
     border:          1px solid var(--white-alpha-15);
@@ -243,11 +243,11 @@
     border-radius:   100vmax;
     cursor:          pointer;
     color:           var(--text);
+    padding:         0.5rem;
+    font-size:       1.45rem;
     transition:      background  .2s ease,
                      transform   .2s ease,
                      opacity      1s ease;
-    padding:         0.5rem;
-    font-size:       1.45rem;
 }
 
 /*noinspection CssInvalidPropertyValue*/

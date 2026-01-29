@@ -2,7 +2,7 @@
 
 
 from __future__ import annotations
-from typing import Optional
+
 from django.views.generic.base import TemplateResponseMixin
 
 
@@ -13,7 +13,8 @@ class HtmxTemplateMixin(TemplateResponseMixin):
     When used with a TemplateResponseMixin-based CBV (TemplateView/DetailView/etc.),
     allows swapping the template to an HTMX-specific partial.
     """
-    htmx_template_name: Optional[str] = None
+
+    htmx_template_name: str | None = None
 
     def get_template_names(self):
         if self.htmx_template_name:

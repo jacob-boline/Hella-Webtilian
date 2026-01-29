@@ -14,10 +14,9 @@ from __future__ import annotations
 import argparse
 import re
 import sys
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable
-
 
 ALLOWED_EXTS = {".py", ".js", ".css", ".html", ".yml", ".yaml"}
 
@@ -292,10 +291,7 @@ def main(argv: list[str]) -> int:
             result.errors += 1
             print(f"[headers] ERROR: {p} -> {e}", file=sys.stderr)
 
-    print(
-        f"[headers] done. updated={result.updated} unchanged={result.unchanged} "
-        f"skipped={result.skipped} errors={result.errors}"
-    )
+    print(f"[headers] done. updated={result.updated} unchanged={result.unchanged} " f"skipped={result.skipped} errors={result.errors}")
 
     return 1 if result.errors else 0
 

@@ -1,14 +1,15 @@
 # hr_core/management/commands/seed_hr_live.py
 
+from datetime import date as Date
+from datetime import time as Time
 from pathlib import Path
-from datetime import date as Date, time as Time
 
 import yaml
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from hr_common.models import Address
-from hr_live.models import Day, Venue, Booker, Musician, Act, Show
+from hr_live.models import Act, Booker, Day, Musician, Show, Venue
 
 
 class Command(BaseCommand):
@@ -23,16 +24,12 @@ class Command(BaseCommand):
     def _seed_hr_live(self):
         base = Path(settings.BASE_DIR) / "_seed_data" / "hr_live"
         if not base.exists():
-            self.stdout.write(
-                self.style.WARNING(f"  → No seed_data/hr_live directory found at {base}")
-            )
+            self.stdout.write(self.style.WARNING(f"  → No seed_data/hr_live directory found at {base}"))
             return
 
         live_yml = base / "live.yml"
         if not live_yml.exists():
-            self.stdout.write(
-                self.style.WARNING(f"  → No live.yml found in {base}; nothing to seed.")
-            )
+            self.stdout.write(self.style.WARNING(f"  → No live.yml found in {base}; nothing to seed."))
             return
 
         cfg = yaml.safe_load(live_yml.read_text()) or {}
@@ -146,9 +143,7 @@ class Command(BaseCommand):
         for v in venues_cfg:
             name = v.get("name")
             if not name:
-                self.stdout.write(
-                    self.style.WARNING("      (Skipping venue with no name.)")
-                )
+                self.stdout.write(self.style.WARNING("      (Skipping venue with no name.)"))
                 continue
 
             website = v.get("website") or ""
@@ -210,11 +205,7 @@ class Command(BaseCommand):
                 for bk in booker_keys:
                     bobj = booker_map.get(bk)
                     if not bobj:
-                        self.stdout.write(
-                            self.style.WARNING(
-                                f"      (Venue '{name}' references unknown booker key '{bk}'.)"
-                            )
-                        )
+                        self.stdout.write(self.style.WARNING(f"      (Venue '{name}' references unknown booker key '{bk}'.)"))
                         continue
                     venue.bookers.add(bobj)
 
@@ -291,9 +282,7 @@ class Command(BaseCommand):
         for a in acts_cfg:
             name = a.get("name")
             if not name:
-                self.stdout.write(
-                    self.style.WARNING("      (Skipping act with no name.)")
-                )
+                self.stdout.write(self.style.WARNING("      (Skipping act with no name.)"))
                 continue
 
             website = a.get("website") or f"band{acts_cfg.index(a)}.com"
@@ -318,11 +307,7 @@ class Command(BaseCommand):
                 for mk in member_keys:
                     mobj = musician_map.get(mk)
                     if not mobj:
-                        self.stdout.write(
-                            self.style.WARNING(
-                                f"      (Act '{name}' references unknown musician key '{mk}' in members.)"
-                            )
-                        )
+                        self.stdout.write(self.style.WARNING(f"      (Act '{name}' references unknown musician key '{mk}' in members.)"))
                         continue
                     act.members.add(mobj)
 
@@ -333,11 +318,7 @@ class Command(BaseCommand):
                 for ck in contact_keys:
                     cobj = musician_map.get(ck)
                     if not cobj:
-                        self.stdout.write(
-                            self.style.WARNING(
-                                f"      (Act '{name}' references unknown musician key '{ck}' in contacts.)"
-                            )
-                        )
+                        self.stdout.write(self.style.WARNING(f"      (Act '{name}' references unknown musician key '{ck}' in contacts.)"))
                         continue
                     act.contacts.add(cobj)
 
@@ -375,47 +356,31 @@ class Command(BaseCommand):
             # image_name = s.get("image")
 
             if not (date_str and time_str and venue_name):
-                self.stdout.write(
-                    self.style.WARNING(
-                        "      (Skipping show: requires date, time, and venue.)"
-                    )
-                )
+                self.stdout.write(self.style.WARNING("      (Skipping show: requires date, time, and venue.)"))
                 continue
 
             try:
                 d = Date.fromisoformat(date_str)
             except ValueError:
-                self.stdout.write(
-                    self.style.WARNING(f"      (Invalid date '{date_str}', skipping show.)")
-                )
+                self.stdout.write(self.style.WARNING(f"      (Invalid date '{date_str}', skipping show.)"))
                 continue
 
             try:
                 t = Time.fromisoformat(time_str)
             except ValueError:
-                self.stdout.write(
-                    self.style.WARNING(f"      (Invalid time '{time_str}', skipping show.)")
-                )
+                self.stdout.write(self.style.WARNING(f"      (Invalid time '{time_str}', skipping show.)"))
                 continue
 
             venue = venue_map.get(venue_name)
             if not venue:
-                self.stdout.write(
-                    self.style.WARNING(
-                        f"      (Show references unknown venue '{venue_name}', skipping.)"
-                    )
-                )
+                self.stdout.write(self.style.WARNING(f"      (Show references unknown venue '{venue_name}', skipping.)"))
                 continue
 
             booker = None
             if booker_key:
                 booker = booker_map.get(booker_key)
                 if not booker:
-                    self.stdout.write(
-                        self.style.WARNING(
-                            f"      (Show references unknown booker key '{booker_key}', continuing without booker.)"
-                        )
-                    )
+                    self.stdout.write(self.style.WARNING(f"      (Show references unknown booker key '{booker_key}', continuing without booker.)"))
 
             # Identify show by (date, time, venue)
             show, created = Show.objects.get_or_create(
@@ -440,11 +405,7 @@ class Command(BaseCommand):
                 for an in lineup_names:
                     act = act_map.get(an)
                     if not act:
-                        self.stdout.write(
-                            self.style.WARNING(
-                                f"      (Show on {d} references unknown act '{an}' in lineup.)"
-                            )
-                        )
+                        self.stdout.write(self.style.WARNING(f"      (Show on {d} references unknown act '{an}' in lineup.)"))
                         continue
                     show.lineup.add(act)
 
@@ -461,7 +422,6 @@ class Command(BaseCommand):
             #                 f"      (Show image '{image_name}' not found in {images_dir}.)"
             #             )
             #         )
-
 
 
 #  6484997495

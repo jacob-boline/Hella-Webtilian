@@ -4,11 +4,8 @@
 from django.http import HttpResponse
 from django.test import RequestFactory, SimpleTestCase
 
+from hr_common.utils.unified_logging import (get_request_id, REQUEST_ID_HEADER)
 from hr_core.middleware import RequestIdMiddleware
-from hr_common.utils.unified_logging import (
-    REQUEST_ID_HEADER,
-    get_request_id,
-)
 
 
 class RequestIdMiddlewareTests(SimpleTestCase):
@@ -22,8 +19,8 @@ class RequestIdMiddlewareTests(SimpleTestCase):
             return HttpResponse("ok")
 
         middleware = RequestIdMiddleware(get_response)
-        response = middleware(request)
+        resp = middleware(request)
 
         self.assertEqual(captured["request_id"], "req-123")
-        self.assertEqual(response[REQUEST_ID_HEADER], "req-123")
+        self.assertEqual(resp[REQUEST_ID_HEADER], "req-123")
         self.assertIsNone(get_request_id())

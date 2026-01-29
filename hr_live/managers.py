@@ -13,14 +13,14 @@ class ShowManager(models.Manager):
         Published shows with date >= today, ordered by soonest first.
         """
         today = timezone.localdate()
-        return self.filter(status='published', date__gte=today).order_by('date', 'time', 'id')
+        return self.filter(status="published", date__gte=today).order_by("date", "time", "id")
 
     def past(self):
         """
         Published shows with date < today, most recent first.
         """
         today = timezone.localdate()
-        return self.filter(status='published', date__lt=today).order_by('-date', '-time', '-id')
+        return self.filter(status="published", date__lt=today).order_by("-date", "-time", "-id")
 
     def get_shows_for_month(self, month, year=None):
         """
@@ -33,7 +33,7 @@ class ShowManager(models.Manager):
 class VenueManager(models.Manager):
 
     def get_booker_names(self):
-        return ', '.join(booker.full_name for booker in self.bookers)
+        return ", ".join(booker.full_name for booker in self.bookers)
 
     def get_upcoming_shows(self, start_date=datetime.datetime.today, end_date=None):
         result = self.shows.filter(shows__gte=start_date)

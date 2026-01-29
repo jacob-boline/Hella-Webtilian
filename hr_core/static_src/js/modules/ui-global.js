@@ -59,11 +59,14 @@
             if (!messageBar || !messageText) return;
 
             messageText.textContent = text || "";
-            messageBar.classList.add("is-visible");
 
-            window.setTimeout(() => {
-                messageBar.classList.remove("is-visible");
-            }, timeoutMs);
+            if (messageText.textContent !== "") {
+
+                messageBar.classList.add("is-visible");
+                window.setTimeout(() => {
+                    messageBar.classList.remove("is-visible");
+                }, timeoutMs);
+            }
         }
 
         function refreshScrollOnModalClose () {
@@ -188,12 +191,29 @@
                 modalEl.classList.add("is-swapping");
             });
 
-            document.addEventListener("htmx:afterSettle", (e) => {
+            /* fires stashed triggers (showMessage) after modal content settles */
+            document.addEventListener('htmx:afterSettle', (e) => {
                 const target = e.target;
-                if (!target) return;
-                if (!isModalSwapTarget(target)) return;
-                modalEl.classList.remove("is-swapping");
+                if (!target || target.id !== 'modal-content') return;
+
+                const loader = document.getElementById('modal-loader');
+                const h = window.htmx;
+                if (!loader || !h) return;
+
+                const raw = loader.dataset.afterSwapTriggers;
+                if (!raw) return;
+
+                delete loader.dataset.afterSwapTriggers;
+
+                let triggers;
+                try { triggers = JSON.parse(raw); } catch { return; }
+                if (!triggers || typeof triggers !== 'object') return;
+
+                for (const [name, payload] of Object.entries(triggers)) {
+                    h.trigger(document.body, name, payload);
+                }
             });
+
         }
 
         // ------------------------------
@@ -319,57 +339,65 @@
         // Landing modal bootstrap (query params)   //
         // ---------------------------------------- //
         function bootstrapLandingModalFromUrl () {
+            console.log('IN bootstrapLandingModalFromUrl');
             const loader = document.getElementById("modal-loader");
             if (!loader) return false;
 
             const params = new URLSearchParams(window.location.search);
             const modal = (params.get("modal") || "").trim();
-            const modalUrlParam = (params.get("modal_url") || "").trim();
             if (!modal) return false;
 
             if (!window.htmx) return false;
 
-            let hxGet = null;
+            const routes = {
 
-            if ((modalUrlParam) || ((modal === "password_reset" && modalUrlParam) || (modal === "email_change" && modalUrlParam))) {
-                hxGet = modalUrlParam;
-            } else if (modal === "email_confirmed") {
-                hxGet = "/shop/checkout/email-confirmation/success/";
-            } else if (modal === "order_payment_result") {
-                const orderId = (params.get("order_id") || "").trim();
-                const token = (params.get("t") || "").trim();
-                if (!orderId || !token) return false;
-                hxGet = `/shop/order/${encodeURIComponent(orderId)}/payment-result/?t=${encodeURIComponent(token)}`;
-            }
+                email_confirmed: () => "/shop/checkout/email-confirmation/success/",
 
-            if (hxGet == null) return true;  // unknown modal key -> don't do anything (but also don't keep re-trying)
+                order_payment_result: () => {
+                    const token = (params.get("t") || "").trim();
+                    if (!token) return null;
+                    return `/shop/order/payment-result/?t=${encodeURIComponent(token)}`;
+                },
 
-            loader.setAttribute("hx-get", hxGet);
-            window.htmx.process(loader);
-            window.htmx.trigger(loader, "hr:loadModal");
+                account_signup_confirm: () => {
+                    const token = (params.get("t") || "").trim();
+                    if (!token) return null;
+                    return `/access/account/signup/confirm/?t=${encodeURIComponent(token)}`;
+                },
 
-            // Clean the URL so refresh doesn't re-open.
-            // (Preserve pathname + hash only; drop query string.)
+                email_change_confirm: () => {
+                    const token = (params.get("t") || "").trim();
+                    if (!token) return null;
+                    return `/access/account/email-change/confirm/?t=${encodeURIComponent(token)}`;
+                }
+            };
+
+            const build = routes[modal];
+            const hxGet = build ? build() : null;
+
+            if (hxGet === null) return true; // unknown or missing params -> don't retry forever
+
+            // loader.setAttribute("hx-get", hxGet);
+            // window.htmx.process(loader);
+            // window.htmx.trigger(loader, "hr:loadModal");
+
+            window.htmx.trigger(document.body, 'loadModal', { hxGet });
+
             window.setTimeout(() => {
                 try {
                     const cleanParams = new URLSearchParams(window.location.search);
-                    cleanParams.delete("modal");
-                    cleanParams.delete("order_id");
-                    cleanParams.delete("t");
-                    cleanParams.delete("modal_url");
-                    cleanParams.delete("handoff");
+                    ["modal", "order_id", "t", "u", "modal_url", "handoff"].forEach(k => cleanParams.delete(k));
 
                     const qs = cleanParams.toString();
-                    const clean =
-                        window.location.pathname +
-                        (qs ? `?${qs}` : "") +
-                        window.location.hash;
+                    const clean = window.location.pathname + (qs ? `?${qs}` : "") + window.location.hash;
                     window.history.replaceState({}, "", clean);
                 } catch (e) {
                 }
             }, 0);
+
             return true;
         }
+
 
         function tryBootstrapLandingModal () {
             return bootstrapLandingModalFromUrl();

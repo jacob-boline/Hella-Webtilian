@@ -1,6 +1,6 @@
 // hr_core/static_src/js/modules/carousel.js
 
-export function initCarousel(root = document) {
+export function initCarousel (root = document) {
     const container = root.querySelector('#about-carousel');
     if (!container) return;
 
@@ -25,7 +25,7 @@ export function initCarousel(root = document) {
 
     const mod = (n, m) => ((n % m) + m) % m;
 
-    function centerThumb(thumb, rail) {
+    function centerThumb (thumb, rail) {
         if (!thumb || !rail) return;
         const railRect = rail.getBoundingClientRect();
         const liRect = thumb.getBoundingClientRect();
@@ -35,11 +35,50 @@ export function initCarousel(root = document) {
             (liRect.left - railRect.left) -
             (railRect.width / 2 - liRect.width / 2);
 
-        rail.scrollTo({ left: target, behavior: 'smooth' });
+        rail.scrollTo({left: target, behavior: 'smooth'});
     }
 
+
+    function normalizeToAboutBase (url) {
+        const u = String(url || "");
+        if (!u) return "";
+
+        const q = u.indexOf("?");
+        const noQuery = q >= 0 ? u.slice(0, q) : u;
+
+        // If it's already a processed about variant, strip -###w + extension
+        if (noQuery.includes("/media/") && /-\d+w\.(webp|png|jpg|jpeg)$/i.test(noQuery)) {
+            const noExt = noQuery.replace(/\.(webp|png|jpg|jpeg)$/i, "");
+            const noSize = noExt.replace(/-\d+w$/i, "");
+            // if you have a dedicated dir for about variants, normalize it here
+            // e.g. return noSize.replace("/opt_about/", "/opt_about/");
+            return noSize;
+        }
+
+        // Otherwise: derive from filename stem and point at your about variant directory.
+        const filename = noQuery.split("/").pop() || "";
+        const stem = filename.replace(/\.(webp|png|jpg|jpeg)$/i, "");
+        return `/media/hr_about/opt_webp/${stem}`; // <-- CHANGE to your real folder
+    }
+
+    function aboutSrc (base, size) {
+        return `${base}-${size}w.webp`;
+    }
+
+    function aboutSrcset (base) {
+        // Pick the same sizes your about_img_srcset filter outputs
+        return [
+            `${aboutSrc(base, 640)} 640w`,
+            `${aboutSrc(base, 960)} 960w`,
+            `${aboutSrc(base, 1280)} 1280w`,
+            `${aboutSrc(base, 1600)} 1600w`,
+            `${aboutSrc(base, 1920)} 1920w`
+        ].join(", ");
+    }
+
+
     // Touch swipe binder with cleanup
-    function swipeBinder(el, onSwipe) {
+    function swipeBinder (el, onSwipe) {
         let x0 = null;
         let t0 = 0;
 
@@ -60,7 +99,7 @@ export function initCarousel(root = document) {
             }
         };
 
-        el.addEventListener('touchstart', onTouchStart, { passive: true });
+        el.addEventListener('touchstart', onTouchStart, {passive: true});
         el.addEventListener('touchend', onTouchEnd);
 
         return () => {
@@ -101,25 +140,32 @@ export function initCarousel(root = document) {
     });
 
     // --------------- DATA ACCESS -----------------
-    function getItemData(i) {
+    function getItemData (i) {
         const thumb = thumbs[i];
         if (!thumb) return null;
 
-        const { src, alt } = thumb.dataset;
+        const {src, alt} = thumb.dataset;
         if (!src) return null;
 
-        return { src, alt: alt || '' };
+        return {src, alt: alt || ''};
     }
 
-    function render(i) {
+    function render (i) {
         const data = getItemData(i);
         if (!data || !data.src) return;
-        stageImg.src = data.src;
+
+        const base = normalizeToAboutBase(data.src);
+        if (!base) return;
+
+        stageImg.src = aboutSrc(base, 960);       // fallback
+        stageImg.srcset = aboutSrcset(base);      // browser picks best candidate
+        stageImg.sizes = "(max-width: 640px) 88vw, (max-width: 1024px) 92vw, (max-width: 1600px) 80vw, 1800px";
         stageImg.alt = data.alt || '';
     }
 
+
     // --------------- THUMB VISIBILITY + HIGHLIGHT ---------------
-    function highlightThumb(i) {
+    function highlightThumb (i) {
         const count = thumbs.length;
         const prevIndex = mod(i - 1, count);
         const nextIndex = mod(i + 1, count);
@@ -143,20 +189,20 @@ export function initCarousel(root = document) {
         }
     }
 
-    function setActive(i, userInitiated = false) {
+    function setActive (i, userInitiated = false) {
         if (!itemCount) return;
         index = mod(i, itemCount);
 
         render(index);
         highlightThumb(index);
 
-        if (userInitiated) stage.focus?.({ preventScroll: true });
+        if (userInitiated) stage.focus?.({preventScroll: true});
     }
 
     const scrollOne = (dir) => {
         if (!thumbsUl) return;
         const amount = thumbsUl.clientWidth / 3 || 100;
-        thumbsUl.scrollBy({ left: dir * amount, behavior: 'smooth' });
+        thumbsUl.scrollBy({left: dir * amount, behavior: 'smooth'});
     };
 
     const goPrev = () => {
@@ -177,12 +223,24 @@ export function initCarousel(root = document) {
     if (prevBtn) prevBtn.addEventListener('click', goPrev);
     if (nextBtn) nextBtn.addEventListener('click', goNext);
 
-    if (thumbsPrev) thumbsPrev.addEventListener('click', () => { setActive(index - 1, true); scrollOne(-1); });
-    if (thumbsNext) thumbsNext.addEventListener('click', () => { setActive(index + 1, true); scrollOne(1); });
+    if (thumbsPrev) thumbsPrev.addEventListener('click', () => {
+        setActive(index - 1, true);
+        scrollOne(-1);
+    });
+    if (thumbsNext) thumbsNext.addEventListener('click', () => {
+        setActive(index + 1, true);
+        scrollOne(1);
+    });
 
     const onKeydown = (e) => {
-        if (e.key === 'ArrowRight') { e.preventDefault(); goNext(); }
-        if (e.key === 'ArrowLeft') { e.preventDefault(); goPrev(); }
+        if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            goNext();
+        }
+        if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            goPrev();
+        }
     };
     container.addEventListener('keydown', onKeydown);
 
@@ -209,7 +267,7 @@ export function initCarousel(root = document) {
         next: goNext,
         prev: goPrev,
         go: (i) => setActive(i, true),
-        destroy() {
+        destroy () {
             if (prevBtn) prevBtn.removeEventListener('click', goPrev);
             if (nextBtn) nextBtn.removeEventListener('click', goNext);
             container.removeEventListener('keydown', onKeydown);

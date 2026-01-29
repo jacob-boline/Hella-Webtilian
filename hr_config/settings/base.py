@@ -16,19 +16,10 @@ else:
     SECRET_FILE.write_text(SECRET_KEY)
     SECRET_FILE.chmod(0o600)
 
-CSRF_FAILURE_VIEW = 'hr_common.utils.htmx_responses.csrf_failure'
+CSRF_FAILURE_VIEW = "hr_common.utils.htmx_responses.csrf_failure"
 
-DJANGO_CORE_APPS = [
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages"
-]
-STATIC_HANDLING_APPS = [
-    "whitenoise.runserver_nostatic",
-    "django.contrib.staticfiles"
-]
+DJANGO_CORE_APPS = ["django.contrib.admin", "django.contrib.auth", "django.contrib.contenttypes", "django.contrib.sessions", "django.contrib.messages"]
+STATIC_HANDLING_APPS = ["whitenoise.runserver_nostatic", "django.contrib.staticfiles"]
 PROJECT_APPS = [
     "hr_core",
     "hr_about.apps.AboutConfig",
@@ -39,7 +30,7 @@ PROJECT_APPS = [
     "hr_live",
     "hr_payment",
     "hr_shop.apps.ShopConfig",
-    "hr_storage"
+    "hr_storage",
 ]
 THIRD_PARTY_APPS = [
     "phonenumber_field",
@@ -58,9 +49,10 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "hr_common.middleware.logging_context.RequestUserContextMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "hr_core.middleware.HtmxExceptionMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware"
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
 ROOT_URLCONF = "hr_django.urls"
@@ -77,9 +69,9 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "django.template.context_processors.media",
-                "hr_shop.context_processors.cart_context"
+                "hr_shop.context_processors.cart_context",
             ]
-        }
+        },
     }
 ]
 
@@ -90,7 +82,7 @@ AUTH_USER_MODEL = "hr_access.User"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-LOGIN_URL = reverse_lazy('hr_access:auth_login')
+LOGIN_URL = reverse_lazy("hr_access:auth_login")
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 
@@ -98,7 +90,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"}
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
 MEDIA_URL = "/media/"
@@ -107,14 +99,9 @@ MEDIA_ROOT = BASE_DIR / "media"
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-STORAGES = {
-    "default":     {"BACKEND": "django.core.files.storage.FileSystemStorage"},
-    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"}
-}
+STORAGES = {"default": {"BACKEND": "django.core.files.storage.FileSystemStorage"}, "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"}}
 
-STATICFILES_DIRS = [
-    BASE_DIR / "hr_core" / "static"
-]
+STATICFILES_DIRS = [BASE_DIR / "hr_core" / "static"]
 
 # -----------------------------
 # RQ (background jobs)
@@ -139,5 +126,5 @@ USE_TZ = True
 
 from hr_config.settings.logging import *  # noqa
 from hr_config.settings.mailjet import *  # noqa
-from hr_config.settings.stripe import *   # noqa
-from hr_config.settings.vite import *     # noqa
+from hr_config.settings.stripe import *  # noqa
+from hr_config.settings.vite import *  # noqa

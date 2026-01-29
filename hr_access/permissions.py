@@ -1,5 +1,6 @@
 # hr_access/permissions.py
 
+
 # TODO move this into hr_core/utils/http as a decorator (and move the decorators into something like hr_core/decorators?)
 def is_site_admin(user) -> bool:
     """
@@ -20,6 +21,7 @@ def is_site_admin(user) -> bool:
 
     # group membership; Group.DoesNotExist won't be raised here, so no try/except needed
     return user.groups.filter(name="Site admin").exists()
+
 
 #
 # def staff_or_site_admin_required(view_func):

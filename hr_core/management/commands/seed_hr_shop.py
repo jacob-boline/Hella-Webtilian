@@ -1,8 +1,8 @@
 # hr_core/management/commands/seed_hr_shop.py
 
+import itertools
 from decimal import Decimal
 from pathlib import Path
-import itertools
 
 import yaml
 from django.conf import settings
@@ -11,12 +11,12 @@ from django.core.management.base import BaseCommand
 from django.utils.text import slugify
 
 from hr_shop.models import (
+    InventoryItem,
     Product,
+    ProductImage,  # <-- NEW
     ProductOptionType,
     ProductOptionValue,
     ProductVariant,
-    InventoryItem,
-    ProductImage,   # <-- NEW
 )
 
 
@@ -38,9 +38,7 @@ class Command(BaseCommand):
 
         base = Path(settings.BASE_DIR) / "_seed_data" / "hr_shop"
         if not base.exists():
-            self.stdout.write(
-                self.style.WARNING(f"    • No seed_data/hr_shop directory found at {base}")
-            )
+            self.stdout.write(self.style.WARNING(f"    • No seed_data/hr_shop directory found at {base}"))
             return
 
         product_dirs = [p for p in base.iterdir() if p.is_dir()]
@@ -59,9 +57,7 @@ class Command(BaseCommand):
     def _seed_shop_product(self, product_dir: Path):
         product_yml = product_dir / "product.yml"
         if not product_yml.exists():
-            self.stdout.write(
-                self.style.WARNING(f"    • Skipping {product_dir.name}: no product.yml")
-            )
+            self.stdout.write(self.style.WARNING(f"    • Skipping {product_dir.name}: no product.yml"))
             return
 
         cfg = yaml.safe_load(product_yml.read_text()) or {}
@@ -75,13 +71,7 @@ class Command(BaseCommand):
         active = cfg.get("active", True)
 
         # Create/update Product
-        product, created = Product.objects.get_or_create(
-            name=product_name,
-            defaults={
-                "description": description,
-                "active": active
-            }
-        )
+        product, created = Product.objects.get_or_create(name=product_name, defaults={"description": description, "active": active})
         if not created:
             product.description = description
             product.active = active
@@ -91,28 +81,18 @@ class Command(BaseCommand):
 
         # Ensure option types/values from option_types config
         option_cfg = cfg.get("option_types", {}) or {}
-        type_map, value_map = self._ensure_product_option_types_and_values(
-            product, option_cfg
-        )
+        type_map, value_map = self._ensure_product_option_types_and_values(product, option_cfg)
 
         # Seed variant groups: each subfolder with a variant.yml
         variant_dirs = [d for d in product_dir.iterdir() if d.is_dir()]
 
         # Keep deterministic SKU indexing across re-runs:
-        existing_variants = (
-            product.variants.order_by("id")
-            .values_list("sku", flat=True)
-        )
+        existing_variants = product.variants.order_by("id").values_list("sku", flat=True)
         next_index = len(existing_variants) + 1
 
         for vdir in sorted(variant_dirs, key=lambda p: p.name.lower()):
             next_index = self._seed_variant_group_from_folder(
-                product=product,
-                product_option_cfg=option_cfg,
-                vdir=vdir,
-                value_map=value_map,
-                default_price=default_price,
-                start_index=next_index
+                product=product, product_option_cfg=option_cfg, vdir=vdir, value_map=value_map, default_price=default_price, start_index=next_index
             )
 
         # If nothing marked display, choose first variant
@@ -136,7 +116,7 @@ class Command(BaseCommand):
 
         We create ProductOptionType + ProductOptionValue from these.
         """
-        type_map = {}   # "Size" -> ProductOptionType
+        type_map = {}  # "Size" -> ProductOptionType
         value_map = {}  # ("Size", "S") -> ProductOptionValue
 
         # Preserve order as in YAML
@@ -147,8 +127,8 @@ class Command(BaseCommand):
                 code=type_code,
                 defaults={
                     "name": type_name,
-                    "active": True,
-                },
+                    "active": True
+                }
             )
             type_map[type_name] = pot
 
@@ -159,8 +139,8 @@ class Command(BaseCommand):
                     code=value_code,
                     defaults={
                         "name": value_name,
-                        "active": True,
-                    },
+                        "active": True
+                    }
                 )
                 value_map[(type_name, value_name)] = pov
 
@@ -169,15 +149,7 @@ class Command(BaseCommand):
     # ------------------------------------------------------
     # Variant group seeding (one folder = one image group)
     # ------------------------------------------------------
-    def _seed_variant_group_from_folder(
-            self,
-            product,
-            product_option_cfg,
-            vdir: Path,
-            value_map,
-            default_price: Decimal,
-            start_index: int
-    ) -> int:
+    def _seed_variant_group_from_folder(self, product, product_option_cfg, vdir: Path, value_map, default_price: Decimal, start_index: int) -> int:
         """
         Each folder under the product dir like:
 
@@ -225,18 +197,10 @@ class Command(BaseCommand):
                 # No contribution from this type for this group
                 dimension_values[type_name] = []
 
-        active_dims = [
-            (t, vals)
-            for t, vals in dimension_values.items()
-            if vals
-        ]
+        active_dims = [(t, vals) for t, vals in dimension_values.items() if vals]
 
         if not active_dims:
-            self.stdout.write(
-                self.style.WARNING(
-                    f"        (No active option dimensions for group '{group_name}' in {vdir})"
-                )
-            )
+            self.stdout.write(self.style.WARNING(f"        (No active option dimensions for group '{group_name}' in {vdir})"))
             return start_index
 
         # Cartesian product of all selected values
@@ -252,7 +216,7 @@ class Command(BaseCommand):
         created_variants = []
 
         for combo_values in itertools.product(*dim_values_lists):
-            combo = dict(zip(dim_names, combo_values))
+            combo = dict(zip(dim_names, combo_values, strict=True))
 
             # Build a human-readable variant name in option type order
             ordered_value_names = []
@@ -270,14 +234,7 @@ class Command(BaseCommand):
 
             # Create or get the variant
             variant, created = ProductVariant.objects.get_or_create(
-                product=product,
-                sku=sku,
-                defaults={
-                    "name":               variant_name,
-                    "price":              group_price,
-                    "active":             True,
-                    "is_display_variant": False
-                }
+                product=product, sku=sku, defaults={"name": variant_name, "price": group_price, "active": True, "is_display_variant": False}
             )
             if not created:
                 variant.name = variant_name
@@ -291,23 +248,15 @@ class Command(BaseCommand):
                 for tname, vname in combo.items():
                     pov = value_map.get((tname, vname))
                     if not pov:
-                        self.stdout.write(
-                            self.style.WARNING(
-                                f"        (No ProductOptionValue for {tname}={vname} on {product.name})"
-                            )
-                        )
+                        self.stdout.write(self.style.WARNING(f"        (No ProductOptionValue for {tname}={vname} on {product.name})"))
                         continue
                     ovs.append(pov)
                 if ovs:
                     variant.option_values.set(ovs)
 
             # Ensure inventory
-            InventoryItem.objects.get_or_create(
-                variant=variant,
-                defaults={"on_hand": 25, "reserved": 0}
-            )
+            InventoryItem.objects.get_or_create(variant=variant, defaults={"on_hand": 25, "reserved": 0})
 
-            # 🔴 IMPORTANT: attach the shared group image to this variant
             if group_image_obj and (created or not variant.image):
                 variant.image = group_image_obj
                 variant.save(update_fields=["image"])
@@ -322,12 +271,7 @@ class Command(BaseCommand):
                 dv.is_display_variant = True
                 dv.save(update_fields=["is_display_variant"])
             else:
-                self.stdout.write(
-                    self.style.WARNING(
-                        f"        (Group '{group_name}' requested display variant, "
-                        f"but product already has one; ignoring.)"
-                    )
-                )
+                self.stdout.write(self.style.WARNING(f"        (Group '{group_name}' requested display variant, " f"but product already has one; ignoring.)"))
 
         return start_index
 

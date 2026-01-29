@@ -1,13 +1,11 @@
 # hr_live/views.py
 
 import logging
-from typing import Dict, Any
-from datetime import date as date_cls
+from typing import Any
 
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from django.utils import timezone
 
-from hr_common.db import slug
 from hr_common.utils.pagination import paginate
 from hr_common.utils.unified_logging import log_event
 from hr_live.models import Show
@@ -23,25 +21,25 @@ def _get_today():
     return timezone.localdate()
 
 
-def _serialize_show(show: Show) -> Dict[str, Any]:
+def _serialize_show(show: Show) -> dict[str, Any]:
     """
     JSON representation of a show that matches your model.
     """
     lineup_names = [act.name for act in show.lineup.all()]
 
     return {
-        'slug': show.slug,
-        'title': show.title,
-        'subtitle': show.subtitle,
-        'status': show.status,
-        'date': show.date.isoformat() if show.date else None,
-        'time': show.time.isoformat() if show.time else None,
-        'timezone': show.timezone,
-        'venue': show.venue.name if show.venue_id else None,
-        'booker': f"{show.booker.first_name} {show.booker.last_name}".strip() if show.booker_id else None,
-        'lineup': lineup_names,
-        'image': show.image.url if show.image else None,
-        'readable_details': show.readable_details
+        "slug": show.slug,
+        "title": show.title,
+        "subtitle": show.subtitle,
+        "status": show.status,
+        "date": show.date.isoformat() if show.date else None,
+        "time": show.time.isoformat() if show.time else None,
+        "timezone": show.timezone,
+        "venue": show.venue.name if show.venue_id else None,
+        "booker": f"{show.booker.first_name} {show.booker.last_name}".strip() if show.booker_id else None,
+        "lineup": lineup_names,
+        "image": show.image.url if show.image else None,
+        "readable_details": show.readable_details,
     }
 
 
@@ -49,60 +47,33 @@ def _serialize_show(show: Show) -> Dict[str, Any]:
 #  upcoming shows list
 # -------------------------------------------------------------------
 
+
 def live_upcoming_list(request):
     qs = Show.objects.upcoming()
     page_obj = paginate(request, qs, per_page=10)
-    log_event(
-        logger,
-        logging.INFO,
-        "live.upcoming_list.rendered",
-        page_number=page_obj.number,
-        total_count=page_obj.paginator.count
-    )
+    log_event(logger, logging.INFO, "live.upcoming_list.rendered", page_number=page_obj.number, total_count=page_obj.paginator.count)
 
-    context = {
-        'page_obj': page_obj,
-        'shows': page_obj.object_list
-    }
+    context = {"page_obj": page_obj, "shows": page_obj.object_list}
 
-    return render(request, 'hr_live/upcoming_list.html', context)
+    return render(request, "hr_live/upcoming_list.html", context)
 
 
 # -------------------------------------------------------------------
 # SSR: /live/past/ — archive
 # -------------------------------------------------------------------
 
+
 def live_past_list(request):
     qs = Show.objects.past()
     page_obj = paginate(request, qs, per_page=10)
-    log_event(
-        logger,
-        logging.INFO,
-        "live.past_list.rendered",
-        page_number=page_obj.number,
-        total_count=page_obj.paginator.count
-    )
+    log_event(logger, logging.INFO, "live.past_list.rendered", page_number=page_obj.number, total_count=page_obj.paginator.count)
 
-    context = {
-        'page_obj': page_obj,
-        'shows': page_obj.object_list
-    }
+    context = {"page_obj": page_obj, "shows": page_obj.object_list}
 
-    return render(request, 'hr_live/past_list.html', context)
+    return render(request, "hr_live/past_list.html", context)
 
 
-def show_details(request, year: int, month: int, day: int, venue_slug: slug):
-    show_date = date_cls(year, month, day)
-    show = get_object_or_404(
-        Show.objects.select_related('venue'),
-        date=show_date,
-        venue__slug=venue_slug,
-        status='published'
-    )
-    ctx = {'show': show}
-    pass
-
-
+# noqa
 # ---------------------------------------------------------------------------------------------------#
 #                        BELOW IS NOT FOR MVP - COMMENTED UNTIL NEEDED                               #
 # ---------------------------------------------------------------------------------------------------#

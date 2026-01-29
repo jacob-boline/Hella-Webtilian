@@ -1,19 +1,6 @@
 # hr_django/settings.py
 
 
-import os
-
-from django.urls import reverse_lazy
-from dotenv import load_dotenv
-from pathlib import Path
-
-from django.core.management.utils import get_random_secret_key
-
-from hr_config.structlog_config import (
-    get_structlog_processors,
-    get_structlog_renderer
-)
-
 # BASE_DIR = Path(__file__).resolve().parent.parent
 #
 # load_dotenv(BASE_DIR / ".env")

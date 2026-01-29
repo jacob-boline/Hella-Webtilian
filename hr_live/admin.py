@@ -3,13 +3,16 @@
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 
-from hr_live.models import Act, Booker, Show, Venue, Musician
+from hr_live.models import Act, Booker, Musician, Show, Venue
 
 
 @admin.register(Act)
 class ActAdmin(ModelAdmin):
-    list_display = ('id','name', 'website')
-    list_editable = ('name','website',)
+    list_display = ("id", "name", "website")
+    list_editable = (
+        "name",
+        "website",
+    )
     list_filter = ("name",)
 
 
@@ -42,6 +45,6 @@ class ShowAdmin(ModelAdmin):
 
 @admin.register(Musician)
 class MusicianAdmin(ModelAdmin):
-    list_display = ('id', 'first_name', 'last_name', 'phone_number', 'email')
-    list_editale = ('first_name', 'last_name', 'phone_number', 'email')
-    list_display_links = ('id',)
+    list_display = ("id", "first_name", "last_name", "phone_number", "email")
+    list_editale = ("first_name", "last_name", "phone_number", "email")
+    list_display_links = ("id",)

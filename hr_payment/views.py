@@ -1,76 +1,183 @@
 # hr_payment/views.py
 
+from __future__ import annotations
+
 import logging
 from decimal import Decimal, ROUND_HALF_UP
 
 import stripe
 from django.conf import settings
 from django.db import transaction
-from django.http import HttpResponse
-from django.http import JsonResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
-from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from hr_common.utils.unified_logging import log_event
 from hr_core.utils.urls import build_external_absolute_url
-from hr_payment.models import PaymentAttempt, PaymentAttemptStatus
-from hr_payment.models import WebhookEvent
-from hr_shop.models import Order, PaymentStatus
-from hr_shop.tokens import generate_order_receipt_token
+from hr_payment.models import PaymentAttempt, PaymentAttemptStatus, WebhookEvent
+from hr_shop.models import CheckoutDraft, Order, PaymentStatus
+from hr_shop.tokens.guest_checkout_token import verify_guest_checkout_token
+from hr_shop.tokens.order_receipt_token import generate_order_receipt_token
 
 logger = logging.getLogger(__name__)
 
+def _forbid_guest_payment(msg='Not authorized. Please restart checkout.', clear_cookie=False):
+    resp = JsonResponse({'error': msg}, status=403)
+    if clear_cookie:
+        resp.delete_cookie('guest_checkout_token')
+    return resp
 
-def _stripe_return_url(request, *, order_id: int, token: str) -> str:
-    # modal endpoint that returns the result partial
-    modal_path = reverse('hr_shop:order_payment_result', args=[order_id])
-    modal_abs = build_external_absolute_url(request, modal_path, query={'t': token})
+def _stripe_return_url(request, *, token: str) -> str:
+    """
+    Post-payment return target. We keep it lightweight:
+      - land on "/"
+      - trigger modal bootstrap via query params
+      - token is used server-side to look up order
+    """
     return build_external_absolute_url(
-        request,
-        '/',
-        query={
-            'handoff': 'order_payment_result',
-            'modal': 'order_payment_result',
-            'modal_url': modal_abs
-        }
-    ) + '#parallax-section-shows'
+        request, "/", query={"handoff": "order_payment_result", "modal": "order_payment_result", "t": token}
+    ) + "#parallax-section-shows"
+
+
+def _extract_checkout_ctx_token(request) -> str:
+    token = (request.headers.get("X-Checkout-Token") or "").strip()
+    if token:
+        return token
+
+    return (request.COOKIES.get("guest_checkout_token") or "").strip()
+
 
 @require_POST
 def checkout_stripe_session(request, order_id: int):
     """
     Called by JS to get a client secret for Embedded Checkout.
 
+    Auth users:
+      - Must specify order_id and must own the order.
+
+    Guests:
+      - Must present a valid GuestCheckoutToken (X-Checkout-Token header preferred, cookie fallback).
+      - Token binds (customer_id, draft_id, order_id).
+      - Draft must be active+valid+email_confirmed and tied to the same order.
+
     Idempotent:
       - If an existing open session exists for this order, reuse it.
       - Otherwise create a new PaymentAttempt and a new embedded Checkout session.
     """
+
+    if settings.DEBUG_TOKENS:
+        log_event(logger, logging.DEBUG, "checkout.token.debug",
+            header_token=bool(request.headers.get("X-Checkout-Token")),
+            cookie_token=bool(request.COOKIES.get("guest_checkout_token")),
+            header_keys=list(request.headers.keys())
+        )
+
     stripe.api_key = settings.STRIPE_SECRET_KEY
 
-    order = get_object_or_404(Order, pk=order_id)
+    order = get_object_or_404(Order, pk=int(order_id))
 
-    if order.payment_status == PaymentStatus.PAID:
-        log_event(
-            logger,
-            logging.INFO,
-            "payment.checkout.session_already_paid",
-            order_id=order.id,
+    user = getattr(request, 'user', None)
+    is_authed = bool(user and user.is_authenticated)
+
+    guest_ctx = None
+
+    if is_authed:
+        if getattr(order, 'user_id', None) != user.id:
+            log_event(logger, logging.WARNING, 'payment.checkout.forbidden.not_owner', order_id=order.id)
+            raise Http404()
+
+    # Guest Order
+    else:
+        raw_token = _extract_checkout_ctx_token(request)
+        if not raw_token:
+            return _forbid_guest_payment(clear_cookie=False)
+
+        guest_ctx = verify_guest_checkout_token(raw_token)
+        if not guest_ctx:
+            return _forbid_guest_payment()
+
+        if int(guest_ctx.order_id) != int(order.id):
+            log_event(logger, logging.WARNING, 'payment.checkout.forbidden.guest_token_order_mismatch',
+                  requested_order_id=order.id,
+                  token_order_id=guest_ctx.order_id,
+                  token_customer_id=guest_ctx.customer_id,
+                  token_draft_id=guest_ctx.draft_id
+            )
+            return _forbid_guest_payment()
+
+        draft = (
+            CheckoutDraft.objects
+            .only("id", "customer_id", "used_at", "expires_at", "order_id", "email_confirmed_at")
+            .filter(pk=int(guest_ctx.draft_id), customer_id=int(guest_ctx.customer_id))
+            .first()
         )
+
+        if not draft:
+            log_event(logger, logging.WARNING, "payment.checkout.forbidden.guest_draft_missing",
+                  order_id=order.id,
+                  draft_id=guest_ctx.draft_id,
+                  customer_id=guest_ctx.customer_id
+            )
+            return _forbid_guest_payment()
+
+        if not draft.email_confirmed_at:
+            log_event(logger, logging.WARNING, "payment.checkout.forbidden.draft_email_not_verified",
+                  order_id=order.id,
+                  draft_id=guest_ctx.draft_id,
+                  customer_id=guest_ctx.customer_id
+            )
+            return _forbid_guest_payment('Please confirm your email, then restart checkout.', clear_cookie=False)
+
+        # Verify draft is not used or expired
+        if not draft.is_valid():
+            log_event(logger, logging.WARNING, "payment.checkout.forbidden.guest_draft_invalid",
+                order_id=order.id,
+                draft_id=draft.id,
+                used_at=str(draft.used_at) if draft.used_at else None,
+                expires_at=str(draft.expires_at) if draft.expires_at else None,
+                now=str(timezone.now())
+            )
+            return _forbid_guest_payment()
+
+        # Verify draft and context have same customer
+        if draft.customer_id != int(guest_ctx.customer_id):
+            log_event(logger, logging.WARNING, "payment.checkout.forbidden.guest_draft_customer_mismatch",
+                order_id=order.id,
+                draft_id=draft.id,
+                token_customer_id=guest_ctx.customer_id,
+                draft_customer_id=draft.customer_id
+            )
+            return _forbid_guest_payment()
+
+        # Verify order and context have same customer
+        if order.customer_id != int(guest_ctx.customer_id):
+            log_event(logger, logging.WARNING, "payment.checkout.forbidden.guest_order_customer_mismatch",
+                order_id=order.id,
+                token_customer_id=guest_ctx.customer_id,
+                order_customer_id=getattr(order, "customer_id", None),
+                draft_id=draft.id
+            )
+            return _forbid_guest_payment()
+
+        # Successful Token Authentication
+        log_event(logger, logging.INFO, "payment.checkout.guest_authorized", order_id=order.id, customer_id=guest_ctx.customer_id, draft_id=guest_ctx.draft_id)
+
+    # -----------------------------
+    # State sanity
+    # -----------------------------
+    if order.payment_status == PaymentStatus.PAID:
+        log_event(logger, logging.INFO, "payment.checkout.session_already_paid", order_id=order.id)
         return JsonResponse({"error": "Order already paid."}, status=409)
 
     if not order.total or order.total <= 0:
-        log_event(
-            logger,
-            logging.WARNING,
-            "payment.checkout.invalid_total",
-            order_id=order.id,
-            total=str(order.total or 0),
-        )
+        log_event(logger, logging.WARNING, "payment.checkout.invalid_total", order_id=order.id, total=str(order.total or 0))
         return JsonResponse({"error": "Order total must be > 0."}, status=400)
 
-    # 1) Reuse existing open session from the latest non-final attempt if possible
+    # -----------------------------
+    # 1) Reuse existing open session if possible
+    # -----------------------------
     existing_attempt = (
         PaymentAttempt.objects
         .filter(order=order, status__in=[PaymentAttemptStatus.CREATED, PaymentAttemptStatus.PENDING])
@@ -82,36 +189,47 @@ def checkout_stripe_session(request, order_id: int):
         try:
             sess = stripe.checkout.Session.retrieve(existing_attempt.provider_session_id)
             if sess and sess.get("status") == "open" and sess.get("client_secret"):
+                # Keep DB in sync
+                dirty_attempt = False
                 if existing_attempt.client_secret != sess.get("client_secret"):
                     existing_attempt.client_secret = sess.get("client_secret")
-                    existing_attempt.raw = sess
+                    dirty_attempt = True
+
+                existing_attempt.raw = sess
+                if existing_attempt.status != PaymentAttemptStatus.PENDING:
                     existing_attempt.status = PaymentAttemptStatus.PENDING
+                    dirty_attempt = True
+
+                if dirty_attempt:
                     existing_attempt.save(update_fields=["client_secret", "raw", "status", "updated_at"])
 
-                if order.stripe_checkout_session_id != sess.get("id"):
+                dirty_order = False
+                if getattr(order, "stripe_checkout_session_id", None) != sess.get("id"):
                     order.stripe_checkout_session_id = sess.get("id")
-                    if order.payment_status != PaymentStatus.PENDING:
-                        order.payment_status = PaymentStatus.PENDING
+                    dirty_order = True
+                if order.payment_status != PaymentStatus.PENDING:
+                    order.payment_status = PaymentStatus.PENDING
+                    dirty_order = True
+                if dirty_order:
                     order.save(update_fields=["stripe_checkout_session_id", "payment_status", "updated_at"])
 
-                return JsonResponse({
-                    "clientSecret": sess["client_secret"],
-                    "sessionId":    sess["id"],
-                    "reused":       True,
-                })
+                log_event(logger, logging.INFO, "payment.checkout.session_reused", order_id=order.id, attempt_id=existing_attempt.id, session_id=sess.get("id"))
+
+                return JsonResponse({"clientSecret": sess["client_secret"], "sessionId": sess["id"], "reused": True})
+
         except Exception as exc:
-            log_event(
-                logger,
-                logging.WARNING,
-                "payment.checkout.session_reuse_failed",
+            log_event(logger, logging.WARNING, "payment.checkout.session_reuse_failed",
                 order_id=order.id,
+                attempt_id=getattr(existing_attempt, "id", None),
                 session_id=existing_attempt.provider_session_id,
                 error=str(exc),
-                exc_info=True,
+                exc_info=True
             )
-            pass
+            # Continue to create a new session
 
+    # -----------------------------
     # 2) Create a new attempt + session (atomic so attempt exists for webhook mapping)
+    # -----------------------------
     amount_cents = int((order.total * Decimal("100")).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
 
     attach_customer = False
@@ -121,37 +239,29 @@ def checkout_stripe_session(request, order_id: int):
         attach_customer = True
 
     with transaction.atomic():
-        attempt = PaymentAttempt.objects.create(
-            order=order,
-            provider="stripe",
-            status=PaymentAttemptStatus.CREATED,
-            amount_cents=amount_cents,
-            currency="usd",
-        )
+        attempt = PaymentAttempt.objects.create(order=order, provider="stripe", status=PaymentAttemptStatus.CREATED, amount_cents=amount_cents, currency="usd")
 
-        # quote token for URL-escaped characters
-        token = generate_order_receipt_token(order.id, order.email)
-        # token passed back from stripe payment endpoint and used to look up order and open thank you page
-
-        return_url = _stripe_return_url(request, order_id=order.id, token=token)
+        # Token for post-payment “handoff” page/modal.
+        receipt_token = generate_order_receipt_token(order_id=order.id, email=order.email or "")
+        return_url = _stripe_return_url(request, token=receipt_token)
 
         session_kwargs = {
-            "ui_mode":              "embedded",
-            "mode":                 "payment",
+            "ui_mode": "embedded",
+            "mode": "payment",
             "payment_method_types": ["card"],
-            "line_items":           [{
+            "line_items": [{
                 "price_data": {
-                    "currency":     "usd",
+                    "currency": "usd",
                     "product_data": {"name": f"Hella Reptilian Order #{order.id}"},
-                    "unit_amount":  amount_cents,
+                    "unit_amount": amount_cents
                 },
-                "quantity":   1,
+                "quantity": 1
             }],
-            "metadata":             {
-                "order_id":           str(order.id),
-                "payment_attempt_id": str(attempt.id),
+            "metadata": {
+                "order_id": str(order.id),
+                "payment_attempt_id": str(attempt.id)
             },
-            "return_url":           return_url,
+            "return_url": return_url
         }
 
         if attach_customer:
@@ -174,11 +284,11 @@ def checkout_stripe_session(request, order_id: int):
             order.payment_status = PaymentStatus.PENDING
         order.save(update_fields=["stripe_checkout_session_id", "payment_status", "updated_at"])
 
-        return JsonResponse({
-            "clientSecret": sess.get("client_secret"),
-            "sessionId":    sess.get("id"),
-            "reused":       False,
-        })
+        log_event(logger, logging.INFO, "payment.checkout.session_created",
+            order_id=order.id, attempt_id=attempt.id, session_id=sess.get("id"), attach_customer=attach_customer
+        )
+
+        return JsonResponse({"clientSecret": sess.get("client_secret"), "sessionId": sess.get("id"), "reused": False})
 
 
 @csrf_exempt
@@ -193,51 +303,33 @@ def stripe_webhook(request):
         event = stripe.Webhook.construct_event(
             payload=payload,
             sig_header=sig_header,
-            secret=settings.STRIPE_WEBHOOK_SECRET,
+            secret=settings.STRIPE_WEBHOOK_SECRET
         )
     except stripe.error.SignatureVerificationError:
-        log_event(
-            logger,
-            logging.WARNING,
-            "payment.webhook.invalid_signature",
-            signature_present=bool(sig_header),
-        )
+        log_event(logger, logging.WARNING, "payment.webhook.invalid_signature", signature_present=bool(sig_header))
         return HttpResponse(status=400)
 
     # idempotency/audit
     obj, created = WebhookEvent.objects.get_or_create(
         event_id=event["id"],
         defaults={
-            "type":    event.get("type", ""),
-            "payload": event,
-        },
+            "type": event.get("type", ""),
+            "payload": event
+        }
     )
     if not created and obj.ok:
-        log_event(
-            logger,
-            logging.INFO,
-            "payment.webhook.duplicate",
-            event_id=event.get("id"),
-        )
+        log_event(logger, logging.INFO, "payment.webhook.duplicate", event_id=event.get("id"))
         return HttpResponse(status=200)
 
     try:
         with transaction.atomic():
             _process_stripe_event(event)
-
         obj.ok = True
         obj.processed_at = timezone.now()
         obj.error = None
         obj.save(update_fields=["ok", "processed_at", "error"])
     except Exception as e:
-        log_event(
-            logger,
-            logging.ERROR,
-            "payment.webhook.processing_failed",
-            event_id=event.get("id"),
-            error=str(e),
-            exc_info=True,
-        )
+        log_event(logger, logging.ERROR, "payment.webhook.processing_failed", event_id=event.get("id"), error=str(e), exc_info=True)
         obj.ok = False
         obj.processed_at = timezone.now()
         obj.error = str(e)
@@ -251,15 +343,11 @@ def _get_or_create_stripe_customer_id(*, customer, email: str) -> str:
     if customer.stripe_customer_id:
         return customer.stripe_customer_id
 
-    stripe_customer = stripe.Customer.create(
-        email=email,
-        name=(customer.full_name or None),
-        metadata={'hr_customer_id': str(customer.id)}
-    )
+    stripe_customer = stripe.Customer.create(email=email, name=(customer.full_name or None), metadata={"hr_customer_id": str(customer.id)})
 
-    customer.stripe_customer_id = stripe_customer['id']
-    customer.save(update_fields=['stripe_customer_id', 'updated_at'])
-    return stripe_customer['id']
+    customer.stripe_customer_id = stripe_customer["id"]
+    customer.save(update_fields=["stripe_customer_id", "updated_at"])
+    return stripe_customer["id"]
 
 
 def _process_stripe_event(event: dict) -> None:
@@ -323,12 +411,7 @@ def _handle_checkout_session_completed(session: dict) -> None:
         order.stripe_payment_intent_id = pi
 
     order.payment_status = PaymentStatus.PAID
-    order.save(update_fields=[
-        "stripe_checkout_session_id",
-        "stripe_payment_intent_id",
-        "payment_status",
-        "updated_at",
-    ])
+    order.save(update_fields=["stripe_checkout_session_id", "stripe_payment_intent_id", "payment_status", "updated_at"])
 
     attempt = _find_attempt_for_session(session)
     if attempt:
@@ -389,11 +472,7 @@ def _handle_payment_intent_failed(pi: dict) -> None:
         last_err = pi.get("last_payment_error") or {}
         attempt.raw = pi
         attempt.save(update_fields=["raw", "updated_at"])
-        attempt.mark_final(
-            PaymentAttemptStatus.FAILED,
-            code=(last_err.get("code") or None),
-            msg=(last_err.get("message") or None),
-        )
+        attempt.mark_final(PaymentAttemptStatus.FAILED, code=(last_err.get("code") or None), msg=(last_err.get("message") or None))
 
 
 def _handle_payment_intent_canceled(pi: dict) -> None:

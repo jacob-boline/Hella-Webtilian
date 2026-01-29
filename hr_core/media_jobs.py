@@ -5,7 +5,6 @@ import os
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 from django.conf import settings
 
@@ -23,42 +22,18 @@ class Recipe:
     src_rel_dir: str
     out_subdir: str
     widths: tuple[int, ...]
-    crop: Optional[CropSpec]  # None = resize-only (native aspect)
+    crop: CropSpec | None  # None = resize-only (native aspect)
     quality: int = 82
     webp_method: int = 6
 
 
 RECIPES: dict[str, Recipe] = {
-    "post_hero": Recipe(
-        src_rel_dir="posts/hero",
-        out_subdir="opt",
-        widths=(640, 960, 1280, 1600),
-        crop=CropSpec(16, 9)
+    "post_hero":  Recipe(src_rel_dir="posts/hero",  out_subdir="opt",      widths=(640, 960, 1280, 1600),       crop=CropSpec(16, 9)),
+    "variant":    Recipe(src_rel_dir="variants",    out_subdir="opt_webp", widths=(256, 512, 768),              crop=CropSpec(1, 1)),
+    "about":      Recipe(src_rel_dir="hr_about",    out_subdir="opt_webp", widths=(640, 960, 1280, 1600, 1920), crop=CropSpec(3, 2)),
+    "background": Recipe(src_rel_dir="backgrounds", out_subdir="bg_opt",   widths=(960, 1920),                  crop=None),
+    "wipe":       Recipe(src_rel_dir="wipes",       out_subdir="opt_webp", widths=(960, 1440, 1920, 2560),      crop=None
     ),
-    "variant": Recipe(
-        src_rel_dir="variants",
-        out_subdir="opt_webp",
-        widths=(256, 512, 768),
-        crop=CropSpec(1, 1)
-    ),
-    "about": Recipe(
-        src_rel_dir="hr_about",
-        out_subdir="opt_webp",
-        widths=(640, 960, 1280, 1600, 1920),
-        crop=CropSpec(3, 2)
-    ),
-    "background": Recipe(
-        src_rel_dir="backgrounds",
-        out_subdir="bg_opt",
-        widths=(960, 1920),
-        crop=None
-    ),
-    "wipe": Recipe(
-        src_rel_dir="wipes",
-        out_subdir="opt_webp",
-        widths=(960, 1440, 1920, 2560),
-        crop=None,
-    )
 }
 
 
@@ -70,14 +45,7 @@ def _run_imagemagick_convert(args: list[str]) -> None:
     env.setdefault("MAGICK_THREAD_LIMIT", "1")
 
     try:
-        subprocess.run(
-            ["magick", "convert", *args],
-            check=True,
-            env=env,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-        )
+        subprocess.run(["magick", "convert", *args], check=True, env=env, capture_output=True, text=True)
     except subprocess.CalledProcessError as e:
         logger.exception("ImageMagick failed", extra={"stdout": e.stdout, "stderr": e.stderr})
         raise
@@ -106,10 +74,10 @@ def generate_variants_for_file(recipe_key: str, src_rel_or_abs_path: str) -> dic
     logger.info(
         "media_job.invoked",
         extra={
-            "cwd":                 os.getcwd(),
-            "MEDIA_ROOT":          str(settings.MEDIA_ROOT),
-            "MEDIA_URL":           getattr(settings, "MEDIA_URL", None),
-            "recipe_key":          recipe_key,
+            "cwd": os.getcwd(),
+            "MEDIA_ROOT": str(settings.MEDIA_ROOT),
+            "MEDIA_URL": getattr(settings, "MEDIA_URL", None),
+            "recipe_key": recipe_key,
             "src_rel_or_abs_path": src_rel_or_abs_path,
         },
     )
@@ -127,7 +95,7 @@ def generate_variants_for_file(recipe_key: str, src_rel_or_abs_path: str) -> dic
         return {"ok": False, "reason": "missing_source", "src": str(src)}
 
     src_dir = (media_root / recipe.src_rel_dir).resolve()
-    out_dir = (src_dir / recipe.out_subdir)
+    out_dir = src_dir / recipe.out_subdir
     out_dir.mkdir(parents=True, exist_ok=True)
 
     made = 0
@@ -147,9 +115,12 @@ def generate_variants_for_file(recipe_key: str, src_rel_or_abs_path: str) -> dic
                 str(src),
                 "-auto-orient",
                 "-strip",
-                "-resize", f"{w}x",
-                "-quality", str(recipe.quality),
-                "-define", f"webp:method={recipe.webp_method}",
+                "-resize",
+                f"{w}x",
+                "-quality",
+                str(recipe.quality),
+                "-define",
+                f"webp:method={recipe.webp_method}",
                 str(out_path),
             ]
         else:
@@ -159,11 +130,16 @@ def generate_variants_for_file(recipe_key: str, src_rel_or_abs_path: str) -> dic
                 str(src),
                 "-auto-orient",
                 "-strip",
-                "-resize", f"{size}^",
-                "-gravity", "center",
-                "-extent", size,
-                "-quality", str(recipe.quality),
-                "-define", f"webp:method={recipe.webp_method}",
+                "-resize",
+                f"{size}^",
+                "-gravity",
+                "center",
+                "-extent",
+                size,
+                "-quality",
+                str(recipe.quality),
+                "-define",
+                f"webp:method={recipe.webp_method}",
                 str(out_path),
             ]
 
@@ -175,13 +151,13 @@ def generate_variants_for_file(recipe_key: str, src_rel_or_abs_path: str) -> dic
             logger.exception(
                 "media_job.convert_failed",
                 extra={
-                    "recipe":     recipe_key,
-                    "src":        str(src),
-                    "out":        str(out_path),
+                    "recipe": recipe_key,
+                    "src": str(src),
+                    "out": str(out_path),
                     "returncode": e.returncode,
-                    "stderr":     (e.stderr.decode("utf-8", "ignore") if e.stderr else None),
-                    "stdout":     (e.stdout.decode("utf-8", "ignore") if e.stdout else None),
-                    "args":       e.cmd,
+                    "stderr": (e.stderr.decode("utf-8", "ignore") if e.stderr else None),
+                    "stdout": (e.stdout.decode("utf-8", "ignore") if e.stdout else None),
+                    "args": e.cmd
                 },
             )
             # keep going; you might still get some sizes
@@ -194,5 +170,5 @@ def generate_variants_for_file(recipe_key: str, src_rel_or_abs_path: str) -> dic
         "out_dir": str(out_dir),
         "made": made,
         "skipped": skipped,
-        "failed": failed,
+        "failed": failed
     }

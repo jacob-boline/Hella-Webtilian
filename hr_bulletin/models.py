@@ -16,7 +16,9 @@ class Tag(models.Model):
     slug = models.SlugField(max_length=60, unique=True)
 
     class Meta:
-        ordering = ['name',]
+        ordering = [
+            "name",
+        ]
 
     def __str__(self):
         return self.name
@@ -33,28 +35,25 @@ class PublishedManager(models.Manager):
 
 
 class Post(models.Model):
-    STATUS_CHOICES = [
-        ('draft', 'Draft'),
-        ('published', 'Published')
-    ]
+    STATUS_CHOICES = [("draft", "Draft"), ("published", "Published")]
 
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=220, unique=True, blank=True)
     body = models.TextField()  # HTML or Markdown
-    hero = models.ImageField(upload_to='posts/hero/', blank=True, null=True)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='draft')
+    hero = models.ImageField(upload_to="posts/hero/", blank=True, null=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="draft")
     publish_at = models.DateTimeField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(default=timezone.now)
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='posts')
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="posts")
     pin_until = models.DateTimeField(null=True, blank=True)
-    tags = models.ManyToManyField(Tag, blank=True, related_name='posts')
+    tags = models.ManyToManyField(Tag, blank=True, related_name="posts")
     allow_comments = models.BooleanField(default=False)
 
     objects = PostManager()
 
     class Meta:
-        ordering = ['-pin_until', '-publish_at', '-created_at']
+        ordering = ["-pin_until", "-publish_at", "-created_at"]
 
     def __str__(self):
         return self.title
@@ -65,7 +64,7 @@ class Post(models.Model):
 
     @property
     def is_published(self):
-        return self.status == 'published' and (not self.publish_at or self.publish_at <= timezone.now())
+        return self.status == "published" and (not self.publish_at or self.publish_at <= timezone.now())
 
     # -------------------------
     # Hash-based hero dedupe
@@ -78,7 +77,6 @@ class Post(models.Model):
         """
         h = hashlib.sha256()
 
-        pos = None
         try:
             pos = file_obj.tell()
         except Exception:

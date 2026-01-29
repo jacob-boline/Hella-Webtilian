@@ -21,6 +21,7 @@ class AccountAdminAddForm(AccountValidationMixin, forms.ModelForm):
     Reuses AccountValidationMixin for username/email rules, but is a ModelForm
     so BaseUserAdmin.add_view works properly.
     """
+
     password = forms.CharField(
         label=_("Password"),
         strip=False,
@@ -79,10 +80,13 @@ class AccountAdmin(BaseUserAdmin):
 
     # Add user (single password field)
     add_fieldsets = (
-        (None, {
-            "classes": ("wide",),
-            "fields": ("username", "email", "password", "role", "is_active"),
-        }),
+        (
+            None,
+            {
+                "classes": ("wide",),
+                "fields": ("username", "email", "password", "role", "is_active"),
+            },
+        ),
     )
 
     # role-derived fields should be read-only to avoid "changed back" confusion
@@ -98,23 +102,20 @@ class AccountAdmin(BaseUserAdmin):
         if change:
             old = UserModel.objects.get(pk=obj.pk)
 
-            demoting_from_admin = (
-                old.role == UserModel.Role.GLOBAL_ADMIN and
-                obj.role != UserModel.Role.GLOBAL_ADMIN
-            )
+            demoting_from_admin = old.role == UserModel.Role.GLOBAL_ADMIN and obj.role != UserModel.Role.GLOBAL_ADMIN
 
             if demoting_from_admin:
-                has_other_admin = UserModel.objects.exclude(pk=obj.pk).filter(
-                    role=UserModel.Role.GLOBAL_ADMIN,
-                    is_active=True,
-                ).exists()
+                has_other_admin = (
+                    UserModel.objects.exclude(pk=obj.pk)
+                    .filter(
+                        role=UserModel.Role.GLOBAL_ADMIN,
+                        is_active=True,
+                    )
+                    .exists()
+                )
 
                 if not has_other_admin:
-                    messages.error(
-                        request,
-                        "You cannot demote the last Global Admin. "
-                        "Create another Global Admin first."
-                    )
+                    messages.error(request, "You cannot demote the last Global Admin. " "Create another Global Admin first.")
                     return  # Skip saving
 
         super().save_model(request, obj, form, change)

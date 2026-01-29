@@ -1,7 +1,7 @@
 # hr_email/mailjet.py
 
+from collections.abc import Iterable
 from functools import lru_cache
-from typing import Iterable, Optional
 
 from django.conf import settings
 from mailjet_rest import Client
@@ -12,7 +12,7 @@ class MailjetSendError(RuntimeError):
 
 
 @lru_cache(maxsize=1)
-def get_mailjet_client() -> Optional[Client]:
+def get_mailjet_client() -> Client | None:
     api_key = getattr(settings, "MAILJET_API_KEY", None)
     api_secret = getattr(settings, "MAILJET_API_SECRET", None)
     if not api_key or not api_secret:
@@ -51,10 +51,10 @@ def send_mailjet_email(
         message["SandboxMode"] = True
 
     payload = {"Messages": [message]}
-    response = client.send.create(data=payload)
-    if response.status_code >= 300:
-        raise MailjetSendError(f"Mailjet send failed ({response.status_code}): {response.json()}")
-    return response.json()
+    resp = client.send.create(data=payload)
+    if resp.status_code >= 300:
+        raise MailjetSendError(f"Mailjet send failed ({resp.status_code}): {resp.json()}")
+    return resp.json()
 
 
 def send_email_healthcheck(to_email: str) -> dict:

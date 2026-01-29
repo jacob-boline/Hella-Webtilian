@@ -17,5 +17,5 @@ def verify_token(token: str, *, salt: str, max_age: int) -> dict | None:
     """
     try:
         return signing.loads(token, salt=salt, max_age=max_age)
-    except signing.BadSignature:
+    except (signing.BadSignature, signing.SignatureExpired):
         return None

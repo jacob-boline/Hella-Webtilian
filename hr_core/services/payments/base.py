@@ -1,5 +1,6 @@
 # hr_core/services/payments/base.py
 
+
 class CheckoutSession:
     def __init__(self, id, url):
         self.id = id

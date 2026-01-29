@@ -9,12 +9,9 @@ unified service layer, instead of mixing SMTP/REST calls everywhere.
 
 from __future__ import annotations
 
-from typing import Dict, Optional
-
 from django.conf import settings
 
-
-PROVIDER_DEFAULTS: Dict[str, Dict[str, object]] = {
+PROVIDER_DEFAULTS: dict[str, dict[str, object]] = {
     # Mailjet: prefer REST for sending; SMTP config still exists as a fallback option.
     "mailjet": {
         "smtp_backend": "django.core.mail.backends.smtp.EmailBackend",
@@ -24,7 +21,6 @@ PROVIDER_DEFAULTS: Dict[str, Dict[str, object]] = {
         "smtp_use_ssl": False,
         "send_via": "rest",  # "rest" or "smtp"
     },
-
     # Example future provider; keep for when you re-enable Zoho:
     # "zoho": {
     #     "smtp_backend": "django.core.mail.backends.smtp.EmailBackend",
@@ -39,12 +35,12 @@ PROVIDER_DEFAULTS: Dict[str, Dict[str, object]] = {
 AVAILABLE_PROVIDERS = tuple(PROVIDER_DEFAULTS.keys())
 
 
-def get_provider(provider_override: Optional[str] = None) -> str:
+def get_provider(provider_override: str | None = None) -> str:
     provider = (provider_override or getattr(settings, "EMAIL_PROVIDER", None) or "mailjet").strip().lower()
     return provider if provider in PROVIDER_DEFAULTS else "mailjet"
 
 
-def get_provider_send_mode(provider_override: Optional[str] = None) -> str:
+def get_provider_send_mode(provider_override: str | None = None) -> str:
     """
     Returns "rest" or "smtp" based on provider defaults (and optional override in settings).
     """
@@ -59,7 +55,7 @@ def get_provider_send_mode(provider_override: Optional[str] = None) -> str:
     return str(PROVIDER_DEFAULTS[provider].get("send_via", "smtp")).strip().lower()
 
 
-def get_smtp_email_config(provider_override: Optional[str] = None) -> dict:
+def get_smtp_email_config(provider_override: str | None = None) -> dict:
     """
     SMTP config used by Django's email system for SMTP-based providers,
     and as a fallback for providers that support both.

@@ -8,13 +8,11 @@ class PostQuerySet(models.QuerySet):
 
     def published(self):
         now = timezone.now()
-        qs = self.filter(status='published')
-        return qs.filter(
-            models.Q(publish_at__isnull=True) | models.Q(publish_at__lte=now)
-        )
+        qs = self.filter(status="published")
+        return qs.filter(models.Q(publish_at__isnull=True) | models.Q(publish_at__lte=now))
 
     def drafts(self):
-        return self.filter(status='draft')
+        return self.filter(status="draft")
 
     def frontpage(self):
         return self.published().order_by(*self.model._meta.ordering)

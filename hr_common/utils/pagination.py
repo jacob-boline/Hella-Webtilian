@@ -1,6 +1,6 @@
 # hr_common/utils/pagination.py
 
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 
 
 def paginate(request, qs, per_page=10):

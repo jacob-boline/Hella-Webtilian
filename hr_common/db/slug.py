@@ -1,24 +1,24 @@
 # hr_common/db/slug.py
 
 import itertools
-from typing import Optional
-from django.utils.text import slugify
+
 from django.db.models import Model
+from django.utils.text import slugify
 
 
-def generate_unique_slug(instance, value, slug_field_name='slug', max_length=220):
+def generate_unique_slug(instance, value, slug_field_name="slug", max_length=220):
     """
-        Generate a unique slug for a model instance.
+    Generate a unique slug for a model instance.
 
-        Args:
-            instance:  The model instance to assign the slug to.
-            value:     The raw string to slugify (e.g., title, name, date+venue).
-            slug_field_name:  The name of the slug field (default: 'slug').
-            max_length: The max length allowed for the slug (default: 220).
+    Args:
+        instance:  The model instance to assign the slug to.
+        value:     The raw string to slugify (e.g., title, name, date+venue).
+        slug_field_name:  The name of the slug field (default: 'slug').
+        max_length: The max length allowed for the slug (default: 220).
 
-        Returns:
-            A unique slug string.
-        """
+    Returns:
+        A unique slug string.
+    """
     if not isinstance(instance, Model):
         raise TypeError("instance must be a Django model.")
 
@@ -37,7 +37,7 @@ def generate_unique_slug(instance, value, slug_field_name='slug', max_length=220
         slug_candidate = f"{base_slug[:cutoff]}{suffix}"
 
 
-def sync_slug_from_source(instance, source_value: str, *, slug_field_name: str = 'slug', allow_update: bool = True, max_length: int = 220) -> None:
+def sync_slug_from_source(instance, source_value: str, *, slug_field_name: str = "slug", allow_update: bool = True, max_length: int = 220) -> None:
     """
     Ensure instance.<slug_field_name> is set from 'source_value' IF:
       - On create and slug is blank, OR
@@ -49,7 +49,7 @@ def sync_slug_from_source(instance, source_value: str, *, slug_field_name: str =
     if not source_value:
         return
 
-    current_slug: Optional[str] = getattr(instance, slug_field_name, None)
+    current_slug: str | None = getattr(instance, slug_field_name, None)
 
     # CREATE
     if not instance.pk:
@@ -69,7 +69,7 @@ def sync_slug_from_source(instance, source_value: str, *, slug_field_name: str =
             setattr(instance, slug_field_name, generate_unique_slug(instance, source_value, slug_field_name, max_length))
         return
 
-    original_slug = getattr(original, slug_field_name, '') or ''
+    original_slug = getattr(original, slug_field_name, "") or ""
 
     if not allow_update:
         if not current_slug:

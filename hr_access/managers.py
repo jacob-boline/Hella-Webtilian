@@ -31,12 +31,7 @@ class UserManager(BaseUserManager):
 
         extra_fields.setdefault("is_active", True)
 
-        user = self.model(
-            email=email,
-            username=raw_username,     # preserve typed case (minus whitespace)
-            username_ci=username_ci,   # normalized key
-            **extra_fields
-        )
+        user = self.model(email=email, username=raw_username, username_ci=username_ci, **extra_fields)  # preserve typed case (minus whitespace)  # normalized key
         user.set_password(password)
 
         # Run model validators (MinLengthValidator, RegexValidator, etc.)

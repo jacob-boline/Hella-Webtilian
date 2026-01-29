@@ -21,9 +21,4 @@ class Command(BaseCommand):
         expired_qs.delete()
         used_qs.delete()
 
-        self.stdout.write(
-            self.style.SUCCESS(
-                f"CheckoutDraft cleanup complete: "
-                f"{expired_count} expired, {used_count} used"
-            )
-        )
+        self.stdout.write(self.style.SUCCESS(f"CheckoutDraft cleanup complete: " f"{expired_count} expired, {used_count} used"))

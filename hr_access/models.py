@@ -8,10 +8,9 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
-from hr_common.db.fields import NormalizedEmailField
 from hr_access.constants import RESERVED_USERNAMES
 from hr_access.managers import UserManager
-
+from hr_common.db.fields import NormalizedEmailField
 
 username_chars = RegexValidator(
     regex=r"^[a-zA-Z0-9._-]{5,150}$",
@@ -21,22 +20,27 @@ username_chars = RegexValidator(
 
 class User(AbstractBaseUser, PermissionsMixin):
     class Role(models.TextChoices):
-        GLOBAL_ADMIN = 'global_admin', 'Global Admin'
-        SITE_ADMIN = 'site_admin', 'Site Admin'
-        USER = 'user', 'User'
+        GLOBAL_ADMIN = "global_admin", "Global Admin"
+        SITE_ADMIN = "site_admin", "Site Admin"
+        USER = "user", "User"
 
     email: str
-    email =               NormalizedEmailField(_("email address"), unique=True, blank=False, null=False)
-    role =                models.CharField(max_length=20, choices=Role.choices, default=Role.USER,)
-    first_name =          models.CharField(_("First Name"), max_length=254, blank=True)
-    last_name =           models.CharField(_("Last Name"),  max_length=254, blank=True)
-    username =            models.CharField(max_length=150, unique=False, null=False, blank=False, validators=[MinLengthValidator(5)])
-    username_ci =         models.CharField(max_length=150, unique=True, editable=False, db_index=True, validators=[MinLengthValidator(5)])
-    is_staff =            models.BooleanField(default=False)
-    is_superuser =        models.BooleanField(default=False)
-    is_active =           models.BooleanField(default=True)
+    email = NormalizedEmailField(_("email address"), unique=True, blank=False, null=False)
+    role = models.CharField(
+        max_length=20,
+        choices=Role.choices,
+        default=Role.USER,
+    )
+    first_name = models.CharField(_("First Name"), max_length=254, blank=True)
+    last_name = models.CharField(_("Last Name"), max_length=254, blank=True)
+    username = models.CharField(max_length=150, unique=False, null=False, blank=False, validators=[MinLengthValidator(5)])
+    username_ci = models.CharField(max_length=150, unique=True, editable=False, db_index=True, validators=[MinLengthValidator(5)])
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
     password_changed_at = models.DateTimeField(null=True, blank=True)
-    deleted_at =          models.DateTimeField(null=True, blank=True)
+    deleted_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     @property
     def is_site_admin(self):

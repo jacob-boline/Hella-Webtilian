@@ -1,7 +1,6 @@
 # hr_shop/views/orders.py
 
 import logging
-from logging import getLogger
 
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
@@ -13,13 +12,13 @@ from hr_shop.models import Customer, Order
 
 PER_PAGE = 20
 
-logger = getLogger()
+logger = logging.getLogger(__name__)
 
 
 @hx_login_required
 def _orders_queryset_for_user(user):
     """
-    Return a queryset of account_get_orders visible to this authenticated user.
+    Return a queryset of orders visible to this authenticated user.
 
     Visibility rule:
     - Orders tied to any Customer rows related to the user OR matching email
@@ -27,18 +26,9 @@ def _orders_queryset_for_user(user):
     """
     email = user.email
 
-    customer_ids = (
-        Customer.objects
-        .filter(Q(user=user) | Q(email__iexact=email))
-        .values_list("id", flat=True)
-    )
+    customer_ids = Customer.objects.filter(Q(user=user) | Q(email__iexact=email)).values_list("id", flat=True)
 
-    return (
-        Order.objects
-        .filter(Q(customer_id__in=customer_ids) | Q(email__iexact=email))
-        .order_by("-created_at")
-        .distinct()
-    )
+    return Order.objects.filter(Q(customer_id__in=customer_ids) | Q(email__iexact=email)).order_by("-created_at").distinct()
 
 
 @hx_login_required
@@ -50,32 +40,18 @@ def _paginate(qs, *, page: int, per: int):
     """
     page = max(int(page or 1), 1)
     start = (page - 1) * per
-    rows = list(qs[start:start + per + 1])
+    rows = list(qs[start : start + per + 1])
     has_more = len(rows) > per
     return rows[:per], has_more
 
 
-# @hx_login_required
-# def orders(request):
-#     """
-#     First page of account_get_orders, rendered into a modal partial.
-#     """
-#     qs = _orders_queryset_for_user(request.user)
-#
-#     rows, has_more = _paginate(qs, page=1, per=PER_PAGE)
-#
-#     ctx = {
-#         "account_get_orders": rows,
-#         "has_more": has_more,
-#         "page": 1
-#     }
-#     return render(request, "hr_access/orders/_orders_modal.html", ctx)
-#
-#
 @hx_login_required
+@require_GET
 def orders_page(request, n: int):
     """
-    Subsequent pages of account_get_orders.
+    Orders list modal content (supports page 1+).
+
+    This returns HTML intended to swap into #modal-content.
     """
     qs = _orders_queryset_for_user(request.user)
 
@@ -85,7 +61,7 @@ def orders_page(request, n: int):
     ctx = {
         "account_get_orders": rows,
         "has_more": has_more,
-        "page": page
+        "page": page,
     }
     return render(request, "hr_access/orders/_orders_modal.html", ctx)
 
@@ -95,15 +71,10 @@ def orders_page(request, n: int):
 def order_detail_modal(request, order_id: int):
     """
     Detailed modal for a single order, with items + variant/product prefetched.
+
+    This returns HTML intended to swap into #modal-content.
     """
-    qs = _orders_queryset_for_user(request.user).prefetch_related(
-        "items",
-        "items__variant",
-        "items__variant__product"
-    ).select_related(
-        "customer",
-        "shipping_address"
-    )
+    qs = _orders_queryset_for_user(request.user).prefetch_related("items", "items__variant", "items__variant__product").select_related("customer", "shipping_address")
 
     order = get_object_or_404(qs, pk=order_id)
 
@@ -115,4 +86,8 @@ def order_detail_modal(request, order_id: int):
         order_id=order.id,
     )
 
-    return render(request, "hr_access/orders/_order_detail_modal.html", {"order": order})
+    return render(
+        request,
+        "hr_access/orders/_order_detail_modal.html",
+        {"order": order},
+    )

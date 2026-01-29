@@ -1,7 +1,6 @@
 # hr_core/utils/urls.py
 from __future__ import annotations
 
-from typing import Optional
 from urllib.parse import urlencode
 
 from django.conf import settings
@@ -19,7 +18,7 @@ def _external_base_url_for_request() -> str:
     return ""
 
 
-def build_external_absolute_url(request: Optional[HttpRequest], path: str, *, query: dict | None = None) -> str:
+def build_external_absolute_url(request: HttpRequest | None, path: str, *, query: dict | None = None) -> str:
     if not path.startswith("/"):
         path = "/" + path
 

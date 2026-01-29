@@ -1,29 +1,82 @@
 # hr_access/constants.py
 
 
-SITE_ADMIN_GROUP_NAME = 'Site Admin'
-GLOBAL_ADMIN_GROUP_NAME = 'Global Admin'
+SITE_ADMIN_GROUP_NAME = "Site Admin"
+GLOBAL_ADMIN_GROUP_NAME = "Global Admin"
 USER_GROUPS = [SITE_ADMIN_GROUP_NAME, GLOBAL_ADMIN_GROUP_NAME]
 
 RESERVED_USERNAMES = {
-
     # auth/admin-ish
-    "admin", "administrator", "root", "sysadmin", "staff", "mod", "moderator",
-    "owner", "operator", "security", "support", "help", "service", "system", "home",
-    "official", "hellareptilian", "hella_reptilian", "hella-reptilian", "hella.reptilian"
-
+    "admin",
+    "administrator",
+    "root",
+    "sysadmin",
+    "staff",
+    "mod",
+    "moderator",
+    "owner",
+    "operator",
+    "security",
+    "support",
+    "help",
+    "service",
+    "system",
+    "home",
+    "official",
+    "hellareptilian",
+    "hella_reptilian",
+    "hella-reptilian",
+    "hella.reptilian"
     # comms + billing
-    "billing", "payments", "refunds", "account_get_orders", "account", "accounts", "merch"
-
+    "billing",
+    "payments",
+    "refunds",
+    "account_get_orders",
+    "account",
+    "accounts",
+    "merch"
     # email-like handles people try
-    "noreply", "no-reply", "donotreply", "do-not-reply", "mail", "mailer", "postmaster", "email", "message",
-
+    "noreply",
+    "no-reply",
+    "donotreply",
+    "do-not-reply",
+    "mail",
+    "mailer",
+    "postmaster",
+    "email",
+    "message",
     # common route-ish collisions
-    "login", "logout", "account_signup", "register", "settings", "profile", "api",
-    "static", "media",
-
+    "login",
+    "logout",
+    "account_signup",
+    "register",
+    "settings",
+    "profile",
+    "api",
+    "static",
+    "media",
     # URL routes
-    "shop", "shows", "merch", "cart", "checkout", "carousel", "quotes", "claims", "manage", "sidebar",
-    "password", "post-purchase", "list", "about", "__debug__", "user", "live", "payment", "password-reset", "reset",
-    "__reload__", "past", "webhooks",
+    "shop",
+    "shows",
+    "merch",
+    "cart",
+    "checkout",
+    "carousel",
+    "quotes",
+    "claims",
+    "manage",
+    "sidebar",
+    "password",
+    "post-purchase",
+    "list",
+    "about",
+    "__debug__",
+    "user",
+    "live",
+    "payment",
+    "password-reset",
+    "reset",
+    "__reload__",
+    "past",
+    "webhooks",
 }

@@ -1,7 +1,8 @@
 # hr_common/templatetags/custom_filters.py
-from django import template
-import urllib.parse
 import json
+import urllib.parse
+
+from django import template
 
 register = template.Library()
 
@@ -13,7 +14,7 @@ def index(indexable, i):
 
 @register.filter
 def dollar_amount(stripe_price):
-    return float(stripe_price)/100
+    return float(stripe_price) / 100
 
 
 @register.filter

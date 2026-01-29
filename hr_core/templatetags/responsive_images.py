@@ -1,7 +1,6 @@
 # hr_core/templatetags/responsive_images.py
 
 
-from typing import Union
 from urllib.parse import urlsplit, urlunsplit
 
 from django import template
@@ -55,10 +54,11 @@ def post_hero_srcset(url: str) -> str:
     return ", ".join(f"{post_hero_url(url, w)} {w}w" for w in widths)
 
 
-ALLOWED_VARIANT_SIZES = {'256', '512', '768'}
+ALLOWED_VARIANT_SIZES = {"256", "512", "768"}
+
 
 @register.filter
-def variant_img_url(url: str, size: Union[int, str]) -> str:
+def variant_img_url(url: str, size: int | str) -> str:
     if size is None:
         raise ValueError("variant_img_url: size is None")
 
@@ -71,8 +71,10 @@ def variant_img_url(url: str, size: Union[int, str]) -> str:
 
 @register.filter
 def variant_img_srcset(url: str) -> str:
-    return ", ".join([
-        f"{variant_img_url(url, 256)} 256w",
-        f"{variant_img_url(url, 512)} 512w",
-        f"{variant_img_url(url, 768)} 768w",
-    ])
+    return ", ".join(
+        [
+            f"{variant_img_url(url, 256)} 256w",
+            f"{variant_img_url(url, 512)} 512w",
+            f"{variant_img_url(url, 768)} 768w",
+        ]
+    )

@@ -6,7 +6,6 @@ from django.shortcuts import get_object_or_404
 
 from hr_shop.models import ProductVariant
 
-
 CART_SESSION_KEY = "hr_shop_cart"
 
 
@@ -50,7 +49,7 @@ class Cart:
                 continue
 
             quantity = data.get("quantity", 0)
-            price_str = data.get('unit_price') or data.get('price') or '0.00'
+            price_str = data.get("unit_price") or data.get("price") or "0.00"
 
             try:
                 price = Decimal(price_str)
@@ -59,14 +58,7 @@ class Cart:
 
             available = variant.active
 
-            yield {
-                "variant": variant,
-                "product": variant.product,
-                "quantity": quantity,
-                "unit_price": price,
-                "subtotal": price * quantity,
-                "available": available
-            }
+            yield {"variant": variant, "product": variant.product, "quantity": quantity, "unit_price": price, "subtotal": price * quantity, "available": available}
 
     def __len__(self):
         """Total units in cart."""
@@ -92,10 +84,7 @@ class Cart:
         line = self.cart.get(key)
 
         if line is None:
-            self.cart[key] = {
-                "quantity": quantity,
-                "unit_price": str(variant.price)
-            }
+            self.cart[key] = {"quantity": quantity, "unit_price": str(variant.price)}
         else:
             if override:
                 self.cart[key]["quantity"] = quantity
@@ -139,6 +128,7 @@ class Cart:
         Total cart value as Decimal.
         """
         from decimal import Decimal
+
         total = Decimal("0.00")
         for item in self:
             total += item["subtotal"]
@@ -178,11 +168,7 @@ def get_cart_item_count(request) -> int:
 class CartItemNotFoundError(Exception):
     def __init__(self, variant_id, message=None):
         self.variant = ProductVariant.objects.get(id=variant_id)
-        self.message = (
-            message
-            or "Item must be present in the cart before it can be updated. "
-               "Use <cart.add()> first."
-        )
+        self.message = message or "Item must be present in the cart before it can be updated. " "Use <cart.add()> first."
         super().__init__(self.message)
 
     def __str__(self):

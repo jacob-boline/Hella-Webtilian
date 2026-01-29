@@ -6,8 +6,6 @@ Handles sending confirmation emails and rate limiting.
 """
 
 import logging
-import os
-from logging import getLogger
 
 from django.core.cache import cache
 from django.template.loader import render_to_string
@@ -18,18 +16,17 @@ from hr_common.utils.email import normalize_email
 from hr_common.utils.unified_logging import log_event
 from hr_core.utils.urls import build_external_absolute_url
 from hr_email.service import EmailProviderError, send_app_email
-from hr_shop.exceptions import RateLimitExceeded, EmailSendError
+from hr_shop.exceptions import EmailSendError, RateLimitExceeded
 from hr_shop.models import ConfirmedEmail
-from hr_shop.tokens import generate_checkout_email_token
+from hr_shop.tokens.checkout_email_confirm_token import generate_checkout_email_token
 
-logger = getLogger()
+logger = logging.getLogger(__name__)
 
-EXTERNAL_BASE_URL = os.getenv('EXTERNAL_BASE_URL', '').rstrip('/')
 
 RATE_LIMIT_MAX_EMAILS = 3
 RATE_LIMIT_WINDOW_SECONDS = 3600  # 1 hour
 
-SENT_AT_KEY = 'checkout_confirm_sent_at:{email}'
+SENT_AT_KEY = "checkout_confirm_sent_at:{email}"
 SENT_AT_TTL = RATE_LIMIT_WINDOW_SECONDS
 
 
@@ -66,7 +63,7 @@ def send_checkout_confirmation_email(request, email: str, draft_id: int) -> str:
         raise RateLimitExceeded("Too many confirmation emails sent. Please check your inbox or try again later.")
 
     token = generate_checkout_email_token(email=normalized_email, draft_id=draft_id)
-    confirm_path = reverse("hr_shop:email_confirmation_process_response", kwargs={'token': token})
+    confirm_path = reverse("hr_shop:email_confirmation_process_response", kwargs={"token": token})
     confirm_url = build_external_absolute_url(request, confirm_path)
     subject = "Confirm your email to complete your order - Hella Reptilian"
 
@@ -83,19 +80,10 @@ If you didn't request this, you can safely ignore this email.
 Hella Reptilian
 """.strip()
 
-    html_message = render_to_string(
-        "hr_shop/emails/guest_checkout_email_confirmation.html",
-        {"confirm_url": confirm_url, "email": normalized_email, "year": timezone.now().year}
-    )
+    html_message = render_to_string("hr_shop/emails/guest_checkout_email_confirmation.html", {"confirm_url": confirm_url, "email": normalized_email, "year": timezone.now().year})
 
     try:
-        result = send_app_email(
-            to_emails=[normalized_email],
-            subject=subject,
-            text_body=plain_message,
-            html_body=html_message,
-            custom_id=f"checkout_confirm_{draft_id}"
-        )
+        result = send_app_email(to_emails=[normalized_email], subject=subject, text_body=plain_message, html_body=html_message, custom_id=f"checkout_confirm_{draft_id}")
         log_event(logger, logging.INFO, "checkout_email.send_result", email=normalized_email, result=result)
 
     except EmailProviderError as exc:

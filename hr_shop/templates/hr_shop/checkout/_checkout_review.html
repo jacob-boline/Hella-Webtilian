@@ -34,8 +34,7 @@
                         {% endif %}
                     </div>
                 </div>
-                <button
-                        id="edit-shipping-btn"
+                <button id="edit-shipping-btn"
                         type="button"
                         class="card-btn btn-neon btn-yellow btn-sm center-block mx-auto"
                         hx-get="{% url 'hr_shop:checkout_details' %}"
@@ -51,18 +50,18 @@
 
             <div class="review-items">
                 {% for item in items %}
-                <div class="review-item">
-                    <div class="item-info">
-                        <span class="item-name">{{ item.variant.product.name }}</span>
-                        <div class="item-meta">
-                            {% if item.variant.name %}
-                                <span class="item-variant">{{ item.variant.name }}</span>
-                            {% endif %}
-                            <span class="item-qty">Qty: {{ item.quantity }}</span>
+                    <div class="review-item">
+                        <div class="item-info">
+                            <span class="item-name">{{ item.variant.product.name }}</span>
+                            <div class="item-meta">
+                                {% if item.variant.name %}
+                                    <span class="item-variant">{{ item.variant.name }}</span>
+                                {% endif %}
+                                <span class="item-qty">Qty: {{ item.quantity }}</span>
+                            </div>
                         </div>
+                        <span class="item-price">${{ item.unit_price|floatformat:2 }}</span>
                     </div>
-                    <span class="item-price">${{ item.unit_price|floatformat:2 }}</span>
-                </div>
                 {% endfor %}
             </div>
         </div>
@@ -101,12 +100,11 @@
     </section>
 
     <footer class="review-actions m-foot m-actions">
-        <button
-            type="button"
-            class="card-btn btn-neon btn-green btn-sm"
-            hx-post="{% url 'hr_shop:checkout_create_order' %}"
-            hx-target="#modal-content"
-            hx-swap="innerHTML transition:true">
+        <button type="button"
+                class="card-btn btn-neon btn-green btn-sm"
+                hx-post="{% url 'hr_shop:checkout_create_order' %}"
+                hx-target="#modal-content"
+                hx-swap="innerHTML transition:true">
             <i class="fas fa-lock"></i> Proceed to Payment
         </button>
 

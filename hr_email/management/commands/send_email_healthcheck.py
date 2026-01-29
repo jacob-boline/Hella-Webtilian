@@ -4,8 +4,8 @@ import os
 
 from django.core.management.base import BaseCommand, CommandError
 
-from hr_email.service import EmailProviderError, send_app_email
 from hr_email.provider_settings import AVAILABLE_PROVIDERS, get_provider
+from hr_email.service import EmailProviderError, send_app_email
 
 
 class Command(BaseCommand):

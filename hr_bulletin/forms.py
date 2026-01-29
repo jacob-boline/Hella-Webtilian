@@ -1,6 +1,7 @@
 # hr_bulletin/forms.py
 
 from django import forms
+
 from hr_bulletin.models import Post
 
 
@@ -20,5 +21,5 @@ class PostForm(forms.ModelForm):
         ]
         widgets = {
             "publish_at": forms.DateTimeInput(attrs={"type": "datetime-local"}),
-            "pin_until":  forms.DateTimeInput(attrs={"type": "datetime-local"}),
+            "pin_until": forms.DateTimeInput(attrs={"type": "datetime-local"}),
         }

@@ -25,10 +25,36 @@ dependencies = [
 [dependency-groups]
 dev = [
     "better-exceptions>=0.3.3",
+    "black>=26.1.0",
     "django-browser-reload>=1.21.0",
     "django-debug-toolbar>=6.1.0",
     "django-extensions>=4.1",
     "pre-commit>=4.5.1",
     "python-dotenv>=1.2.1",
     "rich>=14.2.0",
+    "ruff>=0.14.14",
 ]
+
+[tool.black]
+line-length = 180
+target-version = ["py310"]
+skip-string-normalization = false
+
+[tool.ruff]
+line-length = 180
+target-version = "py310"
+fix = true
+
+[tool.ruff.lint]
+#select = ["B", "E", "F", "I", "RUF", "SIM", "UP", "W"]
+select = ["F", "E", "W", "I", "B", "UP"]
+
+ignore = [
+  "E501",  # line length (Black owns formatting)
+  "E203",  # Black-compatible
+]
+
+[tool.ruff.lint.per-file-ignores]
+"hr_config/settings/*.py" = ["F405"]
+"**/__init__.py" = ["F401"]
+"**/migrations/*.py" = ["E501", "F401"]

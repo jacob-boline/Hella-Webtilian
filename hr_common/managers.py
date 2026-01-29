@@ -1,12 +1,12 @@
 # hr_common/managers.py
 
-from django.db import models, IntegrityError, transaction
+from django.db import IntegrityError, models, transaction
 
 
 class AddressManager(models.Manager):
 
     def __str__(self):
-        return 'AddressManager'
+        return "AddressManager"
 
     def __init__(self):
         super().__init__()

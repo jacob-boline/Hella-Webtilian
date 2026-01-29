@@ -1,19 +1,22 @@
 {# hr_shop/templates/hr_shop/checkout/_checkout_pay.html #}
-<div class="checkout-pay-modal">
-  <div id="checkout-pay-root"
-       data-stripe-publishable-key="{{ stripe_publishable_key }}"
-       data-session-endpoint="{% url 'hr_payment:checkout_stripe_session' order.id %}"
-       data-client-secret="{{ client_secret|default:'' }}">
-    <div id="embedded-checkout" data-embedded-checkout style="min-height: 520px;"></div>
-  </div>
 
-  <div class="modal-actions">
-    <button type="button"
-            class="card-btn btn-neon btn-blue btn-sm"
-            hx-get="{% url 'hr_shop:checkout_review' %}"
-            hx-target="#modal-content"
-            hx-swap="innerHTML transition:true">
-      Back to Review
-    </button>
-  </div>
+<div class="checkout-pay-modal">
+
+    <div id="checkout-pay-root"
+         data-stripe-publishable-key="{{ stripe_publishable_key }}"
+         data-session-endpoint="{% url 'hr_payment:checkout_stripe_session' order.id %}"
+         data-client-secret="{{ client_secret|default:'' }}"
+         data-checkout-token="{{ checkout_ctx_token|default:'' }}">
+        <div id="embedded-checkout" data-embedded-checkout></div>
+    </div>
+
+    <div class="modal-actions">
+        <button type="button"
+                class="card-btn btn-neon btn-blue btn-sm"
+                hx-get="{% url 'hr_shop:checkout_review' %}"
+                hx-target="#modal-content"
+                hx-swap="innerHTML transition:true">
+            Back to Review
+        </button>
+    </div>
 </div>

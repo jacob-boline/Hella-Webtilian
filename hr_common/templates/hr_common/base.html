@@ -8,6 +8,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+
     <title>{% block title %}Hella Reptilian{% endblock %}</title>
 
     {# Favicons are served by Django staticfiles (NOT Vite manifest) #}
@@ -123,7 +125,9 @@
         <div class="modal-backdrop" data-modal-close></div>
         <div class="modal-panel">
             <button class="modal-close-btn" data-modal-close>&times;</button>
-            <div id="modal-message-box"></div>
+            <div id="modal-message-box">
+                <span id="modal-message-content"></span>
+            </div>
             <div id="modal-content" hx-swap="innerHTML transition:true"></div>
         </div>
     </div>

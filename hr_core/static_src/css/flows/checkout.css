@@ -262,6 +262,7 @@
 .checkout-review-modal .review-section.shipping-review {
     margin-bottom:  0;
     padding-bottom: 0.25rem;
+    margin-top: 0.5rem;
 }
 
 .checkout-review-modal .review-section.shipping-review + .review-section {
@@ -320,7 +321,7 @@
     column-gap:            0.85rem;
     row-gap:               0.15rem;
     align-items:           baseline;
-    padding:               0.45rem 0;
+    padding:               0.25rem 0;
     border-bottom:         1px solid var(--white-alpha-15);
 }
 
@@ -430,7 +431,7 @@
     width:      min(90%, 300px);
     max-width:  300px;
     margin-inline: auto;
-    margin-top: 0.25rem;
+    margin-top: 0.75rem;
 }
 
 .checkout-review-modal .review-actions > .card-btn {
@@ -575,6 +576,9 @@
     min-width: 0;
 }
 
+.embedded-checkout {
+    min-height: 520px;
+}
 
 .cta-fadein {
     opacity:   0;

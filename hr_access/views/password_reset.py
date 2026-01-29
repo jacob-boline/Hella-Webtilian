@@ -2,17 +2,15 @@
 
 from __future__ import annotations
 
-from __future__ import annotations
-
 from urllib.parse import urlencode
 
 from django.contrib.auth.views import (
-    PasswordResetView,
-    PasswordResetDoneView,
-    PasswordResetConfirmView,
     PasswordResetCompleteView,
+    PasswordResetConfirmView,
+    PasswordResetDoneView,
+    PasswordResetView,
 )
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse, reverse_lazy
 
 
@@ -28,10 +26,10 @@ class AccountPasswordResetView(PasswordResetView):
     success_url = reverse_lazy("hr_access:password_reset_done")
 
     def form_valid(self, form):
-        response = super().form_valid(form)
+        resp = super().form_valid(form)
         if _is_htmx(self.request):
             return render(self.request, "hr_access/password_reset/_password_reset_done.html")
-        return response
+        return resp
 
 
 class AccountPasswordResetDoneView(PasswordResetDoneView):
@@ -49,11 +47,13 @@ class AccountPasswordResetConfirmView(PasswordResetConfirmView):
         qs = request.GET.copy()
         qs["handoff"] = "0"
         modal_url = f"{request.path}?{qs.urlencode()}"
-        params = urlencode({
-            "modal": "password_reset",
-            "handoff": "password_reset",
-            "modal_url": modal_url,
-        })
+        params = urlencode(
+            {
+                "modal": "password_reset",
+                "handoff": "password_reset",
+                "modal_url": modal_url,
+            }
+        )
         return redirect(f"{reverse('index')}?{params}")
 
     def form_valid(self, form):

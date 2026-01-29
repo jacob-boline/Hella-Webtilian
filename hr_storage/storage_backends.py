@@ -1,14 +1,14 @@
 # hr_storage/storage_backends.py
 
-from storages.backends.s3boto3 import S3StaticStorage
-from storages.backends.s3boto3 import S3Boto3Storage
-from django.conf import settings
 import os
+
+from django.conf import settings
+from storages.backends.s3boto3 import S3Boto3Storage, S3StaticStorage
 
 
 class PublicMediaStorage(S3Boto3Storage):
     bucket_name = os.getenv("AWS_STORAGE_BUCKET_NAME")
-    default_acl = 'public-read'
+    default_acl = "public-read"
     file_overwrite = True
     location = settings.MEDIA_URL
 
@@ -24,7 +24,7 @@ class PublicMediaStorage(S3Boto3Storage):
 
 class StaticStorage(S3StaticStorage):
     bucket_name = os.getenv("AWS_STORAGE_BUCKET_NAME")
-    default_acl = 'public-read'
+    default_acl = "public-read"
     file_overwrite = True
     location = settings.STATIC_URL
 
@@ -40,7 +40,7 @@ class StaticStorage(S3StaticStorage):
 
 class PrivateMediaStorage(S3Boto3Storage):
     location = settings.AWS_PRIVATE_MEDIA_LOCATION
-    default_acl = 'private'
+    default_acl = "private"
 
     def get_created_time(self, name):
         pass
@@ -50,4 +50,3 @@ class PrivateMediaStorage(S3Boto3Storage):
 
     def path(self, name):
         pass
-    

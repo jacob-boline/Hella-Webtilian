@@ -38,7 +38,7 @@ class Command(BaseCommand):
 
         for key in keys:
             recipe = RECIPES[key]
-            src_dir = (media_root / recipe.src_rel_dir)
+            src_dir = media_root / recipe.src_rel_dir
 
             if not src_dir.exists():
                 self.stdout.write(self.style.WARNING(f"Missing dir: {src_dir} (skip)"))

@@ -83,6 +83,7 @@
 
 .item-quantity label {
     opacity: 0.8;
+    width: 3rem;
 }
 
 .item-quantity input[type="number"] {
@@ -153,4 +154,9 @@
 .view-cart-modal.checkout-details-modal.m-shell {
     gap: 0;
     padding-top: 0;
+}
+
+
+section.m-body:has(.review-section) {
+    gap: 0.25rem;
 }

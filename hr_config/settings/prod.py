@@ -3,11 +3,10 @@
 
 import os  # noqa
 
-from hr_config.settings.common import require
-from hr_config.settings.base import *  # noqa
-from hr_config.settings.mailjet import EMAIL_HOST_USER, EMAIL_HOST_PASSWORD
 from hr_config.settings import postgres as postgres_settings
-
+from hr_config.settings.base import *  # noqa
+from hr_config.settings.common import require
+from hr_config.settings.mailjet import EMAIL_HOST_PASSWORD, EMAIL_HOST_USER
 
 # ===============================================
 #  Environment
