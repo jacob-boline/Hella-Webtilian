@@ -9,6 +9,8 @@
 //  - Stripe.js is loaded on-demand.
 
 
+import {getCsrfToken} from '../utils/htmx-csrf.js';
+
 // ------------------------------
 // Safe DOM messaging helpers
 // ------------------------------
