@@ -67,7 +67,7 @@ def checkout_stripe_session(request, order_id: int):
       - Otherwise create a new PaymentAttempt and a new embedded Checkout session.
     """
 
-    if settings.DEBUG_TOKENS:
+    if getattr(settings, "DEBUG_TOKENS", False):
         log_event(logger, logging.DEBUG, "checkout.token.debug",
             header_token=bool(request.headers.get("X-Checkout-Token")),
             cookie_token=bool(request.COOKIES.get("guest_checkout_token")),
@@ -271,7 +271,19 @@ def checkout_stripe_session(request, order_id: int):
         else:
             session_kwargs["customer_email"] = order.email
 
-        sess = stripe.checkout.Session.create(**session_kwargs)
+        try:
+            sess = stripe.checkout.Session.create(**session_kwargs)
+        except stripe.error.StripeError as exc:
+            log_event(logger, logging.ERROR, "payment.checkout.session_create_failed",
+                order_id=order.id,
+                attempt_id=attempt.id,
+                attach_customer=attach_customer,
+                error=str(exc),
+                error_type=getattr(exc, "__class__", type(exc)).__name__,
+                user_id=getattr(user, "id", None),
+                customer_id=getattr(order, "customer_id", None),
+            )
+            return JsonResponse({"error": "Payment session could not be created."}, status=502)
 
         attempt.provider_session_id = sess.get("id")
         attempt.client_secret = sess.get("client_secret")
