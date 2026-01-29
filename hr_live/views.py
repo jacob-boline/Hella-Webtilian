@@ -39,7 +39,7 @@ def _serialize_show(show: Show) -> dict[str, Any]:
         "booker": f"{show.booker.first_name} {show.booker.last_name}".strip() if show.booker_id else None,
         "lineup": lineup_names,
         "image": show.image.url if show.image else None,
-        "readable_details": show.readable_details,
+        "readable_details": show.readable_details
     }
 
 

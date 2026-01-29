@@ -465,9 +465,3 @@ def account_submit_post_purchase_claim_orders(request, order_id: int):
     unclaimed_orders = Order.objects.filter(email__iexact=email, user__isnull=True).exclue(pk=order.id).order_by("-created_at")
 
     return render(request, "hr_access/orders/_unclaimed_orders_modal.html", {"email": email, "unclaimed_orders": unclaimed_orders, "error": None})
-
-    # return render(request, "hr_access/post_purchase/_post_purchase_account_success.html", {
-    #     "order": order,
-    #     "other_orders": remaining,
-    #     "claimed_count": claimed_count,
-    # })

@@ -231,7 +231,7 @@ class Act(models.Model):
             "Website": fmt(self.website),
             "Members": fmt(", ".join(m.full_name for m in members_qs)),
             "Contacts": fmt(". ".join(c.full_name for c in contacts_qs)),
-            "IS_ACT": "IS_ACT",
+            "IS_ACT": "IS_ACT"
         }
 
     @property
@@ -270,12 +270,7 @@ class Show(models.Model):
     date = models.DateField(null=True, blank=False, default=None, verbose_name="Date")
     time = models.TimeField(null=True, blank=False, default=None, verbose_name="Time")
     image = models.ImageField(upload_to=show_image_storage, max_length=100, null=True)
-    slug = models.SlugField(
-        max_length=140,
-        unique=True,
-        blank=True,
-        help_text="URL identifier auto-generated from date and venue.",
-    )
+    slug = models.SlugField(max_length=140, unique=True, blank=True, help_text="URL identifier auto-generated from date and venue.")
     status = models.CharField(max_length=10, default="draft", choices=STATUS_CHOICES)
     timezone = models.CharField(max_length=50, default="America/Chicago", verbose_name="Timezone")
     # to add a list of timezones add the following: choices=[(tz, tz) for tz in zoneinfo.available_timezones()],

@@ -14,7 +14,7 @@ class CarouselSlide(models.Model):
         source="image",
         processors=[ResizeToFill(220, 220)],
         format="JPEG",
-        options={"quality": 80},
+        options={"quality": 80}
     )
     order = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)

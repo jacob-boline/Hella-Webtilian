@@ -25,7 +25,7 @@ from hr_common.utils.email import normalize_email
 
 username_validator = RegexValidator(
     regex=r"^[a-zA-Z0-9._-]{5,150}$",
-    message=_("Only letters, numbers, dots, underscores, and dashes are allowed."),
+    message=_("Only letters, numbers, dots, underscores, and dashes are allowed.")
 )
 
 

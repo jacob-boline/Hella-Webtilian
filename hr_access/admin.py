@@ -73,21 +73,15 @@ class AccountAdmin(BaseUserAdmin):
     fieldsets = (
         (None, {"fields": ("username", "username_ci", "email", "password")}),
         ("Role & Status", {"fields": ("role", "is_active")}),
-        # These are derived by signals; show but lock.
         ("Derived Permissions (role based)", {"fields": ("is_staff", "is_superuser", "groups")}),
-        ("Important dates", {"fields": ("last_login",)}),
+        ("Important dates", {"fields": ("last_login",)})
     )
 
     # Add user (single password field)
-    add_fieldsets = (
-        (
-            None,
-            {
-                "classes": ("wide",),
-                "fields": ("username", "email", "password", "role", "is_active"),
-            },
-        ),
-    )
+    add_fieldsets = ((None, {
+        "classes": ("wide",),
+        "fields": ("username", "email", "password", "role", "is_active")
+    }))
 
     # role-derived fields should be read-only to avoid "changed back" confusion
     readonly_fields = ("username_ci", "is_staff", "is_superuser", "groups", "last_login")
@@ -109,7 +103,7 @@ class AccountAdmin(BaseUserAdmin):
                     UserModel.objects.exclude(pk=obj.pk)
                     .filter(
                         role=UserModel.Role.GLOBAL_ADMIN,
-                        is_active=True,
+                        is_active=True
                     )
                     .exists()
                 )
