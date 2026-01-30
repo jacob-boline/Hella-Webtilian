@@ -160,3 +160,25 @@
 section.m-body:has(.review-section) {
     gap: 0.25rem;
 }
+
+
+.modal-summary-row.cart-summary {
+    display: grid;
+    grid-template-columns: 1fr auto auto 1fr;
+    align-items: center;
+    gap: 1rem;
+    position: static;
+}
+
+.modal-summary-row.cart-summary .checkout-btn {
+    grid-column: 2;
+    justify-self: start;
+    width: auto;
+}
+
+.modal-summary-row.cart-summary .modal-summary-block {
+    grid-column: 3;
+    justify-self: end;
+}
+
+

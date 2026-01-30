@@ -79,7 +79,6 @@
     {# Guest CTA (paid + guest only)    #}
     {# ================================ #}
     {% if payment_result == "paid" and is_guest and not cta_dismissed %}
-        {# CHANGED: add cta-fadein so entrance animation actually runs #}
         <div id="post-purchase-account" class="review-section post-purchase-account cta-panel cta-fadein">
             <p class="review-section-title">Save your details?</p>
             <p class="text-muted">
@@ -87,19 +86,16 @@
             </p>
 
             <div class="modal-actions inline uniform">
-                <button
-                        type="button"
+                <button type="button"
                         class="card-btn btn-neon btn-green btn-sm"
                         hx-get="{% url 'hr_access:account_get_post_purchase_create_account' order.id %}"
                         hx-target="#post-purchase-account"
-                        hx-swap="outerHTML transition:true"
-                >
+                        hx-swap="outerHTML transition:true">
                     Create Account
                 </button>
 
                 {# "Acknowledged" stub: just marks dismissal in-session and fades out #}
-                <button
-                        type="button"
+                <button type="button"
                         class="card-btn btn-neon btn-blue btn-sm"
                         data-cta-dismiss
                         hx-post="{% url 'hr_shop:dismiss_post_purchase_cta' order.id %}"
@@ -132,7 +128,6 @@
                     {% if receipt_token %}
                         <input type="hidden" name="t" value="{{ receipt_token }}">
                     {% endif %}
-
                     <button type="submit" class="card-btn btn-neon btn-yellow btn-sm justify-self-center">
                         Resend Receipt
                     </button>
@@ -145,7 +140,6 @@
     {# Expandable order details                     #}
     {# ============================================ #}
     <details class="review-section order-details">
-        {# CHANGED: remove review-section-title from summary #}
         <summary class="order-details-toggle">
             View order details
         </summary>

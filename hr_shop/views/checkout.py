@@ -28,7 +28,6 @@ from hr_common.utils.unified_logging import log_event
 from hr_core.utils.urls import build_external_absolute_url
 from hr_email.service import EmailProviderError, send_app_email
 from hr_shop.cart import Cart, CART_SESSION_KEY, get_cart
-from hr_shop.views.cart import _render_cart_modal
 from hr_shop.exceptions import EmailSendError, RateLimitExceeded
 from hr_shop.forms import CheckoutDetailsForm
 from hr_shop.models import CheckoutDraft, ConfirmedEmail, Customer, CustomerAddress, Order, OrderItem, OrderStatus, PaymentStatus, ProductVariant
@@ -36,6 +35,7 @@ from hr_shop.services.email_confirmation import is_email_confirmed_for_checkout,
 from hr_shop.tokens.checkout_email_confirm_token import verify_checkout_email_token
 from hr_shop.tokens.guest_checkout_token import CHECKOUT_CTX_MAX_AGE, generate_guest_checkout_token, verify_guest_checkout_token
 from hr_shop.tokens.order_receipt_token import generate_order_receipt_token, verify_order_receipt_token
+from hr_shop.views.cart import _render_cart_modal
 
 logger = logging.getLogger(__name__)
 
@@ -525,8 +525,14 @@ def _render_order_payment_result_modal(request, order: Order, token: str):
 
         # If Stripe says paid but webhook lagged, persist here.
         if payment_result == "paid" and order.payment_status != PaymentStatus.PAID:
-            Order.objects.filter(pk=order.pk).exclude(payment_status=PaymentStatus.PAID).update(payment_status=PaymentStatus.PAID)
-            order.payment_status = PaymentStatus.PAID
+            updated = (
+                Order.objects
+                .filter(pk=order.pk)
+                .exclude(payment_status=PaymentStatus.PAID)
+                .update(payment_status=PaymentStatus.PAID)
+            )
+            if updated:
+                order.payment_status = PaymentStatus.PAID
 
     # Clear cart/session only once actually paid
     cart_was_cleared = False
