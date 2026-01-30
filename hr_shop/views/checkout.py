@@ -13,7 +13,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.cache import cache
 from django.db import IntegrityError, transaction
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -489,7 +489,8 @@ def _restore_checkout_context_from_guest_token(request) -> tuple[dict | None, bo
         return None, True
 
     draft = (
-        CheckoutDraft.objects.select_related("customer", "address", "order")
+        CheckoutDraft.objects
+        .select_related("customer", "address", "order")
         .filter(id=draft_id, customer_id=customer_id)
         .first()
     )
@@ -1063,6 +1064,10 @@ def checkout_pay(request, order_id: int):
 
     # Authenticated users: no guest token/cookie needed.
     if request.user.is_authenticated:
+        if getattr(order, 'user_id', None) != request.user.id:
+            return JsonResponse({'error': 'Not Authorized'}, status=403)
+        if order.payment_status == PaymentStatus.PAID:
+            return _render_order_payment_result_modal(request, order, '')
         return render(request, "hr_shop/checkout/_checkout_pay.html", {
             "order": order,
             "stripe_publishable_key": settings.STRIPE_PUBLIC_KEY,
@@ -1092,6 +1097,10 @@ def checkout_pay(request, order_id: int):
             reverse("hr_shop:checkout_details"),
             after_settle={"showMessage": {"text": "Your checkout session expired. Please start a new checkout."}}
         )
+
+    if order.payment_status == PaymentStatus.PAID:
+        receipt_token = generate_order_receipt_token(order_id=order.id, email=order.email)
+        return _render_order_payment_result_modal(request, order, receipt_token)
 
     checkout_ctx_token = generate_guest_checkout_token(
         customer_id=int(draft.customer_id),

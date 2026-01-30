@@ -9,11 +9,9 @@
         {% if cart %}
             {% for item in cart %}
                 <div class="cart-summary-card">
-                    <img
-                        class="item-thumbnail"
-                        src="{{ item.variant.image.image.url }}"
-                        alt="{{ item.variant.product.name }}{% if item.variant.name %} – {{ item.variant.name }}{% endif %}"
-                    >
+                    <img class="item-thumbnail"
+                         src="{{ item.variant.image.image.url }}"
+                         alt="{{ item.variant.product.name }}{% if item.variant.name %} – {{ item.variant.name }}{% endif %}">
 
                     <div class="item-main">
                         <p class="item-title">
