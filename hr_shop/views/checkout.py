@@ -525,7 +525,7 @@ def _render_order_payment_result_modal(request, order: Order, token: str):
 
         # If Stripe says paid but webhook lagged, persist here.
         if payment_result == "paid" and order.payment_status != PaymentStatus.PAID:
-            Order.objects.filter(pk=order.pk, payment_status__ne=PaymentStatus.PAID).update(payment_status=PaymentStatus.PAID)
+            Order.objects.filter(pk=order.pk).exclude(payment_status=PaymentStatus.PAID).update(payment_status=PaymentStatus.PAID)
             order.payment_status = PaymentStatus.PAID
 
     # Clear cart/session only once actually paid
@@ -561,7 +561,7 @@ def _render_order_payment_result_modal(request, order: Order, token: str):
 
     if order.payment_status == PaymentStatus.PAID:
         if not (request.user.is_authenticated and getattr(order, "user_id", None) == request.user.id):
-            # resp.delete_cookie('guest_checkout_token')
+            resp.delete_cookie("guest_checkout_token")
             merge_hx_trigger_after_settle(resp, {"showMessage": {"text": "Payment received. Thank you!"}})
     elif payment_result == "failed":
         merge_hx_trigger_after_settle(resp, {"showMessage": {"text": "Payment did not complete. Please try again."}})
@@ -683,6 +683,8 @@ def checkout_resume(request):
         log_event(logger, logging.INFO, "checkout.resume.empty_cart")
         return hx_trigger({"showMessage": {"text": "Your cart is empty."}})
 
+    cart_snapshot = _cart_snapshot(request)
+
     # 1) Try session context
     ctx = _get_checkout_context(request)
     guest_token = None
@@ -726,6 +728,15 @@ def checkout_resume(request):
 
     if order:
         log_event(logger, logging.INFO, "checkout.resume.order_found", order_id=order.id, customer_id=getattr(customer, 'id', None))
+
+        if order.payment_status == PaymentStatus.PAID and cart_snapshot:
+            draft_cart = list(getattr(draft, "cart", None) or [])
+            if not draft_cart or draft_cart != cart_snapshot:
+                log_event(logger, logging.INFO, "checkout.resume.paid_order_cart_mismatch", order_id=order.id)
+                resp = _render_cart_modal(request)
+                if guest_token:
+                    resp.delete_cookie("guest_checkout_token")
+                return resp
 
         # If we never created a Stripe Checkout session, don't show "result".
         stripe_session_id = (getattr(order, "stripe_checkout_session_id", None) or "").strip()
