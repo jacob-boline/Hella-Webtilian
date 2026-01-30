@@ -13,7 +13,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.cache import cache
 from django.db import IntegrityError, transaction
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -27,6 +27,7 @@ from hr_common.utils.http.htmx import hx_load_modal, hx_trigger, merge_hx_trigge
 from hr_common.utils.unified_logging import log_event
 from hr_core.utils.urls import build_external_absolute_url
 from hr_email.service import EmailProviderError, send_app_email
+from hr_payment.services.payment_state import mark_checkout_draft_used
 from hr_shop.cart import Cart, CART_SESSION_KEY, get_cart
 from hr_shop.exceptions import EmailSendError, RateLimitExceeded
 from hr_shop.forms import CheckoutDetailsForm
@@ -306,20 +307,20 @@ def _user_is_authorized_for_payment_result(request, order, token) -> bool:
     if not token:
         return False
 
-    claims = verify_order_receipt_token(token)
-    if not claims:
+    order_receipt_token = verify_order_receipt_token(token)
+    if not order_receipt_token:
         return False
 
     # versioning/tampering safety net for token
     try:
-        token_order_id = claims.order_id
+        token_order_id = order_receipt_token.order_id
     except (TypeError, ValueError):
         return False
 
     if token_order_id != int(order.id):
         return False
 
-    return normalize_email(claims.email) == order.email
+    return normalize_email(order_receipt_token.email) == order.email
 
 
 def _stripe_session_result(session_id: str | None) -> tuple[str, str | None, str | None]:
@@ -448,15 +449,15 @@ def _is_allowed_to_email_receipt(request, order: Order) -> bool:
         return True
 
     # 2) Guest flow: must have a valid signed receipt token
-    token = (request.POST.get("t") or request.GET.get("t") or "").strip()
-    if not token:
+    raw_token = (request.POST.get("t") or request.GET.get("t") or "").strip()
+    if not raw_token:
         return False
 
-    claims = verify_order_receipt_token(token)
-    if not claims:
+    order_receipt_token = verify_order_receipt_token(raw_token)
+    if not order_receipt_token:
         return False
 
-    return int(claims.order_id) == int(order.id) and normalize_email(claims.email) == normalize_email(order.email)
+    return int(order_receipt_token.order_id) == int(order.id) and normalize_email(order_receipt_token.email) == normalize_email(order.email)
 
 
 def _clear_cart(request) -> None:
@@ -475,16 +476,16 @@ def _restore_checkout_context_from_guest_token(request) -> tuple[dict | None, bo
     if not token_raw:
         return None, False
 
-    token = verify_guest_checkout_token(token_raw)
-    if not token:
+    guest_checkout_token = verify_guest_checkout_token(token_raw)
+    if not guest_checkout_token:
         return None, True
 
     # Claims are expected to include at least customer_id + draft_id.
     # (Your generate_guest_checkout_token call sites imply these fields.)
     try:
-        customer_id = int(token.customer_id)
-        draft_id = int(token.draft_id)
-        order_id = int(token.order_id)
+        customer_id = int(guest_checkout_token.customer_id)
+        draft_id = int(guest_checkout_token.draft_id)
+        order_id = int(guest_checkout_token.order_id)
     except (TypeError, ValueError):
         return None, True
 
@@ -512,7 +513,13 @@ def _restore_checkout_context_from_guest_token(request) -> tuple[dict | None, bo
     if not existing_cart:
         _restore_cart_from_draft(request, draft)
 
-    return {"customer": draft.customer, "address": draft.address, "note": draft.note or "", "_guest_token": token, "_draft": draft}, False
+    return {
+       "customer":     draft.customer,
+       "address":      draft.address,
+       "note":         draft.note or "",
+       "_guest_token": guest_checkout_token,
+       "_draft":       draft
+   }, False
 
 
 
@@ -526,14 +533,15 @@ def _render_order_payment_result_modal(request, order: Order, token: str):
 
         # If Stripe says paid but webhook lagged, persist here.
         if payment_result == "paid" and order.payment_status != PaymentStatus.PAID:
-            updated = (
+            needs_update = (
                 Order.objects
                 .filter(pk=order.pk)
                 .exclude(payment_status=PaymentStatus.PAID)
                 .update(payment_status=PaymentStatus.PAID)
             )
-            if updated:
+            if needs_update:
                 order.payment_status = PaymentStatus.PAID
+                mark_checkout_draft_used(order.id)
 
     # Clear cart/session only once actually paid
     cart_was_cleared = False
@@ -659,9 +667,11 @@ def checkout_details_submit(request):
 
     # Create/update an active draft
     cart_payload = _cart_snapshot(request)
-    draft = _get_or_create_active_draft(customer=customer, email=customer.email, address=address, note=note, cart_payload=cart_payload)
+    draft = _get_or_create_active_draft\
+        (customer=customer, email=customer.email, address=address, note=note, cart_payload=cart_payload)
 
-    log_event(logger, logging.INFO, "checkout.details.saved", customer_id=customer.id, address_id=address.id, draft_id=draft.id, cart_item_count=len(cart_payload))
+    log_event(logger, logging.INFO, "checkout.details.saved",
+              customer_id=customer.id, address_id=address.id, draft_id=draft.id, cart_item_count=len(cart_payload))
 
     if is_email_confirmed_for_checkout(request, email):
         return _render_checkout_review(request, ctx=ctx)
@@ -671,7 +681,12 @@ def checkout_details_submit(request):
 
     except RateLimitExceeded:
         msg = "Too many confirmation emails sent. Please check your inbox (including spam folder) or try again in an hour."
-        resp = render(request, "hr_shop/checkout/_checkout_awaiting_confirmation.html", {"email": email, "message": msg, "rate_limited": True, "sent_at": None}, status=429)
+        resp = render(request, "hr_shop/checkout/_checkout_awaiting_confirmation.html", {
+            "email": email,
+            "message": msg,
+            "rate_limited": True,
+            "sent_at": None
+        }, status=429)
         return merge_hx_trigger_after_settle(resp, {"showMessage": {"text": "Rate limited. Try again in about an hour."}})
 
     except EmailSendError:
@@ -680,7 +695,12 @@ def checkout_details_submit(request):
         return merge_hx_trigger_after_settle(resp, {"showMessage": {"text": "Could not send confirmation email. Please try again."}})
 
     msg = "We've sent a confirmation link to your email. Please check your inbox and click the link to continue."
-    return render(request, "hr_shop/checkout/_checkout_awaiting_confirmation.html", {"email": email, "message": msg, "rate_limited": False, "sent_at": timezone.now()})
+    return render(request, "hr_shop/checkout/_checkout_awaiting_confirmation.html", {
+        "email": email,
+        "message": msg,
+        "rate_limited": False,
+        "sent_at": timezone.now()
+    })
 
 
 @require_GET
@@ -694,7 +714,7 @@ def checkout_resume(request):
 
     # 1) Try session context
     ctx = _get_checkout_context(request)
-    guest_token = None
+    guest_checkout_token = None
     draft = None
     clear_cookie = False
 
@@ -702,15 +722,14 @@ def checkout_resume(request):
     if not ctx:
         ctx, clear_cookie = _restore_checkout_context_from_guest_token(request)
         if ctx:
-            guest_token = ctx.get('_guest_token')
+            guest_checkout_token = ctx.get("_guest_token")
             draft = ctx.get("_draft")
             log_event(logger, logging.INFO, "checkout.resume.restored_from_guest_token")
         else:
             log_event(logger, logging.INFO, "checkout.resume.session_missing")
             resp = _render_cart_modal(request)
             if clear_cookie:
-               pass
-                # resp.delete_cookie('guest_checkout_token')
+                resp.delete_cookie("guest_checkout_token")
             return resp
 
     customer = ctx["customer"]
@@ -718,30 +737,72 @@ def checkout_resume(request):
 
     order = None
 
-    if guest_token and getattr(guest_token, "order_id", None):
+    # If we have a draft and it's invalid, we should restart checkout flow (not return a URL string).
+    if draft and not draft.is_valid():
+        log_event(
+            logger, logging.INFO, "checkout.resume.invalid_draft",
+            customer_id=getattr(customer, "id", None),
+            draft_id=getattr(draft, "id", None),
+        )
+        resp = _render_cart_modal(request)
+        if guest_checkout_token:
+            resp.delete_cookie("guest_checkout_token")
+        return resp
+
+    # Prefer order via guest token if present
+    if guest_checkout_token and getattr(guest_checkout_token, "order_id", None):
         order = (
-            Order.objects.select_related("customer", "shipping_address")
-            .filter(pk=int(guest_token.order_id))
+            Order.objects
+            .select_related("customer", "shipping_address")
+            .filter(pk=int(guest_checkout_token.order_id))
             .first()
         )
 
+    # Else order via current draft
     if not order and draft and getattr(draft, "order_id", None):
-        order = Order.objects.select_related("customer", "shipping_address").filter(pk=draft.order_id).first()
+        order = (
+            Order.objects
+            .select_related("customer", "shipping_address")
+            .filter(pk=draft.order_id)
+            .first()
+        )
 
+    # Else order via latest valid draft
     if not order:
         latest_draft = _latest_draft_for_customer(customer)
         if latest_draft and latest_draft.order_id:
-            order = Order.objects.select_related("customer", "shipping_address").filter(pk=latest_draft.order_id).first()
+            if latest_draft.is_valid():
+                order = (
+                    Order.objects
+                    .select_related("customer", "shipping_address")
+                    .filter(pk=latest_draft.order_id)
+                    .first()
+                )
+                # If we didn't have a draft already, keep a handle to this one for downstream checks.
+                if not draft:
+                    draft = latest_draft
+            else:
+                log_event(logger, logging.INFO, "checkout.resume.latest_draft_expired", draft_id=latest_draft.id)
+                resp = _render_cart_modal(request)
+                if guest_checkout_token:
+                    resp.delete_cookie("guest_checkout_token")
+                return resp
 
     if order:
-        log_event(logger, logging.INFO, "checkout.resume.order_found", order_id=order.id, customer_id=getattr(customer, 'id', None))
+        log_event(
+            logger, logging.INFO, "checkout.resume.order_found",
+            order_id=order.id,
+            customer_id=getattr(customer, "id", None),
+        )
 
-        if order.payment_status == PaymentStatus.PAID and cart_snapshot:
+        # If paid and cart has changed relative to the draft cart, do not show result.
+        # Only perform the cart-mismatch check if we actually have a draft object to compare.
+        if order.payment_status == PaymentStatus.PAID and cart_snapshot and draft:
             draft_cart = list(getattr(draft, "cart", None) or [])
             if not draft_cart or draft_cart != cart_snapshot:
                 log_event(logger, logging.INFO, "checkout.resume.paid_order_cart_mismatch", order_id=order.id)
                 resp = _render_cart_modal(request)
-                if guest_token:
+                if guest_checkout_token:
                     resp.delete_cookie("guest_checkout_token")
                 return resp
 
@@ -749,7 +810,31 @@ def checkout_resume(request):
         stripe_session_id = (getattr(order, "stripe_checkout_session_id", None) or "").strip()
         if not stripe_session_id and order.payment_status != PaymentStatus.PAID:
             pay_url = reverse("hr_shop:checkout_pay", args=[int(order.id)])
-            return hx_load_modal(pay_url, after_settle={"showMessage": {"text": "Continue payment to complete your order."}})
+            resp = hx_load_modal(
+                pay_url,
+                after_settle={"showMessage": {"text": "Continue payment to complete your order."}},
+            )
+
+            # IMPORTANT: if guest, ensure a cookie exists before checkout_pay validates it.
+            if not request.user.is_authenticated:
+                # Prefer the draft we already have (token restore, draft lookup, or latest draft).
+                # If we don't have one for some reason, don't mint a token blindly.
+                if draft:
+                    checkout_ctx_token = generate_guest_checkout_token(
+                        customer_id=int(draft.customer_id),
+                        draft_id=int(draft.id),
+                        order_id=int(order.id),
+                    )
+                    resp.set_cookie(
+                        "guest_checkout_token",
+                        checkout_ctx_token,
+                        max_age=CHECKOUT_CTX_MAX_AGE,
+                        httponly=True,
+                        samesite="Lax",
+                        secure=not settings.DEBUG,
+                    )
+
+            return resp
 
         receipt_token = ""
         if not (request.user.is_authenticated and getattr(order, "user_id", None) == request.user.id):
@@ -758,7 +843,12 @@ def checkout_resume(request):
 
     if not is_email_confirmed_for_checkout(request, email):
         return _render_checkout_awaiting_confirmation(
-            request, email=email, message="Please confirm your email to continue.", rate_limited=False, sent_at=None, error=False
+            request,
+            email=email,
+            message="Please confirm your email to continue.",
+            rate_limited=False,
+            sent_at=None,
+            error=False,
         )
 
     return _render_checkout_review(request, ctx=ctx)
@@ -848,8 +938,13 @@ def email_confirmation_process_response(request, token: str):
     draft_id = int(checkout_email_token.draft_id)
 
     with transaction.atomic():
-        draft = CheckoutDraft.objects.select_for_update().select_related("customer", "address", "order").filter(id=draft_id).first()
-
+        draft = (
+            CheckoutDraft.objects
+            .select_for_update()
+            .select_related("customer", "address", "order")
+            .filter(id=draft_id)
+            .first()
+        )
         if not draft:
             log_event(logger, logging.WARNING, "checkout.confirmation.draft_missing", draft_id=draft_id, email=norm_email)
             return redirect(f"{index_url}?handoff=email_confirmed&modal_url={details_url}#parallax-section-merch")  # TODO showMessage
@@ -860,9 +955,16 @@ def email_confirmation_process_response(request, token: str):
 
         ConfirmedEmail.mark_confirmed(norm_email)
 
-        if not draft.email_confirmed_at:
-            draft.email_confirmed_at = timezone.now()
-            draft.save(update_fields=["email_confirmed_at"])
+        updated = (
+            CheckoutDraft.objects
+            .filter(id=draft.id, email_confirmed_at__isnull=True)
+            .update(email_confirmed_at=timezone.now())
+        )
+
+        if updated:
+            log_event(logger, logging.INFO, 'checkout.confirmation.draft_email_confirmed_at_set', draft_id=draft.id)
+        else:
+            log_event(logger, logging.INFO, 'checkout.confirmation.draft_email_confirmed_at_already_set', draft_id=draft.id)
 
         # If they already made an order, this click should just send them there.
         if draft.order_id:
@@ -909,33 +1011,46 @@ def email_confirmation_resend(request):
 
     cart_payload = _cart_snapshot(request)
 
-    draft = _get_or_create_active_draft(customer=customer, email=customer.email, address=ctx["address"], note=ctx["note"], cart_payload=cart_payload)
+    draft = _get_or_create_active_draft(
+        customer=customer,
+        email=customer.email,
+        address=ctx["address"],
+        note=ctx["note"],
+        cart_payload=cart_payload
+    )
 
     try:
         send_checkout_confirmation_email(request=request, email=customer.email, draft_id=draft.id)
 
-        return render(request, "hr_shop/checkout/_checkout_awaiting_confirmation.html",
-            {"email": customer.email, "message": "Confirmation link sent. Please check your inbox.", "rate_limited": False, "sent_at": timezone.now()}
-        )
+        return render(request, "hr_shop/checkout/_checkout_awaiting_confirmation.html", {
+            "email": customer.email,
+            "message": "Confirmation link sent. Please check your inbox.",
+            "rate_limited": False,
+            "sent_at": timezone.now()
+        })
 
     except RateLimitExceeded:
         return render(request, "hr_shop/checkout/_checkout_awaiting_confirmation.html", {
-                "email": customer.email,
-                "message": "Too many emails sent. Please check your inbox (including spam folder) or try again later.",
-                "rate_limited": True,
-                "sent_at": None
-            }
-        )
+            "email": customer.email,
+            "message": "Too many emails sent. Please check your inbox (including spam folder) or try again later.",
+            "rate_limited": True,
+            "sent_at": None
+        })
 
     except EmailSendError:
-        return render(request, "hr_shop/checkout/_checkout_awaiting_confirmation.html",
-            {"email": customer.email, "message": "Could not send email. Please try again.", "rate_limited": False, "sent_at": None, "error": True}
-        )
+        return render(request, "hr_shop/checkout/_checkout_awaiting_confirmation.html", {
+            "email": customer.email,
+            "message": "Could not send email. Please try again.",
+            "rate_limited": False,
+            "sent_at": None,
+            "error": True
+        })
 
 
 @require_GET
 def checkout_review(request):
     ctx = _get_checkout_context(request)
+
     if not ctx:
         log_event(logger, logging.WARNING, "checkout.review.session_missing")
         return hx_load_modal(
@@ -943,11 +1058,12 @@ def checkout_review(request):
             after_settle={"showMessage": {"text": "Your session is invalid or has expired. Please try again."}}
         )
 
-    if not is_email_confirmed_for_checkout(request, ctx["customer"].email):
+    email = ctx['customer'].email
+
+    if not is_email_confirmed_for_checkout(request, email):
         log_event(logger, logging.INFO, "checkout.review.email_unconfirmed", customer_id=ctx["customer"].id)
-        return hx_load_modal(
-            reverse("hr_shop:checkout_details"),
-            after_settle={"showMessage": {"text": "Please confirm your email address to continue."}}
+        return _render_checkout_awaiting_confirmation(
+            request, email=email, message="Please confirm your email to continue.", rate_limited=False, sent_at=None, error=False
         )
 
     return _render_checkout_review(request, ctx=ctx)
@@ -957,7 +1073,7 @@ def checkout_review(request):
 def checkout_create_order(request):
     items = list(_iter_cart_items_for_order(request))
     if not items:
-        log_event(logger, logging.WARNING, "checkout.order.empty_cart")
+        log_event(logger, logging.WARNING, "checkout.order.create.empty_cart")
         return hx_load_modal(
             reverse("hr_shop:view_cart"),
             after_settle={"showMessage": {"text": "Your cart is empty."}}
@@ -965,9 +1081,9 @@ def checkout_create_order(request):
 
     ctx = _get_checkout_context(request)
     if not ctx:
-        log_event(logger, logging.WARNING, "checkout.order.session_missing")
+        log_event(logger, logging.WARNING, "checkout.order.create.session_missing")
         return hx_load_modal(
-            reverse("hr_shop:checkout_details"),
+            reverse("hr_shop:checkout_resume"),
             after_settle={"showMessage": {"text": "Your session is invalid or has expired. Please try again."}}
         )
 
@@ -976,42 +1092,36 @@ def checkout_create_order(request):
     note = ctx["note"]
 
     if not is_email_confirmed_for_checkout(request, customer.email):
-        log_event(logger, logging.WARNING, "checkout.order.email_unconfirmed", customer_id=customer.id)
-        return _render_checkout_awaiting_confirmation(request,
-            email=customer.email,
-            message="Please confirm your email before placing an order.",
-            rate_limited=False,
-            sent_at=None,
-            error=False
+        log_event(logger, logging.WARNING, "checkout.order.create.email_unconfirmed", customer_id=customer.id)
+        return _render_checkout_awaiting_confirmation(
+            request, email=customer.email, message="Please confirm your email to continue.", rate_limited=False, sent_at=None, error=False
         )
 
     with transaction.atomic():
         # Lock the most recent active draft for this customer
         draft = (
-            CheckoutDraft.objects.select_for_update()
+            CheckoutDraft.objects
+            .select_for_update()
             .select_related("order")
             .filter(customer=customer, used_at__isnull=True, expires_at__gt=timezone.now())
             .order_by("-created_at")
             .first()
         )
 
-        if not draft or not draft.is_valid() or not draft.email_confirmed_at:
-            log_event(logger, logging.INFO, "checkout.order.draft_missing_or_invalid",
-                customer_id=customer.id,
-                draft_id=getattr(draft, "id", None),
-                used_at=str(getattr(draft, "used_at", None)) if getattr(draft, "used_at", None) else None,
-                expires_at=str(getattr(draft, "expires_at", None)) if getattr(draft, "expires_at", None) else None,
-                email_confirmed_at=str(getattr(draft, "email_confirmed_at", None))if getattr(draft, "email_confirmed_at", None) else None
-            )
+        if not draft or not draft.is_valid():
+            if not draft:
+                log_event(logger, logging.INFO, 'checkout.order.create.draft_missing', customer_id=customer.id)
+            else:
+                log_event(logger, logging.INFO, 'checkout.order.create.draft_invalid', draft_id=draft.id, used_at=str(draft.used_at), customer_id=customer.id)
             return hx_load_modal(
                 reverse("hr_shop:checkout_details"),
-                after_settle={"showMessage": {"text": "Your checkout session expired. Please restart checkout."}},
+                after_settle={"showMessage": {"text": "Your checkout session expired. Please restart checkout."}}
             )
 
         # Idempotent: if draft already has an order, go pay for that order
         if draft.order_id:
-            order_id = int(draft.order_id)  # safer than touching draft.order.id
-            log_event(logger, logging.INFO, "checkout.order.existing", customer_id=customer.id, draft_id=draft.id, order_id=order_id)
+            order_id = int(draft.order_id)
+            log_event(logger, logging.INFO, "checkout.order.create.found_existing", customer_id=customer.id, draft_id=draft.id, order_id=order_id)
             pay_url = reverse("hr_shop:checkout_pay", args=[order_id])
             return hx_load_modal(pay_url)
 
@@ -1023,7 +1133,7 @@ def checkout_create_order(request):
             total=Decimal("0.00"),
             order_status=OrderStatus.RECEIVED,
             payment_status=PaymentStatus.UNPAID,
-            note=note or None,
+            note=note or None
         )
 
         subtotal = Decimal("0.00")
@@ -1045,13 +1155,8 @@ def checkout_create_order(request):
         draft.order = order
         draft.save(update_fields=["order"])
 
-    log_event(logger, logging.INFO, "checkout.order.created",
-        order_id=order.id,
-        customer_id=customer.id,
-        draft_id=draft.id if draft else None,
-        item_count=len(items),
-        total=str(order.total)
-    )
+    log_event(logger, logging.INFO, "checkout.order.create.created",
+              order_id=order.id, customer_id=customer.id, draft_id=draft.id if draft else None, item_count=len(items), total=str(order.total))
 
     pay_url = reverse("hr_shop:checkout_pay", args=[int(order.id)])
     return hx_load_modal(pay_url)
@@ -1065,7 +1170,7 @@ def checkout_pay(request, order_id: int):
     # Authenticated users: no guest token/cookie needed.
     if request.user.is_authenticated:
         if getattr(order, 'user_id', None) != request.user.id:
-            return JsonResponse({'error': 'Not Authorized'}, status=403)
+            return hx_trigger({'showMessage': {'text': 'Not Authorized'}}, status=403)
         if order.payment_status == PaymentStatus.PAID:
             return _render_order_payment_result_modal(request, order, '')
         return render(request, "hr_shop/checkout/_checkout_pay.html", {
@@ -1075,27 +1180,69 @@ def checkout_pay(request, order_id: int):
             "checkout_ctx_token": ""
         })
 
-    # Guests must have a valid, confirmed draft bound to this order.
+    # Guest order validation checks
+    raw_token = request.COOKIES.get("guest_checkout_token")
+    if not raw_token:
+        log_event(logger, logging.WARNING, "checkout.pay.guest_missing_token", order_id=order.id)
+        return hx_load_modal(
+            reverse("hr_shop:checkout_resume"),
+            after_settle={"showMessage": {"text": "Your checkout session expired. Please start a new checkout."}}
+        )
+
+    token = verify_guest_checkout_token(raw_token)
+    if not token:
+        log_event(logger, logging.WARNING, "checkout.pay.guest_invalid_token", order_id=order.id)
+        resp = hx_load_modal(
+            reverse("hr_shop:checkout_resume"),
+            after_settle={"showMessage": {"text": "Your checkout session expired. Please start a new checkout."}}
+        )
+        resp.delete_cookie("guest_checkout_token")
+        return resp
+
+    if token.order_id != order.id:
+        log_event(logger, logging.WARNING, "checkout.pay.guest_token_order_mismatch", order_id=order.id, token_order_id=token.order_id)
+        resp = hx_load_modal(
+            reverse('hr_shop:checkout_resume'),
+            after_settle={"showMessage": {"text": "Your checkout session is out of date. Please restart checkout."}}
+        )
+        resp.delete_cookie("guest_checkout_token")
+        return resp
+
     draft = (
-        CheckoutDraft.objects.only("id", "customer_id", "used_at", "expires_at", "order_id", "email_confirmed_at")
-        .filter(order_id=order.id, used_at__isnull=True, expires_at__gt=timezone.now())
+        CheckoutDraft.objects
+        .only("id", "customer_id", "used_at", "expires_at", "order_id")
+        .filter(
+            id=token.draft_id,
+            customer_id=token.customer_id,
+            order_id=order.id,
+            used_at__isnull=True,
+            expires_at__gt=timezone.now()
+        )
         .first()
     )
 
     if not draft:
-        log_event(logger, logging.WARNING, "checkout.pay.guest_draft_missing_or_unconfirmed", order_id=order.id)
-        resp = hx_load_modal(
-            reverse('hr_shop:checkout_details'),
-            after_settle={"showMessage": {"text": "Your checkout session expired. Please start a new checkout."}}
-        )
-        # resp.delete_cookie('guest_checkout_token')
-        return resp
 
-    if not draft.email_confirmed_at:
+        if order.payment_status == PaymentStatus.PAID:
+            log_event(logger, logging.ERROR, "checkout.pay.guest_draft_missing_and_order_already_paid", order_id=order.id)
+            receipt_token = generate_order_receipt_token(order_id=order.id, email=order.email)
+            resp = _render_order_payment_result_modal(request, order, receipt_token)
+            resp.delete_cookie('guest_checkout_token')
+            return resp
+
+        if order.payment_status != PaymentStatus.PAID:
+            log_event(logger, logging.WARNING, "checkout.pay.guest_draft_missing", order_id=order.id)
+            resp = hx_load_modal(
+                reverse('hr_shop:checkout_resume'),
+                after_settle={'showMessage': {'text': 'Checkout session expired. Please restart checkout.'}}
+            )
+            resp.delete_cookie('guest_checkout_token')
+            return resp
+
+    if not is_email_confirmed_for_checkout(request, order.email):
         log_event(logger, logging.WARNING, "checkout.pay.guest_email_not_verified", order_id=order.id)
-        return hx_load_modal(
-            reverse("hr_shop:checkout_details"),
-            after_settle={"showMessage": {"text": "Your checkout session expired. Please start a new checkout."}}
+        return _render_checkout_awaiting_confirmation(
+            request, email=order.email, message="Please confirm your email to continue.", rate_limited=False, sent_at=None, error=False
         )
 
     if order.payment_status == PaymentStatus.PAID:

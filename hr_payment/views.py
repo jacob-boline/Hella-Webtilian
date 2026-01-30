@@ -17,11 +17,16 @@ from django.views.decorators.http import require_POST
 from hr_common.utils.unified_logging import log_event
 from hr_core.utils.urls import build_external_absolute_url
 from hr_payment.models import PaymentAttempt, PaymentAttemptStatus, WebhookEvent
+from hr_payment.services.payment_state import mark_checkout_draft_used
 from hr_shop.models import CheckoutDraft, Order, PaymentStatus
 from hr_shop.tokens.guest_checkout_token import verify_guest_checkout_token
 from hr_shop.tokens.order_receipt_token import generate_order_receipt_token
 
 logger = logging.getLogger(__name__)
+
+
+def _delete_checkout_draft(order: Order) -> None:
+    CheckoutDraft.objects.filter(order=order).delete()
 
 def _forbid_guest_payment(msg='Not authorized. Please restart checkout.', clear_cookie=True):
     resp = JsonResponse({'error': msg}, status=403)
@@ -94,39 +99,41 @@ def checkout_stripe_session(request, order_id: int):
         if not raw_token:
             return _forbid_guest_payment(clear_cookie=False)
 
-        guest_ctx = verify_guest_checkout_token(raw_token)
-        if not guest_ctx:
+        guest_checkout_token = verify_guest_checkout_token(raw_token)
+        if not guest_checkout_token:
             return _forbid_guest_payment()
 
-        if int(guest_ctx.order_id) != int(order.id):
+        if int(guest_checkout_token.order_id) != int(order.id):
             log_event(logger, logging.WARNING, 'payment.checkout.forbidden.guest_token_order_mismatch',
                   requested_order_id=order.id,
-                  token_order_id=guest_ctx.order_id,
-                  token_customer_id=guest_ctx.customer_id,
-                  token_draft_id=guest_ctx.draft_id
+                  token_order_id=guest_checkout_token.order_id,
+                  token_customer_id=guest_checkout_token.customer_id,
+                  token_draft_id=guest_checkout_token.draft_id
             )
             return _forbid_guest_payment()
 
         draft = (
             CheckoutDraft.objects
             .only("id", "customer_id", "used_at", "expires_at", "order_id", "email_confirmed_at")
-            .filter(pk=int(guest_ctx.draft_id), customer_id=int(guest_ctx.customer_id))
+            .filter(
+                pk=int(guest_checkout_token.draft_id),
+                customer_id=int(guest_checkout_token.customer_id))
             .first()
         )
 
         if not draft:
             log_event(logger, logging.WARNING, "payment.checkout.forbidden.guest_draft_missing",
                   order_id=order.id,
-                  draft_id=guest_ctx.draft_id,
-                  customer_id=guest_ctx.customer_id
+                  draft_id=guest_checkout_token.draft_id,
+                  customer_id=guest_checkout_token.customer_id
             )
             return _forbid_guest_payment()
 
         if not draft.email_confirmed_at:
             log_event(logger, logging.WARNING, "payment.checkout.forbidden.draft_email_not_verified",
                   order_id=order.id,
-                  draft_id=guest_ctx.draft_id,
-                  customer_id=guest_ctx.customer_id
+                  draft_id=guest_checkout_token.draft_id,
+                  customer_id=guest_checkout_token.customer_id
             )
             return _forbid_guest_payment('Please confirm your email, then restart checkout.', clear_cookie=False)
 
@@ -142,27 +149,28 @@ def checkout_stripe_session(request, order_id: int):
             return _forbid_guest_payment()
 
         # Verify draft and context have same customer
-        if draft.customer_id != int(guest_ctx.customer_id):
+        if draft.customer_id != int(guest_checkout_token.customer_id):
             log_event(logger, logging.WARNING, "payment.checkout.forbidden.guest_draft_customer_mismatch",
                 order_id=order.id,
                 draft_id=draft.id,
-                token_customer_id=guest_ctx.customer_id,
+                token_customer_id=guest_checkout_token.customer_id,
                 draft_customer_id=draft.customer_id
             )
             return _forbid_guest_payment()
 
         # Verify order and context have same customer
-        if order.customer_id != int(guest_ctx.customer_id):
+        if order.customer_id != int(guest_checkout_token.customer_id):
             log_event(logger, logging.WARNING, "payment.checkout.forbidden.guest_order_customer_mismatch",
                 order_id=order.id,
-                token_customer_id=guest_ctx.customer_id,
+                token_customer_id=guest_checkout_token.customer_id,
                 order_customer_id=getattr(order, "customer_id", None),
                 draft_id=draft.id
             )
             return _forbid_guest_payment()
 
         # Successful Token Authentication
-        log_event(logger, logging.INFO, "payment.checkout.guest_authorized", order_id=order.id, customer_id=guest_ctx.customer_id, draft_id=guest_ctx.draft_id)
+        log_event(logger, logging.INFO, "payment.checkout.guest_authorized",
+                  order_id=order.id, customer_id=guest_checkout_token.customer_id, draft_id=guest_checkout_token.draft_id)
 
     # -----------------------------
     # State sanity
@@ -296,8 +304,7 @@ def checkout_stripe_session(request, order_id: int):
         order.save(update_fields=["stripe_checkout_session_id", "payment_status", "updated_at"])
 
         log_event(logger, logging.INFO, "payment.checkout.session_created",
-            order_id=order.id, attempt_id=attempt.id, session_id=sess.get("id"), attach_customer=attach_customer
-        )
+            order_id=order.id, attempt_id=attempt.id, session_id=sess.get("id"), attach_customer=attach_customer)
 
         return JsonResponse({"clientSecret": sess.get("client_secret"), "sessionId": sess.get("id"), "reused": False})
 
@@ -423,6 +430,7 @@ def _handle_checkout_session_completed(session: dict) -> None:
 
     order.payment_status = PaymentStatus.PAID
     order.save(update_fields=["stripe_checkout_session_id", "stripe_payment_intent_id", "payment_status", "updated_at"])
+    mark_checkout_draft_used(order)
 
     attempt = _find_attempt_for_session(session)
     if attempt:
@@ -451,13 +459,15 @@ def _handle_payment_intent_succeeded(pi: dict) -> None:
         return
 
     attempt = PaymentAttempt.objects.select_for_update().filter(provider_payment_intent_id=pid).first()
-    order = attempt.order if attempt else Order.objects.select_for_update().filter(stripe_payment_intent_id=pid).first()
+    order = attempt.order if attempt \
+        else Order.objects.select_for_update().filter(stripe_payment_intent_id=pid).first()
     if not order:
         return
 
     order.stripe_payment_intent_id = pid
     order.payment_status = PaymentStatus.PAID
     order.save(update_fields=["stripe_payment_intent_id", "payment_status", "updated_at"])
+    mark_checkout_draft_used(order)
 
     if attempt and attempt.status != PaymentAttemptStatus.SUCCEEDED:
         attempt.raw = pi
@@ -471,7 +481,8 @@ def _handle_payment_intent_failed(pi: dict) -> None:
         return
 
     attempt = PaymentAttempt.objects.select_for_update().filter(provider_payment_intent_id=pid).first()
-    order = attempt.order if attempt else Order.objects.select_for_update().filter(stripe_payment_intent_id=pid).first()
+    order = attempt.order if attempt \
+        else Order.objects.select_for_update().filter(stripe_payment_intent_id=pid).first()
     if not order:
         return
 
@@ -483,7 +494,11 @@ def _handle_payment_intent_failed(pi: dict) -> None:
         last_err = pi.get("last_payment_error") or {}
         attempt.raw = pi
         attempt.save(update_fields=["raw", "updated_at"])
-        attempt.mark_final(PaymentAttemptStatus.FAILED, code=(last_err.get("code") or None), msg=(last_err.get("message") or None))
+        attempt.mark_final(
+            PaymentAttemptStatus.FAILED,
+            code=(last_err.get("code") or None),
+            msg=(last_err.get("message") or None)
+        )
 
 
 def _handle_payment_intent_canceled(pi: dict) -> None:
@@ -492,7 +507,8 @@ def _handle_payment_intent_canceled(pi: dict) -> None:
         return
 
     attempt = PaymentAttempt.objects.select_for_update().filter(provider_payment_intent_id=pid).first()
-    order = attempt.order if attempt else Order.objects.select_for_update().filter(stripe_payment_intent_id=pid).first()
+    order = attempt.order if attempt \
+        else Order.objects.select_for_update().filter(stripe_payment_intent_id=pid).first()
     if not order:
         return
 
