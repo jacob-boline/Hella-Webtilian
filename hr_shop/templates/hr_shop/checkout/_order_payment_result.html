@@ -1,6 +1,6 @@
 {# hr_shop/templates/hr_shop/checkout/_order_payment_result.html #}
 
-<div class="checkout-review-modal order-payment-result">
+<div id="payment-result-modal" class="checkout-review-modal order-payment-result">
 
     {# Option A close button (top-right X) #}
 {#    <button type="button" class="modal-close-btn order-payment-close" data-modal-close aria-label="Close">#}
@@ -64,14 +64,29 @@
     </div>
 
     {% if payment_result != 'paid' %}
-        <div class="m-actions m-foot m-grid">
-            <button type="button"
-                    class="card-btn btn-neon btn-blue btn-sm"
-                    hx-get="{% url 'hr_shop:checkout_pay' order.id %}"
-                    hx-target="#modal-content"
-                    hx-swap="innerHTML transition:true">
-                Retry payment
-            </button>
+        <div class="review-section retry-payment-panel cta-panel">
+            <p class="review-section-title">Need to try again?</p>
+            <p class="text-muted">
+                {% if payment_result == 'pending' %}
+                    If your payment is processing, please wait a moment. Otherwise, you can retry.
+                {% elif payment_result == 'expired' %}
+                    Your checkout session expired. Click below to start a new payment.
+                {% elif payment_result == 'canceled' %}
+                    The payment was canceled. You can try again when ready.
+                {% else %}
+                    Something went wrong with your payment. Please try again.
+                {% endif %}
+            </p>
+
+            <div class="modal-actions inline uniform">
+                <button type="button"
+                        class="card-btn btn-neon btn-blue btn-sm"
+                        hx-get="{% url 'hr_shop:checkout_pay' order.id %}"
+                        hx-target="#modal-content"
+                        hx-swap="innerHTML transition:true">
+                    Retry Payment
+                </button>
+            </div>
         </div>
     {% endif %}
 
@@ -89,7 +104,7 @@
                 <button type="button"
                         class="card-btn btn-neon btn-green btn-sm"
                         hx-get="{% url 'hr_access:account_get_post_purchase_create_account' order.id %}"
-                        hx-target="#post-purchase-account"
+                        hx-target="#payment-result-modal"
                         hx-swap="outerHTML transition:true">
                     Create Account
                 </button>
@@ -112,7 +127,6 @@
     {# ============================================ #}
     {% if payment_result == "paid" %}
         <div class="review-section receipt-block">
-            <p class="review-section-title">Receipt</p>
 
             {% if order.email %}
                 <p class="text-muted">

@@ -206,7 +206,11 @@
                 delete loader.dataset.afterSwapTriggers;
 
                 let triggers;
-                try { triggers = JSON.parse(raw); } catch { return; }
+                try {
+                    triggers = JSON.parse(raw);
+                } catch {
+                    return;
+                }
                 if (!triggers || typeof triggers !== 'object') return;
 
                 for (const [name, payload] of Object.entries(triggers)) {
@@ -221,31 +225,20 @@
         // ------------------------------
         // Note: We add a one-shot bypass flag on the button so re-triggering the click
         // doesn't get re-intercepted and loop forever.
-        document.body.addEventListener("htmx:beforeRequest", (e) => {
+
+        document.body.addEventListener("htmx:beforeSwap", (e) => {
             const src = e.target;
             const btn = src?.closest?.("[data-cta-dismiss]");
-            if (!btn) return;
 
-            // bypass for the re-fired click
-            if (btn.dataset.ctaDismissBypass === "1") {
-                delete btn.dataset.ctaDismissBypass;
-                return;
-            }
+            if (!btn) return;
 
             const wrap = btn.closest("#post-purchase-account");
             if (!wrap) return;
 
+            // Add animation class - htmx handles the swap after this event
             wrap.classList.add("is-dismissing");
-
-            // delay the request just a hair
-            btn.dataset.ctaDismissBypass = "1";
-            e.preventDefault();
-
-            window.setTimeout(() => {
-                if (!window.htmx) return;
-                window.htmx.trigger(btn, "click");
-            }, 200);
         }, true);
+
 
         document.body.addEventListener("htmx:afterSettle", async (e) => {
             const target = e.target;
@@ -381,7 +374,7 @@
             // window.htmx.process(loader);
             // window.htmx.trigger(loader, "hr:loadModal");
 
-            window.htmx.trigger(document.body, 'loadModal', { hxGet });
+            window.htmx.trigger(document.body, 'loadModal', {hxGet});
 
             window.setTimeout(() => {
                 try {

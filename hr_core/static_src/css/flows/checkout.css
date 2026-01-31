@@ -591,11 +591,12 @@
 }
 
 .post-purchase-account.is-dismissing {
-    opacity:    0;
-    transform:  translateY(2px);
-    transition: opacity   1s ease,
-                transform 1s ease;
+    opacity: 0;
+    transform: translateY(2px);
+    transition: opacity 1s ease, transform 1s ease;
+    pointer-events: none;
 }
+
 
 /* ===========================
    Order payment result polish
@@ -853,4 +854,39 @@
         flex-direction: column;
         align-items:    center;
     }
+}
+
+.order-payment-result .retry-payment-panel {
+    max-width: 560px;
+    margin: 0.9rem auto 0;
+    padding: 1rem;
+    border-radius: 14px;
+    background: var(--black-alpha-30);
+    border: 1px solid var(--white-alpha-15);
+    box-shadow: 0 0 18px var(--neon-cyan-alpha-15);
+}
+
+/* Different accent color for retry vs account creation */
+.order-payment-result .retry-payment-panel {
+    box-shadow: 0 0 18px var(--neon-blue-alpha-15);
+}
+
+.order-payment-result .retry-payment-panel .review-section-title {
+    color: var(--neon-blue);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+}
+
+.order-payment-result .retry-payment-panel .text-muted {
+    font-size: 0.85rem;
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
+}
+
+/* Ensure both CTA and retry sections are same width */
+.order-payment-result .cta-panel,
+.order-payment-result .retry-payment-panel {
+    width: 100%;
+    max-width: 560px;
+    box-sizing: border-box;
 }

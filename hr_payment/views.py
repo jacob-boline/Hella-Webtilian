@@ -14,16 +14,16 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
+from hr_common.utils.http.htmx import hx_trigger
 from hr_common.utils.unified_logging import log_event
 from hr_core.utils.urls import build_external_absolute_url
 from hr_payment.models import PaymentAttempt, PaymentAttemptStatus, WebhookEvent
 from hr_payment.services.payment_state import mark_checkout_draft_used
 from hr_shop.models import CheckoutDraft, Order, PaymentStatus
-from hr_shop.tokens.guest_checkout_token import verify_guest_checkout_token
 from hr_shop.tokens.order_receipt_token import generate_order_receipt_token
+from hr_shop.views.checkout import _validate_guest_checkout
 
 logger = logging.getLogger(__name__)
-
 
 def _delete_checkout_draft(order: Order) -> None:
     CheckoutDraft.objects.filter(order=order).delete()
@@ -95,82 +95,19 @@ def checkout_stripe_session(request, order_id: int):
 
     # Guest Order
     else:
-        raw_token = _extract_checkout_ctx_token(request)
-        if not raw_token:
-            return _forbid_guest_payment(clear_cookie=False)
+        guest_ctx, error_response = _validate_guest_checkout(request, order_id)
 
-        guest_checkout_token = verify_guest_checkout_token(raw_token)
-        if not guest_checkout_token:
-            return _forbid_guest_payment()
+        if error_response:
 
-        if int(guest_checkout_token.order_id) != int(order.id):
-            log_event(logger, logging.WARNING, 'payment.checkout.forbidden.guest_token_order_mismatch',
-                  requested_order_id=order.id,
-                  token_order_id=guest_checkout_token.order_id,
-                  token_customer_id=guest_checkout_token.customer_id,
-                  token_draft_id=guest_checkout_token.draft_id
-            )
-            return _forbid_guest_payment()
+            if isinstance(error_response, HttpResponse) and error_response.status_code in (403, 401):
+                return hx_trigger({'showMessage': {'text': 'Not authorized. Please restart checkout.'}}, status=403)
 
-        draft = (
-            CheckoutDraft.objects
-            .only("id", "customer_id", "used_at", "expires_at", "order_id", "email_confirmed_at")
-            .filter(
-                pk=int(guest_checkout_token.draft_id),
-                customer_id=int(guest_checkout_token.customer_id))
-            .first()
-        )
+            return hx_trigger({'showMessage': {'text': 'Checkout session invalid. Please restart checkout.'}}, status=403)
 
-        if not draft:
-            log_event(logger, logging.WARNING, "payment.checkout.forbidden.guest_draft_missing",
+        log_event(logger, logging.INFO, 'payment.checkout.guest_authorized',
                   order_id=order.id,
-                  draft_id=guest_checkout_token.draft_id,
-                  customer_id=guest_checkout_token.customer_id
-            )
-            return _forbid_guest_payment()
-
-        if not draft.email_confirmed_at:
-            log_event(logger, logging.WARNING, "payment.checkout.forbidden.draft_email_not_verified",
-                  order_id=order.id,
-                  draft_id=guest_checkout_token.draft_id,
-                  customer_id=guest_checkout_token.customer_id
-            )
-            return _forbid_guest_payment('Please confirm your email, then restart checkout.', clear_cookie=False)
-
-        # Verify draft is not used or expired
-        if not draft.is_valid():
-            log_event(logger, logging.WARNING, "payment.checkout.forbidden.guest_draft_invalid",
-                order_id=order.id,
-                draft_id=draft.id,
-                used_at=str(draft.used_at) if draft.used_at else None,
-                expires_at=str(draft.expires_at) if draft.expires_at else None,
-                now=str(timezone.now())
-            )
-            return _forbid_guest_payment()
-
-        # Verify draft and context have same customer
-        if draft.customer_id != int(guest_checkout_token.customer_id):
-            log_event(logger, logging.WARNING, "payment.checkout.forbidden.guest_draft_customer_mismatch",
-                order_id=order.id,
-                draft_id=draft.id,
-                token_customer_id=guest_checkout_token.customer_id,
-                draft_customer_id=draft.customer_id
-            )
-            return _forbid_guest_payment()
-
-        # Verify order and context have same customer
-        if order.customer_id != int(guest_checkout_token.customer_id):
-            log_event(logger, logging.WARNING, "payment.checkout.forbidden.guest_order_customer_mismatch",
-                order_id=order.id,
-                token_customer_id=guest_checkout_token.customer_id,
-                order_customer_id=getattr(order, "customer_id", None),
-                draft_id=draft.id
-            )
-            return _forbid_guest_payment()
-
-        # Successful Token Authentication
-        log_event(logger, logging.INFO, "payment.checkout.guest_authorized",
-                  order_id=order.id, customer_id=guest_checkout_token.customer_id, draft_id=guest_checkout_token.draft_id)
+                  customer_id=guest_ctx.customer.id,
+                  draft_id=guest_ctx.draft.id)
 
     # -----------------------------
     # State sanity
@@ -211,28 +148,20 @@ def checkout_stripe_session(request, order_id: int):
                 if dirty_attempt:
                     existing_attempt.save(update_fields=["client_secret", "raw", "status", "updated_at"])
 
-                dirty_order = False
-                if getattr(order, "stripe_checkout_session_id", None) != sess.get("id"):
-                    order.stripe_checkout_session_id = sess.get("id")
-                    dirty_order = True
-                if order.payment_status != PaymentStatus.PENDING:
-                    order.payment_status = PaymentStatus.PENDING
-                    dirty_order = True
-                if dirty_order:
-                    order.save(update_fields=["stripe_checkout_session_id", "payment_status", "updated_at"])
+                log_event(logger, logging.INFO, 'payment.checkout.session_reused',
+                          order_id=order.id,
+                          session_id=existing_attempt.provider_session_id)
 
-                log_event(logger, logging.INFO, "payment.checkout.session_reused", order_id=order.id, attempt_id=existing_attempt.id, session_id=sess.get("id"))
+                return JsonResponse({
+                    "clientSecret": sess["client_secret"],
+                    "sessionId": sess["id"]
+                })
 
-                return JsonResponse({"clientSecret": sess["client_secret"], "sessionId": sess["id"], "reused": True})
-
-        except Exception as exc:
+        except stripe.error.StripeError as exc:
             log_event(logger, logging.WARNING, "payment.checkout.session_reuse_failed",
                 order_id=order.id,
-                attempt_id=getattr(existing_attempt, "id", None),
                 session_id=existing_attempt.provider_session_id,
-                error=str(exc),
-                exc_info=True
-            )
+                error=str(exc))
             # Continue to create a new session
 
     # -----------------------------

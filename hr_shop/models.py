@@ -526,7 +526,6 @@ class CheckoutDraft(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField(db_index=True)
     used_at = models.DateTimeField(null=True, blank=True)
-    email_confirmed_at = models.DateTimeField(null=True, blank=True)
     order = models.OneToOneField("Order", on_delete=models.SET_NULL, null=True, blank=True, related_name="checkout_draft")
 
     class Meta:

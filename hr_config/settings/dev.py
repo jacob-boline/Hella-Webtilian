@@ -41,6 +41,7 @@ INSTALLED_APPS += ["debug_toolbar", "django_browser_reload"]
 
 MIDDLEWARE.insert(2, "debug_toolbar.middleware.DebugToolbarMiddleware")
 MIDDLEWARE.append("django_browser_reload.middleware.BrowserReloadMiddleware")
+MIDDLEWARE.append('hr_core.middleware.media_cache.MediaCacheMiddleware')
 
 WHITENOISE_USE_FINDERS = True
 

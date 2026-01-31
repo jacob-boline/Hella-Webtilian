@@ -44,14 +44,14 @@ INSTALLED_APPS = DJANGO_CORE_APPS + STATIC_HANDLING_APPS + PROJECT_APPS + THIRD_
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
-    "hr_core.middleware.RequestIdMiddleware",
+    "hr_core.middleware.request_id.RequestIdMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "hr_common.middleware.logging_context.RequestUserContextMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
-    "hr_core.middleware.HtmxExceptionMiddleware",
+    "hr_core.middleware.htmx_exception.HtmxExceptionMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
