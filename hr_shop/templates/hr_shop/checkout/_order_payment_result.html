@@ -2,11 +2,6 @@
 
 <div id="payment-result-modal" class="checkout-review-modal order-payment-result">
 
-    {# Option A close button (top-right X) #}
-{#    <button type="button" class="modal-close-btn order-payment-close" data-modal-close aria-label="Close">#}
-{#        ×#}
-{#    </button>#}
-
     {# ========================= #}
     {#  Title (varies by result) #}
     {# ========================= #}
@@ -136,8 +131,7 @@
 
             <div class="modal-actions stack uniform">
                 <form hx-post="{% url 'hr_shop:order_send_receipt_email' order.id %}"
-                      hx-swap="none"
-                      method="post">
+                      hx-swap="none">
                     {% csrf_token %}
                     {% if receipt_token %}
                         <input type="hidden" name="t" value="{{ receipt_token }}">

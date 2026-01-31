@@ -82,15 +82,13 @@ function preloadCarouselImages(thumbs, normalizeToAboutBase, aboutSrcset) {
         if (noQuery.includes("/media/") && /-\d+w\.(webp|png|jpg|jpeg)$/i.test(noQuery)) {
             const noExt = noQuery.replace(/\.(webp|png|jpg|jpeg)$/i, "");
             const noSize = noExt.replace(/-\d+w$/i, "");
-            // if you have a dedicated dir for about variants, normalize it here
-            // e.g. return noSize.replace("/opt_about/", "/opt_about/");
             return noSize;
         }
 
-        // Otherwise: derive from filename stem and point at your about variant directory.
+        // Otherwise: derive from filename stem and point at the about variant directory.
         const filename = noQuery.split("/").pop() || "";
         const stem = filename.replace(/\.(webp|png|jpg|jpeg)$/i, "");
-        return `/media/hr_about/opt_webp/${stem}`; // <-- CHANGE to your real folder
+        return `/media/hr_about/opt_webp/${stem}`;
     }
 
     function aboutSrc (base, size) {
@@ -98,7 +96,6 @@ function preloadCarouselImages(thumbs, normalizeToAboutBase, aboutSrcset) {
     }
 
     function aboutSrcset (base) {
-        // Pick the same sizes your about_img_srcset filter outputs
         return [
             `${aboutSrc(base, 640)} 640w`,
             `${aboutSrc(base, 960)} 960w`,

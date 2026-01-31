@@ -18,19 +18,11 @@
     <link rel="apple-touch-icon" href="{% static 'icons/apple-touch-icon.png' %}">
     <link rel="manifest" href="{% static 'icons/site.webmanifest' %}">
 
-{#    <link rel="preconnect" href="https://fonts.googleapis.com">#}
-{#    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>#}
-{#    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Zilla+Slab+Highlight:wght@400;700&display=swap" rel="stylesheet">#}
-{#    <link href="https://fonts.googleapis.com/css2?family=Syne+Mono&display=swap" rel="stylesheet">#}
-
-{#    <link rel="preload" href="{% static 'hr_core/fonts/KARNIVBL.woff2' %}" as="font" type="font/woff2" crossorigin>#}
-{#    <link rel="preload" href="{% static 'hr_core/fonts/Quantico-Regular.woff2' %}" as="font" type="font/woff2" crossorigin>#}
-
     {% if debug %}
-      <script type="module" src="http://127.0.0.1:5173/@vite/client"></script>
-      <script type="module" src="http://127.0.0.1:5173/js/main.js"></script>
+        <script type="module" src="http://127.0.0.1:5173/@vite/client"></script>
+        <script type="module" src="http://127.0.0.1:5173/js/main.js"></script>
     {% else %}
-      {% vite_asset 'js/main.js' %}
+        {% vite_asset 'js/main.js' %}
     {% endif %}
 
     <script src="https://js.stripe.com/v3" defer></script>

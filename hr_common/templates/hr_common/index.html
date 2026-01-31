@@ -160,26 +160,11 @@ w
         </div>
     </section>
 
-
-    {#    {% if landing_modal == "email_confirmed" %}#}
-    {#      <div#}
-    {#        hidden#}
-    {#        hx-get="{% url 'hr_shop:email_confirmation_success' %}"#}
-    {#        hx-trigger="load"#}
-    {#        hx-target="#modal-content"#}
-    {#        hx-swap="innerHTML"#}
-    {#      ></div>#}
-    {#    {% endif %}#}
-
     {% if landing_modal == "email_confirmed" %}
         <script>
             function openLandingModalWhenReady () {
                 const loader = document.getElementById('modal-loader');
                 if (!loader || !window.htmx) return false;
-
-                {#loader.setAttribute('hx-get', "{% url 'hr_shop:email_confirmation_success' %}");#}
-                {#htmx.process(loader);#}
-                {#htmx.trigger(loader, 'hr:loadModal');#}
                 window.htmx.trigger(document.body, 'loadModal', "{% url 'hr_shop:email_confirmation_success' %}");
                 return true;
             }

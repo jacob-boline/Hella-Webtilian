@@ -17,13 +17,10 @@
 
     <form
         id="checkout-details-form"
-        method="post"
-        action="{% url 'hr_shop:checkout_details_submit' %}"
         hx-post="{% url 'hr_shop:checkout_details_submit' %}"
         hx-target="#modal-content"
         hx-swap="innerHTML transition:true"
-        class="checkout-details-form m-body"
-    >
+        class="checkout-details-form m-body">
         {% csrf_token %}
 
         <h3 class="group-title">Contact</h3>

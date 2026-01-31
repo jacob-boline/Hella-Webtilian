@@ -3,9 +3,7 @@
 import {applyStitchedLetters, wrapDateTimeChars} from "./ui-text.js";
 
 (function () {
-    // -----------------------------
-    // Small, testable helpers
-    // -----------------------------
+
     function defaultGetVH () {
         return (
             window.visualViewport?.height ||
@@ -35,7 +33,7 @@ import {applyStitchedLetters, wrapDateTimeChars} from "./ui-text.js";
             config,
             bannerAPI,
             getVH: utils.getVH || defaultGetVH,
-            debounce: utils.debounce || defaultDebounce,
+            debounce: utils.debounce || defaultDebounce
         };
     }
 
@@ -70,18 +68,18 @@ import {applyStitchedLetters, wrapDateTimeChars} from "./ui-text.js";
             rafId: null,
             rafLayout: null,
             observers: {
-                section: null,
+                section: null
             },
             frame: {
                 scrollTop: 0,
                 vh: 0,
-                dirty: true,
+                dirty: true
             },
             // Optimization 2: keep RAF updating briefly after scroll events stop
             scroll: {
                 lastTs: 0,
-                keepAliveMs: 120,
-            },
+                keepAliveMs: 120
+            }
         };
 
         // -----------------------------
@@ -180,7 +178,7 @@ import {applyStitchedLetters, wrapDateTimeChars} from "./ui-text.js";
             });
         }
 
-        // Optimization 1: Cache section "document top" so we don't call getBoundingClientRect()
+        // Cache section "document top" so we don't call getBoundingClientRect()
         // on every animation frame during scroll.
         function computeSectionData () {
             STATE.sectionData.clear();
@@ -331,7 +329,7 @@ import {applyStitchedLetters, wrapDateTimeChars} from "./ui-text.js";
                 // next scroll/frame should re-read
                 markFrameDirty();
 
-                // Optimization 2: keep animating briefly after the last scroll event
+                // keep animating briefly after the last scroll event  (mobile touchscreens)
                 const now = performance.now();
                 if (now - STATE.scroll.lastTs < STATE.scroll.keepAliveMs) {
                     STATE.rafId = null;

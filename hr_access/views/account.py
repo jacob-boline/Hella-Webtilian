@@ -18,17 +18,17 @@ from django.views.decorators.http import require_GET, require_POST
 
 from hr_access.forms import AccountCreationForm, AccountEmailChangeForm
 from hr_access.models import User
-from hr_access.tokens.account_signup import generate_account_signup_token, verify_account_signup_token
-from hr_access.tokens.email_change import generate_email_change_token, verify_email_change_token
 from hr_access.services.post_purchase import (
     build_post_purchase_form,
     create_post_purchase_account,
     get_post_purchase_unclaimed_orders,
 )
+from hr_access.tokens.account_signup import generate_account_signup_token, verify_account_signup_token
+from hr_access.tokens.email_change import generate_email_change_token, verify_email_change_token
 from hr_common.utils.email import normalize_email
+from hr_common.utils.htmx_responses import hx_login_required
 from hr_common.utils.http.htmx import hx_trigger, merge_hx_trigger_after_settle
 from hr_common.utils.http.messages import show_message
-from hr_common.utils.htmx_responses import hx_login_required
 from hr_common.utils.unified_logging import log_event
 from hr_core.utils.urls import build_external_absolute_url
 from hr_email.service import EmailProviderError, send_app_email
@@ -135,7 +135,7 @@ def send_email_change_verification(request, user: User, new_email: str) -> str:
             subject=subject,
             text_body=text_body,
             html_body=html_body,
-            custom_id=f"account_email_change_{user.id}",
+            custom_id=f"account_email_change_{user.id}"
         )
     except EmailProviderError as exc:
         log_event(logger, logging.ERROR, "access.email_change_confirmation.send_failed", email=new_email, user_id=user.id, error=str(exc))
@@ -171,7 +171,7 @@ def account_signup(request):
                 "sent_at": _get_last_signup_confirmation_sent_at(user.email),
                 "rate_limited": False,
                 "error": False,
-                "message": "We've sent a confirmation link to your email. Please check your inbox.",
+                "message": "We've sent a confirmation link to your email. Please check your inbox."
             }
         except RateLimitExceeded:
             log_event(logger, logging.WARNING, "access.account_signup.rate_limit_exceeded", user_id=user.id, email=user.email, exc_info=True)
@@ -180,7 +180,7 @@ def account_signup(request):
                 "sent_at": _get_last_signup_confirmation_sent_at(user.email),
                 "rate_limited": True,
                 "error": False,
-                "message": "Too many confirmation emails sent. Please check your inbox or try again later.",
+                "message": "Too many confirmation emails sent. Please check your inbox or try again later."
             }
         except EmailSendError:
             log_event(logger, logging.WARNING, "access.account_signup.email_send_error", user_id=user.id, email=user.email, exc_info=True)
@@ -189,7 +189,7 @@ def account_signup(request):
                 "sent_at": _get_last_signup_confirmation_sent_at(user.email),
                 "rate_limited": False,
                 "error": True,
-                "message": "Could not send confirmation email. Please try again.",
+                "message": "Could not send confirmation email. Please try again."
             }
         resp = render(request, "hr_access/registration/_signup_check_email.html", context)
         message = context.get("message") or "Check your email to confirm your account."
@@ -251,10 +251,10 @@ def account_change_password(request):
             user = form.save()
             update_session_auth_hash(request, user)
             log_event(logger, logging.INFO, "access.account_password.changed")
-            return hx_trigger(
-                {"showMessage": show_message("Your password has been changed.", duration=5000), "closeModal": None},
-                status=204
-            )
+            return hx_trigger({
+                "showMessage": show_message("Your password has been changed.", duration=5000),
+                "closeModal": None
+            }, status=204)
 
         log_event(logger, logging.INFO, "access.account_password.form_invalid")
         return render(request, template, {"form": form})
@@ -272,12 +272,11 @@ def account_settings(request):
     log_event(logger, logging.INFO, "access.account_settings.rendered", order_count=order_count, unclaimed_count=unclaimed_count)
 
     return render(request, "hr_access/account/_account_settings_modal.html", {
-            "last_login": request.user.last_login,
-            "password_changed_at": getattr(request.user, "password_changed_at", None),
-            "order_count": order_count,
-            "unclaimed_count": unclaimed_count
-        }
-    )
+        "last_login": request.user.last_login,
+        "password_changed_at": getattr(request.user, "password_changed_at", None),
+        "order_count": order_count,
+        "unclaimed_count": unclaimed_count
+    })
 
 
 @hx_login_required

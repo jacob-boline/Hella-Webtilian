@@ -9,9 +9,9 @@ from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_GET, require_POST
 
+from hr_common.utils.htmx_responses import hx_login_required
 from hr_common.utils.http.htmx import hx_trigger
 from hr_common.utils.http.messages import show_message
-from hr_common.utils.htmx_responses import hx_login_required
 from hr_common.utils.unified_logging import log_event
 from hr_shop.models import Order, OrderItem
 
@@ -52,10 +52,12 @@ def account_get_order_receipt(request, order_id: int):
     is_guest = not (request.user.is_authenticated and getattr(order, "user_id", None) == request.user.id)
 
     log_event(logger, logging.INFO, "access.orders.receipt_rendered", order_id=order.id)
-    return render(
-        request,
-        "hr_shop/checkout/_order_receipt_modal.html",
-        {"order": order, "items": items, "customer": order.customer, "address": order.shipping_address, "is_guest": is_guest},
+    return render(request, "hr_shop/checkout/_order_receipt_modal.html", {
+        "order": order,
+        "items": items,
+        "customer": order.customer,
+        "address": order.shipping_address,
+        "is_guest": is_guest}
     )
 
 
@@ -68,10 +70,18 @@ def account_get_unclaimed_orders(request):
         log_event(logger, logging.WARNING, "access.orders.unclaimed.missing_email")
         return hx_trigger({"showMessage": show_message("No email address is associated with your account.")}, status=400)
 
-    unclaimed_orders = Order.objects.filter(user__isnull=True, email__iexact=email).order_by("-created_at")[:50]
-
+    unclaimed_orders = (
+        Order.objects
+        .filter(user__isnull=True, email__iexact=email)
+        .order_by("-created_at")
+        [:50]
+    )
     log_event(logger, logging.INFO, "access.orders.unclaimed_rendered", unclaimed_count=len(unclaimed_orders))
-    return render(request, "hr_access/orders/_unclaimed_orders_modal.html", {"email": email, "unclaimed_orders": unclaimed_orders, "error": None})
+    return render(request, "hr_access/orders/_unclaimed_orders_modal.html", {
+        "email": email,
+        "unclaimed_orders": unclaimed_orders,
+        "error": None
+    })
 
 
 @hx_login_required
@@ -95,4 +105,9 @@ def account_submit_claim_unclaimed_orders(request):
         claimed_count = qs.update(user=request.user)
 
     log_event(logger, logging.INFO, "access.orders.claim.completed", claimed_count=claimed_count)
-    return hx_trigger({"unclaimedOrdersClaimed": {"ids": claimed_ids, "count": claimed_count}}, status=204)
+    return hx_trigger({
+        "unclaimedOrdersClaimed": {
+            "ids": claimed_ids,
+            "count": claimed_count
+        }
+    }, status=204)

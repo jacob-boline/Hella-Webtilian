@@ -1,5 +1,5 @@
 // hr_core/static_src/js/modules/events.js
-//
+
 // App-level custom-events.
 
 (function () {
@@ -318,8 +318,6 @@
                     const selectAll = document.getElementById('select-all-unclaimed');
                     if (selectAll) selectAll.checked = false;
 
-                    // Optional: if list is empty, disable submit button, etc.
-                    // safeCall(window.hrSite?.showGlobalMessage, `Claimed ${detail.count || matched.length} order(s).`, 3000);
 
                 }, REMOVE_MS);
 

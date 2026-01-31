@@ -58,9 +58,6 @@ function tryOpenModal (payload, attempts = 30) {
 
     if (loader && h && payload?.modalUrl) {
         const url = payload.modalUrl;
-        // loader.setAttribute('hx-get', payload.modalUrl);
-        // h.process(loader);
-        // h.trigger(loader, 'hr:loadModal');
         window.htmx.trigger(document.body, 'loadModal', {url});
         console.log('[tab-handoff] opening modal via hx-get', payload.modalUrl);
         return true;
@@ -70,7 +67,7 @@ function tryOpenModal (payload, attempts = 30) {
         console.warn('[tab-handoff] modal open failed: htmx/loader not ready', {
             hasLoader: !!loader,
             hasHtmx: !!h,
-            modalUrl: payload?.modalUrl,
+            modalUrl: payload?.modalUrl
         });
         return false;
     }
@@ -148,7 +145,6 @@ export function initTabHandoff (root = document) {
                         });
                     }
                 }
-                // cleanUrlKeepHash();
             });
         }
     }, 250);

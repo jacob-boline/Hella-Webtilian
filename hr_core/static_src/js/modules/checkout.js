@@ -1,5 +1,5 @@
 // hr_core/static_src/js/modules/checkout.js
-//
+
 // Checkout UI helpers (single-provider Stripe Embedded Checkout):
 //  - checkout details form: show/hide unit field based on building type
 //  - checkout pay: mount Stripe Embedded Checkout when #checkout-pay-root exists
@@ -116,7 +116,7 @@ function createFetchClientSecret ({endpoint, existingClientSecret, checkoutToken
             method: "POST",
             headers: buildSessionHeaders({checkoutToken}),
             body: JSON.stringify({}),
-            credentials: "same-origin",
+            credentials: "same-origin"
         });
 
         if (!resp.ok) {

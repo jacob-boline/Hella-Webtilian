@@ -1,5 +1,4 @@
 {# hr_shop/templates/hr_shop/checkout/_order_receipt_modal.html #}
-{# hr_shop/templates/hr_shop/_order_receipt_modal.html#}
 
 <div class="checkout-review-modal order-receipt-modal">
     <h2 class="sub-header modal-title">Order Receipt</h2>
@@ -83,8 +82,7 @@
             </p>
 
             <div class="modal-actions">
-                <button
-                        type="button"
+                <button type="button"
                         class="card-btn btn-neon btn-green"
                         hx-get="{% url 'hr_access:account_signup' %}"
                         hx-target="#modal-content"
@@ -97,8 +95,7 @@
 
     <div class="review-actions modal-actions inline uniform">
         {% if not is_guest %}
-            <button
-                    type="button"
+            <button type="button"
                     class="card-btn btn-neon btn-green btn-sm"
                     hx-get="{% url 'hr_access:account_get_orders' %}"
                     hx-target="#modal-content"

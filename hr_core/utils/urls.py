@@ -1,4 +1,5 @@
 # hr_core/utils/urls.py
+
 from __future__ import annotations
 
 from urllib.parse import urlencode

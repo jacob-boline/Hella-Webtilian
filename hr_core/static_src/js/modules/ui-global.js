@@ -223,9 +223,6 @@
         // ------------------------------
         // Post-purchase CTA dismiss animation hook (HTMX)
         // ------------------------------
-        // Note: We add a one-shot bypass flag on the button so re-triggering the click
-        // doesn't get re-intercepted and loop forever.
-
         document.body.addEventListener("htmx:beforeSwap", (e) => {
             const src = e.target;
             const btn = src?.closest?.("[data-cta-dismiss]");
@@ -369,10 +366,6 @@
             const hxGet = build ? build() : null;
 
             if (hxGet === null) return true; // unknown or missing params -> don't retry forever
-
-            // loader.setAttribute("hx-get", hxGet);
-            // window.htmx.process(loader);
-            // window.htmx.trigger(loader, "hr:loadModal");
 
             window.htmx.trigger(document.body, 'loadModal', {hxGet});
 

@@ -13,7 +13,7 @@ EMAIL_CHANGE_MAX_AGE = 60 * 60 * 24  # 24h
 @dataclass(frozen=True, slots=True)
 class EmailChangeToken:
     user_id: int
-    email: str  # new email
+    email: str
 
     def __post_init__(self):
         object.__setattr__(self, "user_id", int(self.user_id))

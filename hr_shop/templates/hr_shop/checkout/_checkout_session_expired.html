@@ -1,4 +1,5 @@
 {# hr_shop/templates/hr_shop/checkout/_checkout_session_expired.html #}
+
 {% load static %}
 
 <div class="checkout-session-expired flex-col-center">
@@ -19,7 +20,7 @@
                 class="card-btn btn-neon btn-green"
                 hx-get="{% url 'hr_shop:checkout_details' %}"
                 hx-target="#modal-content"
-                hx-swap="innerHTML">
+                hx-swap="innerHTML transition:true">
             <i class="fas fa-redo"></i> Start Again
         </button>
 
@@ -27,7 +28,7 @@
                 class="card-btn btn-neon btn-blue"
                 hx-get="{% url 'hr_shop:view_cart' %}"
                 hx-target="#modal-content"
-                hx-swap="innerHTML">
+                hx-swap="innerHTML transition:true">
             <i class="fas fa-shopping-cart"></i> View Cart
         </button>
     </div>
