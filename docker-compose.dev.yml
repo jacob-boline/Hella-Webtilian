@@ -1,0 +1,164 @@
+# docker-compose.dev.yml
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    container_name: hr_db_dev
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-hella_reptilian_dev}
+      - POSTGRES_USER=${POSTGRES_USER:-hruser}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-devpassword}
+    ports:
+      - "5432:5432"  # Expose for local DB tools
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-hruser}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - hr_network_dev
+
+  # Redis Cache & Queue
+  redis:
+    image: redis:7-alpine
+    container_name: hr_redis_dev
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data_dev:/data
+    ports:
+      - "6379:6379"  # Expose for Redis CLI
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - hr_network_dev
+
+  # Django Application with hot-reload
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: hr_web_dev
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./pyproject.toml:/home/app/web/pyproject.toml
+      - ./uv.lock:/home/app/web/uv.lock
+      # Mount source code for hot-reload
+      - ./hr_about:/home/app/web/hr_about
+      - ./hr_access:/home/app/web/hr_access
+      - ./hr_bulletin:/home/app/web/hr_bulletin
+      - ./hr_common:/home/app/web/hr_common
+      - ./hr_config:/home/app/web/hr_config
+      - ./hr_core:/home/app/web/hr_core
+      - ./hr_django:/home/app/web/hr_django
+      - ./hr_email:/home/app/web/hr_email
+      - ./hr_live:/home/app/web/hr_live
+      - ./hr_payment:/home/app/web/hr_payment
+      - ./hr_shop:/home/app/web/hr_shop
+      - ./hr_storage:/home/app/web/hr_storage
+      - ./manage.py:/home/app/web/manage.py
+      - ./vite.config.js:/home/app/web/vite.config.js
+      # Volumes for persistent data
+      - static_volume_dev:/home/app/web/staticfiles
+      - media_volume_dev:/home/app/web/media
+      - logs_volume_dev:/home/app/web/logs
+    ports:
+      - "8000:8000"  # Django dev server
+    env_file:
+      - .env.dev
+    environment:
+      - DJANGO_SETTINGS_MODULE=hr_config.settings.dev
+      - DB_HOST=db
+      - DB_PORT=5432
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - COLLECTSTATIC=false
+      - IN_DOCKER=1
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - hr_network_dev
+    stdin_open: true
+    tty: true
+
+  # Vite Dev Server (runs alongside Django)
+  vite:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: hr_vite_dev
+    entrypoint: [ "sh", "-lc" ]
+    command: "npm run vite:dev -- --host 0.0.0.0 --port 5173"
+    volumes:
+      - ./package-lock.json:/home/app/web/package-lock.json
+      - ./hr_core/static_src:/home/app/web/hr_core/static_src
+      - ./vite.config.js:/home/app/web/vite.config.js
+      - ./package.json:/home/app/web/package.json
+      - ./hr_core/static:/home/app/web/hr_core/static
+    ports:
+      - "5174:5173"  # Alternative port to avoid conflicts
+    environment:
+      - NODE_ENV=development
+      - VITE_DEV_HOST=0.0.0.0
+      - VITE_DEV_ORIGIN=http://localhost:5174
+      - IN_DOCKER=1
+    networks:
+      - hr_network_dev
+
+  # RQ Worker for background jobs
+  rq_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: hr_rq_worker_dev
+    command: python manage.py rqworker default
+    volumes:
+      - ./pyproject.toml:/home/app/web/pyproject.toml
+      - ./uv.lock:/home/app/web/uv.lock
+      - ./hr_core:/home/app/web/hr_core
+      - ./hr_payment:/home/app/web/hr_payment
+      - ./hr_shop:/home/app/web/hr_shop
+      - ./hr_email:/home/app/web/hr_email
+      - media_volume_dev:/home/app/web/media
+      - logs_volume_dev:/home/app/web/logs
+    env_file:
+      - .env.dev
+    environment:
+      - DJANGO_SETTINGS_MODULE=hr_config.settings.dev
+      - DB_HOST=db
+      - DB_PORT=5432
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - IN_DOCKER=1
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - hr_network_dev
+
+networks:
+  hr_network_dev:
+    driver: bridge
+
+volumes:
+  postgres_data_dev:
+    driver: local
+  redis_data_dev:
+    driver: local
+  static_volume_dev:
+    driver: local
+  media_volume_dev:
+    driver: local
+  logs_volume_dev:
+    driver: local
+

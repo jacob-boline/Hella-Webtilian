@@ -1,5 +1,7 @@
 # hr_config/settings/base.py
 
+import os
+
 from django.core.management.utils import get_random_secret_key
 from django.urls import reverse_lazy
 
@@ -7,14 +9,18 @@ from hr_config.settings.common import BASE_DIR
 
 # TODO - In Docker, it will be safer to move SECRET_KEY to the environment.
 #        Otherwise, if the file is recreated below, sessions/tokens = invalid.
+ENV_SECRET_KEY = (os.getenv("SECRET_KEY") or "").strip()
 SECRET_FILE = BASE_DIR / ".django_secret"
 
-if SECRET_FILE.exists():
-    SECRET_KEY = SECRET_FILE.read_text().strip()
+if ENV_SECRET_KEY:
+    SECRET_KEY = ENV_SECRET_KEY
 else:
-    SECRET_KEY = get_random_secret_key()
-    SECRET_FILE.write_text(SECRET_KEY)
-    SECRET_FILE.chmod(0o600)
+    if SECRET_FILE.exists():
+        SECRET_KEY = SECRET_FILE.read_text().strip()
+    else:
+        SECRET_KEY = get_random_secret_key()
+        SECRET_FILE.write_text(SECRET_KEY)
+        SECRET_FILE.chmod(0o600)
 
 CSRF_FAILURE_VIEW = "hr_common.utils.htmx_responses.csrf_failure"
 
@@ -108,10 +114,10 @@ STATICFILES_DIRS = [BASE_DIR / "hr_core" / "static"]
 # -----------------------------
 RQ_QUEUES = {
     "default": {
-        "HOST": "127.0.0.1",
-        "PORT": 6379,
+        "HOST": os.getenv("REDIS_HOST", "127.0.0.1"),
+        "PORT": int(os.getenv("REDIS_PORT", "6379")),
         "DB": 0,
-        "DEFAULT_TIMEOUT": 600,  # seconds
+        "DEFAULT_TIMEOUT": 600,
     }
 }
 

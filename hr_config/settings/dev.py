@@ -7,10 +7,13 @@ from dotenv import load_dotenv
 from hr_config.settings import sqlite as sqlite_settings
 from hr_config.settings.common import BASE_DIR, env_bool  # noqa
 
+IN_DOCKER = env_bool('IN_DOCKER', default=False)
+
 # ===============================================
 #  Environment
 # ===============================================
-load_dotenv(BASE_DIR / "hr_config" / "env" / "dev.env", override=False)
+if not IN_DOCKER:
+    load_dotenv(BASE_DIR / "hr_config" / "env" / "dev.env", override=False)
 
 DEBUG = True
 DEBUG_TOKENS = True
@@ -20,7 +23,26 @@ from hr_config.settings.base import *  # noqa
 # ===============================================
 #  Database
 # ===============================================
-DATABASES = sqlite_settings.DATABASES
+# ===============================================
+#  Database
+# ===============================================
+DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
+
+if DATABASE_URL:
+    # Use dj-database-url if installed; otherwise parse manually.
+    import dj_database_url  # type: ignore
+
+    DATABASES = {"default": dj_database_url.parse(DATABASE_URL, conn_max_age=60)}
+else:
+    DATABASES = sqlite_settings.DATABASES
+
+
+# --- Static files (dev) ---
+# Manifest storage is strict and will fail if built assets reference missing files.
+# In dev we prefer speed + resilience; prod will keep CompressedManifestStaticFilesStorage.
+STORAGES["staticfiles"] = {
+    "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+}
 
 
 # ===============================================

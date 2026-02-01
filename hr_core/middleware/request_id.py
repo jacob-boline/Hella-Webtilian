@@ -2,7 +2,7 @@
 from django.http import HttpRequest, HttpResponse
 from structlog.contextvars import clear_contextvars
 
-from utils.unified_logging import generate_request_id, REQUEST_ID_HEADER, REQUEST_ID_META_KEY, reset_request_id, set_request_id
+from hr_common.utils.unified_logging import generate_request_id, REQUEST_ID_HEADER, REQUEST_ID_META_KEY, reset_request_id, set_request_id
 
 
 # 1) RequestIdMiddleware

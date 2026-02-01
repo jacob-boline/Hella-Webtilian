@@ -1,0 +1,75 @@
+FROM python:3.11-slim-bookworm
+
+# Create app user and group
+RUN groupadd -r app && useradd -r -g app app
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    DJANGO_SETTINGS_MODULE=hr_config.settings.dev
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    imagemagick \
+    netcat-openbsd \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Node.js for Vite dev server
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install uv for faster Python package management
+RUN pip install uv
+
+# Create directory structure
+RUN mkdir -p /home/app/web && \
+    mkdir -p /home/app/web/staticfiles && \
+    mkdir -p /home/app/web/media && \
+    mkdir -p /home/app/web/logs
+
+WORKDIR /home/app/web
+
+# Copy dependency files first (for layer caching)
+COPY pyproject.toml uv.lock ./
+
+# Create virtual environment (stdlib) and install dependencies with uv into it
+ENV UV_PROJECT_ENVIRONMENT=/opt/venv
+ENV VIRTUAL_ENV=/opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+RUN python -m venv /opt/venv && \
+    /opt/venv/bin/python -m pip install --upgrade pip && \
+    uv sync --frozen && \
+    rm -rf /home/app/web/.venv
+
+# Make venv writable by app user (so runtime uv sync works)
+RUN chown -R app:app /opt/venv
+
+
+# Copy package files for Node
+COPY package.json package-lock.json ./
+RUN npm install
+
+# Copy application code
+# In dev mode, we'll mount the code as a volume for hot-reload
+COPY . .
+
+# Copy entrypoint script
+COPY docker/entrypoint.dev.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Set ownership
+RUN chown -R app:app /home/app
+
+# Switch to non-root user
+USER app
+
+EXPOSE 8000 5173
+
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

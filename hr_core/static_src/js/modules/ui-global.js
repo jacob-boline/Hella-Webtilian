@@ -353,13 +353,8 @@
                     const token = (params.get("t") || "").trim();
                     if (!token) return null;
                     return `/access/account/signup/confirm/?t=${encodeURIComponent(token)}`;
-                },
-
-                email_change_confirm: () => {
-                    const token = (params.get("t") || "").trim();
-                    if (!token) return null;
-                    return `/access/account/email-change/confirm/?t=${encodeURIComponent(token)}`;
                 }
+
             };
 
             const build = routes[modal];
@@ -377,8 +372,7 @@
                     const qs = cleanParams.toString();
                     const clean = window.location.pathname + (qs ? `?${qs}` : "") + window.location.hash;
                     window.history.replaceState({}, "", clean);
-                } catch (e) {
-                }
+                } catch (e) { }
             }, 0);
 
             return true;

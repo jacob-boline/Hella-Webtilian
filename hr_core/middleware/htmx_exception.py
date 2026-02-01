@@ -21,7 +21,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpRequest, HttpResponse
 
 from hr_common.utils.htmx_responses import likely_session_expired
-from utils.http.htmx import is_htmx
+from hr_common.utils.http.htmx import is_htmx
 
 
 class HtmxExceptionMiddleware:
