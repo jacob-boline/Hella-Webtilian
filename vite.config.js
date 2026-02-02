@@ -3,41 +3,42 @@
 import path from "path";
 import {defineConfig} from "vite";
 
-export default defineConfig(({ mode }) => {
-  const isDev = mode !== "production";
+export default defineConfig(({mode}) => {
+    const isDev = mode !== "production";
 
-  const publicHost = process.env.VITE_PUBLIC_HOST || "";
-  const usingTunnel = isDev && !!publicHost;
+    const publicHost = process.env.VITE_PUBLIC_HOST || "";
+    const usingTunnel = isDev && !!publicHost;
 
-  const devHost = process.env.VITE_DEV_HOST || "127.0.0.1";
-  const devOrigin = process.env.VITE_DEV_ORIGIN || `http://${devHost}:5173`;
-  const hmrHost = devHost === "0.0.0.0" ? "localhost" : devHost;
+    const devHost = process.env.VITE_DEV_HOST || "127.0.0.1";  // aka local w/ docker || local w/out docker
+    const devOrigin = process.env.VITE_DEV_ORIGIN || `http://${devHost}:5173`;  // same as above, typically  (5174||5173)
+    const hmrHost = devHost === "0.0.0.0" ? "localhost" : devHost;
+    const hmrClientPort = parseInt(process.env.VITE_HMR_CLIENT_PORT || '5173', 10); // typically should match devOrigin
 
-  return {
-    root: path.resolve(__dirname, "hr_core/static_src"),
-    base: isDev ? "/" : "/static/hr_core/dist/",
+    return {
+        root: path.resolve(__dirname, "hr_core/static_src"),
+        base: isDev ? "/" : "/static/hr_core/dist/",
 
-    server: {
-      strictPort: true,
-      port: 5173,
-      host: devHost,
-      origin: usingTunnel ? `https://${publicHost}` : devOrigin,
+        server: {
+            strictPort: true,
+            port: 5173,
+            host: devHost,
+            origin: usingTunnel ? `https://${publicHost}` : devOrigin,
 
-      watch: { usePolling: true, interval: 100 },
+            watch: {usePolling: true, interval: 100},
 
-      hmr: usingTunnel
-        ? { protocol: "wss", host: publicHost, clientPort: 443 }
-        : { protocol: "ws", host: hmrHost, port: 5173 },
-    },
+            hmr: usingTunnel
+                ? {protocol: "wss", host: publicHost, clientPort: 443}
+                : {protocol: "ws", host: hmrHost, clientPort: hmrClientPort}
+        },
 
-    build: {
-      manifest: "manifest.json",
-      outDir: path.resolve(__dirname, "hr_core/static/hr_core/dist"),
-      emptyOutDir: true,
-      rollupOptions: {
-        input: { main: path.resolve(__dirname, "hr_core/static_src/js/main.js") },
-      },
-    },
-  };
+        build: {
+            manifest: "manifest.json",
+            outDir: path.resolve(__dirname, "hr_core/static/hr_core/dist"),
+            emptyOutDir: true,
+            rollupOptions: {
+                input: {main: path.resolve(__dirname, "hr_core/static_src/js/main.js")}
+            }
+        }
+    };
 });
 
