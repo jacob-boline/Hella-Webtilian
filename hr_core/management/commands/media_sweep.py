@@ -1,13 +1,5 @@
 # hr_core/management/commands/media_sweep.py
 
-# ================================================
-#  DEV - python manage.py rqworker default
-#
-#  PROD - cron job ~10min:
-#       python manage.py media_sweep --recipe wipe
-#       python manage.py media_sweep --recipe background
-# ===============================================
-
 from pathlib import Path
 
 import django_rq
@@ -32,29 +24,34 @@ class Command(BaseCommand):
         keys = [recipe_key] if recipe_key else list(RECIPES.keys())
 
         q = django_rq.get_queue("default")
-        media_root = Path(settings.MEDIA_ROOT)
-
         enqueued = 0
 
         for key in keys:
             recipe = RECIPES[key]
-            src_dir = media_root / recipe.src_rel_dir
+
+            if recipe.src_root == "media":
+                root = Path(settings.MEDIA_ROOT)
+            elif recipe.src_root == "static_src":
+                root = Path(settings.STATIC_SOURCE_ROOT)
+            else:
+                self.stdout.write(self.style.WARNING(f"Unknown src_root for recipe {key}: {recipe.src_root} (skip)"))
+                continue
+
+            src_dir = root / recipe.src_rel_dir
 
             if not src_dir.exists():
                 self.stdout.write(self.style.WARNING(f"Missing dir: {src_dir} (skip)"))
                 continue
 
             for p in src_dir.iterdir():
-                if not p.is_file():
-                    continue
-                if p.name.startswith("."):
+                if not p.is_file() or p.name.startswith("."):
                     continue
 
-                # only source images
-                if p.suffix.lower() not in {".jpg", ".jpeg", ".png", ".webp"}:
+                if p.suffix.lower() not in {".jpg", ".jpeg", ".png", ".webp", ".avif"}:
                     continue
 
-                rel = str(p.relative_to(media_root))
+                # For static_src recipes, pass path relative to STATIC_SOURCE_ROOT
+                rel = str(p.relative_to(root))
                 q.enqueue("hr_core.media_jobs.generate_variants_for_file", key, rel)
                 enqueued += 1
 

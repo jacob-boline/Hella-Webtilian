@@ -2,6 +2,7 @@
 @import '@fortawesome/fontawesome-free/css/all.min.css';
 @import './base/core.css';
 @import './base/parallax.css';
+@import './generated/responsive_backgrounds.css';
 @import './utilities/a11y.css';
 @import './utilities/utilities.css';
 @import './components/modal-ui.css';

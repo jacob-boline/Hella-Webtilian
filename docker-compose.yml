@@ -13,7 +13,7 @@ services:
       - POSTGRES_USER=${POSTGRES_USER:-hruser}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-hruser}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-hruser} -d ${POSTGRES_DB:-hella_reptilian}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -64,7 +64,11 @@ services:
       - hr_network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8000/health/ || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/', timeout=3).read()\" || exit 1"
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -115,7 +119,7 @@ services:
       - hr_network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost/health/ || exit 1"]
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://127.0.0.1/health/ || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -137,4 +141,3 @@ volumes:
     driver: local
   nginx_logs:
     driver: local
-

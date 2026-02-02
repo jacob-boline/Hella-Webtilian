@@ -7,7 +7,8 @@
 @font-face {
     font-family: "Bungee Hairline";
     font-display: swap;
-    src: url("/static/hr_core/fonts/BungeeHairline-Regular.woff2") format("woff2");
+    src: url("/static/hr_core/fonts/BungeeHairline-Regular.woff2") format("woff2"),
+         url("/static/hr_core/fonts/BungeeHairline-Regular.ttf") format("truetype");
 
     ascent-override:  90%;
     descent-override: 20%;
@@ -18,13 +19,15 @@
 @font-face {
     font-family: "Megrim";
     font-display: swap;
-    src: url("/static/hr_core/fonts/Megrim-Regular.woff2") format("woff2");
+    src: url("/static/hr_core/fonts/Megrim-Regular.woff2") format("woff2"),
+         url("/static/hr_core/fonts/Megrim-Regular.ttf") format("truetype");
 }
 
 @font-face {
     font-family: "Quantico";
     font-display: swap;
-    src: url("/static/hr_core/fonts/Quantico-Regular.woff2") format("woff2");
+    src: url("/static/hr_core/fonts/Quantico-Regular.woff2") format("woff2"),
+         url("/static/hr_core/fonts/Quantico-Regular.ttf") format("truetype");
     font-weight: 400;
     font-style: normal;
 }
@@ -32,7 +35,8 @@
 @font-face {
     font-family: "Quantico";
     font-display: swap;
-    src: url("/static/hr_core/fonts/Quantico-Bold.woff2") format("woff2");
+    src: url("/static/hr_core/fonts/Quantico-Bold.woff2") format("woff2"),
+         url("/static/hr_core/fonts/Quantico-Bold.ttf") format("truetype");
     font-weight: 700;
     font-style: normal;
 }
@@ -40,7 +44,8 @@
 @font-face {
     font-family: "Quantico";
     font-display: swap;
-    src: url("/static/hr_core/fonts/Quantico-Italic.woff2") format("woff2");
+    src: url("/static/hr_core/fonts/Quantico-Italic.woff2") format("woff2"),
+         url("/static/hr_core/fonts/Quantico-Italic.ttf") format("truetype");
     font-weight: 400;
     font-style: italic;
 }
@@ -48,7 +53,8 @@
 @font-face {
     font-family: "Quantico";
     font-display: swap;
-    src: url("/static/hr_core/fonts/Quantico-BoldItalic.woff2") format("woff2");
+    src: url("/static/hr_core/fonts/Quantico-BoldItalic.woff2") format("woff2"),
+         url("/static/hr_core/fonts/Quantico-BoldItalic.ttf") format("truetype");
     font-weight: 700;
     font-style: italic;
 }
@@ -56,26 +62,24 @@
 @font-face {
     font-family: "KARNIVBL";
     font-display: swap;
-    src: url("/static/hr_core/fonts/KARNIVBL.ttf") format("truetype");
+    src: url("/static/hr_core/fonts/KARNIVBL.woff2") format("woff2"),
+         url("/static/hr_core/fonts/KARNIVBL.ttf") format("truetype");
 }
-
-/*@font-face {*/
-/*    font-family: "Tilt Prism";*/
-/*    font-display: swap;*/
-/*    src: url("/static/hr_core/fonts/TiltPrism-Regular.woff2") format("woff2");*/
-/*}*/
 
 @font-face {
     font-family: "Exo 2";
     font-display: swap;
-    src: url("/static/hr_core/fonts/Exo2-VariableFont_wght.woff2") format("woff2");
+    src: url("/static/hr_core/fonts/Exo2-VariableFont_wght.woff2") format("woff2"),
+         url("/static/hr_core/fonts/Exo2-VariableFont_wght.ttf") format("truetype");
 }
 
 @font-face {
     font-family: "Syne Mono";
     font-display: swap;
-    src: url("/static/hr_core/fonts/SyneMono-Regular.woff2") format("woff2");
+    src: url("/static/hr_core/fonts/SyneMono-Regular.woff2") format("woff2"),
+         url("/static/hr_core/fonts/SyneMono-Regular.ttf") format("truetype");
 }
+
 
 /* ===========================
    Root design tokens

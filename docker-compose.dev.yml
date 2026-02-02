@@ -17,7 +17,7 @@ services:
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-hruser} -d ${POSTGRES_DB:-hella_reptilian_dev}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-hruser} -d ${POSTGRES_DB:-hella_reptilian_dev}" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -37,7 +37,7 @@ services:
     ports:
       - "6379:6379"
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -80,10 +80,10 @@ services:
       - static_volume_dev:/home/app/web/staticfiles
       - media_volume_dev:/home/app/web/media
       - logs_volume_dev:/home/app/web/logs
-      - seed_data_dev:/home/app/web/seed_data
-      -
-    ports:
-      - "8000:8000"
+      - seed_data_dev:/home/app/web/_seed_data
+
+    #    ports:
+    #      - "8000:8000"
     env_file:
       - .env.dev
     environment:
@@ -106,6 +106,29 @@ services:
 
 
   # ====================== #
+  #         Nginx          #
+  # ====================== #
+  nginx:
+    build:
+      context: ./docker/nginx
+      dockerfile: Dockerfile
+    container_name: hr_nginx_dev
+    depends_on:
+      - web
+    ports:
+      - "8080:80"
+    volumes:
+      # nginx.conf expects these paths
+      - static_volume_dev:/home/app/web/staticfiles:ro
+      - media_volume_dev:/home/app/web/media:ro
+
+      # optional: persist nginx logs for easy tailing
+      - nginx_logs_dev:/var/log/nginx
+    networks:
+      - hr_network_dev
+
+
+  # ====================== #
   #         Vite           #
   # ====================== #
   vite:
@@ -113,9 +136,9 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     container_name: hr_vite_dev
-#    entrypoint: [ "sh", "-lc" ]
-#    command: "npm run vite:dev -- --host 0.0.0.0 --port 5173"
-    command: [ "npm", "run", "vite:dev", "--", "--host", "0.0.0.0", "--port", "5173" ]
+    #    entrypoint: [ "sh", "-lc" ]
+    #    command: "npm run vite:dev -- --host 0.0.0.0 --port 5173"
+    command: ["sh", "-lc", "python manage.py build_responsive_backgrounds && npm run vite:dev -- --host 0.0.0.0 --port 5173"]
     volumes:
       - ./package-lock.json:/home/app/web/package-lock.json
       - ./hr_core/static_src:/home/app/web/hr_core/static_src
@@ -151,7 +174,7 @@ services:
       - ./hr_email:/home/app/web/hr_email
       - media_volume_dev:/home/app/web/media
       - logs_volume_dev:/home/app/web/logs
-      - seed_data_dev:/home/app/web/seed_data
+      - seed_data_dev:/home/app/web/_seed_data
     env_file:
       - .env.dev
     environment:
@@ -187,4 +210,6 @@ volumes:
   logs_volume_dev:
     driver: local
   seed_data_dev:
+    driver: local
+  nginx_logs_dev:
     driver: local

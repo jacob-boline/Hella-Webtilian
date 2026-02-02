@@ -117,6 +117,11 @@ MEDIA_ROOT = BASE_DIR / "media"
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+STATIC_SOURCE_ROOT = BASE_DIR / "hr_core" / "static_src" / "images"
+STATIC_VARIANTS_ROOT = BASE_DIR / "hr_core" / "static" / "hr_core" / "generated"
+
+REPO_STATIC_ROOT = BASE_DIR / "hr_core" / "static"
+
 STORAGES = {
     "default":     {"BACKEND": "django.core.files.storage.FileSystemStorage"},
     "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"}
