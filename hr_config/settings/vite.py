@@ -28,11 +28,15 @@ else:
 # }
 
 
+dev_server_host = os.environ.get("VITE_DEV_SERVER_HOST", "127.0.0.1")
+if dev_server_host in {"0.0.0.0", "::"}:
+    dev_server_host = "localhost"
+
 DJANGO_VITE = {
     "default": {
         "dev_mode": env_bool("DJANGO_VITE_DEV_MODE", default=True),
         "dev_server_protocol": "http",
-        "dev_server_host": os.environ.get("VITE_DEV_SERVER_HOST", "127.0.0.1"),
+        "dev_server_host": dev_server_host,
         "dev_server_port": int(os.environ.get("VITE_DEV_SERVER_PORT", "5173")),
         "static_url_prefix": "/static/hr_core/dist/",  # prod prefix only
         "manifest_path": str(DJANGO_VITE_MANIFEST_PATH),

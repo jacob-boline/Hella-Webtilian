@@ -104,11 +104,11 @@ services:
       - ./package.json:/home/app/web/package.json
       - ./hr_core/static:/home/app/web/hr_core/static
     ports:
-      - "5174:5173"  # Alternative port to avoid conflicts
+      - "5173:5173"
     environment:
       - NODE_ENV=development
       - VITE_DEV_HOST=0.0.0.0
-      - VITE_DEV_ORIGIN=http://localhost:5174
+      - VITE_DEV_ORIGIN=http://localhost:5173
       - IN_DOCKER=1
     networks:
       - hr_network_dev
