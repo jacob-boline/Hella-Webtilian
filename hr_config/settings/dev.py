@@ -65,6 +65,9 @@ MIDDLEWARE.insert(2, "debug_toolbar.middleware.DebugToolbarMiddleware")
 MIDDLEWARE.append("django_browser_reload.middleware.BrowserReloadMiddleware")
 MIDDLEWARE.append('hr_core.middleware.media_cache.MediaCacheMiddleware')
 
+
+TEMPLATES[0]["OPTIONS"]["context_processors"].append('hr_common.context_processors.template_flags')
+
 WHITENOISE_USE_FINDERS = True
 
 

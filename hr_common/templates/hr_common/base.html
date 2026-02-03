@@ -18,7 +18,7 @@
     <link rel="apple-touch-icon" href="{% static 'icons/apple-touch-icon.png' %}">
     <link rel="manifest" href="{% static 'icons/site.webmanifest' %}">
 
-    {% if debug %}
+    {% if debug|default:False %}
         {% vite_hmr_client %}
     {% endif %}
     {% vite_asset 'js/main.js' %}

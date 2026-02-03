@@ -28,7 +28,7 @@ LOGGING = {
             "encoding": "utf-8",
             "utc": True,
             "delay": True,
-            "level": LOG_LEVEL,
+            "level": LOG_LEVEL
         },
         "error_file": {
             "class": "concurrent_log_handler.ConcurrentTimedRotatingFileHandler",
@@ -39,19 +39,34 @@ LOGGING = {
             "encoding": "utf-8",
             "utc": True,
             "delay": True,
-            "level": "ERROR",
-        },
+            "level": "ERROR"
+        }
     },
     # Root is the "meta/all log" funnel.
     # ERROR+ will automatically also go to error_file because that handler is level-gated.
     "root": {"handlers": ["console", "file", "error_file"], "level": LOG_LEVEL},
+
     # Keep only special cases here; everything else can propagate to root.
     "loggers": {
-        # Let Django logs flow to root; tighten/loosen with DJANGO_LOG_LEVEL.
-        "django": {"level": DJANGO_LOG_LEVEL, "propagate": True},
-        # Requests are noisy at INFO; keep them as errors.
-        "django.request": {"level": "ERROR", "propagate": True},
-        # SQL logging toggle: LOG_SQL=1 in hr_config.settins.dev
-        "django.db.backends": {"level": "WARNING", "propagate": True},
-    },
+        "django.utils.autoreload": {  # Autoreload file-watch chatter (dev). Not useful unless debugging reload issues.
+            "level": "WARNING",
+            "propagate": True
+        },
+        "django": {  # Let Django logs flow to root; tighten/loosen with DJANGO_LOG_LEVEL.
+            "level": DJANGO_LOG_LEVEL,
+            "propagate": True
+        },
+        "django.request": {  # Requests are noisy at INFO; keep them as errors.
+            "level": "ERROR",
+            "propagate": True
+        },
+        "django.db.backends": {  # SQL logging toggle: LOG_SQL=1 in hr_config.settins.dev
+            "level": "WARNING",
+            "propagate": True
+        },
+        "django.server": {  # Dev server request log / startup messages
+            "level": "INFO",
+            "propagate": True
+        }
+    }
 }
