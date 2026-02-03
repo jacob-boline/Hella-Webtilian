@@ -176,7 +176,7 @@ wait_for_web_http() {
 
   echo -n "Waiting for Django HTTP ${path}"
   while true; do
-    if $DC -f "$COMPOSE_FILE" exec -T web sh -lc "curl -fsS http://127.0.0.1:8000${path} >/dev/null"; then
+    if $DC -f "$COMPOSE_FILE" exec -T web sh -lc "curl -fsS http://localhost:8000${path} >/dev/null"; then
       echo " ✓"
       return 0
     fi

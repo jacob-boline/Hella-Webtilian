@@ -18,12 +18,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Node.js for Vite dev server
+# Install Node for Vite
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
     rm -rf /var/lib/apt/lists/*
 
-# Install uv for faster Python package management
+# Install uv
 RUN pip install uv
 
 # Create directory structure
@@ -56,7 +56,7 @@ COPY package.json package-lock.json ./
 RUN npm install
 
 # Copy application code
-# In dev mode, we'll mount the code as a volume for hot-reload
+# In dev, mount the code as a volume for hot-reload
 COPY . .
 
 # Copy entrypoint script

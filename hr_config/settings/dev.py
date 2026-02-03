@@ -19,10 +19,10 @@ DEBUG = True
 DEBUG_TOKENS = True
 
 from hr_config.settings.base import *  # noqa
+from hr_config.django_vite_patch import patch_django_vite_dev_url
 
-# ===============================================
-#  Database
-# ===============================================
+patch_django_vite_dev_url()
+
 # ===============================================
 #  Database
 # ===============================================

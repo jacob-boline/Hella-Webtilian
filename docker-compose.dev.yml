@@ -1,7 +1,10 @@
 # docker-compose.dev.yml
 
 services:
-  # PostgreSQL Database
+
+  # ====================== #
+  #       Postgres         #
+  # ====================== #
   db:
     image: postgres:16-alpine
     container_name: hr_db_dev
@@ -12,16 +15,19 @@ services:
       - POSTGRES_USER=${POSTGRES_USER:-hruser}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-devpassword}
     ports:
-      - "5432:5432"  # Expose for local DB tools
+      - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-hruser}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-hruser} -d ${POSTGRES_DB:-hella_reptilian_dev}" ]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
       - hr_network_dev
 
-  # Redis Cache & Queue
+
+  # ====================== #
+  #        Redis           #
+  # ====================== #
   redis:
     image: redis:7-alpine
     container_name: hr_redis_dev
@@ -29,16 +35,19 @@ services:
     volumes:
       - redis_data_dev:/data
     ports:
-      - "6379:6379"  # Expose for Redis CLI
+      - "6379:6379"
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 3s
       retries: 5
     networks:
       - hr_network_dev
 
-  # Django Application with hot-reload
+
+  # ====================== #
+  #        Django          #
+  # ====================== #
   web:
     build:
       context: .
@@ -46,8 +55,11 @@ services:
     container_name: hr_web_dev
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
+
+      # Config
       - ./pyproject.toml:/home/app/web/pyproject.toml
       - ./uv.lock:/home/app/web/uv.lock
+
       # Mount source code for hot-reload
       - ./hr_about:/home/app/web/hr_about
       - ./hr_access:/home/app/web/hr_access
@@ -63,12 +75,15 @@ services:
       - ./hr_storage:/home/app/web/hr_storage
       - ./manage.py:/home/app/web/manage.py
       - ./vite.config.js:/home/app/web/vite.config.js
-      # Volumes for persistent data
+
+      # Volumes
       - static_volume_dev:/home/app/web/staticfiles
       - media_volume_dev:/home/app/web/media
       - logs_volume_dev:/home/app/web/logs
-    ports:
-      - "8000:8000"  # Django dev server
+      - seed_data_dev:/home/app/web/_seed_data
+
+    #    ports:
+    #      - "8000:8000"
     env_file:
       - .env.dev
     environment:
@@ -91,14 +106,41 @@ services:
     stdin_open: true
     tty: true
 
-  # Vite Dev Server (runs alongside Django)
+
+  # ====================== #
+  #         Nginx          #
+  # ====================== #
+  nginx:
+    build:
+      context: ./docker/nginx
+      dockerfile: Dockerfile
+    container_name: hr_nginx_dev
+    depends_on:
+      - web
+    ports:
+      - "8080:80"
+    volumes:
+      # nginx.conf expects these paths
+      - static_volume_dev:/home/app/web/staticfiles:ro
+      - media_volume_dev:/home/app/web/media:ro
+
+      # optional: persist nginx logs for easy tailing
+      - nginx_logs_dev:/var/log/nginx
+    networks:
+      - hr_network_dev
+
+
+  # ====================== #
+  #         Vite           #
+  # ====================== #
   vite:
     build:
       context: .
       dockerfile: Dockerfile.dev
     container_name: hr_vite_dev
-    entrypoint: [ "sh", "-lc" ]
-    command: "npm run vite:dev -- --host 0.0.0.0 --port 5173"
+    #    entrypoint: [ "sh", "-lc" ]
+    #    command: "npm run vite:dev -- --host 0.0.0.0 --port 5173"
+    command: ["sh", "-lc", "python manage.py build_responsive_backgrounds && npm run vite:dev -- --host 0.0.0.0 --port 5173"]
     volumes:
       - ./package-lock.json:/home/app/web/package-lock.json
       - ./hr_core/static_src:/home/app/web/hr_core/static_src
@@ -110,12 +152,15 @@ services:
     environment:
       - NODE_ENV=development
       - VITE_DEV_HOST=0.0.0.0
-      - VITE_DEV_ORIGIN=http://localhost:5174
+      - VITE_DEV_ORIGIN=http://localhost:5174  # This is for absolute URLs injected by Vite, aka tells the browser where to look for the server (host port in Docker)
+      - VITE_HMR_CLIENT_PORT=5174  # The port the browser should use for HMR WebSocket connections
       - IN_DOCKER=1
     networks:
       - hr_network_dev
 
-  # RQ Worker for background jobs
+  # ====================== #
+  #       RQ Worker        #
+  # ====================== #
   rq_worker:
     build:
       context: .
@@ -131,6 +176,7 @@ services:
       - ./hr_email:/home/app/web/hr_email
       - media_volume_dev:/home/app/web/media
       - logs_volume_dev:/home/app/web/logs
+      - seed_data_dev:/home/app/web/_seed_data
     env_file:
       - .env.dev
     environment:
@@ -170,6 +216,7 @@ networks:
   hr_network_dev:
     driver: bridge
 
+
 volumes:
   postgres_data_dev:
     driver: local
@@ -180,6 +227,8 @@ volumes:
   media_volume_dev:
     driver: local
   logs_volume_dev:
+    driver: local
+  seed_data_dev:
     driver: local
   nginx_logs_dev:
     driver: local
