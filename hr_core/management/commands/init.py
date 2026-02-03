@@ -138,9 +138,11 @@ class Command(BaseCommand):
         self.stdout.write("→ Wiping seeded media folders…")
         media_root = Path(settings.MEDIA_ROOT)
         to_wipe = [
+            media_root / "backgrounds",
             media_root / "hr_about",
             media_root / "variants",
             media_root / "posts",
+            media_root / "wipes",
         ]
         for p in to_wipe:
             if p.exists() and p.is_dir():
