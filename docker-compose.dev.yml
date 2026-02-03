@@ -94,6 +94,8 @@ services:
       - REDIS_PORT=6379
       - COLLECTSTATIC=false
       - IN_DOCKER=1
+      - VITE_DEV_SERVER_HOST=localhost
+      - VITE_DEV_SERVER_PORT=5174
     depends_on:
       db:
         condition: service_healthy
@@ -192,6 +194,23 @@ services:
     networks:
       - hr_network_dev
 
+  # Nginx Reverse Proxy (serves /media/ only; Vite serves static assets)
+  nginx:
+    build:
+      context: ./docker/nginx
+      dockerfile: Dockerfile
+    container_name: hr_nginx_dev
+    volumes:
+      - media_volume_dev:/home/app/web/media:ro
+      - nginx_logs_dev:/var/log/nginx
+      - ./docker/nginx/nginx.dev.conf:/etc/nginx/conf.d/nginx.conf:ro
+    ports:
+      - "${NGINX_PORT_DEV:-8080}:80"
+    depends_on:
+      - web
+    networks:
+      - hr_network_dev
+    restart: unless-stopped
 
 networks:
   hr_network_dev:

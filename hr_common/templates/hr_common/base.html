@@ -18,14 +18,9 @@
     <link rel="apple-touch-icon" href="{% static 'icons/apple-touch-icon.png' %}">
     <link rel="manifest" href="{% static 'icons/site.webmanifest' %}">
 
-{#    {% if debug %}#}
-{#        <script type="module" src="http://127.0.0.1:5173/@vite/client"></script>#}
-{#        <script type="module" src="http://127.0.0.1:5173/js/main.js"></script>#}
-{#    {% else %}#}
-{#        {% vite_asset 'js/main.js' %}#}
-{#    {% endif %}#}
-
-    {% vite_hmr_client %}
+    {% if debug %}
+        {% vite_hmr_client %}
+    {% endif %}
     {% vite_asset 'js/main.js' %}
 
     <script src="https://js.stripe.com/v3" defer></script>
