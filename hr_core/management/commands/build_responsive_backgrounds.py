@@ -28,8 +28,8 @@ def _imageset_lines(bucket: str, subdir: str, stem: str, widths: tuple[int, ...]
     lines: list[str] = []
     for w, d in zip(widths, densities, strict=False):
         # This is a *URL path* at runtime, but in CSS it’s fine.
-        # Nginx/Django will serve /static/hr_core/generated/... in prod.
-        url = f'/static/hr_core/generated/{bucket}/{subdir}/{stem}-{w}w.webp'
+        # Nginx/Django will serve /static/hr_core/images/... in prod.
+        url = f'/static/hr_core/images/{bucket}/{subdir}/{stem}-{w}w.webp'
         lines.append(f'      url("{url}") type("image/webp") {d},')
     if lines:
         lines[-1] = lines[-1].rstrip(",")  # remove trailing comma on last entry

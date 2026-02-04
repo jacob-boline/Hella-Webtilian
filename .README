@@ -60,6 +60,22 @@ DEV RUN ORDER:
 
 ==========================
 ==========================
+## Media pipeline overview (5 image types)
+
+The app handles five image types. Three are model-backed ImageFields that flow through the media pipeline, and two are repo static assets (backgrounds/wipes) that flow through the static pipeline.
+
+**Post hero images (`Post`).** These live under `MEDIA_ROOT/posts/hero/...` from seed data or uploads. When a `Post` image is saved, its app signal triggers the `post_hero` recipe in `hr_core.media_jobs`, which generates `opt` WebP variants (640–1600w) next to the source. Templates use the `responsive_images` template tags to build `/media/.../opt/...` `srcset` URLs.
+
+**Product images (`ProductImage`).** These live under `MEDIA_ROOT/variants/...`. Saving the ImageField triggers the `variant` recipe, producing `opt_webp` variants (256–768w) alongside the original. Templates build `/media/.../opt_webp/...` `srcset` URLs.
+
+**Carousel slides (`CarouselSlide`).** These live under `MEDIA_ROOT/hr_about/...`. Saving the ImageField triggers the `about` recipe, producing `opt_webp` variants (640–1920w). Templates build `/media/.../opt_webp/...` `srcset` URLs.
+
+**Section backgrounds (parallax).** These are repo static assets seeded into `hr_core/static/hr_core/images/backgrounds/...` via `python manage.py seed_media_assets`. When you run `python manage.py media_sweep`, it enqueues the `bg_section` recipe to generate `bg_opt` WebP variants alongside the sources in the repo static tree. `python manage.py build_responsive_backgrounds` reads `hr_core/config/backgrounds_config.py` and generates CSS that references `/static/hr_core/images/backgrounds/...` URLs.
+
+**Section wipes.** These are repo static assets seeded into `hr_core/static/hr_core/images/wipes/...` via `python manage.py seed_media_assets`. `python manage.py media_sweep` enqueues the `wipe_section` recipe, which generates `opt_webp` WebP variants next to the originals. `python manage.py build_responsive_backgrounds` reads `hr_core/config/backgrounds_config.py` and generates CSS that references `/static/hr_core/images/wipes/...` URLs.
+
+==========================
+==========================
 ## SMTP configuration
 
 - **Default provider:** Mailjet. Switch to Zoho with `EMAIL_PROVIDER=zoho`.

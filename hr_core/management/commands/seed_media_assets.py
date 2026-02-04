@@ -8,7 +8,7 @@ from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
-    help = "Authoritative media seeding. Deletes and recreates seeded media folders."
+    help = "Authoritative media seeding. Deletes and recreates seeded static media folders."
 
     def handle(self, *args, **options):
         seed_base = Path(settings.BASE_DIR) / "_seed_data" / "media"
@@ -16,11 +16,11 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING(f"No _seed_data/media directory at {seed_base}"))
             return
 
-        media_root = Path(settings.MEDIA_ROOT)
+        static_root = Path(settings.REPO_STATIC_ROOT) / "hr_core" / "images"
 
         for rel_dir in ("backgrounds", "wipes"):
             src_dir = seed_base / rel_dir
-            dest_dir = media_root / rel_dir
+            dest_dir = static_root / rel_dir
 
             if not src_dir.exists():
                 self.stdout.write(self.style.WARNING(f"Missing seed folder: {src_dir} (skip)"))
