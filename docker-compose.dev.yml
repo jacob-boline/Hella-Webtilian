@@ -76,12 +76,12 @@ services:
       - ./hr_storage:/home/app/web/hr_storage
       - ./manage.py:/home/app/web/manage.py
       - ./vite.config.js:/home/app/web/vite.config.js
+      - ./_seed_data:/home/app/web/_seed_data
 
       # Volumes
       - static_volume_dev:/home/app/web/staticfiles
       - media_volume_dev:/home/app/web/media
       - logs_volume_dev:/home/app/web/logs
-      - seed_data_dev:/home/app/web/_seed_data
 
     env_file:
       - .env.dev
@@ -107,6 +107,11 @@ services:
       - hr_network_dev
     stdin_open: true
     tty: true
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 8000"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
 
 
   # ====================== #
@@ -191,7 +196,8 @@ services:
     ports:
       - "${NGINX_PORT_DEV:-8080}:80"
     depends_on:
-      - web
+      web:
+        condition: service_healthy
     networks:
       - hr_network_dev
     restart: unless-stopped

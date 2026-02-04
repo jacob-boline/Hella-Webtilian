@@ -3,11 +3,13 @@
 import itertools
 from decimal import Decimal
 from pathlib import Path
+from typing import cast
 
 import yaml
 from django.conf import settings
 from django.core.files import File
 from django.core.management.base import BaseCommand
+from django.db.models.fields.files import ImageFieldFile
 from django.utils.text import slugify
 
 from hr_shop.models import (
@@ -280,32 +282,58 @@ class Command(BaseCommand):
     # ------------------------------------------------------
 
     @staticmethod
-    def _find_first_image_file(vdir: Path):
-        """Return the first non-YAML file in a variant group folder, or None."""
-        for p in vdir.iterdir():
-            if p.is_file() and not p.name.lower().endswith((".yml", ".yaml")):
+    def _needs_file(fieldfile) -> bool:
+        """
+        True if the FieldFile is missing or the referenced file is missing from storage.
+        """
+        if not fieldfile:
+            return True
+
+        ff = cast(ImageFieldFile, fieldfile)
+        try:
+            if not ff.name:
+                return True
+            return not ff.storage.exists(ff.name)
+        except Exception:
+            return True
+
+    @staticmethod
+    def _find_first_image_file(vdir: Path) -> Path | None:
+        """Return the first image file in a variant group folder, or None."""
+        exts = {".jpg", ".jpeg", ".png", ".webp", ".avif"}
+        for p in sorted(vdir.iterdir(), key=lambda x: x.name.lower()):
+            if not p.is_file():
+                continue
+            if p.name.startswith("."):
+                continue
+            if p.suffix.lower() in exts:
                 return p
         return None
 
-    @staticmethod
-    def _get_or_create_product_image(img_path: Path) -> ProductImage | None:
+    def _get_or_create_product_image(self, img_path: Path) -> ProductImage | None:
         """
         Create (or reuse) a ProductImage for a variant group folder.
 
-        For idempotency, we try to reuse by filename:
-          - If a ProductImage already exists whose image name ends with this filename,
-            reuse it.
-          - Otherwise, create a new ProductImage and save the file.
+        Idempotency rules:
+          - If a ProductImage exists matching this filename AND its storage file exists -> reuse
+          - If it exists but file is missing -> re-save the file into the same row
+          - Else -> create new row and save file
         """
         filename = img_path.name
 
-        # Try to reuse an existing ProductImage with the same filename
         existing = ProductImage.objects.filter(image__endswith=filename).first()
         if existing:
+            # If DB points at a real file, we're done.
+            if not self._needs_file(existing.image):
+                return existing
+
+            # DB row exists but storage file is gone (common after init wipe).
+            # Re-save into the same model instance to restore the file.
+            with img_path.open("rb") as f:
+                existing.image.save(filename, File(f), save=True)
             return existing
 
         img = ProductImage(alt_text=filename)
         with img_path.open("rb") as f:
-            img.image.save(filename, File(f))
-
+            img.image.save(filename, File(f), save=True)
         return img

@@ -1,11 +1,13 @@
 # hr_core/management/commands/seed_hr_about.py
 
 from pathlib import Path
+from typing import cast
 
 import yaml
 from django.conf import settings
 from django.core.files import File
 from django.core.management.base import BaseCommand
+from django.db.models.fields.files import ImageFieldFile
 
 from hr_about.models import CarouselSlide, PullQuote
 
@@ -40,6 +42,18 @@ class Command(BaseCommand):
         self._seed_pullquotes(base)
 
         self.stdout.write("    • hr_about seed data applied.")
+
+    @staticmethod
+    def _needs_file(fieldfile) -> bool:
+        if not fieldfile:
+            return True
+        ff = cast(ImageFieldFile, fieldfile)
+        try:
+            return not ff.storage.exists(ff.name)
+        except Exception:
+            # be conservative: if storage check fails, re-save
+            return True
+
 
     # ------------------------------------------------------
     # Carousel slides
@@ -90,8 +104,9 @@ class Command(BaseCommand):
             if image_name and images_dir.exists():
                 image_path = images_dir / image_name
                 if image_path.exists():
-                    if not slide.image:
+                    if self._needs_file(slide.image):
                         with image_path.open("rb") as f:
+                            # preserve the destination filename that your app expects
                             slide.image.save(image_path.name, File(f), save=True)
                 else:
                     self.stdout.write(self.style.WARNING(f"      (Image '{image_name}' not found in {images_dir} for slide order {order})"))
@@ -138,3 +153,6 @@ class Command(BaseCommand):
                 quote.attribution = attribution
                 quote.is_active = is_active
                 quote.save(update_fields=["text", "attribution", "is_active"])
+
+
+

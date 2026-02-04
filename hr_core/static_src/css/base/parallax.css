@@ -213,7 +213,7 @@ div.parallax-content p {
 
 /* Wipe between merchModule → about */
 #section-wipe-2.section-wipe {
-  background-image: url("/media/wipes/blue_black_pillars.jpg");
+  background-image: url("/_seed_data/media/wipes/blue_black_pillars.jpg");
 }
 
 /* noinspection CssInvalidFunction,CssUnknownTarget */
@@ -245,7 +245,7 @@ div.parallax-content p {
 
 /* Wipe between about → bulletin */
 #section-wipe-3.section-wipe {
-  background-image: url("/media/wipes/old_english_tree_rows.jpg");
+  background-image: url("/_seed_data/media/wipes/old_english_tree_rows.jpg");
 }
 
 /* noinspection CssInvalidFunction,CssUnknownTarget */

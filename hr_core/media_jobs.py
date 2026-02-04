@@ -1,7 +1,7 @@
 # hr_core/media_jobs.py
 
 import logging
-import os
+import shutil
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -46,10 +46,18 @@ RECIPES: dict[str, Recipe] = {
 }
 
 
-def _run_imagemagick_convert(args: list[str]) -> None:
-    env = os.environ.copy()
-    env.setdefault("MAGICK_THREAD_LIMIT", "1")
-    subprocess.run(["magick", "convert", *args], check=True, env=env, capture_output=True, text=True)
+def _run_imagemagick_convert(args, env=None):
+    magick = shutil.which("magick")
+    convert = shutil.which("convert")
+
+    if magick:
+        cmd = [magick, "convert", *args]   # IM7 style
+    elif convert:
+        cmd = [convert, *args]            # IM6 style
+    else:
+        raise FileNotFoundError("Neither 'magick' nor 'convert' found in PATH")
+
+    subprocess.run(cmd, check=True, env=env, capture_output=True, text=True)
 
 
 def _target_size(w: int, crop: CropSpec) -> tuple[int, int]:

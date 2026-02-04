@@ -33,6 +33,8 @@ class Command(BaseCommand):
                 root = Path(settings.MEDIA_ROOT)
             elif recipe.src_root == "static_src":
                 root = Path(settings.STATIC_SOURCE_ROOT)
+            elif recipe.src_root == 'repo_static':
+                root = Path(settings.REPO_STATIC_ROOT)
             else:
                 self.stdout.write(self.style.WARNING(f"Unknown src_root for recipe {key}: {recipe.src_root} (skip)"))
                 continue

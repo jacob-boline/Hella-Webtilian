@@ -3,12 +3,14 @@
 import shutil
 from datetime import timedelta
 from pathlib import Path
+from typing import cast
 
 import yaml
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.files import File
 from django.core.management.base import BaseCommand
+from django.db.models.fields.files import ImageFieldFile
 from django.utils import timezone
 
 from hr_bulletin.models import Post, Tag
@@ -74,6 +76,22 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self._seed_hr_bulletin()
+
+
+
+    @staticmethod
+    def _needs_file(fieldfile) -> bool:
+        if not fieldfile:
+            return True
+
+        ff = cast(ImageFieldFile, fieldfile)
+
+        try:
+            if not ff.name:
+                return True
+            return not ff.storage.exists(ff.name)
+        except Exception:
+            return True
 
     def _seed_hr_bulletin(self):
         base = Path(settings.BASE_DIR) / "_seed_data" / "hr_bulletin"
@@ -159,6 +177,7 @@ class Command(BaseCommand):
 
         media_root = Path(settings.MEDIA_ROOT)
         hero_dir = media_root / "posts" / "hero"
+        hero_dir.mkdir(parents=True, exist_ok=True)
 
         # adjust if your optimizer outputs elsewhere
         opt_dirs = [
@@ -196,23 +215,25 @@ class Command(BaseCommand):
         if not image_path:
             return
 
+        # If DB already points at a hero and the file exists in storage, do nothing.
+        if not self._needs_file(post.hero):
+            return
+
         resolved_path = Path(image_path)
 
         if not resolved_path.is_absolute():
-            # Prefer paths relative to _seed_data/hr_bulletin
             candidate = seed_base / image_path
             if candidate.exists():
                 resolved_path = candidate
             else:
-                # Fallback to BASE_DIR-relative legacy paths
                 resolved_path = Path(settings.BASE_DIR) / image_path
 
         if not resolved_path.exists():
             self.stdout.write(self.style.WARNING(f"    • Image not found for '{post.title}': {resolved_path}"))
             return
 
-        # Always re-attach from seed source; Post.save() will dedupe by content hash.
         with resolved_path.open("rb") as handle:
+            # name becomes posts/hero/<filename> because upload_to="posts/hero/"
             post.hero.save(resolved_path.name, File(handle), save=True)
 
     @staticmethod
