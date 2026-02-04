@@ -60,6 +60,37 @@ DEV RUN ORDER:
 
 ==========================
 ==========================
+## Media pipeline overview (5 image types)
+
+The project uses two pipelines depending on whether an image is model-backed (ImageField) or a repo static asset. The five image “types” are:
+
+1) **Post hero images (`Post`)**
+   - **Source**: `MEDIA_ROOT/posts/hero/...` seeded via model data or uploads.
+   - **Pipeline**: ImageField save triggers app signal → `hr_core.media_jobs` recipe `post_hero` generates `opt` WebP variants (640–1600w) under the same media folder tree.
+   - **Runtime**: Template tags in `hr_core/templatetags/responsive_images.py` build `srcset` URLs for `/media/.../opt/...`.
+
+2) **Product images (`ProductImage`)**
+   - **Source**: `MEDIA_ROOT/variants/...` seeded via model data or uploads.
+   - **Pipeline**: ImageField save triggers app signal → recipe `variant` generates `opt_webp` WebP variants (256–768w).
+   - **Runtime**: Template tags build `srcset` URLs for `/media/.../opt_webp/...`.
+
+3) **Carousel slides (`CarouselSlide`)**
+   - **Source**: `MEDIA_ROOT/hr_about/...` seeded via model data or uploads.
+   - **Pipeline**: ImageField save triggers app signal → recipe `about` generates `opt_webp` WebP variants (640–1920w).
+   - **Runtime**: Template tags build `srcset` URLs for `/media/.../opt_webp/...`.
+
+4) **Section backgrounds (parallax)**
+   - **Source**: Repo static assets seeded to `hr_core/static/hr_core/images/backgrounds/...` via `python manage.py seed_media_assets`.
+   - **Pipeline**: `python manage.py media_sweep` enqueues `bg_section` jobs; `hr_core.media_jobs` writes `bg_opt` WebP variants alongside sources in the repo static tree.
+   - **Runtime**: `python manage.py build_responsive_backgrounds` reads `hr_core/config/backgrounds_config.py` and writes generated CSS with `/static/hr_core/images/backgrounds/...` URLs.
+
+5) **Section wipes**
+   - **Source**: Repo static assets seeded to `hr_core/static/hr_core/images/wipes/...` via `python manage.py seed_media_assets`.
+   - **Pipeline**: `python manage.py media_sweep` enqueues `wipe_section` jobs; `hr_core.media_jobs` writes `opt_webp` WebP variants alongside sources in the repo static tree.
+   - **Runtime**: `python manage.py build_responsive_backgrounds` reads `hr_core/config/backgrounds_config.py` and writes generated CSS with `/static/hr_core/images/wipes/...` URLs.
+
+==========================
+==========================
 ## SMTP configuration
 
 - **Default provider:** Mailjet. Switch to Zoho with `EMAIL_PROVIDER=zoho`.
