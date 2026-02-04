@@ -34,7 +34,7 @@ class Command(BaseCommand):
 
             for src_file in sorted(src_dir.iterdir()):
                 if src_file.is_file() and not src_file.name.startswith("."):
-                    shutil.copy2(src_file, dest_dir / src_file.name)
+                    shutil.copyfile(src_file, dest_dir / src_file.name)
 
             self.stdout.write(self.style.SUCCESS(f"Seeded {rel_dir}"))
 

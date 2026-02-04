@@ -28,7 +28,7 @@
     {% block extra_head %}{% endblock %}
 </head>
 
-<body style="background-color: black;">
+<body style="background-color: black;" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
 
 <div id="global-message-bar" class="global-message-bar prehide" style="visibility: hidden;">
     <span id="global-message-content"></span>

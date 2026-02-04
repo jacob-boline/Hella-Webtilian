@@ -11,9 +11,9 @@ services:
     volumes:
       - postgres_data_dev:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=${POSTGRES_DB:-hella_reptilian_dev}
-      - POSTGRES_USER=${POSTGRES_USER:-hruser}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-devpassword}
+      POSTGRES_DB: ${POSTGRES_DB:-hella_reptilian_dev}
+      POSTGRES_USER: ${POSTGRES_USER:-hruser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-devpassword}
     ports:
       - "5432:5432"
     healthcheck:
@@ -85,19 +85,33 @@ services:
 
     env_file:
       - .env.dev
+    secrets:
+      - django_superuser_username
+      - django_superuser_email
+      - django_superuser_password
+      - email_host_password
+      - email_host_user
+      - stripe_secret_key
+      - stripe_public_key
+      - stripe_webhook_secret
+      - django_secret_key
     environment:
-      - DJANGO_SETTINGS_MODULE=hr_config.settings.dev
-      - DB_HOST=db
-      - DB_PORT=5432
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - COLLECTSTATIC=false
-      - IN_DOCKER=1
-      - VITE_DEV_SERVER_HOST=localhost
-      - VITE_DEV_SERVER_PORT=5174
-      - VIRTUAL_ENV=/opt/venv
-      - UV_PROJECT_ENVIRONMENT=/opt/venv
-      - PATH=/opt/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      DB_HOST: db
+      DB_PORT: 5432
+      COLLECTSTATIC: false
+      IN_DOCKER: 1
+      VIRTUAL_ENV: /opt/venv
+      UV_PROJECT_ENVIRONMENT: /opt/venv
+      PATH: /opt/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      DJANGO_SUPERUSER_USERNAME_FILE: /run/secrets/django_superuser_username
+      DJANGO_SUPERUSER_EMAIL_FILE: /run/secrets/django_superuser_email
+      DJANGO_SUPERUSER_PASSWORD_FILE: /run/secrets/django_superuser_password
+      EMAIL_HOST_PASSWORD_FILE: /run/secrets/email_host_password
+      EMAIL_HOST_USER_FILE: /run/secrets/email_host_user
+      STRIPE_SECRET_KEY_FILE: /run/secrets/stripe_secret_key
+      STRIPE_PUBLIC_KEY_FILE: /run/secrets/stripe_public_key
+      STRIPE_WEBHOOK_SECRET_FILE: /run/secrets/stripe_webhook_secret
+      DJANGO_SECRET_KEY_FILE: /run/secrets/django_secret_key
     depends_on:
       db:
         condition: service_healthy
@@ -133,11 +147,11 @@ services:
     ports:
       - "5174:5173"  # Alternative port to avoid conflicts
     environment:
-      - NODE_ENV=development
-      - VITE_DEV_HOST=0.0.0.0
-      - VITE_DEV_ORIGIN=http://localhost:5174  # This is for absolute URLs injected by Vite, aka tells the browser where to look for the server (host port in Docker)
-      - VITE_HMR_CLIENT_PORT=5174  # The port the browser should use for HMR WebSocket connections
-      - IN_DOCKER=1
+      NODE_ENV: development
+      VITE_DEV_HOST: 0.0.0.0
+      VITE_DEV_ORIGIN: http://localhost:5174  # This is for absolute URLs injected by Vite, aka tells the browser where to look for the server (host port in Docker)
+      VITE_HMR_CLIENT_PORT: 5174  # The port the browser should use for HMR WebSocket connections
+      IN_DOCKER: 1
     networks:
       - hr_network_dev
 
@@ -164,12 +178,9 @@ services:
     env_file:
       - .env.dev
     environment:
-      - DJANGO_SETTINGS_MODULE=hr_config.settings.dev
-      - DB_HOST=db
-      - DB_PORT=5432
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - IN_DOCKER=1
+      DB_HOST: db
+      DB_PORT: 5432
+      IN_DOCKER: 1
     depends_on:
       db:
         condition: service_healthy
@@ -203,44 +214,26 @@ services:
     restart: unless-stopped
 
 
-#  # ========================================================== #
-#  #                     Responsive Backgrounds                 #
-#  #                                                            #
-#  # A single run task to build srcsets for section and wipe bg #
-#  # ========================================================== #
-#  bg_build:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile.dev
-#    container_name: hr_bg_build_dev
-#    command: python manage.py build_responsive_backgrounds
-#    env_file:
-#      - .env.dev
-#    volumes:
-#      - ./manage.py:/home/app/web/manage.py
-#      - ./hr_config:/home/app/web/hr_config
-#      - ./hr_common:/home/app/web/hr_common
-#      - ./hr_core:/home/app/web/hr_core
-#      - ./hr_core/static_src:/home/app/web/hr_core/static_src
-#    environment:
-#      - DJANGO_SETTINGS_MODULE=hr_config.settings.dev
-#      - DB_HOST=db
-#      - DB_PORT=5432
-#      - REDIS_HOST=redis
-#      - REDIS_PORT=6379
-#      - IN_DOCKER=1
-#      - VIRTUAL_ENV=/opt/venv
-#      - UV_PROJECT_ENVIRONMENT=/opt/venv
-#      - PATH=/opt/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-#    depends_on:
-#      db:
-#        condition: service_healthy
-#      redis:
-#        condition: service_healthy
-#    networks:
-#      - hr_network_dev
-#    restart: "no"
-#    profiles: ["tools"]
+secrets:
+  django_superuser_username:
+    file: ../secrets/hella_webtilian/django_superuser_username
+  django_superuser_password:
+    file: ../secrets/hella_webtilian/django_superuser_password
+  django_superuser_email:
+    file: ../secrets/hella_webtilian/django_superuser_email
+  email_host_password:
+    file: ../secrets/hella_webtilian/email_host_password
+  email_host_user:
+    file: ../secrets/hella_webtilian/email_host_user
+  stripe_secret_key:
+    file: ../secrets/hella_webtilian/stripe_secret_key
+  stripe_public_key:
+    file: ../secrets/hella_webtilian/stripe_public_key
+  stripe_webhook_secret:
+    file: ../secrets/hella_webtilian/stripe_webhook_secret
+  django_secret_key:
+    file: ../secrets/hella_webtilian/django_secret_key
+
 
 networks:
   hr_network_dev:

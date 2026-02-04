@@ -37,6 +37,17 @@ DEV RUN ORDER:
 
  ==========================================================================================================
 
+create secrets files in a directory structure of /secrets/hella-webtilian/<secrets files>
+
+export the absolute path to the secrets folder:
+      powershell: $env:SECRETS_ROOT="C:\<path>\secrets\hella-webtilian"
+      bash: SECRETS_ROOT=<path>/secrets/hella-webtilian
+
+in compose:
+    volumes:
+        - ${SECRETS_ROOT}/<secret_key>:/run/secrets/<secret_key>:ro
+
+==================================================================================
  seed the dev db:
 
         python manage.py init  (full nuke and rebuild)

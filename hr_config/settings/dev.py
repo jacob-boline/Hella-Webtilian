@@ -12,10 +12,11 @@ IN_DOCKER = env_bool('IN_DOCKER', default=False)
 # ===============================================
 #  Environment
 # ===============================================
-if not IN_DOCKER:
-    load_dotenv(BASE_DIR / "hr_config" / "env" / "dev.env", override=False)
+# if not IN_DOCKER:
+#     load_dotenv(BASE_DIR / "hr_config" / "env" / "dev.env", override=False)
+load_dotenv(BASE_DIR / 'hr_config' / 'env' / 'dev.env')
 
-DEBUG = True
+DEBUG = env_bool('DEBUG', True)
 DEBUG_TOKENS = True
 
 from hr_config.settings.base import *  # noqa
@@ -48,8 +49,11 @@ STORAGES["staticfiles"] = {
 # ===============================================
 #  Network
 # ===============================================
-ALLOWED_HOSTS = [h.strip() for h in os.environ.get("ALLOWED_HOSTS", "").split(",") if h.strip()]
-CSRF_TRUSTED_ORIGINS = [h.strip() for h in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",") if h.strip()]
+ALLOWED_HOSTS = [h.strip() for h in os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if h.strip()]
+CSRF_TRUSTED_ORIGINS = [h.strip() for h in os.environ.get("CSRF_TRUSTED_ORIGINS", "http://localhost:8080,http://127.0.0.1:8080").split(",") if h.strip()]
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = env_bool("USE_X_FORWARDED_HOST", True)
+SECURE_SSL_REDIRECT = env_bool("SECURE_SSL_REDIRECT", False)
 
 INTERNAL_IPS = ["127.0.0.1"]
 
@@ -79,7 +83,7 @@ DEBUG_TOOLBAR_CONFIG = {"DISABLE_PANELS": ["debug_toolbar.panels.staticfiles.Sta
 # ===============================================
 #  Ngrok
 # ===============================================
-USE_NGROK = env_bool("USE_NGROK")
+USE_NGROK = env_bool("USE_NGROK", False)
 
 if USE_NGROK:
     EXTERNAL_BASE_URL = os.getenv("EXTERNAL_BASE_URL", "").rstrip("/")
