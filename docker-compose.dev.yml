@@ -106,6 +106,7 @@ services:
       VIRTUAL_ENV: /opt/venv
       UV_PROJECT_ENVIRONMENT: /opt/venv
       PATH: /opt/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
       DJANGO_SUPERUSER_USERNAME_FILE: /run/secrets/django_superuser_username
       DJANGO_SUPERUSER_EMAIL_FILE: /run/secrets/django_superuser_email
       DJANGO_SUPERUSER_PASSWORD_FILE: /run/secrets/django_superuser_password
@@ -157,10 +158,10 @@ services:
       NODE_ENV: development
       IN_DOCKER: 1
       VITE_PUBLIC_HOST: ""
-      VITE_DEV_HOST: 0.0.0.0
-      VITE_HMR_HOST: 192.168.0.84
-      VITE_HMR_CLIENT_PORT: 5174
-      VITE_DEV_ORIGIN: http://192.168.0.84:5174
+#      VITE_DEV_HOST: 0.0.0.0
+#      VITE_HMR_HOST: 192.168.0.84
+#      VITE_HMR_CLIENT_PORT: 5174
+#      VITE_DEV_ORIGIN: http://192.168.0.84:5174
     networks:
       - hr_network_dev
 

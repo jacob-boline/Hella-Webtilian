@@ -4,7 +4,7 @@
     <div class="about-quote-rotator">
         {% if quotes %}
             {% with first=quotes.0 %}
-                <span>"</span><p class="quote-text">{{ first.text }}</p><span>"</span>
+                <p class="quote-text">{{ first.text }}</p>
                 <p class="quote-source">
                     {% if first.attribution %}
                         — {{ first.attribution }}

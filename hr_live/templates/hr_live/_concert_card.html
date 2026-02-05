@@ -3,17 +3,17 @@
 <div class="concert-card">
     <div class="card-left date-panel" aria-label="Show date, time, and venue">
         <div class="date-block">
-            <div class="day-of-week">
-                {{ show.date|date:"D"|upper }}<br>
-                {{ show.date|date:"M d"|upper }}
+            <div class="date-row">
+                <span class="dow">{{ show.date|date:"D"|upper }}</span>
+                <span class="md">{{ show.date|date:"M d"|upper }}</span>
+                <span class="time">{{ show.time|time:"g:i A" }}</span>
             </div>
-            <div class="time">
-                {{ show.time|time:"g:i A" }}
-            </div>
+
             <div class="venue">
                 {{ show.venue.name }}
             </div>
         </div>
+
         {% if show.venue.address %}
             {% with addr=show.venue.address %}
                 <div class="directions-container prehide" style="visibility:hidden;">
@@ -35,5 +35,4 @@
             {% endfor %}
         </div>
     </div>
-
 </div>

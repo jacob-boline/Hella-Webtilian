@@ -5,25 +5,25 @@
    Shows / Concert cards
    =========================== */
 
-.concert-card-container {
-    display:         flex;
-    flex-direction:  column;
-    gap:             6rem;
-    align-items:     center;
-    justify-content: center;
-    width:           80vw;
-    min-width:       400px;
-    padding:         3rem 2rem;
-}
+/*.concert-card-container {*/
+/*    display:         flex;*/
+/*    flex-direction:  column;*/
+/*    gap:             6rem;*/
+/*    align-items:     center;*/
+/*    justify-content: center;*/
+/*    width:           80vw;*/
+/*    min-width:       400px;*/
+/*    padding:         3rem 2rem;*/
+/*}*/
 
-@media (max-width: 600px) {
-    .concert-card-container {
-        gap:       2rem;
-        width:     92vw;
-        min-width: 0;
-        padding:   1rem 1rem 3rem;
-    }
-}
+/*@media (max-width: 600px) {*/
+/*    .concert-card-container {*/
+/*        gap:       2rem;*/
+/*        width:     92vw;*/
+/*        min-width: 0;*/
+/*        padding:   1rem 1rem 3rem;*/
+/*    }*/
+/*}*/
 
 .concert-card {
     display:               grid;
@@ -68,6 +68,35 @@
     font-family:    "Quantico", sans-serif;
     line-height:    1;
 }
+
+/* ===========================
+   Date row layout (default: preserve original desktop/tablet stack)
+   =========================== */
+
+.date-row {
+    display:        flex;
+    flex-direction: column;
+    gap:            1rem;
+    text-align:     center;
+    font-family:    "Quantico", sans-serif;
+    line-height:    1;
+}
+
+.date-row .dow,
+.date-row .md {
+    font-size:      clamp(1.25rem, 2.6vw, 2.2rem);
+    font-weight:    800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.date-row .time {
+    margin-top:  0.35rem;
+    font-size:   clamp(0.95rem, 2.2vw, 1.75rem);
+    font-weight: 700;
+    color:       var(--ink-900);
+}
+
 
 .directions-container {
     margin-top:      auto;
@@ -152,8 +181,10 @@
     transition:  color       .2s ease,
                  text-shadow .2s ease,
                  transform   .2s ease;
-    text-shadow: 0 0  4px rgba(157, 0, 255, 0.8),
-                 0 0 12px rgba(157, 0, 255, 0.5);
+    text-shadow: 2px 2px 0   rgba(0, 0, 0, 0.85),
+                 4px 4px 6px rgba(0, 0, 0, 0.65);
+    /*text-shadow: 0 0  4px rgba(157, 0, 255, 0.8),*/
+    /*             0 0 12px rgba(157, 0, 255, 0.5);*/
 }
 
 .act-name.neon-ready {
@@ -167,22 +198,6 @@
 
 .act-name.neon-ready:hover {
     animation-play-state: running;
-}
-
-.neon-debug-label {
-    position:       absolute;
-    top:            -1.25rem;
-    right:          0;
-    padding:        2px 6px;
-    font-size:      .65rem;
-    font-family:    monospace;
-    color:          white;
-    background:     var(--black-alpha-60);
-    border:         1px solid rgba(255, 255, 255, 0.2);
-    border-radius:  4px;
-    pointer-events: none;
-    opacity:        0;
-    transition:     opacity .2s ease;
 }
 
 /* Variant A */
@@ -351,7 +366,8 @@
                     -3px -3px 6px var(--white-alpha-15);
     transition:      color      .2s ease,
                      box-shadow .2s ease,
-                     transform  .2s ease;
+                     transform  .2s ease,
+                     background .2s ease;
 }
 
 .date-panel .directions-btn--inline i {
@@ -383,20 +399,104 @@
    Responsive layout
    =========================== */
 
-/* Mobile: CTA full-width at bottom */
-@media (max-width: 719.98px) {
-    .card-right {
-        justify-content: flex-start;
+@media (max-width: 767.98px) {
+
+    .concert-card {
+        grid-template-columns: 1fr;
+        max-width:             90vw;
+        padding:               0;
+        gap:                   0;
     }
 
-    .card-btn.directions-btn:not(.btn-blue):not(.btn-green) {
+    .date-panel {
+        padding:       0.85rem 0.85rem 0;
+        gap:           0.6rem;
+        border-radius: 0.75rem 0.75rem 0 0;
+    }
+
+    .date-block {
+        gap:         0.55rem;
+        line-height: 1.1;
+    }
+
+    .date-row {
+        display:         flex;
+        flex-direction:  row;
+        align-items:     baseline;
         justify-content: center;
-        width:           100%;
+        flex-wrap:       nowrap;
+        gap:             0.6rem;
+    }
+
+    .date-row .dow,
+    .date-row .md,
+    .date-row .time {
+        font-size: clamp(1.05rem, 4.8vw, 1.4rem);
+    }
+
+    /*.date-row .time {*/
+    /*    font-size: clamp(0.95rem, 4.2vw, 1.15rem);*/
+    /*    margin-top: 0;*/
+    /*}*/
+
+    .date-panel .venue {
+        margin-top:     0;
+        text-align:     center;
+        font-size:      clamp(0.8rem, 3.6vw, 1.05rem);
+        white-space:    nowrap;
+        overflow:       hidden;
+        text-overflow:  ellipsis;
+    }
+
+    .directions-container {
+        margin-left:     -0.85rem;
+        margin-right:    -0.85rem;
+        justify-content: center;
+    }
+
+    /* Black section: rounded only on bottom corners */
+    .date-panel .directions-btn--inline {
+        border-radius: 0;
+        transition: background .2s,
+                    box-shadow .2s,
+                    transform  .2s;
+        background: linear-gradient(315deg,
+                    var(--black-alpha-90)  33%,
+                    var(--black-alpha-75)  66%,
+                    var(--black-alpha-60) 100%);
+        box-shadow: 3px  3px 6px var(--black-alpha-90),
+                   -3px -3px 6px var(--white-alpha-15);
+    }
+
+    .date-panel .directions-btn--inline:hover {
+        /*background: linear-gradient(315deg, var(--black-alpha-75) 0%, var(--black-alpha-60) 50%, var(--black-alpha-45) 100%);*/
+        background: linear-gradient( 315deg,
+                    rgba(0,0,0,0.95) 33%,
+                    rgba(0,0,0,0.80) 66%,
+                    rgba(0,0,0,0.70) 100%
+        );
+        box-shadow: inset  3px  3px 6px var(--black-alpha-90),
+                    inset -2px -2px 4px rgba(255, 255, 255, 0.10);
+        transform: translateY(1px);
+    }
+
+    /* In stacked layout, make the acts panel finish the card cleanly */
+    .card-center {
+        border-radius: 0 0 0.75rem 0.75rem;
+    }
+
+    .acts {
+        padding: 1.25rem 1rem;
+    }
+
+    .directions-btn {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
     }
 }
 
-/* Tablets: 3 columns */
-@media (min-width: 720px) and (max-width: 1023.98px) {
+/* Tablets: 2 columns (moved breakpoint up to 768px) */
+@media (min-width: 768px) and (max-width: 1023.98px) {
     .concert-card {
         grid-template-columns: 1.2fr 2fr;
     }

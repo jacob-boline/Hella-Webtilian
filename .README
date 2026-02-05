@@ -37,15 +37,10 @@ DEV RUN ORDER:
 
  ==========================================================================================================
 
-create secrets files in a directory structure of /secrets/hella-webtilian/<secrets files>
+Secrets files and .env are both used to pass config values to docker compose services
 
-export the absolute path to the secrets folder:
-      powershell: $env:SECRETS_ROOT="C:\<path>\secrets\hella-webtilian"
-      bash: SECRETS_ROOT=<path>/secrets/hella-webtilian
-
-in compose:
-    volumes:
-        - ${SECRETS_ROOT}/<secret_key>:/run/secrets/<secret_key>:ro
+When changing hosts, three values must be updated in .env:
+    - ALLOWED_HOSTS
 
 ==================================================================================
  seed the dev db:

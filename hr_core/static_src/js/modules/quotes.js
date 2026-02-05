@@ -27,7 +27,7 @@ export function initQuotes(root = document) {
         const text = item.dataset.text || '';
         const source = item.dataset.source || '';
 
-        textEl.textContent = text;
+        textEl.textContent = `"${text}"`;
         if (sourceEl) sourceEl.textContent = source ? `— ${source}` : '';
     }
 

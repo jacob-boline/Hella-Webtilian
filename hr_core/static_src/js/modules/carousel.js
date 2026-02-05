@@ -97,8 +97,8 @@ function preloadCarouselImages(thumbs, normalizeToAboutBase, aboutSrcset) {
 
     function aboutSrcset (base) {
         return [
-            `${aboutSrc(base, 640)} 640w`,
-            `${aboutSrc(base, 960)} 960w`,
+            `${aboutSrc(base,  640)}  640w`,
+            `${aboutSrc(base,  960)}  960w`,
             `${aboutSrc(base, 1280)} 1280w`,
             `${aboutSrc(base, 1600)} 1600w`,
             `${aboutSrc(base, 1920)} 1920w`
