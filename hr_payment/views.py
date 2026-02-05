@@ -14,6 +14,7 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
+from hr_common.security.secrets import read_secret
 from hr_common.utils.http.htmx import hx_trigger
 from hr_common.utils.unified_logging import log_event
 from hr_core.utils.urls import build_external_absolute_url
@@ -79,7 +80,7 @@ def checkout_stripe_session(request, order_id: int):
             header_keys=list(request.headers.keys())
         )
 
-    stripe.api_key = settings.STRIPE_SECRET_KEY
+    stripe.api_key = read_secret('STRIPE_SECRET_KEY')
 
     order = get_object_or_404(Order, pk=int(order_id))
 
@@ -140,7 +141,19 @@ def checkout_stripe_session(request, order_id: int):
                     existing_attempt.client_secret = sess.get("client_secret")
                     dirty_attempt = True
 
-                existing_attempt.raw = sess
+                existing_attempt.raw = {
+                    "id":             sess['id'],
+                    "livemode":       sess['livemode'],
+                    "amount_total":   sess['amount_total'],
+                    "currency":       sess['currency'],
+                    "status":         sess['status'],
+                    "payment_status": sess['payment_status'],
+                    "expires_at":     sess['expires_at'],
+                    "customer_email": sess['customer_email'],
+                    "ui_mode":        sess['ui_mode'],
+                    "return_url":     sess['return_url'],
+                }
+
                 if existing_attempt.status != PaymentAttemptStatus.PENDING:
                     existing_attempt.status = PaymentAttemptStatus.PENDING
                     dirty_attempt = True
@@ -223,7 +236,18 @@ def checkout_stripe_session(request, order_id: int):
 
         attempt.provider_session_id = sess.get("id")
         attempt.client_secret = sess.get("client_secret")
-        attempt.raw = sess
+        attempt.raw = {
+            "id":             sess['id'],
+            "livemode":       sess['livemode'],
+            "amount_total":   sess['amount_total'],
+            "currency":       sess['currency'],
+            "status":         sess['status'],
+            "payment_status": sess['payment_status'],
+            "expires_at":     sess['expires_at'],
+            "customer_email": sess['customer_email'],
+            "ui_mode":        sess['ui_mode'],
+            "return_url":     sess['return_url'],
+        }
         attempt.status = PaymentAttemptStatus.PENDING
         attempt.save(update_fields=["provider_session_id", "client_secret", "raw", "status", "updated_at"])
 
@@ -241,7 +265,7 @@ def checkout_stripe_session(request, order_id: int):
 @csrf_exempt
 @require_POST
 def stripe_webhook(request):
-    stripe.api_key = settings.STRIPE_SECRET_KEY
+    stripe.api_key = read_secret('STRIPE_SECRET_KEY')
 
     payload = request.body
     sig_header = request.META.get("HTTP_STRIPE_SIGNATURE", "")
@@ -250,7 +274,7 @@ def stripe_webhook(request):
         event = stripe.Webhook.construct_event(
             payload=payload,
             sig_header=sig_header,
-            secret=settings.STRIPE_WEBHOOK_SECRET
+            secret=read_secret('STRIPE_WEBHOOK_SECRET')
         )
     except stripe.error.SignatureVerificationError:
         log_event(logger, logging.WARNING, "payment.webhook.invalid_signature", signature_present=bool(sig_header))
@@ -368,7 +392,18 @@ def _handle_checkout_session_completed(session: dict) -> None:
         if pi:
             attempt.provider_payment_intent_id = pi
         attempt.client_secret = session.get("client_secret") or attempt.client_secret
-        attempt.raw = session
+        attempt.raw = {
+            "id":             session['id'],
+            "livemode":       session['livemode'],
+            "amount_total":   session['amount_total'],
+            "currency":       session['currency'],
+            "status":         session['status'],
+            "payment_status": session['payment_status'],
+            "expires_at":     session['expires_at'],
+            "customer_email": session['customer_email'],
+            "ui_mode":        session['ui_mode'],
+            "return_url":     session['return_url'],
+        }
         attempt.save(update_fields=["provider_session_id", "provider_payment_intent_id", "client_secret", "raw", "updated_at"])
         attempt.mark_final(PaymentAttemptStatus.SUCCEEDED)
 
@@ -376,7 +411,19 @@ def _handle_checkout_session_completed(session: dict) -> None:
 def _handle_checkout_session_expired(session: dict) -> None:
     attempt = _find_attempt_for_session(session)
     if attempt and attempt.status not in (PaymentAttemptStatus.SUCCEEDED, PaymentAttemptStatus.FAILED):
-        attempt.raw = session
+        attempt.raw = {
+            "id":             session['id'],
+            "livemode":       session['livemode'],
+            "amount_total":   session['amount_total'],
+            "currency":       session['currency'],
+            "status":         session['status'],
+            "payment_status": session['payment_status'],
+            "expires_at":     session['expires_at'],
+            "customer_email": session['customer_email'],
+            "ui_mode":        session['ui_mode'],
+            "return_url":     session['return_url'],
+        }
+
         attempt.save(update_fields=["raw", "updated_at"])
         attempt.mark_final(PaymentAttemptStatus.EXPIRED)
     # Do NOT update order.payment_status here.
@@ -399,7 +446,18 @@ def _handle_payment_intent_succeeded(pi: dict) -> None:
     mark_checkout_draft_used(order)
 
     if attempt and attempt.status != PaymentAttemptStatus.SUCCEEDED:
-        attempt.raw = pi
+        attempt.raw = {
+            "id":             pi['id'],
+            "livemode":       pi['livemode'],
+            "amount_total":   pi['amount_total'],
+            "currency":       pi['currency'],
+            "status":         pi['status'],
+            "payment_status": pi['payment_status'],
+            "expires_at":     pi['expires_at'],
+            "customer_email": pi['customer_email'],
+            "ui_mode":        pi['ui_mode'],
+            "return_url":     pi['return_url'],
+        }
         attempt.save(update_fields=["raw", "updated_at"])
         attempt.mark_final(PaymentAttemptStatus.SUCCEEDED)
 
@@ -421,7 +479,18 @@ def _handle_payment_intent_failed(pi: dict) -> None:
 
     if attempt and attempt.status != PaymentAttemptStatus.SUCCEEDED:
         last_err = pi.get("last_payment_error") or {}
-        attempt.raw = pi
+        attempt.raw = {
+            "id":             pi['id'],
+            "livemode":       pi['livemode'],
+            "amount_total":   pi['amount_total'],
+            "currency":       pi['currency'],
+            "status":         pi['status'],
+            "payment_status": pi['payment_status'],
+            "expires_at":     pi['expires_at'],
+            "customer_email": pi['customer_email'],
+            "ui_mode":        pi['ui_mode'],
+            "return_url":     pi['return_url'],
+        }
         attempt.save(update_fields=["raw", "updated_at"])
         attempt.mark_final(
             PaymentAttemptStatus.FAILED,
@@ -447,6 +516,18 @@ def _handle_payment_intent_canceled(pi: dict) -> None:
         order.save(update_fields=["payment_status", "updated_at"])
 
     if attempt and attempt.status not in (PaymentAttemptStatus.SUCCEEDED, PaymentAttemptStatus.FAILED):
-        attempt.raw = pi
+        attempt.raw = {
+            "id":             pi['id'],
+            "livemode":       pi['livemode'],
+            "amount_total":   pi['amount_total'],
+            "currency":       pi['currency'],
+            "status":         pi['status'],
+            "payment_status": pi['payment_status'],
+            "expires_at":     pi['expires_at'],
+            "customer_email": pi['customer_email'],
+            "ui_mode":        pi['ui_mode'],
+            "return_url":     pi['return_url'],
+        }
+
         attempt.save(update_fields=["raw", "updated_at"])
         attempt.mark_final(PaymentAttemptStatus.CANCELED)

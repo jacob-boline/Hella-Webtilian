@@ -12,15 +12,21 @@ IN_DOCKER = env_bool('IN_DOCKER', default=False)
 # ===============================================
 #  Environment
 # ===============================================
-# if not IN_DOCKER:
-#     load_dotenv(BASE_DIR / "hr_config" / "env" / "dev.env", override=False)
-load_dotenv(BASE_DIR / 'hr_config' / 'env' / 'dev.env')
+if not IN_DOCKER:
+    load_dotenv(BASE_DIR / "hr_config" / "env" / "dev.env", override=False)
+
+from hr_config.settings.base import *  # noqa
+from hr_config.django_vite_patch import patch_django_vite_dev_url
+
 
 DEBUG = env_bool('DEBUG', True)
 DEBUG_TOKENS = True
 
-from hr_config.settings.base import *  # noqa
-from hr_config.django_vite_patch import patch_django_vite_dev_url
+if EMAIL_PROVIDER == 'mailjet':
+    if not MAILJET_API_KEY or not MAILJET_API_SECRET:
+        raise RuntimeError(
+            'Mailjet selected but MAILJET_API_KEY / MAILJET_API_SECRET are not set'
+        )
 
 patch_django_vite_dev_url()
 
@@ -80,6 +86,9 @@ WHITENOISE_USE_FINDERS = True
 # ===============================================
 DEBUG_TOOLBAR_CONFIG = {"DISABLE_PANELS": ["debug_toolbar.panels.staticfiles.StaticFilesPanel"]}
 
+
+
+EXTERNAL_BASE_URL = os.getenv('EXTERNAL_BASE_URL', 'localhost:8080').rstrip('/')
 # ===============================================
 #  Ngrok
 # ===============================================

@@ -19,7 +19,7 @@ class PaymentAttemptStatus(models.TextChoices):
 class PaymentAttempt(models.Model):
     order = models.ForeignKey("hr_shop.Order", on_delete=models.PROTECT, related_name="payment_attempts")
     provider_session_id = models.CharField(max_length=255, null=True, blank=True)
-    client_secret = models.CharField(max_length=255, null=True, blank=True)
+    client_secret = models.TextField(null=True, blank=True)
     provider_payment_intent_id = models.CharField(max_length=255, null=True, blank=True)
     failure_code = models.CharField(max_length=100, null=True, blank=True)
     status = models.CharField(max_length=20, choices=PaymentAttemptStatus.choices, default=PaymentAttemptStatus.CREATED, db_index=True)

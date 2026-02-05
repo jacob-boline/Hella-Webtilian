@@ -8,6 +8,7 @@ Handles sending confirmation emails and rate limiting.
 import logging
 
 from django.core.cache import cache
+from django.http import HttpRequest
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
@@ -55,7 +56,7 @@ def increment_email_send_count(email: str) -> int:
     return new_count
 
 
-def send_checkout_confirmation_email(request, email: str, draft_id: int) -> str:
+def send_checkout_confirmation_email(request: HttpRequest | None, email: str, draft_id: int) -> str:
     normalized_email = normalize_email(email)
 
     if not can_send_confirmation_email(normalized_email):
@@ -64,7 +65,7 @@ def send_checkout_confirmation_email(request, email: str, draft_id: int) -> str:
 
     token = generate_checkout_email_token(email=normalized_email, draft_id=draft_id)
     confirm_path = reverse("hr_shop:email_confirmation_process_response", kwargs={"token": token})
-    confirm_url = build_external_absolute_url(request, confirm_path)
+    confirm_url = build_external_absolute_url(None, confirm_path)
     subject = "Confirm your email to complete your order - Hella Reptilian"
 
     plain_message = f"""

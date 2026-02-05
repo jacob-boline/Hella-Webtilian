@@ -8,15 +8,14 @@ from django.conf import settings
 from django.http import HttpRequest
 
 
-def _external_base_url_for_request() -> str:
+def _configured_base_url() -> str:
     """
-    Only use EXTERNAL_BASE_URL when USE_NGROK is enabled.
-    Otherwise, fall back to request.build_absolute_uri so LAN/dev hosts work.
+    Canonical base URL for "external" links (emails, redirects, etc).
+    If EXTERNAL_BASE_URL is set, use it always.
+    (USE_NGROK can still be used for validation/policies elsewhere.)
     """
-    if getattr(settings, "USE_NGROK", False):
-        base = (getattr(settings, "EXTERNAL_BASE_URL", "") or "").strip()
-        return base.rstrip("/")
-    return ""
+    base = (getattr(settings, "EXTERNAL_BASE_URL", "") or "").strip()
+    return base.rstrip("/") if base else ""
 
 
 def build_external_absolute_url(request: HttpRequest | None, path: str, *, query: dict | None = None) -> str:
@@ -24,12 +23,12 @@ def build_external_absolute_url(request: HttpRequest | None, path: str, *, query
         path = "/" + path
 
     qs = f"?{urlencode(query)}" if query else ""
-    base = _external_base_url_for_request()
+    base = _configured_base_url()
 
     if base:
         return f"{base}{path}{qs}"
 
     if request is None:
-        raise ValueError("Request is required when USE_NGROK is False.")
+        raise ValueError("Request is required when EXTERNAL_BASE_URL is not set.")
 
     return request.build_absolute_uri(f"{path}{qs}")

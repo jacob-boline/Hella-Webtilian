@@ -260,13 +260,13 @@
 .modal input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):not([type="button"]):not([type="submit"]):not([type="reset"]),
 .modal select,
 .modal textarea {
-    width:            100%;
+    /*width:            100%;*/
     padding:          0.25rem;
     border-radius:    8px;
     border:           1px solid var(--white-alpha-45);
     background-color: var(--black-alpha-60);
     color:            var(--text);
-    font-family:      inherit;
+    font-family:      "Quantico", sans-serif;
     font-size:        0.75rem;
     outline:          none;
     transition:       border-color     .2s ease,

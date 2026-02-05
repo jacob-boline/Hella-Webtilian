@@ -52,7 +52,7 @@
     border:           1px solid var(--white-alpha-45);
     background-color: var(--black-alpha-60);
     color:            var(--text);
-    font-family:      inherit;
+    font-family:      "Quantico", sans-serif;
     font-size:        0.7rem;
     outline:          none;
     transition:       border-color     .2s ease,
@@ -60,9 +60,13 @@
                       background-color .2s ease;
 }
 
+.form-control input {
+    font-family: "Quantico", sans-serif;
+}
+
 .form-control:focus {
-    border-color:     var(--neon-blue);
-    box-shadow:       0 0 0 1px var(--neon-cyan-alpha-45);
+    border:           1px solid var(--white-alpha-60);
+    box-shadow:       0 0 10px 3px var(--neon-cyan-alpha-45);
     background-color: var(--black-alpha-90);
 }
 

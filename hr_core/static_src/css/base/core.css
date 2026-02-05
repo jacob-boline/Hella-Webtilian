@@ -80,6 +80,13 @@
          url("/static/hr_core/fonts/SyneMono-Regular.ttf") format("truetype");
 }
 
+@font-face {
+    font-family: "Edu SA Beginner";
+    font-display: swap;
+    src: url('/static/hr_core/fonts/EduSABeginner-Regular.woff2') format('woff2'),
+         url('/static/hr_core/fonts/EduSABeginner-Regular.ttf') format('truetype');
+}
+
 
 /* ===========================
    Root design tokens

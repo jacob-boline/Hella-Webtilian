@@ -84,7 +84,7 @@ services:
       - logs_volume_dev:/home/app/web/logs
 
     env_file:
-      - .env.dev
+      - hr_config/env/dev.env
     secrets:
       - django_superuser_username
       - django_superuser_email
@@ -95,9 +95,12 @@ services:
       - stripe_public_key
       - stripe_webhook_secret
       - django_secret_key
+      - mailjet_api_key
+      - mailjet_api_secret
     environment:
       DB_HOST: db
       DB_PORT: 5432
+      DATABASE_URL: postgres://hruser:devpassword@db:5432/hella_reptilian_dev
       COLLECTSTATIC: false
       IN_DOCKER: 1
       VIRTUAL_ENV: /opt/venv
@@ -112,6 +115,8 @@ services:
       STRIPE_PUBLIC_KEY_FILE: /run/secrets/stripe_public_key
       STRIPE_WEBHOOK_SECRET_FILE: /run/secrets/stripe_webhook_secret
       DJANGO_SECRET_KEY_FILE: /run/secrets/django_secret_key
+      MAILJET_API_KEY_FILE: /run/secrets/mailjet_api_key
+      MAILJET_API_SECRET_FILE: /run/secrets/mailjet_api_secret
     depends_on:
       db:
         condition: service_healthy
@@ -144,14 +149,18 @@ services:
       - ./vite.config.js:/home/app/web/vite.config.js
       - ./package.json:/home/app/web/package.json
       - ./hr_core/static:/home/app/web/hr_core/static
+    env_file:
+      -  hr_config/env/dev.env
     ports:
       - "5174:5173"  # Alternative port to avoid conflicts
     environment:
       NODE_ENV: development
-      VITE_DEV_HOST: 0.0.0.0
-      VITE_DEV_ORIGIN: http://localhost:5174  # This is for absolute URLs injected by Vite, aka tells the browser where to look for the server (host port in Docker)
-      VITE_HMR_CLIENT_PORT: 5174  # The port the browser should use for HMR WebSocket connections
       IN_DOCKER: 1
+      VITE_PUBLIC_HOST: ""
+      VITE_DEV_HOST: 0.0.0.0
+      VITE_HMR_HOST: 192.168.0.84
+      VITE_HMR_CLIENT_PORT: 5174
+      VITE_DEV_ORIGIN: http://192.168.0.84:5174
     networks:
       - hr_network_dev
 
@@ -176,11 +185,35 @@ services:
       - logs_volume_dev:/home/app/web/logs
       - seed_data_dev:/home/app/web/_seed_data
     env_file:
-      - .env.dev
+      - hr_config/env/dev.env
+    secrets:
+      - django_superuser_username
+      - django_superuser_email
+      - django_superuser_password
+      - email_host_password
+      - email_host_user
+      - stripe_secret_key
+      - stripe_public_key
+      - stripe_webhook_secret
+      - django_secret_key
+      - mailjet_api_key
+      - mailjet_api_secret
     environment:
       DB_HOST: db
       DB_PORT: 5432
+      DATABASE_URL: postgres://hruser:devpassword@db:5432/hella_reptilian_dev
       IN_DOCKER: 1
+      MAILJET_API_KEY_FILE: /run/secrets/mailjet_api_key
+      MAILJET_API_SECRET_FILE: /run/secrets/mailjet_api_secret
+      DJANGO_SUPERUSER_USERNAME_FILE: /run/secrets/django_superuser_username
+      DJANGO_SUPERUSER_EMAIL_FILE: /run/secrets/django_superuser_email
+      DJANGO_SUPERUSER_PASSWORD_FILE: /run/secrets/django_superuser_password
+      EMAIL_HOST_PASSWORD_FILE: /run/secrets/email_host_password
+      EMAIL_HOST_USER_FILE: /run/secrets/email_host_user
+      STRIPE_SECRET_KEY_FILE: /run/secrets/stripe_secret_key
+      STRIPE_PUBLIC_KEY_FILE: /run/secrets/stripe_public_key
+      STRIPE_WEBHOOK_SECRET_FILE: /run/secrets/stripe_webhook_secret
+      DJANGO_SECRET_KEY_FILE: /run/secrets/django_secret_key
     depends_on:
       db:
         condition: service_healthy
@@ -216,23 +249,27 @@ services:
 
 secrets:
   django_superuser_username:
-    file: ../secrets/hella_webtilian/django_superuser_username
+    file: ../secrets/hella-webtilian/django_superuser_username
   django_superuser_password:
-    file: ../secrets/hella_webtilian/django_superuser_password
+    file: ../secrets/hella-webtilian/django_superuser_password
   django_superuser_email:
-    file: ../secrets/hella_webtilian/django_superuser_email
+    file: ../secrets/hella-webtilian/django_superuser_email
   email_host_password:
-    file: ../secrets/hella_webtilian/email_host_password
+    file: ../secrets/hella-webtilian/email_host_password
   email_host_user:
-    file: ../secrets/hella_webtilian/email_host_user
+    file: ../secrets/hella-webtilian/email_host_user
   stripe_secret_key:
-    file: ../secrets/hella_webtilian/stripe_secret_key
+    file: ../secrets/hella-webtilian/stripe_secret_key
   stripe_public_key:
-    file: ../secrets/hella_webtilian/stripe_public_key
+    file: ../secrets/hella-webtilian/stripe_public_key
   stripe_webhook_secret:
-    file: ../secrets/hella_webtilian/stripe_webhook_secret
+    file: ../secrets/hella-webtilian/stripe_webhook_secret
   django_secret_key:
-    file: ../secrets/hella_webtilian/django_secret_key
+    file: ../secrets/hella-webtilian/django_secret_key
+  mailjet_api_key:
+    file: ../secrets/hella-webtilian/mailjet_api_key
+  mailjet_api_secret:
+    file: ../secrets/hella-webtilian/mailjet_api_secret
 
 
 networks:

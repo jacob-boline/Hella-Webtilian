@@ -427,14 +427,17 @@
 
 /* main quote text */
 #parallax-section-about .about-quote-rotator .quote-text {
-    margin:        0;
-    padding-right: 2rem;
-    padding-left:  2rem;
-    font-family:   "Caveat", cursive;
-    font-size:     clamp(1.5rem, 3vmin, 2.25rem);
-    line-height:   1.25;
-    opacity:       1;
-    transition:    opacity .2s ease;
+    margin:              0;
+    padding-right:       2rem;
+    padding-left:        2rem;
+    font-family:        "Edu SA Beginner", cursive;
+    font-optical-sizing: auto;
+    font-style:          normal;
+    font-weight:         400;
+    font-size:           clamp(1.5rem, 3vmin, 2.25rem);
+    line-height:         1.25;
+    opacity:             1;
+    transition:          opacity .2s ease;
 }
 
 /* quote source line */
