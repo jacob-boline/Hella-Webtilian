@@ -1,6 +1,5 @@
 {# hr_shop/templates/hr_shop/shop/_product_detail_modal.html #}
 
-
 {% load static shop_images responsive_images %}
 
 <article class="modal-product m-shell" data-product-slug="{{ product.slug }}">
@@ -31,7 +30,7 @@
         </div>
 
         <div class="modal-product-body m-stack">
-        <!-- TITLE + DESCRIPTION -->
+            <!-- TITLE + DESCRIPTION -->
             <h3 class="modal-title">{{ product.name }}</h3>
 
             {% if product.description %}
@@ -42,27 +41,31 @@
             {% if option_types %}
                 <form id="product-options-form">
                     {% csrf_token %}
-                    {% for opt in option_types %}
-                        <div class="modal-variant-group">
-                            <label for="opt-{{ opt.code }}">{{ opt.name }}</label>
-                            <select id="opt-{{ opt.code }}"
-                                    name="opt_{{ opt.code }}"
-                                    class="modal-select"
-                                    data-option-type-id="{{ opt.id }}"
-                                    {% if opt.drives_image %}data-drives-image="1"{% endif %}
-                                    hx-post="{% url 'hr_shop:update_details_modal' product_slug=product.slug %}"
-                                    hx-trigger="change"
-                                    hx-include="#product-options-form"
-                                    hx-swap="none">
-                                {% for val in opt.values.all %}
-                                    <option value="{{ val.id }}"
-                                            {% if opt.default_value_id == val.id %}selected{% endif %}>
-                                        {{ val.name }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    {% endfor %}
+
+                    {# Use existing modal-ui field row helpers so 2-up starts at @container modal (min-width: 600px) #}
+                    <div class="field-row field-row-two-cols">
+                        {% for opt in option_types %}
+                            <div class="modal-variant-group">
+                                <label for="opt-{{ opt.code }}">{{ opt.name }}</label>
+                                <select id="opt-{{ opt.code }}"
+                                        name="opt_{{ opt.code }}"
+                                        class="modal-select"
+                                        data-option-type-id="{{ opt.id }}"
+                                        {% if opt.drives_image %}data-drives-image="1"{% endif %}
+                                        hx-post="{% url 'hr_shop:update_details_modal' product_slug=product.slug %}"
+                                        hx-trigger="change"
+                                        hx-include="#product-options-form"
+                                        hx-swap="none">
+                                    {% for val in opt.values.all %}
+                                        <option value="{{ val.id }}"
+                                                {% if opt.default_value_id == val.id %}selected{% endif %}>
+                                            {{ val.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        {% endfor %}
+                    </div>
                 </form>
             {% endif %}
 
@@ -76,7 +79,7 @@
                     {% endif %}
                 </span>
 
-                <button class="card-btn btn-neon btn-green"
+                <button class="card-btn btn-neon btn-green btn-sm"
                         type="button"
                         {% if display_variant %}
                             hx-post="{% url 'hr_shop:add_to_cart' variant_slug=display_variant.slug %}"
@@ -86,7 +89,7 @@
                     <i class="fas fa-cart-plus"></i> Add
                 </button>
 
-                <button class="card-btn btn-neon btn-blue" type="button" data-modal-close>
+                <button class="card-btn btn-neon btn-blue btn-sm" type="button" data-modal-close>
                     Close
                 </button>
             </div>

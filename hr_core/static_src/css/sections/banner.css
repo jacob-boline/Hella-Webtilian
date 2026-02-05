@@ -14,7 +14,7 @@
     position:   fixed;
     top:        0;
     width:      100%;
-    height:     calc(var(--vh) * 10);
+    height:     calc(var(--svh) * 10);
     color:      darkorange;
     text-align: left;
     background: black;
@@ -23,7 +23,7 @@
 
 #banner .row,
 #banner .row .banner-row {
-    height: calc(var(--vh) * 6);
+    height: calc(var(--svh) * 6);
 }
 
 .banner-row:nth-of-type(2) {
@@ -32,7 +32,7 @@
 
 #banner-scroller {
     width:      100%;
-    height:     calc(var(--vh) * 180);
+    height:     calc(var(--svh) * 180);
     background: black;
 }
 

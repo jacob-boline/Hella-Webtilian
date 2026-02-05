@@ -211,18 +211,19 @@
    =========================== */
 
 .checkout-review-modal {
-    text-align: left;
-    padding:    1.25rem;
-    color:      var(--text);
+    text-align:    left;
+    padding:       1.25rem;
+    color:         var(--text);
 
-    width:      min(90%, 1200px);
-    max-width:  min(90%, 1200px);
+    width:         min(90%, 1200px);
+    max-width:     min(90%, 1200px);
     margin-inline: auto;
 
     /* Only scroll when genuinely necessary */
-    max-height: 80vh;
-    overflow: hidden auto;
-    font-size:  0.75rem;
+    /*noinspection CssInvalidPropertyValue*/
+    max-height:    80svh;
+    overflow:      hidden auto;
+    font-size:     0.75rem;
 }
 
 .checkout-review-modal:not(.order-payment-result) {
@@ -439,7 +440,8 @@
         width:      min(92%, 1200px);
         max-width:  min(92%, 1200px);
         padding:    1rem;
-        max-height: 85vh;
+        /*noinspection CssInvalidPropertyValue*/
+        max-height: 85svh;
     }
 
     .checkout-review-modal .shipping-summary {
@@ -783,7 +785,8 @@
 }
 
 .checkout-review-modal.order-payment-result {
-    max-height:                 75vh;
+    /*noinspection CssInvalidPropertyValue*/
+    max-height:                 75svh;
     overflow:                   auto hidden;
     overscroll-behavior:        contain;
     -webkit-overflow-scrolling: touch;

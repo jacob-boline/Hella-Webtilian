@@ -346,10 +346,10 @@
 .about-quote-wrap {
     position:        relative;
     overflow:        visible;
-    max-height:      clamp(9rem, 24vh, 14rem);
+    max-height:      clamp(9rem, 24svh, 14rem);
     width:           100%;
     max-width:       100%;
-    margin-bottom:   calc(var(--vh) * 18);
+    margin-bottom:   calc(var(--svh) * 18);
     margin-inline:   auto;
     border:          1px solid var(--card-border, var(--white-alpha-15));
     border-top:      0;
@@ -410,7 +410,7 @@
     align-items:    center;
     min-height:     calc(var(--q-clear) + 3rem);
     padding-top:    calc(var(--q-clear) * 0.48 + max(0px, calc(var(--q-rise) * -1)));
-    padding-bottom: clamp(1rem, calc(var(--vh) * 3), 2.5rem);
+    padding-bottom: clamp(1rem, calc(var(--svh) * 3), 2.5rem);
     border:         0;
     border-radius:  0 0 1rem 1rem;
     background:     linear-gradient(
@@ -444,7 +444,7 @@
 .about-quote-rotator .quote-source {
     margin:         0;
     font-family:    "Syne Mono", monospace;
-    font-size:      clamp(1.25rem, 1.5vmin, 1.5rem);
+    font-size:      clamp(1rem, 1.25vmin, 1.25rem);
     line-height:    1.25;
     color:          var(--text);
     letter-spacing: 0.01rem;
@@ -479,7 +479,7 @@
 
 @media (max-width: 640px) {
     .about {
-        padding: min(calc(var(--vh) * 16), 8rem) 16px;
+        padding: min(calc(var(--svh) * 16), 8rem) 16px;
     }
 
     .about-gallery {

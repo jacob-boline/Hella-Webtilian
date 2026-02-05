@@ -3,7 +3,7 @@
 :root {
     --bp-radius:    1.25rem;
     --bp-border:    rgba(255, 255, 255, 0.10);
-    --bp-glow:      rgba(0, 234, 255, 0.14);
+    --bp-glow:      rgba(  0, 234, 255, 0.14);
     --bp-glow-soft: rgba(255, 255, 255, 0.10);
 }
 

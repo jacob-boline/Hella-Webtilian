@@ -132,6 +132,8 @@
     --neon-cyan-alpha-60: rgba(var(--neon-cyan), 0.60);
     --neon-cyan-alpha-90: rgba(var(--neon-cyan), 0.90);
 
+    --neon-blue-alpha-15: rgba(var(--neon-blue), 0.15);
+
     --red-alpha-15: rgba(var(--red), 0.15);
     --red-alpha-30: rgba(var(--red), 0.30);
     --red-alpha-45: rgba(var(--red), 0.45);
@@ -154,10 +156,11 @@
 
     /* wipe edge tuning */
     --edge-fade: 15%;
-    --wipe-edge-fade-outside: 15vh;
-    --wipe-edge-fade-inside:  10vh;
+    --wipe-edge-fade-outside: 15svh;
+    --wipe-edge-fade-inside:  10svh;
 
     /* Viewport shims (kept in sync via JS) */
+    --svh: 1svh;
     --vh: 1vh;
     --vw: 1vw;
     --pad-inline: clamp(1rem, 6vw, 3rem);
@@ -168,7 +171,7 @@
     --modal-gutter: clamp(12px, 3vw, 24px);
     --modal-max-w: 64rem;
     --modal-max-h: calc(
-                    100dvh
+                    100svh
                     - (2 * var(--modal-gutter))
                     - env(safe-area-inset-top, 0px)
                     - env(safe-area-inset-bottom, 0px)
@@ -182,11 +185,11 @@
     --m-text:   clamp(0.85rem, 1.6vw, 1.00rem);
 
     /* shared vertical paddings (avoid duplication drift) */
-    --section-pad:     calc(var(--vh) * 18);
-    --page-pad-top:    calc(var(--vh) * 18);
-    --page-pad-bottom: calc(var(--vh) * 12);
+    --section-pad:     calc(var(--svh) * 18);
+    --page-pad-top:    calc(var(--svh) * 18);
+    --page-pad-bottom: calc(var(--svh) * 12);
 
-    --q-clear: clamp(4rem, calc(var(--vh) * 8), 10rem);
+    --q-clear: clamp(4rem, calc(var(--svh) * 8), 10rem);
     --q-rise-frac: -0.28;
     --q-rise: calc(var(--q-clear) * var(--q-rise-frac));
 
@@ -208,8 +211,8 @@
     --card-bg-2: #1B1B1B;
 
     --bulletin-stage-mult: 2;          /* 2x viewport height */
-    --bulletin-stage-fade: 20vh;       /* fade out amount */
-    --bulletin-stage-h:    calc(var(--vh) * 100);
+    --bulletin-stage-fade: 20svh;       /* fade out amount */
+    --bulletin-stage-h:    calc(var(--svh) * 100);
 }
 
 /* ===========================
@@ -298,7 +301,7 @@ nav.navbar {
     position:       relative;
     z-index:        10;
     min-width:      100%;
-    min-height:     calc(var(--vh) * 100);
+    min-height:     calc(var(--svh) * 100);
     padding-top:    var(--section-pad);
     padding-bottom: var(--section-pad);
 }
@@ -306,14 +309,14 @@ nav.navbar {
 .content-narrow {
     max-width:      64rem;
     margin-inline:  auto;
-    padding-block:  min(calc(var(--vh) * 16), 12rem);
+    padding-block:  min(calc(var(--svh) * 16), 12rem);
     padding-inline: clamp(16px, 5vw, 24px);
 }
 
 .content-wide {
     max-width:      72rem;
     margin-inline:  auto;
-    padding-block:  min(calc(var(--vh) * 16), 12rem);
+    padding-block:  min(calc(var(--svh) * 16), 12rem);
     padding-inline: clamp(1rem, 6vw, 2rem);
 }
 
@@ -560,7 +563,7 @@ nav.navbar {
    =========================== */
 
 .page-center {
-    min-height:      calc(var(--vh) * 100);
+    min-height:      calc(var(--svh) * 100);
     display:         flex;
     align-items:     center;
     justify-content: center;

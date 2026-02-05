@@ -2,28 +2,8 @@
 
 
 /* ===========================
-   Shows / Concert cards
+      Shows / Concert cards
    =========================== */
-
-/*.concert-card-container {*/
-/*    display:         flex;*/
-/*    flex-direction:  column;*/
-/*    gap:             6rem;*/
-/*    align-items:     center;*/
-/*    justify-content: center;*/
-/*    width:           80vw;*/
-/*    min-width:       400px;*/
-/*    padding:         3rem 2rem;*/
-/*}*/
-
-/*@media (max-width: 600px) {*/
-/*    .concert-card-container {*/
-/*        gap:       2rem;*/
-/*        width:     92vw;*/
-/*        min-width: 0;*/
-/*        padding:   1rem 1rem 3rem;*/
-/*    }*/
-/*}*/
 
 .concert-card {
     display:               grid;
@@ -43,7 +23,7 @@
                           -0.5rem -0.5rem 1rem #2F2F2F;
 }
 
-/* Left date/venue panel */
+/* Left/Top panel */
 .date-panel {
     display:         flex;
     flex-direction:  column;
@@ -69,10 +49,6 @@
     line-height:    1;
 }
 
-/* ===========================
-   Date row layout (default: preserve original desktop/tablet stack)
-   =========================== */
-
 .date-row {
     display:        flex;
     flex-direction: column;
@@ -96,7 +72,6 @@
     font-weight: 700;
     color:       var(--ink-900);
 }
-
 
 .directions-container {
     margin-top:      auto;
@@ -183,8 +158,6 @@
                  transform   .2s ease;
     text-shadow: 2px 2px 0   rgba(0, 0, 0, 0.85),
                  4px 4px 6px rgba(0, 0, 0, 0.65);
-    /*text-shadow: 0 0  4px rgba(157, 0, 255, 0.8),*/
-    /*             0 0 12px rgba(157, 0, 255, 0.5);*/
 }
 
 .act-name.neon-ready {
@@ -231,29 +204,29 @@
 
 /* Variant C */
 @keyframes neon-sequence-c {
-   0%, 100% { opacity: 1; filter: brightness(1.3); text-shadow: 0 0 3px currentColor, 0 0 8px currentColor, 0 0 20px currentColor; }
-   5% { opacity: 0.4; filter: brightness(0.60); }
-   7% { opacity: 1;   filter: brightness(1.20); }
-   9% { opacity: 0.5; filter: brightness(0.70); }
-  11% { opacity: 1;   filter: brightness(1.25); }
-  25% { opacity: 0.7; filter: brightness(0.90); }
-  40% { opacity: 1;   filter: brightness(1.30); }
-  55% { opacity: 0.6; filter: brightness(0.80); }
-  70% { opacity: 1;   filter: brightness(1.35); }
-  85% { opacity: 0.5; filter: brightness(0.75); }
+   0%, 100% { opacity: 1;   filter: brightness(1.3); text-shadow: 0 0 3px currentColor, 0 0 8px currentColor, 0 0 20px currentColor; }
+         5% { opacity: 0.4; filter: brightness(0.60); }
+         7% { opacity: 1;   filter: brightness(1.20); }
+         9% { opacity: 0.5; filter: brightness(0.70); }
+        11% { opacity: 1;   filter: brightness(1.25); }
+        25% { opacity: 0.7; filter: brightness(0.90); }
+        40% { opacity: 1;   filter: brightness(1.30); }
+        55% { opacity: 0.6; filter: brightness(0.80); }
+        70% { opacity: 1;   filter: brightness(1.35); }
+        85% { opacity: 0.5; filter: brightness(0.75); }
 }
 
 /* Variant D */
 @keyframes neon-sequence-d {
-   0%, 100% { opacity: 1; filter: brightness(1.30); text-shadow: 0 0 4px currentColor, 0 0 12px currentColor, 0 0 24px currentColor; }
-   5% { opacity: 0.45; filter: brightness(0.60);    text-shadow: 0 0 2px currentColor; }
-   7% { opacity: 1;    filter: brightness(1.40);    text-shadow: 0 0 6px currentColor, 0 0 20px currentColor; }
-  13% { opacity: 0.50; filter: brightness(0.70); }
-  20% { opacity: 1;    filter: brightness(1.30); }
-  30% { opacity: 0.65; filter: brightness(0.75); }
-  40% { opacity: 1;    filter: brightness(1.40);    text-shadow: 0 0 8px currentColor, 0 0 28px currentColor; }
-  60% { opacity: 0.95; filter: brightness(1.25); }
-  80% { opacity: 0.55; filter: brightness(0.60); }
+   0%, 100% { opacity: 1;    filter: brightness(1.30); text-shadow: 0 0 4px currentColor, 0 0 12px currentColor, 0 0 24px currentColor; }
+         5% { opacity: 0.45; filter: brightness(0.60); text-shadow: 0 0 2px currentColor; }
+         7% { opacity: 1;    filter: brightness(1.40); text-shadow: 0 0 6px currentColor, 0 0 20px currentColor; }
+        13% { opacity: 0.50; filter: brightness(0.70); }
+        20% { opacity: 1;    filter: brightness(1.30); }
+        30% { opacity: 0.65; filter: brightness(0.75); }
+        40% { opacity: 1;    filter: brightness(1.40); text-shadow: 0 0 8px currentColor, 0 0 28px currentColor; }
+        60% { opacity: 0.95; filter: brightness(1.25); }
+        80% { opacity: 0.55; filter: brightness(0.60); }
 }
 
 /* Variant E */
@@ -271,8 +244,8 @@
 @keyframes neon-sequence-f {
     0% { opacity: 1;    filter: brightness(1.3); text-shadow: 0 0  6px currentColor, 0 0 20px currentColor, 0 0 40px currentColor; }
    20% { opacity: 1;    filter: brightness(1.8); text-shadow: 0 0 12px currentColor, 0 0 30px currentColor, 0 0 60px currentColor; }
-   40% { opacity: 1;    filter: brightness(2.6); text-shadow: 0 0 30px white, 0 0 60px white, 0 0 120px white, 0 0 200px white; color: white; }
-   55% { opacity: 0.45; filter: brightness(0.6); text-shadow: 0 0  4px currentColor; color: var(--neon-color); }
+   40% { opacity: 1;    filter: brightness(2.6); text-shadow: 0 0 30px white, 0 0 60px white, 0 0 120px white, 0 0 200px white;     color: white; }
+   55% { opacity: 0.45; filter: brightness(0.6); text-shadow: 0 0  4px currentColor;                                                color: var(--neon-color); }
    75% { opacity: 0.85; filter: brightness(1.1); text-shadow: 0 0  8px currentColor, 0 0 20px currentColor; }
   100% { opacity: 1;    filter: brightness(1.3); text-shadow: 0 0  6px currentColor, 0 0 24px currentColor, 0 0 50px currentColor; }
 }
@@ -300,21 +273,21 @@
 
 /* Variant J – electrical arc */
 @keyframes neon-sequence-j {
-  0%, 50%, 100% { opacity: 0.8;  filter: brightness(1.1)  hue-rotate(0deg);   text-shadow: 0 0 4px currentColor, 0 0 14px currentColor; }
-  10%           { opacity: 1;    filter: brightness(1.8)  hue-rotate(40deg)   saturate(1.4); text-shadow: 0 0 6px #A0FFFF, 0 0 18px #A0FFFF, 0 0 36px #A0FFFF; }
-  14%           { opacity: 0.5;  filter: brightness(0.8)  hue-rotate(-20deg); text-shadow: 0 0 2px currentColor, 0 0 8px currentColor; }
-  26%           { opacity: 1;    filter: brightness(2.0)  hue-rotate(-35deg)  saturate(1.5); text-shadow: 0 0 6px #9FD1FF, 0 0 18px #9FD1FF, 0 0 38px #9FD1FF; }
-  32%           { opacity: 0.55; filter: brightness(0.9)  hue-rotate(10deg); }
-  70%           { opacity: 0.6;  filter: brightness(0.85) hue-rotate(25deg); }
-  80%           { opacity: 1;    filter: brightness(1.5)  hue-rotate(-15deg); text-shadow: 0 0 5px currentColor, 0 0 16px currentColor, 0 0 30px currentColor; }
+  0%, 50%, 100% { opacity: 0.8;  filter: brightness(1.1)  hue-rotate(  0deg);                text-shadow: 0 0 4px currentColor, 0 0 14px currentColor; }
+  10%           { opacity: 1;    filter: brightness(1.8)  hue-rotate( 40deg)  saturate(1.4); text-shadow: 0 0 6px #A0FFFF,      0 0 18px #A0FFFF,      0 0 36px #A0FFFF; }
+  14%           { opacity: 0.5;  filter: brightness(0.8)  hue-rotate(-20deg);                text-shadow: 0 0 2px currentColor, 0 0  8px currentColor; }
+  26%           { opacity: 1;    filter: brightness(2.0)  hue-rotate(-35deg)  saturate(1.5); text-shadow: 0 0 6px #9FD1FF,      0 0 18px #9FD1FF,      0 0 38px #9FD1FF; }
+  32%           { opacity: 0.55; filter: brightness(0.9)  hue-rotate( 10deg); }
+  70%           { opacity: 0.6;  filter: brightness(0.85) hue-rotate( 25deg); }
+  80%           { opacity: 1;    filter: brightness(1.5)  hue-rotate(-15deg);                text-shadow: 0 0 5px currentColor, 0 0 16px currentColor, 0 0 30px currentColor; }
 }
 
 /* Variant K – Supernova */
 @keyframes neon-sequence-k {
-    0% { opacity: 0.8;  filter: brightness(1.0); text-shadow: 0 0  4px currentColor, 0 0 14px currentColor;                     color: var(--neon-color); }
-   20% { opacity: 1;    filter: brightness(1.8); text-shadow: 0 0  8px currentColor, 0 0 26px currentColor, 0 0 40px currentColor; }
-   28% { opacity: 1;    filter: brightness(2.6); text-shadow: 0 0 20px white, 0 0 50px white, 0 0 110px white, 0 0 180px white; color: white; }
-   40% { opacity: 0.4;  filter: brightness(0.7); text-shadow: 0 0  1px currentColor, 0 0  4px currentColor;                     color: var(--neon-color); }
+    0% { opacity: 0.8;  filter: brightness(1.0); text-shadow: 0 0  4px currentColor, 0 0 14px currentColor;                                   color: var(--neon-color); }
+   20% { opacity: 1;    filter: brightness(1.8); text-shadow: 0 0  8px currentColor, 0 0 26px currentColor, 0 0  40px currentColor; }
+   28% { opacity: 1;    filter: brightness(2.6); text-shadow: 0 0 20px white,        0 0 50px        white, 0 0 110px white, 0 0 180px white; color: white; }
+   40% { opacity: 0.4;  filter: brightness(0.7); text-shadow: 0 0  1px currentColor, 0 0  4px currentColor;                                   color: var(--neon-color); }
    55% { opacity: 0.55; filter: brightness(0.9); text-shadow: 0 0  2px currentColor, 0 0  8px currentColor; }
    75% { opacity: 0.8;  filter: brightness(1.1); text-shadow: 0 0  3px currentColor, 0 0 12px currentColor; }
   100% { opacity: 0.9;  filter: brightness(1.2); text-shadow: 0 0  4px currentColor, 0 0 14px currentColor; }
@@ -434,11 +407,6 @@
         font-size: clamp(1.05rem, 4.8vw, 1.4rem);
     }
 
-    /*.date-row .time {*/
-    /*    font-size: clamp(0.95rem, 4.2vw, 1.15rem);*/
-    /*    margin-top: 0;*/
-    /*}*/
-
     .date-panel .venue {
         margin-top:     0;
         text-align:     center;
@@ -454,7 +422,6 @@
         justify-content: center;
     }
 
-    /* Black section: rounded only on bottom corners */
     .date-panel .directions-btn--inline {
         border-radius: 0;
         transition: background .2s,
@@ -469,7 +436,6 @@
     }
 
     .date-panel .directions-btn--inline:hover {
-        /*background: linear-gradient(315deg, var(--black-alpha-75) 0%, var(--black-alpha-60) 50%, var(--black-alpha-45) 100%);*/
         background: linear-gradient( 315deg,
                     rgba(0,0,0,0.95) 33%,
                     rgba(0,0,0,0.80) 66%,
@@ -480,7 +446,6 @@
         transform: translateY(1px);
     }
 
-    /* In stacked layout, make the acts panel finish the card cleanly */
     .card-center {
         border-radius: 0 0 0.75rem 0.75rem;
     }
@@ -495,7 +460,6 @@
     }
 }
 
-/* Tablets: 2 columns (moved breakpoint up to 768px) */
 @media (min-width: 768px) and (max-width: 1023.98px) {
     .concert-card {
         grid-template-columns: 1.2fr 2fr;

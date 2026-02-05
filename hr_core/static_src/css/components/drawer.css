@@ -58,7 +58,7 @@
     justify-content:            flex-start;
     box-sizing:                 border-box;
     width:                      100vw;
-    height:                     calc(var(--vh) * 100);
+    height:                     calc(var(--svh) * 100);
     min-height:                 0;
     padding:                    1.5rem;
     border-right:               1pt solid var(--white-alpha-75);
@@ -243,7 +243,7 @@
     margin-bottom:    0;
     align-self:       flex-start;
     position:         sticky;
-    top:              calc((var(--vh) * 7) - 2px - 1.5rem);
+    top:              calc((var(--svh) * 7) - 2px - 1.5rem);
     z-index:          2;
 }
 
@@ -251,7 +251,7 @@
 
 #nav-open-btn {
     /*noinspection CssInvalidPropertyValue*/
-    top:             calc(7svh - 2px);
+    top:             7svh;
     opacity:         0;
     margin-left:     24px;
     background:      var(--black-alpha-30);

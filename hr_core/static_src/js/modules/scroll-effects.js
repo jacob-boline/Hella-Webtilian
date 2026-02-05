@@ -53,7 +53,7 @@ import {applyStitchedLetters, wrapDateTimeChars} from "./ui-text.js";
     // Module init
     // -----------------------------
     function initScrollEffects () {
-        const { config, bannerAPI, getVH, debounce } = readRuntimeDeps();
+        const {config, bannerAPI, getVH, debounce} = readRuntimeDeps();
         const parallaxSpeed = getParallaxSpeed(config);
 
         const wipes = document.querySelectorAll(".section-wipe");
@@ -64,7 +64,7 @@ import {applyStitchedLetters, wrapDateTimeChars} from "./ui-text.js";
 
         const STATE = {
             wipeData: new Map(),
-            sectionData: new Map(), // section -> { topDoc }
+            sectionData: new Map(),
             rafId: null,
             rafLayout: null,
             observers: {
@@ -75,22 +75,59 @@ import {applyStitchedLetters, wrapDateTimeChars} from "./ui-text.js";
                 vh: 0,
                 dirty: true
             },
-            // Optimization 2: keep RAF updating briefly after scroll events stop
+            viewport: {
+                lockedVh: 0,
+                pendingVh: 0,
+                lastVvTs: 0,
+                applyAfterMs: 140
+            },
             scroll: {
                 lastTs: 0,
                 keepAliveMs: 120
             }
         };
 
-        // -----------------------------
-        // Per-frame reads (batching)
-        // -----------------------------
+        // // -----------------------------
+        // // Per-frame reads (batching)
+        // // -----------------------------
+        // function beginFrameReads () {
+        //     // Read once per RAF tick
+        //     STATE.frame.scrollTop = window.scrollY;
+        //     STATE.frame.vh = getVH();
+        //     STATE.frame.dirty = false;
+        // }
+
+
         function beginFrameReads () {
-            // Read once per RAF tick
             STATE.frame.scrollTop = window.scrollY;
-            STATE.frame.vh = getVH();
+
+            // Use a "locked" vh while actively scrolling to prevent iOS address bar jitter
+            const liveVh = getVH();
+            const now = performance.now();
+
+            const isActivelyScrolling = (now - STATE.scroll.lastTs) < STATE.scroll.keepAliveMs;
+
+            if (!STATE.viewport.lockedVh) {
+                STATE.viewport.lockedVh = liveVh;
+            }
+
+            if (isActivelyScrolling) {
+                // stay locked during scroll
+                STATE.frame.vh = STATE.viewport.lockedVh;
+            } else {
+                // apply pending vh after scroll settles
+                if (STATE.viewport.pendingVh) {
+                    STATE.viewport.lockedVh = STATE.viewport.pendingVh;
+                    STATE.viewport.pendingVh = 0;
+                } else {
+                    STATE.viewport.lockedVh = liveVh;
+                }
+                STATE.frame.vh = STATE.viewport.lockedVh;
+            }
+
             STATE.frame.dirty = false;
         }
+
 
         function markFrameDirty () {
             STATE.frame.dirty = true;
@@ -174,7 +211,7 @@ import {applyStitchedLetters, wrapDateTimeChars} from "./ui-text.js";
                 const scrollSpeedRatio = (viewportHeight + wipeHeight) / viewportHeight;
                 const wipeOffset = rect.top + window.scrollY + 50;
 
-                STATE.wipeData.set(wipe, { scrollSpeedRatio, wipeOffset });
+                STATE.wipeData.set(wipe, {scrollSpeedRatio, wipeOffset});
             });
         }
 
@@ -184,7 +221,7 @@ import {applyStitchedLetters, wrapDateTimeChars} from "./ui-text.js";
             STATE.sectionData.clear();
             parallaxSections.forEach((section) => {
                 const topDoc = section.getBoundingClientRect().top + window.scrollY;
-                STATE.sectionData.set(section, { topDoc });
+                STATE.sectionData.set(section, {topDoc});
             });
         }
 
@@ -230,7 +267,7 @@ import {applyStitchedLetters, wrapDateTimeChars} from "./ui-text.js";
                 const data = STATE.wipeData.get(wipe);
                 if (!data) return;
 
-                const { scrollSpeedRatio, wipeOffset } = data;
+                const {scrollSpeedRatio, wipeOffset} = data;
 
                 const fasterScroll =
                     (scrollPosition - wipeOffset + viewportHeight) / scrollSpeedRatio;
@@ -273,7 +310,7 @@ import {applyStitchedLetters, wrapDateTimeChars} from "./ui-text.js";
                         }
                     });
                 },
-                { threshold: 0 }
+                {threshold: 0}
             );
 
             parallaxSections.forEach((section) =>
@@ -418,12 +455,21 @@ import {applyStitchedLetters, wrapDateTimeChars} from "./ui-text.js";
         // -----------------------------
         // Event wiring (preserve behavior)
         // -----------------------------
-        window.addEventListener("scroll", onScroll, { passive: true });
+        window.addEventListener("scroll", onScroll, {passive: true});
 
         window.addEventListener("resize", reflowDebounced);
         window.addEventListener("orientationchange", reflowDebounced);
-        window.visualViewport?.addEventListener("resize", reflowDebounced);
+        // window.visualViewport?.addEventListener("resize", reflowDebounced);
+        window.visualViewport?.addEventListener("resize", () => {
+          // record the new vh, but don't force layout while scrolling
+          const live = defaultGetVH();
+          STATE.viewport.pendingVh = live;
 
+          // If user isn't actively scrolling, reflow soon.
+          const now = performance.now();
+          const isActivelyScrolling = (now - STATE.scroll.lastTs) < STATE.scroll.keepAliveMs;
+          if (!isActivelyScrolling) reflowDebounced();
+        });
         document.fonts?.ready?.then?.(reflowParallax);
         window.addEventListener("load", reflowParallax);
 

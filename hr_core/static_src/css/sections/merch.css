@@ -26,8 +26,7 @@
     padding:        1.5rem;
     border-radius:  0.75rem;
     color:          var(--text);
-    background:     linear-gradient(
-                        145deg,
+    background:     linear-gradient( 145deg,
                         rgba(14, 22, 16, 0.75),
                         rgba(4, 6, 8, 0.92)
                     );
@@ -38,7 +37,7 @@
                     transform  .2s ease;
     display:        flex;
     flex-direction: column;
-    max-height:     calc(var(--vh) * 80);
+    max-height:     calc(var(--svh) * 80);
 }
 
 .merch-img {
@@ -223,9 +222,8 @@
     padding:         0.5rem 1rem;
     border-radius:   14px;
     background:      var(--black-alpha-75);
-    box-shadow:
-                           0 0 12px rgb(var(--green) / 0.30),
-                     inset 0 0  8px var(--black-alpha-60);
+    box-shadow: 0 0 12px rgb(var(--green) / 0.30),
+          inset 0 0  8px var(--black-alpha-60);
     text-align:      center;
     align-self:      center;
     justify-self:    stretch;
@@ -277,7 +275,6 @@
     text-align: center;
 }
 
-/* View transition opt-out by default */
 .merch-thumb-img,
 .modal-image {
     view-transition-name: none;
@@ -292,7 +289,6 @@
    MODAL BREAKPOINTS (container-query driven)
    ======================================================================================================= */
 
-/* Small modal */
 @container modal (max-width: 419.98px) {
     .modal-product {
         padding: 0.25rem 0.5rem;
@@ -400,10 +396,6 @@
     }
 }
 
-/* =====================================================================================
-   Viewport gate: keep product modal STACKED until >= 768px viewport width
-   ===================================================================================== */
-
 @container modal (max-width: 1099.98px) {
     .modal-product {
         flex-direction: column;
@@ -417,7 +409,6 @@
 }
 
 
-/* Largest modal: same as wide, allow the media to grow a bit more */
 @container modal (min-width: 1100px) {
     .modal-product {
         flex-direction: row;

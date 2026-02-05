@@ -184,7 +184,7 @@
     overflow:     hidden;
     width:        1px;
     height:       1px;
-    margin:       -1px;
+    margin:      -1px;
     padding:      0;
     border-width: 0;
     white-space:  nowrap;
@@ -214,7 +214,7 @@
 
 /* ---- Viewport helpers ---- */
 .min-h-vhfix {
-    min-height: calc(var(--vh) * 100);
+    min-height: calc(var(--svh) * 100);
 }
 
 .min-h-vhfix { /*noinspection CssInvalidPropertyValue*/
@@ -224,7 +224,7 @@
 }
 
 .py-vh-18 {
-    padding-block: calc(var(--vh) * 18);
+    padding-block: calc(var(--svh) * 18);
 }
 
 @media (min-width: 40rem) {

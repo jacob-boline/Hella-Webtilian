@@ -4,9 +4,11 @@
 
 SECTION_WIPES: dict[str, str] = {
     "section-wipe-0": "solar_eclipse_build_black.jpg",
-    "section-wipe-1": "sci_fi_fork_in_road.jpg",
+    "section-wipe-1": "abstract_blue_panel.jpg",
+    # "section-wipe-1": "sci_fi_fork_in_road.jpg",
     "section-wipe-2": "blue_black_pillars.jpg",
-    "section-wipe-3": "old_english_tree_rows.jpg",
+    # "section-wipe-3": "old_english_tree_rows.jpg",
+    "section-wipe-3": "empty_frame.jpg",
 }
 
 SECTION_BACKGROUNDS: dict[str, str] = {
