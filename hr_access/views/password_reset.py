@@ -51,6 +51,7 @@ class AccountPasswordResetConfirmView(PasswordResetConfirmView):
         qs = request.GET.copy()
         qs["handoff"] = "0"
         modal_url = f"{request.path}?{qs.urlencode()}"
+        log_event(logger, logging.INFO, "access.password_reset.handoff_redirect")
         params = urlencode(
             {
                 "modal": "password_reset",
@@ -58,12 +59,6 @@ class AccountPasswordResetConfirmView(PasswordResetConfirmView):
                 "modal_url": modal_url,
             }
         )
-        log_event(logger, logging.INFO, "access.password_reset.handoff_redirect")
-        params = urlencode({
-            "modal": "password_reset",
-            "handoff": "password_reset",
-            "modal_url": modal_url
-        })
         return redirect(f"{reverse('index')}?{params}")
 
     def form_valid(self, form):
