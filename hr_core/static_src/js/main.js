@@ -7,6 +7,7 @@
     import './modules/account.js'
     import './modules/banner.js'
     import './modules/events.js'
+    import './modules/intro.js'
     import './modules/neon-sequencer.js'
     import './modules/scroll-effects.js'
 

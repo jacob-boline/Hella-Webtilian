@@ -1220,7 +1220,6 @@ def checkout_create_order(request):
         draft = (
             CheckoutDraft.objects
             .select_for_update()
-            # .select_related("order")
             .filter(customer=customer, used_at__isnull=True, expires_at__gt=timezone.now())
             .order_by("-created_at")
             .first()
@@ -1244,7 +1243,7 @@ def checkout_create_order(request):
             return hx_load_modal(pay_url)
 
         order = Order.objects.create(
-            user=request.user.id if request.user.is_authenticated else None,
+            user=request.user if request.user.is_authenticated else None,
             customer=customer,
             email=customer.email,
             shipping_address=shipping_address,

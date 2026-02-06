@@ -52,13 +52,13 @@ class Command(BaseCommand):
             stem = _stem(filename)
             fallback = f'/static/hr_core/images/wipes/{filename}'
 
-            css.append(f"#section-wipe-{key}.section-wipe {{")
+            css.append(f"#{key}.section-wipe {{")
             css.append(f'  background-image: url("{fallback}");')
             css.append("}")
             css.append("")
             css.append("/* noinspection CssInvalidFunction,CssUnknownTarget */")
             css.append('@supports (background-image: image-set(url("x.webp") type("image/webp") 1x)) {')
-            css.append(f"  #section-wipe-{key}.section-wipe {{")
+            css.append(f"  #{key}.section-wipe {{")
             css.append("    background-image: image-set(")
             css.extend(_imageset_lines("wipes", "opt_webp", stem, WIPE_WIDTHS))
             css.append("    );")
@@ -71,13 +71,13 @@ class Command(BaseCommand):
             stem = _stem(filename)
             fallback = f'/static/hr_core/images/backgrounds/{filename}'
 
-            css.append(f"#parallax-section-{key} .parallax-background {{")
+            css.append(f"#{key} .parallax-background {{")
             css.append(f'  background-image: url("{fallback}");')
             css.append("}")
             css.append("")
             css.append("/* noinspection CssInvalidFunction,CssUnknownTarget */")
             css.append('@supports (background-image: image-set(url("x.webp") type("image/webp") 1x)) {')
-            css.append(f"  #parallax-section-{key} .parallax-background {{")
+            css.append(f"  #{key} .parallax-background {{")
             css.append("    background-image: image-set(")
             css.extend(_imageset_lines("backgrounds", "bg_opt", stem, BACKGROUND_WIDTHS))
             css.append("    );")

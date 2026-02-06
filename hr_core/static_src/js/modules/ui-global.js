@@ -353,7 +353,9 @@
                     const token = (params.get("t") || "").trim();
                     if (!token) return null;
                     return `/access/account/signup/confirm/?t=${encodeURIComponent(token)}`;
-                }
+                },
+
+                // TODO need order receipt entry, password reset, possibly a seperate entry for post purchase signup
 
             };
 
@@ -401,6 +403,8 @@
         window.hrSite.cart.hide = hideFloatingCart;
 
         window.hrModal = {open: openModal, close: hideModal};
+
+        showFloatingCart();
     }
 
     if (document.readyState === "loading") {

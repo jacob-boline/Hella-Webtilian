@@ -1,0 +1,414 @@
+// hr_core/static_src/js/modules/intro.js
+
+(function () {
+    'use strict';
+
+    // ===========================
+    // Configuration & Timing
+    // ===========================
+
+    const TIMINGS = {
+        logoFadeIn: 300,
+
+        highlightH: {
+            start: 500,
+            duration: 250
+        },
+        highlightR: {
+            start: 800,
+            duration: 250
+        },
+        highlightStroke: {
+            start: 1100,
+            duration: 250
+        },
+        highlightDot: {
+            start: 1100,
+            duration: 250
+        },
+
+        lockIn: {
+            start: 1400,
+            duration: 250
+        },
+
+        hold: 750,
+
+        introYield: {
+            start: 2400,  //self.lockIn.start + self.lockIn.duration + hold,
+            duration: 1500
+        },
+
+        total: 4000,  // self.introYield.start + self.introYield.duration,
+
+        hintIdleDelay: 6000,
+        hintNudgeDuration: 500
+    };
+
+    // ===========================
+    // State Management
+    // ===========================
+
+    const STATE = {
+        phase: 'inactive',
+        timeouts: [],
+        startTime: null,
+        skipRequested: false,
+        hintNudgeTriggered: false,
+        interactionDetected: false
+    };
+
+    // ===========================
+    // DOM References
+    // ===========================
+
+    let overlay = null;
+    let logoBase = null;
+    let highlightH = null;
+    let highlightCenter = null;
+    let highlightR = null;
+    let highlightStroke = null;
+    let highlightDot = null;
+    let introName = null;
+    let scrollHint = null;
+
+    // ===========================
+    // Utilities
+    // ===========================
+
+    function clearAllTimeouts () {
+        STATE.timeouts.forEach(id => clearTimeout(id));
+        STATE.timeouts = [];
+    }
+
+    function addTimeout (fn, delay) {
+        const id = setTimeout(() => {
+            STATE.timeouts = STATE.timeouts.filter(t => t !== id);
+            fn();
+        }, delay);
+        STATE.timeouts.push(id);
+        return id;
+    }
+
+    function pulseHighlight (element, duration) {
+        if (!element) return;
+        element.classList.add('pulse');
+        addTimeout(() => {
+            element.classList.remove('pulse');
+        }, duration);
+    }
+
+    // ===========================
+    // Animation Sequence
+    // ===========================
+
+    function runIntroSequence (prefersReducedMotion) {
+        if (prefersReducedMotion) {
+            runReducedMotionSequence();
+            return;
+        }
+
+        STATE.phase = 'active';
+        STATE.startTime = performance.now();
+        overlay.classList.add('active');
+
+        // Phase 1: Logo fade-in (0-150ms)
+        // Logo starts at 0.35 opacity via CSS
+
+        // Phase 2: Diagnostic highlights (150-850ms)
+        addTimeout(() => {
+            pulseHighlight(highlightH, TIMINGS.highlightH.duration);
+            pulseHighlight(highlightCenter, TIMINGS.highlightH.duration); // Shared vertical pulses with H
+        }, TIMINGS.highlightH.start);
+
+        addTimeout(() => {
+            pulseHighlight(highlightR, TIMINGS.highlightR.duration);
+            pulseHighlight(highlightCenter, TIMINGS.highlightR.duration); // Shared vertical pulses with R
+        }, TIMINGS.highlightR.start);
+
+
+        addTimeout(() => {
+            pulseHighlight(highlightStroke, TIMINGS.highlightStroke.duration);
+        }, TIMINGS.highlightStroke.start);
+
+        addTimeout(() => {
+            pulseHighlight(highlightDot, TIMINGS.highlightDot.duration);
+        }, TIMINGS.highlightDot.start);
+
+        // Phase 3: Identity lock-in (850-1200ms)
+        addTimeout(() => {
+            logoBase.classList.add('locked');
+            introName.classList.add('visible');
+
+            setupGlitchName(introName, "HELLA REPTILIAN!");
+            playGlitchName(introName, { settleMs: 520 });
+        }, TIMINGS.lockIn.start);
+
+        // Phase 4: Hold (1200-1700ms)
+        // Just waiting
+
+        // Phase 5: Yield (1700-2100ms)
+        addTimeout(() => {
+            yieldToSite();
+        }, TIMINGS.introYield.start);
+    }
+
+    function runReducedMotionSequence () {
+        STATE.phase = 'active';
+        overlay.classList.add('active');
+
+        // Show everything immediately
+        logoBase.classList.add('locked');
+        logoBase.style.opacity = '1';
+        introName.classList.add('visible');
+
+        // Brief display, then yield
+        addTimeout(() => {
+            yieldToSite();
+        }, 800);
+    }
+
+    function yieldToSite () {
+        if (STATE.phase === 'complete') return;
+
+        STATE.phase = 'yielding';
+        overlay.classList.remove('active');
+        overlay.classList.add('yielding');
+
+        addTimeout(() => {
+            completeIntro();
+        }, TIMINGS.introYield.duration);
+    }
+
+    function completeIntro () {
+        STATE.phase = 'complete';
+        overlay.classList.add('complete');
+
+        // Show scroll hint
+        showScrollHint();
+
+        // Remove skip listeners
+        removeSkipListeners();
+    }
+
+    // ===========================
+    // Skip/Accelerate Logic
+    // ===========================
+
+    function skipIntro () {
+        if (STATE.phase !== 'active') return;
+
+        STATE.skipRequested = true;
+        clearAllTimeouts();
+
+        yieldToSite();
+    }
+
+    function handleWheel () {
+        skipIntro();
+    }
+
+    function handleTouchStart () {
+        skipIntro();
+    }
+
+    function handleTouchMove () {
+        skipIntro();
+    }
+
+    function handleKeyDown (event) {
+        const skipKeys = ['ArrowDown', 'PageDown', ' '];
+        if (skipKeys.includes(event.key)) {
+            skipIntro();
+        }
+    }
+
+    function addSkipListeners () {
+        window.addEventListener('wheel', handleWheel, {passive: true});
+        window.addEventListener('touchstart', handleTouchStart, {passive: true});
+        window.addEventListener('touchmove', handleTouchMove, {passive: true});
+        window.addEventListener('keydown', handleKeyDown);
+    }
+
+    function removeSkipListeners () {
+        window.removeEventListener('wheel', handleWheel);
+        window.removeEventListener('touchstart', handleTouchStart);
+        window.removeEventListener('touchmove', handleTouchMove);
+        window.removeEventListener('keydown', handleKeyDown);
+    }
+
+    // ===========================
+    // Scroll Hint (Post-Intro)
+    // ===========================
+
+    function showScrollHint () {
+        if (!scrollHint) return;
+
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        // Fade in hint
+        scrollHint.classList.add('visible');
+
+        // Add interaction listeners
+        addHintInteractionListeners();
+
+        // Trigger nudge after idle delay (if not reduced motion)
+        if (!prefersReducedMotion && !STATE.hintNudgeTriggered) {
+            addTimeout(() => {
+                if (!STATE.interactionDetected) {
+                    triggerHintNudge();
+                }
+            }, TIMINGS.hintIdleDelay);
+        }
+    }
+
+    function triggerHintNudge () {
+        if (!scrollHint || STATE.hintNudgeTriggered) return;
+
+        STATE.hintNudgeTriggered = true;
+        scrollHint.classList.add('nudge');
+
+        addTimeout(() => {
+            scrollHint.classList.remove('nudge');
+        }, TIMINGS.hintNudgeDuration);
+    }
+
+    function hideScrollHint () {
+        if (!scrollHint || STATE.interactionDetected) return;
+
+        STATE.interactionDetected = true;
+        scrollHint.classList.add('interacted');
+
+        // Remove hint and overlay after fade
+        addTimeout(() => {
+            if (overlay) {
+                overlay.remove();
+            }
+        }, 400);
+
+        removeHintInteractionListeners();
+    }
+
+    function handleHintInteraction () {
+        hideScrollHint();
+    }
+
+    function addHintInteractionListeners () {
+        window.addEventListener('scroll', handleHintInteraction, {passive: true, once: true});
+        window.addEventListener('wheel', handleHintInteraction, {passive: true, once: true});
+        window.addEventListener('touchstart', handleHintInteraction, {passive: true, once: true});
+    }
+
+    function removeHintInteractionListeners () {
+        window.removeEventListener('scroll', handleHintInteraction);
+        window.removeEventListener('wheel', handleHintInteraction);
+        window.removeEventListener('touchstart', handleHintInteraction);
+    }
+
+
+    function setupGlitchName (el, text) {
+        // const pool = "¡™£¢∞§¶•ªº–≠åß∂ƒ©˙∆˚¬…æ≈ç√∫˜µ≤≥÷/?░▒▓<>/".split("");
+        const pool = "HR!+*#=/\\<>[]{}:-_".split("");
+
+        const frag = document.createDocumentFragment();
+
+        for (const ch of text) {
+            const span = document.createElement("span");
+            span.className = "ch";
+
+            // preserve spaces
+            const finalChar = ch === " " ? "\u00A0" : ch;
+            span.dataset.final = finalChar;
+
+            // pick 6 random glitch chars for this letter
+            const picks = Array.from({length: 6}, () => pool[(Math.random() * pool.length) | 0]);
+            // set CSS vars used by keyframes
+            span.style.setProperty("--c0", `"${picks[0]}"`);
+            span.style.setProperty("--c1", `"${picks[1]}"`);
+            span.style.setProperty("--c2", `"${picks[2]}"`);
+            span.style.setProperty("--c3", `"${picks[3]}"`);
+            span.style.setProperty("--c4", `"${picks[4]}"`);
+            span.style.setProperty("--c5", `"${picks[5]}"`);
+
+
+
+            const colors = ["var(--text)", "var(--neon-blue)", "darkorange"];
+            for (let g = 0; g < 6; g++) {
+                span.style.setProperty(`--g${g}`, colors[Math.floor(Math.random() * colors.length)]);
+            }
+
+            // stagger and iteration count
+            const i = frag.childNodes.length;
+            span.style.setProperty("--delay", `${i * 22}ms`);
+            span.style.setProperty("--iters", `${3 + ((Math.random() * 3) | 0)}`); // 2–4
+
+            span.textContent = finalChar;
+            frag.appendChild(span);
+        }
+
+        el.textContent = "";
+        el.appendChild(frag);
+        el.dataset.split = "1";
+    }
+
+    function playGlitchName (el, opts = {}) {
+        const settleMs = opts.settleMs ?? 1200; // how long before showing real text
+        if (el.querySelectorAll('.ch').length === 0) return;
+        el.classList.add("is-glitching");
+
+        // after the glitch window, reveal real glyphs
+        window.setTimeout(() => {
+            el.classList.remove("is-glitching");
+        }, settleMs);
+    }
+
+
+    // ===========================
+    // Initialization
+    // ===========================
+
+    function initIntro () {
+        // Get DOM references
+        overlay = document.getElementById('intro-overlay');
+        if (!overlay) {
+            console.warn('[intro] #intro-overlay not found, skipping intro');
+            return;
+        }
+        overlay.classList.add('ready');
+
+        logoBase = overlay.querySelector('.intro-logo-base');
+        highlightH = overlay.querySelector('.intro-logo-highlight-h');
+        highlightCenter = overlay.querySelector('.intro-logo-highlight-center');
+        highlightR = overlay.querySelector('.intro-logo-highlight-r');
+        highlightStroke = overlay.querySelector('.intro-logo-highlight-stroke');
+        highlightDot = overlay.querySelector('.intro-logo-highlight-dot');
+        introName = overlay.querySelector('.intro-name');
+        scrollHint = overlay.querySelector('.intro-scroll-hint');
+
+        if (!logoBase || !introName) {
+            console.warn('[intro] Required elements not found, skipping intro');
+            overlay.classList.add('complete');
+            return;
+        }
+
+        // Check reduced motion preference
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        // Add skip listeners
+        addSkipListeners();
+
+        // Start intro sequence
+        runIntroSequence(prefersReducedMotion);
+    }
+
+    // ===========================
+    // Entry Point
+    // ===========================
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initIntro);
+    } else {
+        initIntro();
+    }
+
+})();
