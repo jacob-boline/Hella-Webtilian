@@ -339,9 +339,11 @@
 
             if (!window.htmx) return false;
 
+            const modalUrl = (params.get("modal_url") || "").trim();
+
             const routes = {
 
-                email_confirmed: () => "/shop/checkout/email-confirmation/success/",
+                email_confirmed: () => modalUrl || "/shop/checkout/email-confirmation/success/",
 
                 order_payment_result: () => {
                     const token = (params.get("t") || "").trim();
@@ -355,7 +357,9 @@
                     return `/access/account/signup/confirm/?t=${encodeURIComponent(token)}`;
                 },
 
-                // TODO need order receipt entry, password reset, possibly a seperate entry for post purchase signup
+                email_change: () => modalUrl || null,
+
+                password_reset: () => modalUrl || null
 
             };
 
