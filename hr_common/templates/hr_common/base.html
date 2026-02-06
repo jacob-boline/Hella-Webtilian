@@ -4,6 +4,7 @@
 {% load django_browser_reload static %}
 
 <!DOCTYPE html>
+<!--suppress CheckEmptyScriptTag -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -34,36 +35,111 @@
     <span id="global-message-content"></span>
 </div>
 
+{# ---- Intro Overlay (New) ---- #}
+<div id="intro-overlay" class="intro-overlay">
+    <div class="intro-container">
+        {# Base logo with circle #}
+        <div class="intro-logo-stack">
+
+            <svg class="intro-logo-base" viewBox="0 0 200 200" aria-label="Hella Reptilian" style="opacity: 0.35;">
+                {# Circle border #}
+                <circle cx="100" cy="100" r="92" fill="none" stroke="currentColor" stroke-width="2.5"/>
+
+                {# H letter - left vertical bar and crossbar #}
+                <rect x="59" y="60" width="8" height="70" fill="currentColor"/>
+                <rect x="59" y="90" width="43" height="8" fill="currentColor"/>
+
+                {# Shared center vertical stroke (right side of H, left side of R, aligned with !) #}
+                <rect x="94" y="60" width="8" height="70" fill="currentColor"/>
+
+                {# R letter - curved top and diagonal leg (shares the center vertical) #}
+                <path d="M98,63 L118,63 Q138,63 138,80 Q138,94 118,94 L98,94 Z" fill="black" stroke-width="9"/>
+                <path d="M102,94 L140,130" stroke="currentColor" stroke-width="8" stroke-linecap="butt" stroke-linejoin="bevel"/>
+
+                {# Exclamation mark - vertical stroke (aligned with shared center stroke) and dot #}
+                <rect x="94" y="60" width="8" height="70" rx="2" fill="currentColor"/>
+                <circle cx="98" cy="145" r="6" fill="currentColor"/>
+            </svg>
+
+            {# Highlight layer for H (left vertical + crossbar only) #}
+            <svg class="intro-logo-highlight intro-logo-highlight-h" viewBox="0 0 200 200" aria-hidden="true">
+                <circle cx="100" cy="100" r="92" fill="none" stroke="transparent" stroke-width="2.5"/>
+                <rect x="59" y="60" width="8" height="70" fill="currentColor"/>
+                <rect x="59" y="90" width="43" height="8" fill="currentColor"/>
+            </svg>
+
+            {# Highlight layer for shared center vertical (used by H, R, and !) #}
+            <svg class="intro-logo-highlight intro-logo-highlight-center" viewBox="0 0 200 200" aria-hidden="true">
+                <circle cx="100" cy="100" r="92" fill="none" stroke="transparent" stroke-width="2.5"/>
+                <rect x="94" y="60" width="8" height="70" fill="currentColor"/>
+            </svg>
+
+            {# Highlight layer for R (curved top + diagonal leg only, shares center vertical with H) #}
+            <svg class="intro-logo-highlight intro-logo-highlight-r" viewBox="0 0 200 200" aria-hidden="true">
+                <circle cx="100" cy="100" r="92" fill="none" stroke="transparent" stroke-width="2.5"/>
+                <path d="M98,63 L118,63 Q138,63 138,80 Q138,94 118,94 L98,94 Z" fill="black" stroke-width="9"/>
+                <path d="M102,94 L140,130" stroke="currentColor" stroke-width="8" stroke-linecap="butt" stroke-linejoin="miter"/>
+            </svg>
+
+            {# Highlight layer for exclamation stroke (aligned with shared center vertical) #}
+            <svg class="intro-logo-highlight intro-logo-highlight-stroke" viewBox="0 0 200 200" aria-hidden="true">
+                <circle cx="100" cy="100" r="92" fill="none" stroke="transparent" stroke-width="2.5"/>
+                <rect x="94" y="60" width="8" height="70" rx="2" fill="currentColor"/>
+            </svg>
+
+            {# Highlight layer for exclamation dot (centered with shared vertical) #}
+            <svg class="intro-logo-highlight intro-logo-highlight-dot" viewBox="0 0 200 200" aria-hidden="true">
+                <circle cx="100" cy="100" r="92" fill="none" stroke="transparent" stroke-width="2.5"/>
+                <circle cx="98" cy="145" r="6" fill="currentColor"/>
+            </svg>
+        </div>
+
+        <div class="intro-name" id="introName">HELLA REPTILIAN!</div>
+    </div>
+
+    {# Scroll hint (shown after intro yields) #}
+    {#    <div class="intro-scroll-hint">#}
+    {#        <svg class="hint-waveform" viewBox="0 0 40 24" aria-hidden="true">#}
+    {#            <rect x="2" y="12" width="3" height="8" rx="1.5" fill="currentColor"/>#}
+    {#            <rect x="10" y="8" width="3" height="12" rx="1.5" fill="currentColor"/>#}
+    {#            <rect x="18" y="4" width="3" height="16" rx="1.5" fill="currentColor"/>#}
+    {#            <rect x="26" y="6" width="3" height="14" rx="1.5" fill="currentColor"/>#}
+    {#            <rect x="34" y="10" width="3" height="10" rx="1.5" fill="currentColor"/>#}
+    {#        </svg>#}
+    {#        <span class="hint-text">Scroll</span>#}
+    {#    </div>#}
+</div>
+
 <div id="parallax-wrapper">
 
     {# ---- Banner / Title ---- #}
-    <section id="banner" class="w-full px-4 z-30 fixed">
-        <div class="flex flex-wrap">
-            <div class="w-full banner-row">
-                <span class="blink">H</span>
-                <span>E</span>
-                <span>L</span>
-                <span>L</span>
-                <span>A</span>
-                <span>&nbsp;</span>
-                <span>R</span>
-                <span>E</span>
-                <span>P</span>
-                <span>T</span>
-                <span>I</span>
-                <span>L</span>
-                <span>I</span>
-                <span>A</span>
-                <span>N</span>
-                <span>!</span>
-            </div>
-            <div class="w-full banner-row">
-                <span id="banner-end"></span>
-            </div>
-        </div>
-    </section>
-
-    <section id="banner-scroller"></section>
+    {#    <section id="banner" class="w-full px-4 z-30 fixed">#}
+    {#        <div class="flex flex-wrap">#}
+    {#            <div class="w-full banner-row">#}
+    {#                <span class="blink">H</span>#}
+    {#                <span>E</span>#}
+    {#                <span>L</span>#}
+    {#                <span>L</span>#}
+    {#                <span>A</span>#}
+    {#                <span>&nbsp;</span>#}
+    {#                <span>R</span>#}
+    {#                <span>E</span>#}
+    {#                <span>P</span>#}
+    {#                <span>T</span>#}
+    {#                <span>I</span>#}
+    {#                <span>L</span>#}
+    {#                <span>I</span>#}
+    {#                <span>A</span>#}
+    {#                <span>N</span>#}
+    {#                <span>!</span>#}
+    {#            </div>#}
+    {#            <div class="w-full banner-row">#}
+    {#                <span id="banner-end"></span>#}
+    {#            </div>#}
+    {#        </div>#}
+    {#    </section>#}
+    {##}
+{#    <section id="banner-scroller"></section>#}
 
     {# ---- Sidebar / Drawer ---- #}
     <div id="open-nav-btn-container" class="prehide" style="visibility:hidden;">
