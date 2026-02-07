@@ -215,6 +215,16 @@
     --bulletin-stage-h:    calc(var(--svh) * 100);
 }
 
+/* iOS non-Safari settle-based vh fix (keep Safari svh behavior unchanged). */
+html.has-vh-fix {
+    --modal-max-h: calc(
+        (var(--vh) * 100)
+        - (2 * var(--modal-gutter))
+        - env(safe-area-inset-top, 0px)
+        - env(safe-area-inset-bottom, 0px)
+    );
+}
+
 /* ===========================
    Base reset + body
    =========================== */

@@ -122,6 +122,12 @@ div.parallax-content p {
     background-position: 50% 50%;
 }
 
+/* iOS non-Safari settle-based vh fix (avoid svh jitter on wipes). */
+html.has-vh-fix .section-wipe {
+    height: calc(var(--vh) * 60);
+    min-height: calc(var(--vh) * 60);
+}
+
 /*noinspection CssInvalidPropertyValue*/
 @supports (height: 1svh) {
     .parallax-background {
