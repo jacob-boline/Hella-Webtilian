@@ -17,8 +17,9 @@
 
     import './utils/globals.js';
     import './utils/htmx-csrf.js';
-    import './utils/vh-fix.js';
+    import {initVhFix} from './utils/vh-fix.js';
 
 
     window.htmx = htmx?.default ?? htmx;
+initVhFix();
 window.addEventListener("DOMContentLoaded", () => feather.replace());
