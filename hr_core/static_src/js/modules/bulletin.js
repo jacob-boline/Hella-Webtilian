@@ -4,6 +4,7 @@ export function initBulletin () {
     if (document.body._bulletinInitDone) return;
     document.body._bulletinInitDone = true;
 
+    // Handle "Read more" toggle for long posts
     document.addEventListener('click', function (e) {
         const toggle = e.target.closest('.bulletin-toggle');
         if (!toggle) return;
@@ -27,36 +28,60 @@ export function initBulletin () {
         requestAnimationFrame(() => window.hrSite?.reflowParallax?.());
     });
 
-    // // ---- Infinite scroll sentinel paging ----
-    // document.body.addEventListener("htmx:afterRequest", (e) => {
-    //     const elt = e.detail?.elt;
-    //     if (!elt || elt.id !== "bulletin-sentinel") return;
-    //
-    //     const xhr = e.detail?.xhr;
-    //     if (!xhr) return;
-    //
-    //     const nextPage = xhr.getResponseHeader("X-Next-Page");
-    //     if (!nextPage) {
-    //         elt.remove();
-    //         return;
-    //     }
-    //
-    //     const hxGet = elt.getAttribute("hx-get") || "";
-    //     const baseUrl = hxGet.split("?")[0];
-    //     elt.setAttribute("hx-get", `${baseUrl}?page=${encodeURIComponent(nextPage)}`);
-    //
-    //     // const fresh = elt.cloneNode(true);
-    //     elt.replaceWith(fresh);
-    //
-    //     // Re-process so HTMX sees the updated attributes
-    //     window.htmx?.process?.(fresh);
-    //
-    //     // 'revealed' fires on becoming visible; after append it might already be visible.
-    //     // Nudge another revealed check.
-    //     // requestAnimationFrame(() => {
-    //     //     window.htmx?.trigger?.(elt, "revealed");
-    //     // });
-    // });
+    // Handle tag ellipsis expansion
+    document.addEventListener('click', function (e) {
+        const tagsContainer = e.target.closest('.bulletin-tags.has-overflow');
+        if (!tagsContainer) return;
+
+        // Only toggle if clicking on the ellipsis area (::after pseudo-element)
+        const rect = tagsContainer.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+
+        // Check if click is in the right area where ellipsis would be
+        if (clickX > rect.width - 60) {
+            tagsContainer.classList.toggle('expanded');
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    });
+
+    // Initialize tag overflow detection
+    function checkTagOverflow() {
+        document.querySelectorAll('.bulletin-tags').forEach(tagsContainer => {
+            // Skip if already processed
+            if (tagsContainer.dataset.overflowChecked === 'true') return;
+
+            const tags = tagsContainer.querySelectorAll('.bulletin-tag');
+            if (tags.length === 0) return;
+
+            // Temporarily remove flex-wrap to check natural width
+            tagsContainer.style.flexWrap = 'nowrap';
+            const scrollWidth = tagsContainer.scrollWidth;
+            const clientWidth = tagsContainer.clientWidth;
+            tagsContainer.style.flexWrap = '';
+
+            // If content overflows, add the overflow class
+            if (scrollWidth > clientWidth) {
+                tagsContainer.classList.add('has-overflow');
+            }
+
+            tagsContainer.dataset.overflowChecked = 'true';
+        });
+    }
+
+    // Run on load and after new content is added
+    checkTagOverflow();
+
+    document.body.addEventListener("htmx:afterSwap", (e) => {
+        // Reset overflow check flags for new content
+        const target = e.detail?.target;
+        if (target) {
+            target.querySelectorAll('.bulletin-tags').forEach(el => {
+                el.dataset.overflowChecked = 'false';
+            });
+            checkTagOverflow();
+        }
+    });
 
     document.body.addEventListener("htmx:afterSwap", (e) => {
         const target = e.detail?.target || e.target;
@@ -68,7 +93,6 @@ export function initBulletin () {
             const loading = root?.querySelector(".bulletin-loading");
             if (loading) loading.remove();
 
-            // optional: reflow after DOM insertion
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => window.hrSite?.reflowParallax?.());
             });
@@ -82,18 +106,5 @@ export function initBulletin () {
         requestAnimationFrame(() => window.hrSite?.reflowParallax?.());
     });
 
-
-    //
-    // document.body.addEventListener("htmx:afterSwap", (e) => {
-    //     const target = e.detail?.target || e.target;
-    //     if (!target) return;
-    //
-    //     // We only care about infinite-scroll appends into the feed
-    //     if (target.id !== "bulletin-feed") return;
-    //
-    //     requestAnimationFrame(() => {
-    //         requestAnimationFrame(() => window.hrSite?.reflowParallax?.());
-    //     });
-    // });
-
 }
+

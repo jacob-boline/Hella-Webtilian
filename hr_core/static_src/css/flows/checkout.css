@@ -33,7 +33,6 @@
     color:         var(--gold);
 }
 
-/* Title + message blocks (could be generalized later, keeping for now) */
 .checkout-title {
     margin:         0 0 1.25rem;
     font-family:    "Exo 2", sans-serif;
@@ -75,9 +74,10 @@
     line-height: 1.5;
 }
 
-.checkout-details-form input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):not([type="button"]):not([type="submit"]):not([type="reset"]),
-.checkout-details-form select,
-.checkout-details-form textarea {
+.checkout-details-form :is(
+    input:is([type="text"],[type="email"], [type="tel"]),
+    select,
+    textarea) {
     font-size: 0.75rem;
 }
 
@@ -113,15 +113,13 @@
     opacity:    0.8;
 }
 
-/* Rows / columns (these are arguably global “form grid” primitives) */
 .checkout-details-modal .field-row {
     display:   flex;
     flex-wrap: wrap;
     gap:       0;
 }
 
-.checkout-details-modal .field-row-two-cols .field-group,
-.checkout-details-modal .field-row-thirds .field-group {
+.checkout-details-modal :is(.field-row-two-cols, .field-row-thirds) .field-group {
     flex: 1 1 0;
 }
 
@@ -140,16 +138,15 @@
     flex-direction: column;
 }
 
-/* Labels + required star */
 .checkout-details-modal label {
     display:        inline-flex;
     align-items:    center;
-    gap:            0.25rem;
+    text-transform: uppercase;
     line-height:    1.1;
+    gap:            0.25rem;
     font-size:      0.55rem;
     letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin-top:     0.5rem;
+    margin-top:     0.50rem;
     margin-bottom:  0.25rem;
     color:          var(--neon-blue);
 }
@@ -161,7 +158,6 @@
     transform:  translateY(-0.02em);
 }
 
-/* Textarea specifics only (base textarea styles now in modal-ui.css) */
 .checkout-details-modal textarea {
     resize:     vertical;
     min-height: 4.5rem;
@@ -181,10 +177,9 @@
 }
 
 .checkout-details-modal .field-row.m-grid {
-    display:               grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap:                   clamp(8px, 1.2vw, 14px) clamp(12px, 2vw, 18px);
-    align-items:           start;
+    display:     grid;
+    align-items: start;
+    gap:         clamp(8px, 1.2vw, 14px) clamp(12px, 2.0vw, 18px);
 }
 
 .checkout-details-modal .field-row.field-row-full {
@@ -195,7 +190,8 @@
 
 /* Bottom block: left stack + right note */
 .checkout-details-modal .field-row-bottom-block.m-grid {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr)
+                           minmax(0, 1fr);
 }
 
 /* Mobile/narrow modal: collapse to single column */
@@ -206,29 +202,50 @@
     }
 }
 
+.checkout-details-modal .m-foot.m-actions.inline.uniform {
+    flex-direction: column;
+    align-items:    stretch;
+    gap:            0.75rem;
+}
+
+.checkout-details-modal .m-foot.m-actions.inline.uniform > * {
+    width: 100%;
+}
+
+@container modal (min-width: 600px) {
+    .checkout-details-modal .m-foot.m-actions.inline.uniform {
+        flex-direction:  row;
+        justify-content: flex-end;
+        align-items:     center;
+        gap:             1rem;
+    }
+
+    .checkout-details-modal .m-foot.m-actions.inline.uniform > * {
+        width: auto;
+    }
+}
+
+
 /* ===========================
    Checkout review modal
    =========================== */
 
 .checkout-review-modal {
+    /*noinspection CssInvalidPropertyValue*/
+    max-height:    80 svh;
     text-align:    left;
     padding:       1.25rem;
     color:         var(--text);
-
     width:         min(90%, 1200px);
     max-width:     min(90%, 1200px);
     margin-inline: auto;
-
-    /* Only scroll when genuinely necessary */
-    /*noinspection CssInvalidPropertyValue*/
-    max-height:    80svh;
     overflow:      hidden auto;
     font-size:     0.75rem;
 }
 
 .checkout-review-modal:not(.order-payment-result) {
-    width:      min(90%, 1200px);
-    max-width:  min(90%, 1200px);
+    width:         min(90%, 1200px);
+    max-width:     min(90%, 1200px);
     margin-inline: auto;
 }
 
@@ -248,7 +265,6 @@
     color:          var(--text);
 }
 
-/* Tighten section spacing */
 .checkout-review-modal .review-section {
     position:      relative;
     padding:       0.5rem 0.5rem 0;
@@ -260,7 +276,7 @@
 .checkout-review-modal .review-section.shipping-review {
     margin-bottom:  0;
     padding-bottom: 0.25rem;
-    margin-top: 0.5rem;
+    margin-top:     0.5rem;
 }
 
 .checkout-review-modal .review-section.shipping-review + .review-section {
@@ -278,8 +294,9 @@
 
 .checkout-review-modal .shipping-summary {
     display:               grid;
-    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
-    gap: 0.4rem 1.0rem;
+    grid-template-columns: minmax(0, 1.5fr)
+                           minmax(0, 1fr);
+    gap:                   0.4rem 1.0rem;
     font-size:             0.85rem;
     line-height:           1.45;
     margin-bottom:         0.5rem;
@@ -291,10 +308,12 @@
     font-size:   0.65rem;
 }
 
-.checkout-review-modal .customer-email,
-.checkout-review-modal .customer-phone,
-.checkout-review-modal .shipping-address {
+.checkout-review-modal :is(.customer-email, .customer-phone, .shipping-address) {
     color: var(--text);
+}
+
+.checkout-review-modal .shipping-contact {
+    justify-items: right;
 }
 
 .checkout-review-modal .m-body {
@@ -325,7 +344,6 @@
     border-bottom: none;
 }
 
-/* Default (mobile/small): stacked meta under name */
 .checkout-review-modal .item-info {
     display:        flex;
     flex-direction: column;
@@ -350,14 +368,12 @@
     margin-top:  0.2rem;
 }
 
-.checkout-review-modal .item-variant,
-.checkout-review-modal .item-qty {
+.checkout-review-modal :is(.item-variant, .item-qty) {
     color:   var(--muted-text);
     opacity: 0.85;
 }
 
 .checkout-review-modal .item-price {
-    font-weight: 600;
     white-space: nowrap;
     color:       var(--accent);
     font-size:   0.75rem;
@@ -367,7 +383,8 @@
 @container modal (min-width: 768px) {
     .checkout-review-modal .item-info {
         display:               grid;
-        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-columns: minmax(0, 1fr)
+                               auto;
         align-items:           baseline;
         column-gap:            0.75rem;
     }
@@ -381,25 +398,37 @@
 
 .checkout-review-modal .review-totals {
     background:    var(--black-alpha-45);
-    padding:       0.5rem 0.75rem;
     border-radius: 16px;
-    margin:        0 auto;
-    max-width:     420px;
     font-size:     0.75rem;
 }
 
-.checkout-review-modal .total-row {
-    display:         flex;
-    justify-content: space-between;
-    padding:         0.18rem 0;
-    color:           var(--muted-text);
+.checkout-review-modal .review-totals .total-row {
+    display:               grid;
+    grid-template-columns: 1fr auto;
+    align-items:           baseline;
+    padding:               0.18rem 0;
+    color:                 var(--text);
+    justify-items:         stretch;
 }
 
-.checkout-review-modal .total-final {
+.checkout-review-modal .total-row > :first-child {
+    text-align: left;
+}
+
+.checkout-review-modal .total-row > :last-child {
+    text-align:  right;
+    white-space: nowrap;
+}
+
+
+.checkout-review-modal .review-totals .total-final {
     margin-top:  0.35rem;
     padding-top: 0.35rem;
     border-top:  1px solid var(--white-alpha-15);
     font-weight: 700;
+}
+
+.checkout-review-modal .review-totals .total-final :nth-child(2) {
     color:       var(--neon-green);
 }
 
@@ -424,10 +453,10 @@
 
 .checkout-review-modal .review-actions > .card-btn,
 .checkout-review-modal #edit-shipping-btn {
-    width:      min(90%, 300px);
-    max-width:  300px;
+    width:         min(90%, 300px);
+    max-width:     300px;
     margin-inline: auto;
-    margin-top: 0.75rem;
+    margin-top:    0.75rem;
 }
 
 .checkout-review-modal .review-actions > .card-btn {
@@ -437,15 +466,15 @@
 /* Mobile: stack buttons full-ish width */
 @container modal (max-width: 599.98px) {
     .checkout-review-modal {
+        /*noinspection CssInvalidPropertyValue*/
+        max-height: 85 svh;
         width:      min(92%, 1200px);
         max-width:  min(92%, 1200px);
         padding:    1rem;
-        /*noinspection CssInvalidPropertyValue*/
-        max-height: 85svh;
     }
 
     .checkout-review-modal .shipping-summary {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
     }
 
     .checkout-review-modal .review-actions > .card-btn,
@@ -473,7 +502,8 @@
 
 .orders-summary-card {
     display:               grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr)
+                           auto;
     align-items:           center;
     gap:                   1rem;
     padding:               1rem 0;
@@ -584,18 +614,22 @@
 }
 
 .checkout-pay-modal {
-    width: min(500px, 90vw);
+    width:      min(500px, 90vw);
     align-self: center;
 }
 
 @keyframes cta-fade-in {
-    to { opacity: 1; transform: translateY(0); }
+    to {
+        opacity:   1;
+        transform: translateY(0);
+    }
 }
 
 .post-purchase-account.is-dismissing {
-    opacity: 0;
-    transform: translateY(2px);
-    transition: opacity 1s ease, transform 1s ease;
+    opacity:        0;
+    transform:      translateY(2px);
+    transition:     opacity 1s ease,
+                    transform 1s ease;
     pointer-events: none;
 }
 
@@ -626,9 +660,7 @@
     scrollbar-gutter: stable;
 }
 
-.order-payment-result .order-details p,
-.order-payment-result .order-details .customer-field,
-.order-payment-result .order-details .shipping-address {
+.order-payment-result .order-details :is(p, .customer-field, .shipping-address) {
     white-space: nowrap;
 }
 
@@ -680,6 +712,12 @@
 .order-payment-result .receipt-block {
     max-width: 100%;
     margin:    0.5rem 0;
+}
+
+.order-payment-result .receipt-block .modal-actions {
+    display:         flex;
+    justify-content: center;
+    align-items:     center;
 }
 
 /* ---------------------------
@@ -776,21 +814,22 @@
     white-space: pre-wrap;
 }
 
-.account-status-layout .account-status-panel:first-of-type .account-status-panel-text > p.modal-kicker {
+.account-status-panel:first-of-type .account-status-panel-text > p.modal-kicker {
     color: var(--neon-green);
 }
 
-.account-status-layout section.account-status-panel:nth-of-type(2) .account-status-panel-text > p.modal-kicker {
+.account-status-panel:nth-of-type(2) .account-status-panel-text > p.modal-kicker {
     color: var(--neon-red);
 }
 
 .checkout-review-modal.order-payment-result {
     /*noinspection CssInvalidPropertyValue*/
-    max-height:                 75svh;
-    overflow:                   auto hidden;
+    max-height:                 75 svh;
+    overflow-y:                 auto;
+    overflow-x:                 hidden;
     overscroll-behavior:        contain;
     -webkit-overflow-scrolling: touch;
-    padding:                    1.25rem -1.25rem;
+    padding:                    1.25rem;
 }
 
 .order-payment-result .order-payment-close {
@@ -859,37 +898,48 @@
     }
 }
 
-.order-payment-result .retry-payment-panel {
-    max-width: 560px;
-    margin: 0.9rem auto 0;
-    padding: 1rem;
-    border-radius: 14px;
-    background: var(--black-alpha-30);
-    border: 1px solid var(--white-alpha-15);
-    box-shadow: 0 0 18px var(--neon-cyan-alpha-15);
+/* Landscape orientation: buttons share a row with equal widths */
+@media (orientation: landscape) and (max-height: 599.98px) {
+    .checkout-review-modal .review-actions {
+        flex-direction: row;
+        align-items:    stretch;
+        gap:            1rem;
+        margin-top:     1rem;
+    }
+
+    .checkout-review-modal .review-actions .card-btn {
+        flex:       1 1 0;
+        width:      auto;
+        max-width:  none;
+        align-self: stretch;
+    }
 }
 
-/* Different accent color for retry vs account creation */
 .order-payment-result .retry-payment-panel {
-    box-shadow: 0 0 18px var(--neon-blue-alpha-15);
+    max-width:     560px;
+    margin:        0.9rem auto 0;
+    padding:       1rem;
+    border-radius: 14px;
+    background:    var(--black-alpha-30);
+    border:        1px solid var(--white-alpha-15);
+    box-shadow:    0 0 18px var(--neon-cyan-alpha-15);
 }
 
 .order-payment-result .retry-payment-panel .review-section-title {
-    color: var(--neon-blue);
-    font-size: 0.85rem;
+    color:         var(--neon-blue);
+    font-size:     0.85rem;
     margin-bottom: 0.5rem;
 }
 
 .order-payment-result .retry-payment-panel .text-muted {
-    font-size: 0.85rem;
-    line-height: 1.5;
+    font-size:     0.85rem;
+    line-height:   1.5;
     margin-bottom: 0.75rem;
 }
 
 /* Ensure both CTA and retry sections are same width */
-.order-payment-result .cta-panel,
-.order-payment-result .retry-payment-panel {
-    width: 100%;
-    max-width: 560px;
+.order-payment-result :is(.cta-panel, .retry-payment-panel) {
+    width:      100%;
+    max-width:  560px;
     box-sizing: border-box;
 }

@@ -99,7 +99,6 @@ def checkout_stripe_session(request, order_id: int):
         guest_ctx, error_response = _validate_guest_checkout(request, order_id)
 
         if error_response:
-
             if isinstance(error_response, HttpResponse) and error_response.status_code in (403, 401):
                 return hx_trigger({'showMessage': {'text': 'Not authorized. Please restart checkout.'}}, status=403)
 
@@ -189,7 +188,12 @@ def checkout_stripe_session(request, order_id: int):
         attach_customer = True
 
     with transaction.atomic():
-        attempt = PaymentAttempt.objects.create(order=order, provider="stripe", status=PaymentAttemptStatus.CREATED, amount_cents=amount_cents, currency="usd")
+        attempt = PaymentAttempt.objects.create(
+            order=order,
+            provider="stripe",
+            status=PaymentAttemptStatus.CREATED,
+            amount_cents=amount_cents,
+            currency="usd")
 
         # Token for post-payment “handoff” page/modal.
         receipt_token = generate_order_receipt_token(order_id=order.id, email=order.email or "")
@@ -203,14 +207,11 @@ def checkout_stripe_session(request, order_id: int):
                 "price_data": {
                     "currency": "usd",
                     "product_data": {"name": f"Hella Reptilian Order #{order.id}"},
-                    "unit_amount": amount_cents
-                },
-                "quantity": 1
-            }],
+                    "unit_amount": amount_cents},
+                "quantity": 1}],
             "metadata": {
                 "order_id": str(order.id),
-                "payment_attempt_id": str(attempt.id)
-            },
+                "payment_attempt_id": str(attempt.id)},
             "return_url": return_url
         }
 
@@ -266,7 +267,6 @@ def checkout_stripe_session(request, order_id: int):
 @require_POST
 def stripe_webhook(request):
     stripe.api_key = read_secret('STRIPE_SECRET_KEY')
-
     payload = request.body
     sig_header = request.META.get("HTTP_STRIPE_SIGNATURE", "")
 
@@ -345,8 +345,6 @@ def _process_stripe_event(event: dict) -> None:
         _handle_payment_intent_canceled(data_obj)
         return
 
-    # ignore others for now
-
 
 def _find_attempt_for_session(session: dict) -> PaymentAttempt | None:
     metadata = session.get("metadata") or {}
@@ -372,7 +370,6 @@ def _handle_checkout_session_completed(session: dict) -> None:
         return
 
     order = Order.objects.select_for_update().get(pk=int(order_id))
-
     sid = session.get("id")
     pi = session.get("payment_intent")
 
@@ -391,6 +388,7 @@ def _handle_checkout_session_completed(session: dict) -> None:
             attempt.provider_session_id = sid
         if pi:
             attempt.provider_payment_intent_id = pi
+
         attempt.client_secret = session.get("client_secret") or attempt.client_secret
         attempt.raw = {
             "id":             session['id'],
@@ -426,7 +424,6 @@ def _handle_checkout_session_expired(session: dict) -> None:
 
         attempt.save(update_fields=["raw", "updated_at"])
         attempt.mark_final(PaymentAttemptStatus.EXPIRED)
-    # Do NOT update order.payment_status here.
 
 
 def _handle_payment_intent_succeeded(pi: dict) -> None:
@@ -435,8 +432,7 @@ def _handle_payment_intent_succeeded(pi: dict) -> None:
         return
 
     attempt = PaymentAttempt.objects.select_for_update().filter(provider_payment_intent_id=pid).first()
-    order = attempt.order if attempt \
-        else Order.objects.select_for_update().filter(stripe_payment_intent_id=pid).first()
+    order = attempt.order if attempt else Order.objects.select_for_update().filter(stripe_payment_intent_id=pid).first()
     if not order:
         return
 
@@ -505,8 +501,7 @@ def _handle_payment_intent_canceled(pi: dict) -> None:
         return
 
     attempt = PaymentAttempt.objects.select_for_update().filter(provider_payment_intent_id=pid).first()
-    order = attempt.order if attempt \
-        else Order.objects.select_for_update().filter(stripe_payment_intent_id=pid).first()
+    order = attempt.order if attempt else Order.objects.select_for_update().filter(stripe_payment_intent_id=pid).first()
     if not order:
         return
 

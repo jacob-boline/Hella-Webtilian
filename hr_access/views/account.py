@@ -408,9 +408,7 @@ def account_delete_account(request):
 
 @require_GET
 def account_get_post_purchase_create_account(request, order_id: int):
-    """
-    Follows hank-you modal for guest orders
-    """
+    """Follows thank-you modal for guest orders"""
     if request.user.is_authenticated:
         log_event(logger, logging.INFO, "access.post_purchase.already_authenticated", order_id=order_id)
         return render(request, "hr_access/post_purchase/_post_purchase_account_done.html")
@@ -457,8 +455,10 @@ def account_submit_post_purchase_create_account(request, order_id: int):
 def account_submit_post_purchase_claim_orders(request, order_id: int):
     """
     After post-purchase account creation:
-    Presents user with any other orders linked to the email (prior guest orders) used to make their new account.
-    User may claim/deny as desired.
+    Presents user with any other orders linked to the email used to make their new account (prior guest orders).
+    User may claim/deny.
+
+    Verify the user is logged in and owns er0r
     """
     if not request.user.is_authenticated:
         log_event(logger, logging.WARNING, "access.post_purchase.claim_orders.unauthenticated", order_id=order_id)

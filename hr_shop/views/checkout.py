@@ -251,7 +251,7 @@ def _get_or_create_customer(email: str, user, form: CheckoutDetailsForm) -> Cust
             "last_name":        form.cleaned_data["last_name"].strip(),
             "suffix":           form.cleaned_data.get("suffix", "").strip() or None,
             "phone":            form.cleaned_data.get("phone") or None,
-            "wants_saved_info": form.cleaned_data["save_info_for_next_time"]
+            "wants_saved_info": form.cleaned_data["wants_saved_info"]
         }
     )
 

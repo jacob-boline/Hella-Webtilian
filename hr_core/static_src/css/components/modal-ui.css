@@ -159,7 +159,7 @@
 .modal-title {
     text-align:     center;
     margin:         0 auto;
-    font-family:   "Megrim", cursive;
+    font-family:    "Megrim", cursive;
     font-size:      1.75rem;
     letter-spacing: 0.08em;
     color:          var(--glow);
@@ -257,9 +257,11 @@
    Form controls inside modals
    =========================== */
 
-.modal input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):not([type="button"]):not([type="submit"]):not([type="reset"]),
-.modal select,
-.modal textarea {
+.modal :is(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):not([type="button"]):not([type="submit"]):not([type="reset"]),
+    select,
+    textarea)
+{
     padding:          0.25rem;
     border-radius:    8px;
     border:           1px solid var(--white-alpha-45);

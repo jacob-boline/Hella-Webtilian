@@ -5,28 +5,29 @@
    =========================== */
 
 .view-cart-modal {
-    max-width: 100%;
-    margin: 0;
-    padding: 0;
-    background: transparent none;
-    color: var(--text);
     text-align: left;
 }
-
-/* NOTE:
-   The cart title now uses .modal-title from modal-ui.css
-   (apply in template: <h2 class="sub-header modal-title">Shopping Cart</h2>)
-*/
 
 
 /* ===========================
    Cart line item row
    =========================== */
 
+/*.cart-summary-card {*/
+/*    display: grid;*/
+/*    grid-template-columns: 142px minmax(0, 1.6fr) auto auto;*/
+/*    grid-template-areas:"thumb main qty subtotal";*/
+/*    column-gap: 1rem;*/
+/*    row-gap: 0.5rem;*/
+/*    align-items: center;*/
+/*    padding: 1rem 0;*/
+/*    border-bottom: 1px solid var(--white-alpha-15);*/
+/*}*/
+
 .cart-summary-card {
     display: grid;
-    grid-template-columns: 142px minmax(0, 1.6fr) auto auto;
-    grid-template-areas:"thumb main qty subtotal";
+    grid-template-columns: 142px minmax(0, 1.6fr) auto auto auto;
+    grid-template-areas: "thumb main qty subtotal remove";
     column-gap: 1rem;
     row-gap: 0.5rem;
     align-items: center;
@@ -34,11 +35,14 @@
     border-bottom: 1px solid var(--white-alpha-15);
 }
 
+.cart-remove-btn {
+    grid-area: remove;
+}
+
+
 .cart-summary-card:last-of-type {
     border-bottom: none;
 }
-
-/* thumbnail */
 
 .item-thumbnail {
     grid-area: thumb;
@@ -48,8 +52,6 @@
     object-fit: cover;
     box-shadow: 0 0 10px var(--neon-cyan-alpha-30);
 }
-
-/* main text block */
 
 .item-title {
     font-weight: 600;
@@ -107,17 +109,16 @@
     color: var(--accent);
 }
 
-/* remove button (cart-specific) */
 .cart-remove-btn {
-    padding:      .25rem .75rem;
+    padding:      .3rem;
     border-radius: 100vmax;
     border:        1px solid var(--red-alpha-75);
-    margin-left:   0.75rem;
     background:    transparent;
     color:         #ff8a8a;
     font-size: .75rem;
     cursor: pointer;
     transition: .2s ease;
+    grid-area:  remove;
 }
 
 .cart-remove-btn:hover {
@@ -126,59 +127,202 @@
     box-shadow: 0 0 10px var(--red-alpha-45);
 }
 
+.view-cart-modal.checkout-details-modal.m-shell {
+    gap: 0;
+    padding-top: 0;
+}
+
+section.m-body:has(.review-section) {
+    gap: 0.25rem;
+}
+
+.modal-summary-row.cart-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--white-alpha-15);
+}
+
+.modal-summary-row.cart-summary .checkout-btn {
+    align-self: center;
+    justify-self: center;
+    width: clamp(200px, 40%, 300px);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.cart-summary .modal-summary-block {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0 1rem;
+}
+
+.cart-summary .modal-summary-label {
+    text-align: left;
+    opacity: 0.8;
+}
+
+
+
+    .modal-summary-block .modal-summary-amount {
+        text-align: right;
+        justify-self: end;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text);
+        margin: 0 0 0 auto;
+        white-space: nowrap;
+    }
+
+    #modal:has(.view-cart-modal) .modal-panel {
+        max-height: 85svh;
+        overflow: hidden;
+    }
+
+    .view-cart-modal.m-shell {
+        height: 100%;
+        min-height: 0;
+    }
+
+    .view-cart-modal .m-body {
+        min-height: 0;
+        overflow: auto;
+    }
+
+
+
 /* ===========================
    Responsive adjustments
    =========================== */
 
 @container modal (max-width: 600px) {
     .view-cart-modal {
-        padding: 1.25rem 1rem 1.75rem;
+        padding: 1.25rem 1rem 0;
     }
 
+    /* --- Line item grid: title+unit price (row 1), qty+subtotal (row 2), remove in its own column --- */
     .cart-summary-card {
-        grid-template-columns: 64px minmax(0, 1fr);
+        grid-template-columns: 64px minmax(0, 1fr) auto 44px;
         grid-template-areas:
-            "thumb main"
-            "thumb qty"
-            "thumb subtotal"
-            "thumb remove";
-        row-gap: 0.25rem;
+            "thumb title   price   remove"
+            "thumb qty     subtotal remove";
+        row-gap: 0.5rem;
+        column-gap: 0.75rem;
+        align-items: center;
+        font-size: 0.75rem;
+    }
+
+    .item-thumbnail {
+        width: 64px;
+        height: 64px;
+    }
+
+    /* Let title + unit price participate directly in the grid without changing HTML */
+    .item-main {
+        grid-area: unset;
+        display: contents;
+    }
+
+    .item-title {
+        grid-area: title;
+        font-size: 0.85rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin: 0;
+    }
+
+    .item-unit-price {
+        grid-area: price;
+        justify-self: end;
+        text-align: right;
+        font-size: 0.8rem;
+        margin: 0;
+        white-space: nowrap;
+        opacity: 0.8;
+    }
+
+    .item-quantity {
+        grid-area: qty;
+        justify-self: start;
+        gap: 0;
+        display: block;
+        font-size: 0.75rem;
+    }
+
+    /* Let subtotal + remove participate directly in the grid without changing HTML */
+    .item-subtotal-wrapper {
+        grid-area: unset;
+        display: contents;
     }
 
     .item-subtotal {
-        justify-self: start;
+        grid-area: subtotal;
+        justify-self: end;
+        text-align: right;
+        white-space: nowrap;
+        margin: 0;
     }
 
+    /* Remove button becomes the “X” in the right column, spanning both rows */
+    .cart-remove-btn {
+        grid-area: remove;
+        justify-self: center;
+        align-self: center;
+        margin-left: 0;
+
+        /* make it icon-button sized (not a huge pill) */
+        width:  36px;
+        height: 36px;
+        padding: 0;
+        border-radius: 999px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        line-height: 1;
+    }
+
+    /* Optional: if your icon is inside <i>, keep it centered and consistent */
+    .cart-remove-btn i {
+        pointer-events: none;
+    }
+
+    /* --- Footer: Total ABOVE Checkout with extra breathing room before the button --- */
+    .modal-summary-row.cart-summary {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        margin-top: 0.85rem; /* smaller gap from items */
+    }
+
+    .modal-summary-row.cart-summary .modal-summary-block {
+        grid-column: auto;
+        justify-self: stretch;
+
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: baseline;
+        gap: 0.75rem;
+
+        margin-bottom: 1.35rem; /* bigger gap before checkout button */
+    }
+
+    .modal-summary-row.cart-summary .modal-summary-label {
+        text-align: left;
+        opacity: 0.7;
+    }
+
+
+
+    .modal-summary-row.cart-summary .checkout-btn {
+        grid-column: auto;
+        justify-self: stretch;
+        width: 100%;
+    }
 }
-
-.view-cart-modal.checkout-details-modal.m-shell {
-    gap: 0;
-    padding-top: 0;
-}
-
-
-section.m-body:has(.review-section) {
-    gap: 0.25rem;
-}
-
-
-.modal-summary-row.cart-summary {
-    display: grid;
-    grid-template-columns: 1fr auto auto 1fr;
-    align-items: center;
-    gap: 1rem;
-    position: static;
-}
-
-.modal-summary-row.cart-summary .checkout-btn {
-    grid-column: 2;
-    justify-self: start;
-    width: auto;
-}
-
-.modal-summary-row.cart-summary .modal-summary-block {
-    grid-column: 3;
-    justify-self: end;
-}
-
-

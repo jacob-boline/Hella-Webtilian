@@ -3,7 +3,7 @@
 :root {
     --bp-radius:    1.25rem;
     --bp-border:    rgba(255, 255, 255, 0.10);
-    --bp-glow:      rgba(  0, 234, 255, 0.14);
+    --bp-glow:      rgba(0, 234, 255, 0.14);
     --bp-glow-soft: rgba(255, 255, 255, 0.10);
 }
 
@@ -25,8 +25,8 @@
 
 .bulletin-sentinel {
     display: block;
-    height: 1px;
-    width: 100%;
+    height:  1px;
+    width:   100%;
 }
 
 /* While loading / empty */
@@ -44,53 +44,35 @@
    ============ */
 
 .bulletin-post {
-    position:        relative;
-    margin-block:    1.75rem;
-    border-radius:   18px;
-    overflow:        hidden;
-    isolation:       isolate;
-    border:          none;
-    background:      radial-gradient(
-                             circle at top,
-                             var(--white-alpha-15) 0,
-                             rgba(15, 23, 42, 0.96) 55%,
-                             rgba(15, 23, 42, 0.98) 100%
-                     );
-    box-shadow:      inset 0 0 0 1px rgba(255, 255, 255, 0.06),
-                     0 0 18px rgba(0, 234, 255, 0.12),
-                     0 0 42px rgba(0, 234, 255, 0.08),
-                     0 10px 26px rgba(0, 0, 0, 0.14);
-    /*backdrop-filter: blur(6px);*/
-    color:           var(--text);
+    position:      relative;
+    margin-block:  1.75rem;
+    border-radius: 18px;
+    overflow:      hidden;
+    isolation:     isolate;
+    border:        none;
+    background:    radial-gradient(
+                       circle at top,
+                       var(--white-alpha-15) 0,
+                       rgba(15, 23, 42, 0.96) 55%,
+                       rgba(15, 23, 42, 0.98) 100%);
+    box-shadow:    inset 0 0 0  1px rgba(255, 255, 255, 0.06),
+                           0 0 18px rgba(0, 234, 255, 0.12),
+                           0 0 42px rgba(0, 234, 255, 0.08),
+                        0 10px 26px rgba(0, 0, 0, 0.14);
+    color:         var(--text);
 }
-
 
 .bulletin-post::before {
     content:        "";
     position:       absolute;
-    inset:          1px; /* 👈 protects the border */
+    inset:          1px;
     border-radius:  18px;
     pointer-events: none;
     z-index:        0;
+    box-shadow:     inset 0 0 0 1px rgba(255, 255, 255, 0.14),
+                    inset 0 0 26px rgba(0, 234, 255, 0.10),
+                    inset 0 -18px 28px rgba(0, 0, 0, 0.18)
 
-    /* “valence lighting” feel: bright top-left, softer elsewhere */
-    /*background:     radial-gradient(120% 90% at 18% 12%,*/
-    /*rgba(255, 255, 255, 0.22),*/
-    /*rgba(255, 255, 255, 0.08) 38%,*/
-    /*rgba(255, 255, 255, 0.00) 70%),*/
-    /*                radial-gradient(140% 120% at 85% 30%,*/
-    /*        var(--bp-glow),*/
-    /*        rgba(0, 234, 255, 0.00) 55%),*/
-    /*                linear-gradient(180deg,*/
-    /*        rgba(255, 255, 255, 0.07),*/
-    /*        rgba(255, 255, 255, 0.00) 45%);*/
-
-    /* Inner rim + inner bloom = “backlight behind glass” */
-    box-shadow:     inset 0 0 0 1px rgba(255, 255, 255, 0.14), /* rim */
-                    inset 0 0 26px rgba(0, 234, 255, 0.10), /* inner bloom */
-                    inset 0 -18px 28px rgba(0, 0, 0, 0.18); /* gentle internal falloff */
-
-    /*opacity:        0.95;*/
 }
 
 .bulletin-post::after {
@@ -121,40 +103,26 @@
     transform: translateZ(0) scale(1.01);
 }
 
-
 .bulletin-post:hover {
-  /* optional: subtle rim lift only */
-  box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,0.10),
-    0 0 18px rgba(0,234,255,0.12),
-    0 0 42px rgba(0,234,255,0.08),
-    0 10px 26px rgba(0,0,0,0.14);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.10),
+                0 0 18px rgba(0, 234, 255, 0.12),
+                0 0 42px rgba(0, 234, 255, 0.08),
+                0 10px 26px rgba(0, 0, 0, 0.14);
 }
-
-
 
 .bulletin-post > * {
     position: relative;
     z-index:  1;
 }
 
-/* click feedback */
-/*.bulletin-post:hover {*/
-/*    border-color: rgba(249, 250, 251, 0.35);*/
-/*    box-shadow:   0 26px 40px var(--black-alpha-75),*/
-/*                  0 0 0 1px rgba(148, 163, 184, 0.8);*/
-/*}*/
-
 /* ============
    Hero image
    ============ */
 
 .bulletin-hero {
-    position:   relative;
+    position:     relative;
     aspect-ratio: 16 / 9;
-    /*max-height: 420px;*/
-    overflow:   hidden;
-    /*border-left:*/
+    overflow:     hidden;
 }
 
 .bulletin-hero img {
@@ -162,10 +130,8 @@
     width:      100%;
     height:     100%;
     object-fit: cover;
-    /*transform:  scale(1.03);*/
     transition: transform .5s ease,
                 filter .5s ease;
-    /*filter:     saturate(1.05) contrast(1.05);*/
 }
 
 .bulletin-post:hover .bulletin-hero img {
@@ -218,9 +184,8 @@
 /* date + tags row */
 .bulletin-meta {
     display:        flex;
-    flex-wrap:      wrap;
-    align-items:    center;
-    gap:            .4rem .9rem;
+    flex-direction: column;
+    gap:            .4rem;
     font-size:      .78rem;
     text-transform: uppercase;
     letter-spacing: .16em;
@@ -234,9 +199,59 @@
 
 /* tags */
 .bulletin-tags {
-    display:   inline-flex;
-    flex-wrap: wrap;
+    display:   flex;
+    flex-wrap: nowrap;
     gap:       .3rem;
+    overflow:  hidden;
+    position:  relative;
+    max-width: 100%;
+    white-space: nowrap;
+}
+
+/* Container for tags with ellipsis functionality */
+.bulletin-tags.has-overflow {
+    padding-right: 2.5rem;
+}
+
+.bulletin-tags.has-overflow::after {
+    content:     "…";
+    position:    absolute;
+    right:       0;
+    top:         0;
+    bottom:      0;
+    display:     flex;
+    align-items: center;
+    padding:     0 0.5rem;
+    background:  linear-gradient(
+                     to right,
+                     transparent 0%,
+                     rgba(15, 23, 42, 0.9) 30%,
+                     rgba(15, 23, 42, 0.98) 100%
+                 );
+    font-size:   1.5rem;
+    line-height: 1;
+    color:       var(--text);
+    cursor:      pointer;
+}
+
+.bulletin-tags.expanded {
+    flex-wrap: wrap;
+}
+
+.bulletin-tags.expanded::after {
+    content: "−";
+}
+
+/* Ensure tags don't grow too large in portrait */
+@media (max-width: 768px) and (orientation: portrait) {
+    .bulletin-tag {
+        font-size:     0.78rem;
+        max-font-size: 0.78rem;
+    }
+
+    .bulletin-meta {
+        font-size: .78rem;
+    }
 }
 
 .bulletin-tag {
@@ -244,9 +259,9 @@
     border-radius: 100vmax;
     border:        1px solid rgba(94, 234, 212, 0.55);
     background:    radial-gradient(
-                           circle at top left,
-                           rgba(94, 234, 212, 0.2),
-                           rgba(15, 23, 42, 0.9)
+                       circle at top left,
+                       rgba(94, 234, 212, 0.2),
+                       rgba(15, 23, 42, 0.9)
                    );
     color:         var(--text);
 }
@@ -265,7 +280,6 @@
     text-transform: uppercase;
     color:          rgba(209, 213, 219, 0.8);
     border:         1px dashed rgba(148, 163, 184, 0.7);
-    /*border:         1px dashed var(--muted);*/
     background:     rgba(15, 23, 42, 0.85);
 }
 
@@ -287,15 +301,11 @@
     .bulletin-header {
         padding: 1rem 1.1rem 1.25rem;
     }
-
-    /*.bulletin-hero {*/
-    /*    max-height: 320px;*/
-    /*}*/
 }
 
-/* ============
+/* ======================
    Body preview / expand
-   ============ */
+   ====================== */
 
 .bulletin-body {
     margin-top:  .75rem;
@@ -344,10 +354,10 @@
     bottom:         0;
     height:         3.2em;
     background:     linear-gradient(
-                            to bottom,
-                            rgba(15, 23, 42, 0) 0%,
-                            rgba(15, 23, 42, 0.92) 60%,
-                            rgba(15, 23, 42, 0.98) 100%
+                        to bottom,
+                        rgba(15, 23, 42, 0) 0%,
+                        rgba(15, 23, 42, 0.92) 60%,
+                        rgba(15, 23, 42, 0.98) 100%
                     );
     pointer-events: none;
 }
@@ -384,10 +394,6 @@
 }
 
 .bulletin-post.is-expanded .bulletin-toggle-label {
-    /*color:        var(--muted-text);*/
-    /*border-color: transparent;*/
-    /*background:   transparent;*/
-    /*box-shadow:   none;*/
     border-radius:  100vmax;
     font-size:      .75rem;
     letter-spacing: .18em;
@@ -404,9 +410,9 @@
 }
 
 .bulletin-toggle:hover .bulletin-toggle-label,
-.bulletin-toggle:focus-visible .bulletin-toggle-label,
-.bulletin-post.is-expanded .bulletin-toggle:hover .bulletin-toggle-label,
-.bulletin-post.is-expanded .bulletin-toggle:focus-visible .bulletin-toggle-label {
+.bulletin-toggle:focus-visible .bulletin-toggle-label {
+    /*.bulletin-post.is-expanded .bulletin-toggle:hover .bulletin-toggle-label,*/
+    /*.bulletin-post.is-expanded .bulletin-toggle:focus-visible .bulletin-toggle-label {*/
     color:        var(--text);
     background:   rgba(15, 23, 42, 0.95);
     border-color: rgba(125, 211, 252, 0.9);
@@ -424,3 +430,4 @@
         padding-inline: 1.1rem;
     }
 }
+

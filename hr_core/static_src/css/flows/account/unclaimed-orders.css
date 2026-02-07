@@ -46,7 +46,6 @@
                 filter    .2s ease;
 }
 
-/* optional: collapse space after fade */
 .order-claim-row.is-collapsing {
     max-height:          0;
     padding-top:         0;
@@ -143,7 +142,7 @@
 }
 
 @container modal (max-width: 639.98px) {
-    #modal-content:has(.unclaimed-orders-modal) .unclaimed-orders-modal .modal-actions {
+    #modal-content:has(.unclaimed-orders-modal) .modal-actions {
         flex-direction: column;
         gap:            0.75rem;
         margin-top:     0.5rem;
@@ -151,5 +150,27 @@
 
     .unclaimed-orders-modal p.text-muted {
         font-size: 0.65rem;
+    }
+}
+
+/* Landscape orientation: buttons share a row */
+@media (orientation: landscape) and (max-height: 599.98px) {
+    #modal-content:has(.unclaimed-orders-modal) .modal-actions {
+        flex-direction: row !important;
+        gap: 1rem !important;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    #modal-content:has(.unclaimed-orders-modal) .modal-actions button {
+        width: 100%;
+        max-width: none;
+    }
+
+    /* Ensure the order list is scrollable in landscape */
+    #modal-content:has(.unclaimed-orders-modal) .order-claim-list {
+        /*noinspection CssInvalidPropertyValue*/
+        max-height: 50svh;
+        overflow-y: auto;
     }
 }

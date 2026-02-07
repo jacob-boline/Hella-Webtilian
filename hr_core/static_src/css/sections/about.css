@@ -1,4 +1,5 @@
 /* hr_core/static_src/css/sections/about.css */
+
 /* ===========================
    About section layout
    =========================== */
@@ -11,6 +12,12 @@
 
 .about-wrapper {
     margin: 0 5vw;
+}
+
+@media (max-width: 640px) and (orientation: portrait) {
+    .about-wrapper {
+        margin: 0 max(1rem, 3vw);
+    }
 }
 
 .about {
@@ -31,7 +38,7 @@
     flex-direction:      column;
     align-items:         center;
     width:               100%;
-    max-width:           100%;
+    max-width:           90vw;
     margin-top:          48px;
     margin-inline:       auto;
     border:              1px solid var(--card-border);
@@ -81,12 +88,12 @@
     height:     1px;
     opacity:    0.92;
     background: linear-gradient(
-                        90deg,
-                        transparent,
-                        var(--white-alpha-15),
-                        var(--white-alpha-30),
-                        var(--white-alpha-15),
-                        transparent
+                    90deg,
+                    transparent,
+                    var(--white-alpha-15),
+                    var(--white-alpha-30),
+                    var(--white-alpha-15),
+                    transparent
                 );
     box-shadow: 0 2px 0 var(--black-alpha-45);
 }
@@ -114,7 +121,7 @@
     grid-area:           stage;
     aspect-ratio:        3 / 2;
     width:               clamp(24rem, 88vw, 64rem);
-    max-width:           100%;
+    max-width:           calc(90vw - 2px);
     height:              auto;
     background:          #0B0B0B;
     box-shadow:          8px 8px 24px var(--black-alpha-30);
@@ -128,9 +135,9 @@
     z-index:        2;
     border-radius:  inherit;
     background:     radial-gradient(
-                            ellipse at center,
-                            var(--black-alpha-0) 56%,
-                            var(--black-alpha-45) 100%
+                        ellipse at center,
+                        var(--black-alpha-0)   56%,
+                        var(--black-alpha-45) 100%
                     );
     pointer-events: none;
 }
@@ -145,87 +152,6 @@
     z-index:       1;
     position:      relative;
 }
-
-/*!* Caption row (normally hidden in this section; quote overlay is used) *!*/
-/*.about-caption {*/
-/*    display:         inline-flex;*/
-/*    grid-area:       caption;*/
-/*    gap:             0.5rem;*/
-/*    place-items:     center;*/
-/*    align-items:     center;*/
-/*    justify-content: center;*/
-/*    width:           100%;*/
-/*    min-height:      clamp(2rem, 6vh, 4rem);*/
-/*    margin-top:      0.5rem;*/
-/*}*/
-
-/*.about-caption .about-quote {*/
-/*    max-width:   64ch;*/
-/*    margin:      0;*/
-/*    font-family: "Exo 2", sans-serif;*/
-/*    font-size:   clamp(1rem, 1.5vmin, 1.5rem);*/
-/*    text-align:  center;*/
-/*    opacity:     0.92;*/
-/*}*/
-
-/* Optional overlay mode if #about-carousel gets .quote-overlay */
-#about-carousel.quote-overlay {
-    position: relative;
-    grid-template-areas:
-        "stage"
-        "thumbs";
-}
-
-#about-carousel.quote-overlay .about-quote {
-    width:         100%;
-    max-width:     100%;
-    padding:       0.5rem 0;
-    border-radius: 0.75rem;
-    font-size:     clamp(1rem, 1.5vmin, 1.5rem);
-    text-align:    left;
-    background:    linear-gradient(
-                           180deg,
-                           var(--black-alpha-15),
-                           var(--black-alpha-60) 48%,
-                           var(--black-alpha-75)
-                   );
-    outline:       1px solid var(--white-alpha-15);
-    box-shadow:    0 16px 32px var(--black-alpha-45);
-}
-
-/*!* arrows on stage *!*/
-/*.about-gallery figure.about-stage button.about-nav {*/
-/*    cursor:        pointer;*/
-/*    position:      absolute;*/
-/*    z-index:       2;*/
-/*    top:           50%;*/
-/*    transform:     translateY(-50%);*/
-/*    display:       grid;*/
-/*    place-items:   center;*/
-/*    width:         3rem;*/
-/*    height:        3rem;*/
-/*    border:        1px solid var(--white-alpha-30);*/
-/*    border-radius: 100vmax;*/
-/*    font-size:     1.5rem;*/
-/*    line-height:   0;*/
-/*    color:         var(--text);*/
-/*    background:    var(--black-alpha-45);*/
-/*    transition:    background .2s ease,*/
-/*                   transform  .2s ease;*/
-/*}*/
-
-/*.about-gallery figure.about-stage button.about-nav:hover {*/
-/*    transform:  translateY(-50%) scale(1.0625);*/
-/*    background: var(--white-alpha-30);*/
-/*}*/
-
-/*.about-gallery .about-nav.prev {*/
-/*    left: .5rem;*/
-/*}*/
-
-/*.about-gallery .about-nav.next {*/
-/*    right: .5rem;*/
-/*}*/
 
 
 /* ===========================
@@ -351,9 +277,10 @@
     bottom:         0;
     width:          0;
     background:     linear-gradient(
-                            180deg,
-                            transparent 0%,
-                            var(--card-border, var(--white-alpha-15)) 100%
+                        180deg,
+                        transparent 0%,
+                        var(--card-border,
+                        var(--white-alpha-15)) 100%
                     );
 }
 
@@ -370,11 +297,11 @@
     width:      100%;
     height:     calc(var(--q-clear) * 0.56);
     background: linear-gradient(
-                        180deg,
-                        rgba(8, 8, 8, 0.6)   0%,
-                        rgba(8, 8, 8, 0.48) 32%,
-                        rgba(8, 8, 8, 0.24) 64%,
-                        rgba(8, 8, 8, 0)   100%
+                    180deg,
+                    rgba(8, 8, 8, 0.6)   0%,
+                    rgba(8, 8, 8, 0.48) 32%,
+                    rgba(8, 8, 8, 0.24) 64%,
+                    rgba(8, 8, 8, 0)   100%
                 );
 }
 
@@ -397,24 +324,23 @@
     border:         0;
     border-radius:  0 0 1rem 1rem;
     background:     linear-gradient(
-                            180deg,
-                            rgba(8, 8, 8, 0)      0%,
-                            rgba(8, 8, 8, 0.08)  16%,
-                            rgba(8, 8, 8, 0.16)  32%,
-                            rgba(8, 8, 8, 0.24)  48%,
-                            rgba(8, 8, 8, 0.48)  64%,
-                            rgba(8, 8, 8, 0.72)  80%,
-                            rgba(8, 8, 8, 0.96) 100%
+                        180deg,
+                        rgba(8, 8, 8, 0)      0%,
+                        rgba(8, 8, 8, 0.08)  16%,
+                        rgba(8, 8, 8, 0.16)  32%,
+                        rgba(8, 8, 8, 0.24)  48%,
+                        rgba(8, 8, 8, 0.48)  64%,
+                        rgba(8, 8, 8, 0.72)  80%,
+                        rgba(8, 8, 8, 0.96) 100%
                     );
 }
 
-/* main quote text */
 #parallax-section-about .about-quote-rotator .quote-text {
     margin:              0;
     padding-right:       2rem;
     padding-left:        2rem;
-    padding-bottom: 2rem;
-    font-family:        "Edu SA Beginner", cursive;
+    padding-bottom:      2rem;
+    font-family:         "Edu SA Beginner", cursive;
     font-optical-sizing: auto;
     font-style:          normal;
     font-weight:         400;
@@ -424,7 +350,6 @@
     transition:          opacity .2s ease;
 }
 
-/* quote source line */
 .about-quote-rotator .quote-source {
     margin:         0;
     font-family:    "Syne Mono", monospace;
@@ -437,8 +362,7 @@
 }
 
 /* quote + source share vertical lift + glow */
-#parallax-section-about .about-quote-rotator .quote-text,
-#parallax-section-about .about-quote-rotator .quote-source {
+#parallax-section-about .about-quote-rotator :is(.quote-text, .quote-source) {
     position:    relative;
     transform:   translateY(var(--q-rise));
     text-shadow: 0 0 1rem   rgba(8, 8, 8, 1),
@@ -462,19 +386,7 @@
    =========================== */
 
 @media (max-width: 640px) {
-    .about {
-        padding: min(calc(var(--svh) * 16), 8rem) 16px;
-    }
-
-    .about-gallery {
-        width:     100%;
-        max-width: 100%;
-    }
-
     .about-stage {
-        /*aspect-ratio: 4 / 5;*/
-        /*height:       min(calc(var(--vh) * 48), 80vw);*/
-        height: auto;
         max-height:   none;
     }
 

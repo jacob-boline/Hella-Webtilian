@@ -115,7 +115,6 @@
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    box-shadow: inset 0 0 0 2px var(--btn-ring);
     transition: box-shadow 0.125s ease;
 }
 
@@ -178,7 +177,6 @@
     --btn-fill2:            #00D4FF;
     --btn-text:             #06171A;
 
-    --btn-ring:             rgba(0, 245, 255, 0.45);
     --btn-ring-strong:      rgba(0, 245, 255, 0.70);
 
     --btn-glow-outer-base:  rgba(0, 245, 255, 0.22);
@@ -195,7 +193,6 @@
     --btn-fill2:            #39FF14;
     --btn-text:             #071300;
 
-    --btn-ring:             rgba(57, 255, 20, 0.40);
     --btn-ring-strong:      rgba(57, 255, 20, 0.80);
 
     --btn-glow-outer-base:  rgba(57, 255, 20, 0.22);
@@ -212,7 +209,6 @@
     --btn-fill2:            var(--gold);   /* #FFA500 */
     --btn-text:             #1B1200;
 
-    --btn-ring:             rgba(255, 170, 0, 0.35);
     --btn-ring-strong:      rgba(255, 170, 0, 0.70);
 
     --btn-glow-outer-base:  rgba(255, 221, 102, 0.18);
@@ -248,7 +244,6 @@
     --btn-fill2:            #A80F0F;
     --btn-text:             #1A0202;
 
-    --btn-ring:             rgba(200, 48, 48, 0.35);
     --btn-ring-strong:      rgba(220, 64, 64, 0.65);
 
     --btn-glow-outer-base:  rgba(180, 40, 40, 0.18);

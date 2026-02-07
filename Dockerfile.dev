@@ -16,6 +16,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     netcat-openbsd \
     curl \
     git \
+    tzdata \
+    ca-certificate \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Node for Vite
