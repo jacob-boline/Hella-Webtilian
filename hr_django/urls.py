@@ -4,10 +4,14 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.urls import include, path
 
+def health_check(request):
+    return HttpResponse('OK')
+
 urlpatterns = [
+    path("health/", health_check),
     path("about/", include("hr_about.urls")),
     path("user/", include("hr_access.urls")),
     path("bulletin/", include("hr_bulletin.urls")),

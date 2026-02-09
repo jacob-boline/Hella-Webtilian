@@ -44,6 +44,8 @@ else:
     DATABASES = sqlite_settings.DATABASES
 
 
+ENABLE_MEDIA_JOBS = True
+
 # --- Static files (dev) ---
 # Manifest storage is strict and will fail if built assets reference missing files.
 # In dev we prefer speed + resilience; prod will keep CompressedManifestStaticFilesStorage.

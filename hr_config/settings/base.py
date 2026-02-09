@@ -57,9 +57,11 @@ PROJECT_APPS = [
 THIRD_PARTY_APPS = [
     "phonenumber_field",
     "imagekit",
-    "django_vite",
-    "django_rq"
+    "django_vite"
 ]
+
+if os.environ.get('DEBUG', True):
+    THIRD_PARTY_APPS.append('django_rq')
 
 INSTALLED_APPS = DJANGO_CORE_APPS + STATIC_HANDLING_APPS + PROJECT_APPS + THIRD_PARTY_APPS
 

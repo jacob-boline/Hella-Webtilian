@@ -41,19 +41,45 @@ DATABASES = postgres_settings.DATABASES
 
 
 # ===============================================
-#  Redis / RQ Configuration
+#  Redis / RQ Configuration (Optional)
 # ===============================================
-REDIS_HOST = os.environ.get("REDIS_HOST", "redis")
-REDIS_PORT = int(os.environ.get("REDIS_PORT", "6379"))
+# Only configure RQ if Redis is available
+# This allows the app to run without Redis for initial deployment
+REDIS_URL = os.environ.get("REDIS_URL")
+REDIS_HOST = os.environ.get("REDIS_HOST")
 
-RQ_QUEUES = {
-    "default": {
-        "HOST": REDIS_HOST,
-        "PORT": REDIS_PORT,
-        "DB": 0,
-        "DEFAULT_TIMEOUT": 600
-    }
-}
+if REDIS_URL or REDIS_HOST:
+    # Redis is available - configure RQ
+    if REDIS_HOST:
+        REDIS_PORT = int(os.environ.get("REDIS_PORT", "6379"))
+        RQ_QUEUES = {
+            "default": {
+                "HOST": REDIS_HOST,
+                "PORT": REDIS_PORT,
+                "DB": 0,
+                "DEFAULT_TIMEOUT": 600
+            }
+        }
+    elif REDIS_URL:
+        # Parse REDIS_URL if using Fly.io's Upstash Redis
+        # Format: redis://user:pass@host:port/db
+        from urllib.parse import urlparse
+        parsed = urlparse(REDIS_URL)
+        RQ_QUEUES = {
+            "default": {
+                "HOST": parsed.hostname,
+                "PORT": parsed.port or 6379,
+                "DB": int(parsed.path.lstrip('/')) if parsed.path else 0,
+                "PASSWORD": parsed.password,
+                "DEFAULT_TIMEOUT": 600
+            }
+        }
+else:
+    # Redis not available - disable RQ
+    print("⚠️  Redis not configured - RQ worker functionality disabled")
+    RQ_QUEUES = {}
+    # Remove django_rq from INSTALLED_APPS if it's there
+    INSTALLED_APPS = [app for app in INSTALLED_APPS if app != "django_rq"]
 
 
 # ===============================================
