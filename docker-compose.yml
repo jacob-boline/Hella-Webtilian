@@ -50,7 +50,8 @@ services:
     env_file:
       - .env.prod
     environment:
-      - DJANGO_SETTINGS_MODULE=hr_config.settings.prod
+      - DJANGO_SETTINGS_MODULE=hr_config.settings.prod_docker
+      - DJANGO_VITE_DEV_MODE=false
       - DB_HOST=db
       - DB_PORT=5432
       - REDIS_HOST=redis
@@ -87,7 +88,7 @@ services:
     env_file:
       - .env.prod
     environment:
-      - DJANGO_SETTINGS_MODULE=hr_config.settings.prod
+      - DJANGO_SETTINGS_MODULE=hr_config.settings.prod_docker
       - DB_HOST=db
       - DB_PORT=5432
       - REDIS_HOST=redis

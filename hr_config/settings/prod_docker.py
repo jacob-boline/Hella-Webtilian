@@ -2,8 +2,6 @@
 
 from hr_config.settings import postgres as postgres_settings
 from hr_config.settings.base import *  # noqa
-from hr_config.settings.common import require
-from hr_config.settings.mailjet import EMAIL_HOST_PASSWORD, EMAIL_HOST_USER
 
 # ===============================================
 #  Environment
@@ -39,9 +37,9 @@ SECURE_PROXY_SSL_HEADER = (SECURE_PROXY_SSL_HEADER_NAME, SECURE_PROXY_SSL_HEADER
 USE_X_FORWARDED_HOST = os.environ.get("USE_X_FORWARDED_HOST", "True").lower() in ("true", "1", "yes")
 
 # Enable these after nginx forwards proto correctly (avoid redirect loops)
-# SECURE_SSL_REDIRECT = True
-# CSRF_COOKIE_SECURE = True
-# SESSION_COOKIE_SECURE = True
+# SECURE_SSL_REDIRECT = env_bool("SECURE_SSL_REDIRECT", default=False)
+# CSRF_COOKIE_SECURE = env_bool("CSRF_COOKIE_SECURE", default=False)
+# SESSION_COOKIE_SECURE = env_bool("SESSION_COOKIE_SECURE", default=False)
 
 
 # ===============================================
@@ -64,12 +62,3 @@ RQ_QUEUES = {
         "DEFAULT_TIMEOUT": 600,
     }
 }
-
-
-# ===============================================
-#  Guards
-# ===============================================
-if not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD:
-    raise RuntimeError("Email credentials must be set when DEBUG=False.")
-
-require("SECRET_KEY")
