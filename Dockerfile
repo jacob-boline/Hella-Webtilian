@@ -24,10 +24,18 @@ RUN pip install uv
 # Copy dependency files
 COPY pyproject.toml uv.lock ./
 
-# Create virtual environment and install dependencies
-RUN uv venv /opt/venv && \
-    . /opt/venv/bin/activate && \
-    uv sync --frozen --no-dev
+# Create venv
+RUN uv venv /opt/venv
+
+# Force uv + python to use THIS venv (no guessing / no accidental .venv)
+ENV VIRTUAL_ENV=/opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Install dependencies into /opt/venv
+RUN uv sync --frozen --no-dev
+
+# Fail the build early if Django isn't actually installed in the venv
+RUN python -c "import django; print('Django OK', django.get_version())"
 
 
 ##########################
@@ -62,6 +70,7 @@ RUN groupadd -r app && useradd -r -g app app
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
+    VIRTUAL_ENV=/opt/venv \
     PATH="/opt/venv/bin:$PATH" \
     DJANGO_SETTINGS_MODULE=hr_config.settings.prod_docker
 
