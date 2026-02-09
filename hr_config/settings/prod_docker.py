@@ -2,6 +2,8 @@
 
 from hr_config.settings import postgres as postgres_settings
 from hr_config.settings.base import *  # noqa
+from hr_config.settings.common import require
+
 
 # ===============================================
 #  Environment
@@ -9,7 +11,6 @@ from hr_config.settings.base import *  # noqa
 DEBUG = os.environ.get("DEBUG", "False").lower() in ("true", "1", "yes")
 USE_S3_MEDIA = os.environ.get("USE_S3_MEDIA", "").lower() in ("true", "1", "yes")
 
-# For production, ensure DEBUG is False
 if DEBUG:
     raise RuntimeError("Production settings must have DEBUG=False")
 
@@ -26,21 +27,11 @@ CSRF_TRUSTED_ORIGINS = [h.strip() for h in csrf_origins_str.split(",") if h.stri
 
 SITE_URL = os.environ.get("SITE_URL", "https://hellareptilian.com")
 
-
-# ===============================================
-#  Reverse Proxy (nginx)
-# ===============================================
-# These are set by default for our nginx setup
-SECURE_PROXY_SSL_HEADER_NAME = os.environ.get("SECURE_PROXY_SSL_HEADER_NAME", "HTTP_X_FORWARDED_PROTO")
-SECURE_PROXY_SSL_HEADER_VALUE = os.environ.get("SECURE_PROXY_SSL_HEADER_VALUE", "https")
-SECURE_PROXY_SSL_HEADER = (SECURE_PROXY_SSL_HEADER_NAME, SECURE_PROXY_SSL_HEADER_VALUE)
-
-USE_X_FORWARDED_HOST = os.environ.get("USE_X_FORWARDED_HOST", "True").lower() in ("true", "1", "yes")
-
-# Enable these after nginx forwards proto correctly (avoid redirect loops)
-# SECURE_SSL_REDIRECT = env_bool("SECURE_SSL_REDIRECT", default=False)
-# CSRF_COOKIE_SECURE = env_bool("CSRF_COOKIE_SECURE", default=False)
-# SESSION_COOKIE_SECURE = env_bool("SESSION_COOKIE_SECURE", default=False)
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = True
+SECURE_SSL_REDIRECT = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
 
 
 # ===============================================
@@ -60,7 +51,7 @@ RQ_QUEUES = {
         "HOST": REDIS_HOST,
         "PORT": REDIS_PORT,
         "DB": 0,
-        "DEFAULT_TIMEOUT": 600,
+        "DEFAULT_TIMEOUT": 600
     }
 }
 
@@ -71,12 +62,12 @@ RQ_QUEUES = {
 if not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD:
     raise RuntimeError("Email credentials must be set when DEBUG=False.")
 
-require("SECRET_KEY")
+require("DJANGO_SECRET_KEY")
 
 if USE_S3_MEDIA:
     from hr_storage.conf import *  # noqa
 
     STORAGES = {
         **STORAGES,
-        "default": {"BACKEND": "hr_storage.storage_backends.PublicMediaStorage"},
+        "default": {"BACKEND": "hr_storage.storage_backends.PublicMediaStorage"}
     }

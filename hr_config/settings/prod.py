@@ -47,7 +47,7 @@ DATABASES = postgres_settings.DATABASES
 if not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD:
     raise RuntimeError("Email credentials must be set when DEBUG=False.")
 
-require("SECRET_KEY")
+require("DJANGO_SECRET_KEY")
 
 if DEBUG is not False:
     raise RuntimeError("Prod settings must set DEBUG=False")

@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     imagemagick \
     && rm -rf /var/lib/apt/lists/*
 
-# Install uv for faster Python package management
+# Install uv for Python package management
 RUN pip install uv
 
 # Copy dependency files
@@ -41,7 +41,7 @@ WORKDIR /build
 COPY package.json package-lock.json ./
 
 # Install Node dependencies
-RUN npm ci --only=production
+RUN npm ci
 
 # Copy source files for Vite build
 COPY hr_core/static_src ./hr_core/static_src
@@ -63,7 +63,7 @@ RUN groupadd -r app && useradd -r -g app app
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PATH="/opt/venv/bin:$PATH" \
-    DJANGO_SETTINGS_MODULE=hr_config.settings.prod
+    DJANGO_SETTINGS_MODULE=hr_config.settings.prod_docker
 
 # Install runtime dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -99,11 +99,7 @@ RUN chown -R app:app /home/app
 # Switch to non-root user
 USER app
 
-# Collect static files (this will run after volumes are mounted)
-# We'll do this in entrypoint.sh instead
-
 EXPOSE 8000
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["gunicorn", "hr_django.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "4", "--timeout", "120", "--access-logfile", "-", "--error-logfile", "-"]
-
+CMD ["sh", "-c", "gunicorn hr_django.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 4 --timeout 120 --access-logfile - --error-logfile -"]

@@ -13,11 +13,12 @@ from hr_config.settings.common import BASE_DIR
 # ENV_SECRET_KEY = (os.getenv("DJANGO_SECRET_KEY") or "").strip()
 
 ENV_SECRET_KEY = (read_secret('DJANGO_SECRET_KEY') or '').strip()
-SECRET_FILE = BASE_DIR / ".django_secret"
 
 if ENV_SECRET_KEY:
     SECRET_KEY = ENV_SECRET_KEY
+
 else:
+    SECRET_FILE = BASE_DIR / ".django_secret"
     if SECRET_FILE.exists():
         SECRET_KEY = SECRET_FILE.read_text().strip()
     else:

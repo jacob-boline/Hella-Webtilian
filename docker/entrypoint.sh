@@ -7,36 +7,88 @@ echo "========================================="
 
 # Function to wait for database
 wait_for_db() {
-    echo "Waiting for PostgreSQL..."
+  echo "Waiting for PostgreSQL..."
 
-    # Extract DB connection details from DATABASE_URL or use defaults
-    DB_HOST="${DB_HOST:-db}"
-    DB_PORT="${DB_PORT:-5432}"
+  # Extract DB connection details from DATABASE_URL or use defaults
+  if [[ -z "${DB_HOST:-}" || -z "${DB_PORT:-}" ]]; then
+    if [[ -n "${DATABASE_URL:-}" ]]; then
+      DB_HOST="$(
+        python - <<'PY'
+import os
+from urllib.parse import urlparse
 
-    while ! nc -z "$DB_HOST" "$DB_PORT"; do
-        sleep 0.1
-    done
+url = os.environ.get("DATABASE_URL", "")
+parsed = urlparse(url)
+print(parsed.hostname or "")
+PY
+      )"
+      DB_PORT="$(
+        python - <<'PY'
+import os
+from urllib.parse import urlparse
 
-    echo "PostgreSQL is available!"
+url = os.environ.get("DATABASE_URL", "")
+parsed = urlparse(url)
+print(parsed.port or "")
+PY
+      )"
+    fi
+  fi
+
+  DB_HOST="${DB_HOST:-db}"
+  DB_PORT="${DB_PORT:-5432}"
+
+  while ! nc -z "$DB_HOST" "$DB_PORT"; do
+    sleep 0.1
+  done
+
+  echo "PostgreSQL is available!"
 }
 
 # Function to wait for Redis
 wait_for_redis() {
-    echo "Waiting for Redis..."
+  echo "Waiting for Redis..."
 
-    REDIS_HOST="${REDIS_HOST:-redis}"
-    REDIS_PORT="${REDIS_PORT:-6379}"
+   if [[ -z "${REDIS_HOST:-}" || -z "${REDIS_PORT:-}" ]]; then
+      if [[ -n "${REDIS_URL:-}" ]]; then
+          REDIS_HOST="$(python - <<'PY'
+import os
+from urllib.parse import urlparse
 
-    while ! nc -z "$REDIS_HOST" "$REDIS_PORT"; do
-        sleep 0.1
-    done
+url = os.environ.get("REDIS_URL", "")
+parsed = urlparse(url)
+print(parsed.hostname or "")
+PY
+)"
+            REDIS_PORT="$(python - <<'PY'
+import os
+from urllib.parse import urlparse
 
-    echo "Redis is available!"
+url = os.environ.get("REDIS_URL", "")
+parsed = urlparse(url)
+print(parsed.port or "")
+PY
+)"
+        fi
+    fi
+
+  REDIS_HOST="${REDIS_HOST:-redis}"
+  REDIS_PORT="${REDIS_PORT:-6379}"
+
+  while ! nc -z "$REDIS_HOST" "$REDIS_PORT"; do
+    sleep 0.1
+  done
+
+  echo "Redis is available!"
 }
 
 # Wait for required services
 wait_for_db
-wait_for_redis
+if [[ -n "${REDIS_HOST:-}" || -n "${REDIS_URL:-}" ]]; then
+    wait_for_redis
+else
+    echo "Skipping Redis wait (no REDIS_HOST/REDIS_URL set)."
+fi
 
 # Run database migrations
 echo "Running database migrations..."
@@ -56,4 +108,3 @@ echo "========================================="
 
 # Execute the main command
 exec "$@"
-
