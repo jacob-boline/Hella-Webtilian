@@ -3,10 +3,13 @@
 import logging
 import shutil
 import subprocess
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
 from django.conf import settings
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 
 logger = logging.getLogger(__name__)
 
@@ -73,6 +76,13 @@ def _is_up_to_date(src: Path, out: Path) -> bool:
     return out.exists() and out.stat().st_mtime >= src.stat().st_mtime
 
 
+def _local_storage_path(storage, name: str) -> Path | None:
+    try:
+        return Path(storage.path(name))
+    except (AttributeError, NotImplementedError):
+        return None
+
+
 def _get_roots(recipe: Recipe) -> tuple[Path, Path]:
     """
     Returns (src_root, out_root) based on recipe.src_root.
@@ -91,6 +101,105 @@ def _get_roots(recipe: Recipe) -> tuple[Path, Path]:
     return src_root, out_root
 
 
+def _build_convert_args(src: Path, out: Path, recipe: Recipe, w: int) -> list[str]:
+    if recipe.crop is None:
+        return [
+            str(src),
+            "-auto-orient",
+            "-strip",
+            "-resize",
+            f"{w}x",
+            "-quality",
+            str(recipe.quality),
+            "-define",
+            f"webp:method={recipe.webp_method}",
+            str(out),
+        ]
+
+    tw, th = _target_size(w, recipe.crop)
+    size = f"{tw}x{th}"
+    return [
+        str(src),
+        "-auto-orient",
+        "-strip",
+        "-resize",
+        f"{size}^",
+        "-gravity",
+        "center",
+        "-extent",
+        size,
+        "-quality",
+        str(recipe.quality),
+        "-define",
+        f"webp:method={recipe.webp_method}",
+        str(out),
+    ]
+
+
+def _normalize_media_name(src_rel_or_abs_path: str) -> str:
+    src_path = Path(src_rel_or_abs_path)
+    if src_path.is_absolute():
+        try:
+            return str(src_path.relative_to(settings.MEDIA_ROOT))
+        except ValueError:
+            return src_path.name
+    return src_rel_or_abs_path
+
+
+def _generate_media_variants(recipe_key: str, recipe: Recipe, src_rel_or_abs_path: str) -> dict:
+    src_name = _normalize_media_name(src_rel_or_abs_path)
+
+    if not default_storage.exists(src_name):
+        return {"ok": False, "reason": "missing_source", "src": src_name}
+
+    src_stem = Path(src_name).stem
+    src_suffix = Path(src_name).suffix or ".bin"
+    src_local = _local_storage_path(default_storage, src_name)
+
+    made = skipped = failed = 0
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_root = Path(tmp_dir)
+        tmp_src = tmp_root / f"src{src_suffix}"
+        tmp_out = tmp_root / "out.webp"
+
+        with default_storage.open(src_name, "rb") as src_handle:
+            tmp_src.write_bytes(src_handle.read())
+
+        for w in recipe.widths:
+            out_name = f"{recipe.src_rel_dir}/{recipe.out_subdir}/{src_stem}-{w}w.webp"
+            out_local = _local_storage_path(default_storage, out_name)
+
+            if src_local and out_local and _is_up_to_date(src_local, out_local):
+                skipped += 1
+                continue
+
+            try:
+                args = _build_convert_args(tmp_src, tmp_out, recipe, w)
+                _run_imagemagick_convert(args)
+                if default_storage.exists(out_name):
+                    default_storage.delete(out_name)
+                default_storage.save(out_name, ContentFile(tmp_out.read_bytes()))
+                made += 1
+            except subprocess.CalledProcessError:
+                failed += 1
+                logger.exception(
+                    "media_job.convert_failed",
+                    extra={"recipe": recipe_key, "src": src_name, "out": out_name},
+                )
+                continue
+
+    return {
+        "ok": failed == 0,
+        "recipe": recipe_key,
+        "src": src_name,
+        "out_dir": f"{recipe.src_rel_dir}/{recipe.out_subdir}",
+        "made": made,
+        "skipped": skipped,
+        "failed": failed,
+    }
+
+
 def generate_variants_for_file(recipe_key: str, src_rel_or_abs_path: str) -> dict:
     logger.info(
         "media_job.invoked",
@@ -104,6 +213,10 @@ def generate_variants_for_file(recipe_key: str, src_rel_or_abs_path: str) -> dic
         raise ValueError(f"Unknown recipe_key: {recipe_key!r}")
 
     recipe = RECIPES[recipe_key]
+
+    if recipe.src_root == "media":
+        return _generate_media_variants(recipe_key, recipe, src_rel_or_abs_path)
+
     src_root, out_root = _get_roots(recipe)
 
     src = Path(src_rel_or_abs_path)
@@ -126,40 +239,8 @@ def generate_variants_for_file(recipe_key: str, src_rel_or_abs_path: str) -> dic
             skipped += 1
             continue
 
-        if recipe.crop is None:
-            args = [
-                str(src),
-                "-auto-orient",
-                "-strip",
-                "-resize",
-                f"{w}x",
-                "-quality",
-                str(recipe.quality),
-                "-define",
-                f"webp:method={recipe.webp_method}",
-                str(out_path),
-            ]
-        else:
-            tw, th = _target_size(w, recipe.crop)
-            size = f"{tw}x{th}"
-            args = [
-                str(src),
-                "-auto-orient",
-                "-strip",
-                "-resize",
-                f"{size}^",
-                "-gravity",
-                "center",
-                "-extent",
-                size,
-                "-quality",
-                str(recipe.quality),
-                "-define",
-                f"webp:method={recipe.webp_method}",
-                str(out_path),
-            ]
-
         try:
+            args = _build_convert_args(src, out_path, recipe, w)
             _run_imagemagick_convert(args)
             made += 1
         except subprocess.CalledProcessError:

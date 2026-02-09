@@ -9,6 +9,7 @@ from hr_config.settings.mailjet import EMAIL_HOST_PASSWORD, EMAIL_HOST_USER
 #  Environment
 # ===============================================
 DEBUG = os.environ.get("DEBUG", "False").lower() in ("true", "1", "yes")
+USE_S3_MEDIA = os.environ.get("USE_S3_MEDIA", "").lower() in ("true", "1", "yes")
 
 # For production, ensure DEBUG is False
 if DEBUG:
@@ -73,3 +74,11 @@ if not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD:
     raise RuntimeError("Email credentials must be set when DEBUG=False.")
 
 require("SECRET_KEY")
+
+if USE_S3_MEDIA:
+    from hr_storage.conf import *  # noqa
+
+    STORAGES = {
+        **STORAGES,
+        "default": {"BACKEND": "hr_storage.storage_backends.PublicMediaStorage"},
+    }
