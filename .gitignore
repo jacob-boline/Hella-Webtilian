@@ -21,6 +21,8 @@ media/
 logs/
 
 
+docs/
+
 # --- Node / front-end ---
 node_modules/
 

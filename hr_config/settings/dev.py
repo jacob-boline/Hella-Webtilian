@@ -71,7 +71,7 @@ SITE_URL = os.getenv("SITE_URL", "http://localhost:8000")
 # ===============================================
 #  Apps + Middleware
 # ===============================================
-INSTALLED_APPS += ["debug_toolbar", "django_browser_reload"]
+INSTALLED_APPS += ["debug_toolbar", "django_browser_reload", "django_rq"]
 
 MIDDLEWARE.insert(2, "debug_toolbar.middleware.DebugToolbarMiddleware")
 MIDDLEWARE.append("django_browser_reload.middleware.BrowserReloadMiddleware")

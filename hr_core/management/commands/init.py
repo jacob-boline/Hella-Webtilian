@@ -8,6 +8,7 @@ from pathlib import Path
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management import BaseCommand, call_command
+from django.db import connection
 
 
 class Command(BaseCommand):
@@ -105,7 +106,7 @@ class Command(BaseCommand):
         self._wipe_migrations(base_dir)
 
         # 2) Delete db.sqlite3
-        self._delete_db(db_path)
+        self._reset_database(db_path)
 
         # 3) makemigrations + migrate
         self._run_migrations()
@@ -184,13 +185,22 @@ class Command(BaseCommand):
             else:
                 self.stdout.write(f"  • {app}: no migration files to remove.")
 
-    def _delete_db(self, db_path: Path):
-        self.stdout.write("→ Deleting db.sqlite3 (if present)…")
-        if db_path.exists():
-            db_path.unlink()
-            self.stdout.write(f"  • Deleted {db_path}")
-        else:
-            self.stdout.write("  • No db.sqlite3 found; skipping.")
+    def _reset_database(self, db_path: Path):
+        engine = settings.DATABASES["default"]["ENGINE"]
+        if engine == "django.db.backends.sqlite3":
+            self.stdout.write("→ Deleting db.sqlite3 (if present)…")
+            if db_path.exists():
+                db_path.unlink()
+                self.stdout.write(f"  • Deleted {db_path}")
+            else:
+                self.stdout.write("  • No db.sqlite3 found; skipping.")
+            return
+
+        self.stdout.write("→ Resetting non-sqlite database schema…")
+        with connection.cursor() as cursor:
+            cursor.execute("DROP SCHEMA public CASCADE;")
+            cursor.execute("CREATE SCHEMA public;")
+        self.stdout.write("  • Dropped and recreated public schema.")
 
     def _run_migrations(self):
         self.stdout.write("→ Running makemigrations…")
@@ -247,4 +257,4 @@ class Command(BaseCommand):
             subprocess.Popen(cmd, cwd=str(base_dir), env=env)
             self.stdout.write(self.style.SUCCESS(f"  • `npm run dev` started using {npm_exe}."))
         except Exception as e:
-            self.stdout.write(self.style.ERROR(f"  • Error starting `npm run dev`: {e}"))
+                self.stdout.write(self.style.ERROR(f"  • Error starting `npm run dev`: {e}"))

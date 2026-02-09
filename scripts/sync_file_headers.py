@@ -187,10 +187,9 @@ def compute_insert_index(lines: list[str], ext: str) -> int:
         i = 1
 
     if ext == ".py":
-        # Coding cookie allowed in first 2 lines (after shebang)
+        # Coding cookie allowed in first 2 lines
         if i < len(lines) and PY_CODING_RE.match(lines[i]):
             i += 1
-        # (Optional) allow a second comment line that is also a coding cookie (some people do both)
         if i < len(lines) and PY_CODING_RE.match(lines[i]):
             i += 1
 
@@ -203,7 +202,7 @@ def replace_or_insert_header(path: Path, repo_root: Path, dry_run: bool = False)
     desired = header_for(rel_posix, ext)
 
     text = path.read_text(encoding="utf-8", errors="replace")
-    # Preserve file’s existing newline convention as best we can:
+    # Preserve file’s existing newline convention:
     newline = "\r\n" if "\r\n" in text and "\n" in text else "\n"
     lines = text.splitlines()
 

@@ -11,7 +11,6 @@ set -euo pipefail
 #   4) Waits for the web service to actually accept connections (and optionally HTTP)
 #   5) Runs migrations, creates superuser, seeds data, collects static
 #
-# Key improvements:
 #   - Fails fast with timeouts
 #   - Prints container status + last logs on failure
 #   - Uses docker compose v2 if available (falls back to docker-compose)
@@ -58,7 +57,7 @@ die() {
   exit 1
 }
 
-# Read a single KEY=value from .env.dev, without sourcing it.
+# Read a single KEY=value from .env.dev
 # (Safer than `source .env.dev` because values can contain characters that bash will interpret.)
 env_get() {
   local key="$1"
@@ -225,7 +224,7 @@ echo ""
 echo "Step 3: Waiting for services to be ready..."
 echo "--------------------------------------"
 
-# Ensure base containers accept exec (helps avoid races)
+# Ensure base containers accept exec
 wait_for_exec db 60
 wait_for_exec redis 60
 wait_for_exec web 60
@@ -233,7 +232,7 @@ wait_for_exec web 60
 wait_for_db 90
 wait_for_redis 60
 
-# Web readiness: require port to be listening (and optionally HTTP)
+# Web readiness: require port to be listening
 wait_for_web_port 120
 wait_for_web_http "/" 60
 
