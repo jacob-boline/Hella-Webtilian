@@ -8,7 +8,7 @@ from hr_config.settings.common import require
 # ===============================================
 #  Environment
 # ===============================================
-DEBUG = os.environ.get("DEBUG", "False").lower() in ("true", "1", "yes")
+DEBUG = False
 USE_S3_MEDIA = os.environ.get("USE_S3_MEDIA", "").lower() in ("true", "1", "yes")
 
 if DEBUG:
