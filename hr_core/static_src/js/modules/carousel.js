@@ -29,31 +29,31 @@ export function initCarousel (root = document) {
     /**
  * Preload all carousel images to avoid repeated network requests
  */
-function preloadCarouselImages(thumbs, normalizeToAboutBase, aboutSrcset) {
-    if (!thumbs || !thumbs.length) return;
+    function preloadCarouselImages(thumbs, normalizeToAboutBase, aboutSrcset) {
+        if (!thumbs || !thumbs.length) return;
 
-    // Create hidden container for preloading
-    const preloadContainer = document.createElement('div');
-    preloadContainer.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden;opacity:0;pointer-events:none;';
-    preloadContainer.setAttribute('aria-hidden', 'true');
-    document.body.appendChild(preloadContainer);
+        // Create hidden container for preloading
+        const preloadContainer = document.createElement('div');
+        preloadContainer.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden;opacity:0;pointer-events:none;';
+        preloadContainer.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(preloadContainer);
 
-    thumbs.forEach(thumb => {
-        const {src} = thumb.dataset;
-        if (!src) return;
+        thumbs.forEach(thumb => {
+            const {src} = thumb.dataset;
+            if (!src) return;
 
-        const base = normalizeToAboutBase(src);
-        if (!base) return;
+            const base = normalizeToAboutBase(src);
+            if (!base) return;
 
-        // Browser fetches and caches the appropriate size
-        const img = document.createElement('img');
-        img.srcset = aboutSrcset(base);
-        img.sizes = "(max-width: 640px) 88vw, (max-width: 1024px) 92vw, (max-width: 1600px) 80vw, 1800px";
-        img.loading = 'eager';
-        img.alt = '';
+            // Browser fetches and caches the appropriate size
+            const img = document.createElement('img');
+            img.srcset = aboutSrcset(base);
+            img.sizes = "(max-width: 640px) 88vw, (max-width: 1024px) 92vw, (max-width: 1600px) 80vw, 1800px";
+            img.loading = 'eager';
+            img.alt = '';
 
-        preloadContainer.appendChild(img);
-    });
+            preloadContainer.appendChild(img);
+        });
 }
 
 
@@ -311,7 +311,7 @@ function preloadCarouselImages(thumbs, normalizeToAboutBase, aboutSrcset) {
     });
 }
 
-    // ---------- auto-rotation (cleanable) ----------
+    // ---------- auto-rotation  ----------
     if (itemCount > 1) {
         const intervalMs = 4000;
         intervalId = window.setInterval(() => {

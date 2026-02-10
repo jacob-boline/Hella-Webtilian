@@ -14,17 +14,29 @@ quotes:
     order: 2
     is_active: true
 
+  - text: "They literally ruined music for me."
+    attribution: "Greg"
+    order: 3
+    is_active: true
+
   - text: "You are audible!"
     attribution: "William Murderface"
-    order: 3
+    order: 4
     is_active: true
 
   - text: "You're in a band? That's so cool!"
     attribution: "Women Everywhere"
-    order: 4
+    order: 5
     is_active: true
 
   - text: "People say this is when my work peaked for the whole creation thing."
     attribution: "God"
-    order: 5
+    order: 6
     is_active: true
+
+  - text: "This could have been an email."
+    attribution: "Management"
+    order: 7
+    is_active: true
+
+  -

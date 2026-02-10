@@ -45,7 +45,7 @@ RECIPES: dict[str, Recipe] = {
 
     # backgrounds + wipes become repo assets
     "bg_section":   Recipe(src_root="repo_static", src_rel_dir="hr_core/images/backgrounds", out_subdir="bg_opt",   widths=(960, 1920),             crop=None),
-    "wipe_section": Recipe(src_root="repo_static", src_rel_dir="hr_core/images/wipes",       out_subdir="opt_webp", widths=(960, 1440, 1920, 2560), crop=None),
+    "wipe_section": Recipe(src_root="repo_static", src_rel_dir="hr_core/images/wipes",       out_subdir="opt_webp", widths=(960, 1440, 1920, 2560), crop=None)
 }
 
 
@@ -113,7 +113,7 @@ def _build_convert_args(src: Path, out: Path, recipe: Recipe, w: int) -> list[st
             str(recipe.quality),
             "-define",
             f"webp:method={recipe.webp_method}",
-            str(out),
+            str(out)
         ]
 
     tw, th = _target_size(w, recipe.crop)
@@ -132,7 +132,7 @@ def _build_convert_args(src: Path, out: Path, recipe: Recipe, w: int) -> list[st
         str(recipe.quality),
         "-define",
         f"webp:method={recipe.webp_method}",
-        str(out),
+        str(out)
     ]
 
 
@@ -185,7 +185,7 @@ def _generate_media_variants(recipe_key: str, recipe: Recipe, src_rel_or_abs_pat
                 failed += 1
                 logger.exception(
                     "media_job.convert_failed",
-                    extra={"recipe": recipe_key, "src": src_name, "out": out_name},
+                    extra={"recipe": recipe_key, "src": src_name, "out": out_name}
                 )
                 continue
 
@@ -196,7 +196,7 @@ def _generate_media_variants(recipe_key: str, recipe: Recipe, src_rel_or_abs_pat
         "out_dir": f"{recipe.src_rel_dir}/{recipe.out_subdir}",
         "made": made,
         "skipped": skipped,
-        "failed": failed,
+        "failed": failed
     }
 
 
@@ -205,8 +205,8 @@ def generate_variants_for_file(recipe_key: str, src_rel_or_abs_path: str) -> dic
         "media_job.invoked",
         extra={
             "recipe_key": recipe_key,
-            "src_rel_or_abs_path": src_rel_or_abs_path,
-        },
+            "src_rel_or_abs_path": src_rel_or_abs_path
+        }
     )
 
     if recipe_key not in RECIPES:

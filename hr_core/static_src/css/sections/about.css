@@ -11,13 +11,10 @@
 }
 
 .about-wrapper {
-    margin: 0 5vw;
-}
-
-@media (max-width: 640px) and (orientation: portrait) {
-    .about-wrapper {
-        margin: 0 max(1rem, 3vw);
-    }
+    width: 100%;
+    max-width: 72rem;
+    margin-inline: auto;
+    padding-inline: clamp(1rem, 4vw, 2rem);
 }
 
 .about {
@@ -38,7 +35,7 @@
     flex-direction:      column;
     align-items:         center;
     width:               100%;
-    max-width:           90vw;
+    max-width:           100%;
     margin-top:          48px;
     margin-inline:       auto;
     border:              1px solid var(--card-border);
@@ -120,8 +117,9 @@
     overflow:            hidden;
     grid-area:           stage;
     aspect-ratio:        3 / 2;
-    width:               clamp(24rem, 88vw, 64rem);
-    max-width:           calc(90vw - 2px);
+    width:               100%;
+    max-width:           64rem;
+    margin-inline:       auto;
     height:              auto;
     background:          #0B0B0B;
     box-shadow:          8px 8px 24px var(--black-alpha-30);
@@ -143,14 +141,14 @@
 }
 
 .about-stage-img {
-    transform:     translateZ(0);
-    display:       block;
-    width:         100%;
-    height:        100%;
-    object-fit:    cover;
-    border-radius: 0;
-    z-index:       1;
-    position:      relative;
+    object-position: center;
+    display:         block;
+    width:           100%;
+    height:          100%;
+    object-fit:      cover;
+    border-radius:   0;
+    z-index:         1;
+    position:        relative;
 }
 
 
@@ -255,7 +253,6 @@
 .about-quote-wrap {
     position:        relative;
     overflow:        visible;
-    max-height:      clamp(9rem, 24svh, 14rem);
     width:           100%;
     max-width:       100%;
     margin-bottom:   calc(var(--svh) * 18);
@@ -361,7 +358,6 @@
     transition:     opacity .2s ease;
 }
 
-/* quote + source share vertical lift + glow */
 #parallax-section-about .about-quote-rotator :is(.quote-text, .quote-source) {
     position:    relative;
     transform:   translateY(var(--q-rise));
@@ -371,7 +367,6 @@
                  0 0 3rem   rgba(8, 8, 8, 0.48);
 }
 
-/* visible state toggled by JS */
 #parallax-section-about .about-quote-rotator .quote-text.is-visible {
     opacity: 1;
 }
