@@ -1,6 +1,7 @@
 # _seed_data/hr_shop/Side Arm Bazooka/Camo/variant.yml
 Variant:
   name: "Camo"
+  image_key: "variants/bazooka-camo.png"
   is_display_variant: true
 
 options:

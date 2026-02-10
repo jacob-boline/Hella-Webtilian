@@ -1,6 +1,7 @@
 # _seed_data/hr_shop/Poster/Neon Pastel/variant.yml
 Variant:
   name: "Neon Pastel"
+  image_key: "variants/poster_neon-pastel.png"
   is_display_variant: true
 
 options:

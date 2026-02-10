@@ -1,10 +1,11 @@
 # _seed_data/hr_shop/Divine Hoodie/Open Sky/variant.yml
 Variant:
   name: "Open Sky"
+  image_key: "variants/hoodie_divine-open_sky.png"
   is_display_variant: true
   share_image_across:
     - "Size"
 
 options:
-  Color: "Black"
+  Color: "Open Sky"
 

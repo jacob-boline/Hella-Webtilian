@@ -2,7 +2,7 @@
 posts:
   - key: "Matt Elliott"
     album: "Drinking Songs"
-    image: "img/matt_elliott_drinking_songs_wide.jpg"
+    image_key: "posts/hero/matt-elliott_drinking-songs.jpg"
     body: "Matt Elliott makes music like someone calmly turning a bruise under a lamp to see all the colors in it. Drinking Songs is where his style feels the most distilled: a slow, deliberate marriage of post-rock patience and chanson-like lament, delivered with the restraint of a confession you’re not sure you should be hearing. The tempos don’t so much “move” as advance, one careful footstep at a time, letting space do as much emotional work as the notes. Even when the arrangements feel sparse, there’s a density to the mood, a kind of dignified collapse that never tips into melodrama.
 
 What defines Elliott’s sound here is the way he treats repetition as erosion rather than groove. Phrases return, but they come back a little more frayed, a little more tired, as if the music is aging in real time. The instrumentation leans acoustic but doesn’t feel “folky” in any cozy sense, more like folk music that wandered into a cold warehouse and learned to echo. His voice, grainy and intimate, sits up front without trying to be charismatic; it’s an instrument of narration, practical and wounded, and that plainness makes the lyrics hit harder. There’s a European melancholy to the melodies, but the production stays close and unglamorous, keeping you in the room with the singer instead of letting you admire the room from a distance.
@@ -11,7 +11,7 @@ As an album, Drinking Songs isn’t about drinking as revelry, it’s about drin
 
   - key: "Between the Buried and Me"
     album: "Colors"
-    image: "img/btbam_colors_poster.jpg"
+    image_key: "posts/hero/between-the-buried-and-me_colors.jpg"
     body: "Colors is BTBAM turning the album format into a high-wire act, then sprinting across it while juggling genres. It’s progressive metal with a grin that’s slightly unhinged: death metal intensity colliding with jazz fusion, ragtime, arena-rock choruses, and passages that feel like Broadway briefly wandered into the pit. The record’s identity is its motion, a continuous metamorphosis where each section seems to ask, “What if we did this instead?” and then commits fully. Despite the constant shape-shifting, it feels purposeful, like one long piece with multiple ecosystems.
 
 Their style on Colors is all about audacious transitions and thematic stitching. The band can pivot from blistering technical riffs to lush clean harmonies and make it feel like the same story told in different dialects. Tommy Rogers’ vocals are a big part of that range, swinging between harsh delivery and melodic lines that can be sincerely catchy, not just “prog catchy.” The musicianship is ridiculous, but what makes it work is the sense of arrangement, the way motifs recur, the way chaos resolves into melody and then back into chaos, like breathing.
@@ -20,7 +20,7 @@ As an experience, Colors is the kind of album that rewires your expectations abo
 
   - key: "Every Time I Die"
     album: "Low Teens"
-    image: "img/etid_asian_lamps.webp"
+    image_key: "posts/hero/every-time-i-die_low-teens.webp"
     body: "Low Teens is Every Time I Die taking their signature barroom brawl groove and lighting it with hospital fluorescents. The riffs still swagger and snap like a switchblade comedy routine, but the mood is more intimate, more “this joke is covering a wound” than “everybody laugh while the room burns.” It’s dense, punchy, and restless, with that ETID talent for making chaos feel like a party you can dance to, even when the lyrics are dragging you someplace darker. The production keeps everything immediate and physical, like you’re pressed against the stage monitors with no escape route.
 
 Stylistically, the band’s genius here is their balance of filth and finesse: hooky rock ’n’ roll DNA threaded through hardcore violence and jagged rhythmic turns. Keith Buckley’s writing is the album’s serrated edge, a flood of bitter poetry and self-laceration that’s still funny in places, but in the way gallows humor is funny: it’s a flare gun, not a punchline. The guitars swing between churning grooves and staccato bursts, always finding a riff you can grab onto before they shove you into the next section. It’s heavy without being monotonous, melodic without softening the blow.
@@ -29,7 +29,7 @@ As a full listen, Low Teens plays like a reckoning that refuses to tidy itself u
 
   - key: "Protest the Hero"
     album: "Fortress"
-    image: "img/rodywalkerpromo.webp"
+    image_key: "posts/hero/protest-the-hero_fortress.webp"
     body: "Fortress is Protest the Hero building a golden machine that runs on riffs, sarcasm, and sheer athleticism. It’s progressive metalcore with a bright, precise edge, songs that twist and sprint but somehow still feel melodic and coherent, like a maze designed by someone who also writes choruses. The album’s energy is relentless, yet not chaotic; it’s more like watching a flock of birds turn midair all at once, impossible-looking coordination that still feels natural. Everything is sharp, buoyant, and fast, but there’s a sense of craft rather than flexing.
 
 Their style here is defined by density with intention: riffs stacked like interlocking gears, drum patterns that constantly reframe the pulse, and vocals that leap between hooky melodies and rapid-fire phrasing without losing the thread. The band treats the “math” part of prog not as cold complexity, but as a way to keep the music perpetually alive, always moving, always surprising. Lyrically, Fortress has that Protest the Hero bite: conceptual, pointed, and often satirical, with a theatrical flavor that matches the album’s larger-than-life structure. It’s high-information music that still lands emotionally because it never forgets to be catchy.
@@ -38,7 +38,7 @@ Taken as a whole, Fortress is one of those records that makes you want to rewind
 
   - key: "Dethklok"
     album: "Dethalbum II"
-    image: "img/dethklok_rainbows.webp"
+    image_key: "posts/hero/dethklok_dethalbum-ii.webp"
     body: "Dethalbum II is Dethklok turning the joke into a sledgehammer and then polishing the sledgehammer until it shines. It’s absurd on the surface, sure, but the music is played dead seriously: crisp, heavy, and surprisingly nuanced, with riffs that feel carved rather than written. The album hits with that classic melodic death metal bite, fast picking, big harmonic hooks, and drums that move like a stampede with a metronome taped to its forehead. Even when it’s comedic, it’s comedic the way a guillotine is decorative: you still respect the blade.
 
 Stylistically, it’s all about muscular clarity and grand, almost cinematic momentum. The guitars alternate between blunt-force groove and high-speed tremolo passages, often sneaking in melodies that are way more memorable than they have any right to be for a “fictional band” record. The arrangements feel tighter and more varied than you’d expect, with smart pacing and enough rhythmic and harmonic shifts to keep it from becoming a pure riff dump. Vocals sit in that monstrous register, serving the aesthetic, but the real voice of the record is the guitar work: heroic, sinister, and strangely catchy.
@@ -47,7 +47,7 @@ As an album experience, Dethalbum II works because it delivers what a lot of “
 
   - key: "The Mars Volta"
     album: "Amputecture"
-    image: "img/mars_volta_amp_full.jpg"
+    image_key: "posts/hero/the-mars-volta_amputechture.jpg"
     body: "Amputechture feels like The Mars Volta decided to stop asking for permission from gravity. It’s a record that moves like a living thing: lunging, swerving, doubling back, then suddenly hovering in place to stare you down. The band’s chemistry is less “tight” in the polite, metronomic sense and more “locked” the way a storm front is locked, a system of pressures that keeps rearranging itself while staying unmistakably itself. Even when the songs stretch past normal rock-song boundaries, there’s a restless intention to it, like they’re not jamming so much as interrogating the groove until it confesses something weird.
 
 Cedric’s vocals are the main weather event. He doesn’t just sing over these tracks, he haunts them, ricocheting between melodic clarity and feverish incantation. Meanwhile the instrumentation runs in parallel realities: one layer punching out riffs that could anchor a straightforward rock band, another layer scribbling in the margins with polyrhythms, tape-snag textures, sudden harmonic feints, and those moments where the whole ensemble seems to fold in on itself, then snap back. It’s maximal without being careless, dense without being muddy, and it rewards the kind of listening where you don’t just follow the “main” part, you chase the small sparks at the edges.
@@ -56,7 +56,7 @@ What makes Amputechture stick is how confidently it refuses to become background
 
   - key: "Animals as Leaders"
     album: "Animals as Leaders"
-    image: "img/animals-as-leaders-cafo-Cover-Art.webp"
+    image_key: "posts/hero/animals-as-leaders_cafo.webp"
     body: "This self-titled debut hits like someone replaced the band with a CNC machine and then taught it jazz. It’s instrumental progressive metal that doesn’t just “show chops”, it architects them: geometric riffs, sudden harmonic detours, and an almost gravity-free sense of groove that keeps re-orienting your inner ear. Tosin Abasi’s 8-string writing is the headline, but the record’s real flex is how often it feels melodic and cinematic instead of merely athletic. It’s heavy, sure, but it’s also bright, curious, and oddly elegant.
 
 Stylistically, the album lives at the intersection of djent polyrhythms, fusion harmony, and ambient texture, with compositions co-written/produced alongside Misha Mansoor. The drum programming and tight production give everything a precise, almost “engineered” snap, which makes the more fluid, lyrical moments pop even harder. There’s a constant push-pull between percussive, palm-muted mechanics and wide-open chords that feel like sunlight on metal. It’s technical, but not cold, more like a high-speed language you gradually learn to understand.
@@ -65,7 +65,7 @@ As a listening experience, Animals as Leaders rewards repeat plays the way a den
 
   - key: "Blowfly"
     album: "Zodiac Blowfly"
-    image: "img/blowfly.avif"
+    image_key: "posts/hero/blowfly_blowfly-does-the-zodiac.avif"
     body: "Zodiac Blowfly is comedy-funk as a contact sport: raunchy, shameless, and delivered with the confidence of a man who knows you’re going to laugh and hate yourself a little for it. Blowfly takes the zodiac concept and uses it as a flimsy excuse to sprint naked through disco-era groove, tossing explicit punchlines like fireworks into a crowded room. It’s not “subtle”, it’s not “tasteful”, and it’s not trying to be either. The record’s whole aesthetic is: take a classic soul/funk vibe, then scribble profanity all over the liner notes in permanent marker.
 
 Stylistically, it’s anchored in that mid-70s funk/disco pocket, with skit-like intros and zodiac-themed cuts that treat sex jokes as an art form and a blunt instrument at the same time. Blowfly’s persona is part shock comic, part dirty-blues griot, pushing taboo as spectacle and social pressure valve. Even the track titles tell you what kind of ride this is, proudly obscene and allergic to decorum. The humor is intentionally over the top, less “wink” and more “kick the door in”.
@@ -74,7 +74,7 @@ As an album, it lands best when you hear it as a time capsule of outsider succes
 
   - key: "Caravan Palace"
     album: "Chronologic"
-    image: "img/caravan_palace_chronologic_art.webp"
+    image_key: "posts/hero/caravan-palace_chronologic.webp"
     body: "Chronologic is Caravan Palace easing the electro-swing suit jacket off their shoulders and stepping deeper into glossy, modern electro-pop, without fully abandoning their old grin. The swing fingerprints are still there, but the album’s pulse leans more clubward and synth-forward, with cleaner vocals and a smoother, brighter sheen than earlier work. It feels like the band translating their vintage flair into a more contemporary dialect, still stylish, just less sepia-toned.
 
 Stylistically, this is a mellower, more house-influenced palette at times, with a mix of chilled tracks and dancefloor bangers, and an emphasis on clarity and pop structure. Some listeners hear it as a deliberate evolution, others as a slightly uneven pivot away from the harder electro-swing identity, but either way it’s unmistakably them: playful textures, snappy rhythmic hooks, and that sense of animated motion in the arrangements. The songwriting often prioritizes immediacy, letting choruses hit cleaner and quicker than the more intricately “swing-built” cuts of prior albums of prior albums.
@@ -83,7 +83,7 @@ As a full record, Chronologic plays like a neon-lit postcard from a band refusin
 
   - key: "Les Racquet"
     album: "Whale Hail"
-    image: "img/les_racquet_kitchen.jpg"
+    image_key: "posts/hero/les-racquet_whale-hail.jpg"
     body: "Whale Hail plays like a road film shot on whatever battery you had left: warm, kinetic, a little scrappy, and full of motion. Les Racquet lean into that jazz-tilted indie rock identity where grooves don’t just support the songs, they steer them, and the record’s “touring band retrospective” vibe comes through as forward momentum rather than nostalgia. It’s an album that feels lived-in, with enough swing and swagger that even the calmer moments keep a pulse.
 
 The best moments are the ones that change lanes mid-song without flipping the car. You’ll get a tune that starts measured, then suddenly pivots into something more theatrical or urgent, like the band’s chasing a new idea as it appears in real time. Reviews tend to call out that showmanship and those “direction change” dynamics, and it tracks: the arrangements like to meander with intent, then tighten up for a dramatic landing.
@@ -92,7 +92,7 @@ If you want hyper-polished, modern indie production, this isn’t trying to be t
 
   - key: "Leprous"
     album: "Coal"
-    image: "img/leprous_coal_reissue.webp"
+    image_key: "posts/hero/leprous_coal.webp"
     body: "Coal is Leprous at their most elegantly punishing: progressive metal that doesn’t show off so much as tighten the room around you. The production is stark and physical, with a sense of space that makes every hit feel intentional. Rather than constant fireworks, the album thrives on restraint, tension, and release, like it’s always holding a match near the fuse and smiling while you wait.
 
 Einar Solberg’s voice is the centerpiece, and it’s not just “good” in a technical sense, it’s emotionally surgical. He can pivot from fragile to feral in a bar or two, and the band follows that emotional contour with grooves that lurch and coil. The rhythms often feel like they’re leaning forward, slightly off-center, creating that uneasy momentum where you’re not sure if you’re marching or falling. It’s heavy without being loud, intense without needing speed.
@@ -101,7 +101,7 @@ The payoff is how Coal makes its darkness feel dimensional rather than monochrom
 
   - key: "Nick Mulvey"
     album: "First Mind"
-    image: "img/nick_mulvey_lights.png"
+    image_key: "posts/hero/nick-mulvey_first-mind.png"
     body: "First Mind feels like a well-worn notebook that somehow stayed clean: intimate, rhythmic, and quietly adventurous without needing to announce itself. Mulvey writes songs that sit in that sweet spot between folk confession and percussive, almost world-music-informed motion, where the guitar isn’t just accompaniment, it’s the engine. The album has an unforced clarity, like it’s trying to tell the truth without raising its voice.
 
 What stands out is the pulse. Even the softer tracks have this steady, tactile sense of hands on wood and strings, patterns repeating just enough to become meditative. His voice carries a calm urgency, and his phrasing often feels conversational in a way that makes the lyrics land closer, like he’s across the table rather than on a stage. The arrangements stay tasteful, letting space do a lot of emotional work, and when additional instrumentation arrives it tends to support the song’s gait rather than decorate it.
@@ -110,7 +110,7 @@ It’s the kind of album that doesn’t demand your attention but rewards it, li
 
   - key: "The Human Abstract"
     album: "Digital Veil"
-    image: "img/the_human_abstract.webp"
+    image_key: "posts/hero/the-human-abstract_digital-veil.webp"
     body: "Digital Veil feels like a cathedral built from angles, where beauty and brutality share the same blueprint. The Human Abstract lean into a kind of neoclassical metalcore that’s less about chug-and-bounce and more about tension, melody, and precision, with riffs that spiral like carved stonework. There’s a surgical clarity to the playing: guitars that switch from ornate arpeggios to serrated punches without losing coherence, and songs that carry a “composed” sensibility even when they hit hardest. The atmosphere is darker and more dramatic than their earlier work, like the lights got turned down and the architecture got taller.
 
 Their style here is defined by contrast: technicality that doesn’t just show off, but frames emotion. The arrangements have a sense of staging, with clean sections that feel genuinely haunting rather than perfunctory, and heavy sections that arrive with purpose rather than habit. Vocals ride the line between ferocity and theatrical intensity, and the melodies often feel like they’re reaching for something grander than genre convention. It’s a record that treats metalcore like a canvas for composition, pulling from classical phrasing and modern aggression without letting either become costume.

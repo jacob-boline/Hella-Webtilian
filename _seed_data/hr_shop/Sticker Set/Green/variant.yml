@@ -1,6 +1,7 @@
 # _seed_data/hr_shop/Sticker Set/Green/variant.yml
 Variant:
   name: "Green"
+  image_key: "variants/sticker_set-green.png"
   is_display_variant: true
 
 options:

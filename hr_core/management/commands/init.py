@@ -185,6 +185,15 @@ class Command(BaseCommand):
             else:
                 self.stdout.write(f"  • {app}: no migration files to remove.")
 
+    def _env_or_file(self, key: str) -> str | None:
+        v = os.environ.get(key)
+        if v:
+            return v
+        fp = os.environ.get(f"{key}_FILE")
+        if fp and Path(fp).exists():
+            return Path(fp).read_text().strip()
+        return None
+
     def _reset_database(self, db_path: Path):
         engine = settings.DATABASES["default"]["ENGINE"]
         if engine == "django.db.backends.sqlite3":
@@ -211,12 +220,12 @@ class Command(BaseCommand):
     def _create_superuser_from_env(self):
         self.stdout.write("→ Creating superuser from environment variables…")
 
-        username = os.environ.get("DJANGO_SU_USERNAME")
-        email = os.environ.get("DJANGO_SU_EMAIL")
-        password = os.environ.get("DJANGO_SU_PASSWORD")
+        username = self._env_or_file("DJANGO_SUPERUSER_USERNAME")
+        email = self._env_or_file("DJANGO_SUPERUSER_EMAIL")
+        password = self._env_or_file("DJANGO_SUPERUSER_PASSWORD")
 
         if not username or not password:
-            self.stdout.write(self.style.WARNING("  • DJANGO_SU_USERNAME and/or DJANGO_SU_PASSWORD not set; " "skipping superuser creation."))
+            self.stdout.write(self.style.WARNING("  • DJANGO_SUPERUSER_USERNAME and/or DJANGO_SU_PASSWORD not set; " "skipping superuser creation."))
             return
 
         if not email:

@@ -1,6 +1,7 @@
 # _seed_data/hr_shop/Divine Hoodie/Creation/variant.yml
 Variant:
   name: "Creation"
+  image_key: "variants/hoodie_divine-creation.png"
   is_display_variant: false
   share_image_across:
     - "Size"

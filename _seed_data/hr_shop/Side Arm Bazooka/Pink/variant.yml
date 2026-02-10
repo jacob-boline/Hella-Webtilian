@@ -1,6 +1,7 @@
 # _seed_data/hr_shop/Side Arm Bazooka/Pink/variant.yml
 Variant:
   name: "Pink"
+  image_key: "variants/bazooka-pink.png"
   is_display_variant: false
 
 options:

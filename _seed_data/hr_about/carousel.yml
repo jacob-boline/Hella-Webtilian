@@ -10,40 +10,40 @@ slides:
     caption: ""
     order: 1
     is_active: true
-    image: "HR_AMST_1.JPG"
+    image_key: "hr_about/amsterdam_1.jpg"
 
   - title: "Hella Reptilian! @ Amsterdam"
     caption: ""
     order: 2
     is_active: true
-    image: "HR_AMST_2.JPG"
+    image_key: "hr_about/amsterdam_2.jpg"
 
   - title: "Hella Reptilian! @ Amsterdam"
     caption: ""
     order: 3
     is_active: true
-    image: "HR_AMST_3.JPG"
+    image_key: "hr_about/amsterdam_3.jpg"
 
   - title: "Hella Reptilian! @ Amsterdam"
     caption: ""
     order: 4
     is_active: true
-    image: "HR_AMST_4.JPG"
+    image_key: "hr_about/amsterdam_4.jpg"
 
   - title: "Hella Reptilian! @ Amsterdam"
     caption: ""
     order: 5
     is_active: true
-    image: "HR_AMST_5.JPG"
+    image_key: "hr_about/amsterdam_5.jpg"
 
   - title: "Hella Reptilian! @ Amsterdam"
     caption: ""
     order: 6
     is_active: true
-    image: "HR_AMST_6.JPG"
+    image_key: "hr_about/amsterdam_6.jpg"
 
   - title: "Hella Reptilian! @ Amsterdam"
     caption: ""
     order: 7
     is_active: true
-    image: "HR_AMST_7.JPG"
+    image_key: "hr_about/amsterdam_7.jpg"

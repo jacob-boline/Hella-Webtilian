@@ -77,7 +77,7 @@ if REDIS_URL or REDIS_HOST:
 else:
     # Redis not available - disable RQ
     print("⚠️  Redis not configured - RQ worker functionality disabled")
-    RQ_QUEUES = {}
+    # RQ_QUEUES = {}
     # Remove django_rq from INSTALLED_APPS if it's there
     INSTALLED_APPS = [app for app in INSTALLED_APPS if app != "django_rq"]
 

@@ -1,6 +1,7 @@
 # _seed_data/hr_shop/Super Offiscale T-Shirt/Aqua/variant.yml
 Variant:
   name: "Aqua"
+  image_key: "variants/t-shirt_offiscale-aqua.png"
   is_display_variant: true
   share_image_across:
     - "Size"

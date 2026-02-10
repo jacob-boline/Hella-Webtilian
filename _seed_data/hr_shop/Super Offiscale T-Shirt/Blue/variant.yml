@@ -1,6 +1,7 @@
 # _seed_data/hr_shop/Super Offiscale T-Shirt/Blue/variant.yml
 Variant:
   name: "Blue"
+  image_key: "variants/t-shirt_offiscale-blue.png"
   is_display_variant: false
   share_image_across:
     - "Size"

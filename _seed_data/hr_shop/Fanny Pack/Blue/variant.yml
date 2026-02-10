@@ -1,6 +1,7 @@
 # _seed_data/hr_shop/Fanny Pack/Blue/variant.yml
 Variant:
   name: "Blue"
+  image_key: "variants/fanny_pack-blue.png"
   is_display_variant: false
 
 options:

@@ -1,5 +1,4 @@
 # hr_core/management/commands/seed_hr_shop.py
-
 import itertools
 from decimal import Decimal
 from pathlib import Path
@@ -7,18 +6,19 @@ from typing import cast
 
 import yaml
 from django.conf import settings
-from django.core.files import File
+from django.core.files.storage import default_storage
 from django.core.management.base import BaseCommand
 from django.db.models.fields.files import ImageFieldFile
 from django.utils.text import slugify
 
+from hr_core.management.commands.seed_data import attach_image_if_missing
 from hr_shop.models import (
     InventoryItem,
     Product,
-    ProductImage,  # <-- NEW
+    ProductImage,
     ProductOptionType,
     ProductOptionValue,
-    ProductVariant,
+    ProductVariant
 )
 
 
@@ -32,15 +32,11 @@ class Command(BaseCommand):
     # hr_shop seeding (data-driven)
     # ==============================
     def _seed_hr_shop(self):
-        """
-        Seed hr_shop using YAML + images under:
-            _seed_data/hr_shop/<ProductName>/
-        """
         self.stdout.write("  → hr_shop…")
 
         base = Path(settings.BASE_DIR) / "_seed_data" / "hr_shop"
         if not base.exists():
-            self.stdout.write(self.style.WARNING(f"    • No seed_data/hr_shop directory found at {base}"))
+            self.stdout.write(self.style.WARNING(f"    • No _seed_data/hr_shop directory found at {base}"))
             return
 
         product_dirs = [p for p in base.iterdir() if p.is_dir()]
@@ -64,16 +60,15 @@ class Command(BaseCommand):
 
         cfg = yaml.safe_load(product_yml.read_text()) or {}
 
-        # Product name – YAML wins, else folder name
         product_name = cfg.get("Product") or product_dir.name
-
-        # Basic metadata with sane defaults
         description = cfg.get("description") or f"{product_name} (seeded product)"
         default_price = Decimal(str(cfg.get("default_price", "0.00")))
         active = cfg.get("active", True)
 
-        # Create/update Product
-        product, created = Product.objects.get_or_create(name=product_name, defaults={"description": description, "active": active})
+        product, created = Product.objects.get_or_create(
+            name=product_name,
+            defaults={"description": description, "active": active}
+        )
         if not created:
             product.description = description
             product.active = active
@@ -81,23 +76,24 @@ class Command(BaseCommand):
 
         self.stdout.write(f"    • Seeding product: {product.name}")
 
-        # Ensure option types/values from option_types config
         option_cfg = cfg.get("option_types", {}) or {}
-        type_map, value_map = self._ensure_product_option_types_and_values(product, option_cfg)
+        _, value_map = self._ensure_product_option_types_and_values(product, option_cfg)
 
-        # Seed variant groups: each subfolder with a variant.yml
         variant_dirs = [d for d in product_dir.iterdir() if d.is_dir()]
 
-        # Keep deterministic SKU indexing across re-runs:
         existing_variants = product.variants.order_by("id").values_list("sku", flat=True)
         next_index = len(existing_variants) + 1
 
         for vdir in sorted(variant_dirs, key=lambda p: p.name.lower()):
             next_index = self._seed_variant_group_from_folder(
-                product=product, product_option_cfg=option_cfg, vdir=vdir, value_map=value_map, default_price=default_price, start_index=next_index
+                product=product,
+                product_option_cfg=option_cfg,
+                vdir=vdir,
+                value_map=value_map,
+                default_price=default_price,
+                start_index=next_index
             )
 
-        # If nothing marked display, choose first variant
         if not product.variants.filter(is_display_variant=True).exists():
             first = product.variants.order_by("id").first()
             if first:
@@ -109,64 +105,43 @@ class Command(BaseCommand):
     # ------------------------------------------------------
     @staticmethod
     def _ensure_product_option_types_and_values(product, option_cfg):
-        """
-        option_cfg example (from product.yml):
+        type_map = {}
+        value_map = {}
 
-            option_types:
-              Size: ["S", "M", "L", "XL"]
-              Color: ["Black", "Cream", "Orange"]
-
-        We create ProductOptionType + ProductOptionValue from these.
-        """
-        type_map = {}  # "Size" -> ProductOptionType
-        value_map = {}  # ("Size", "S") -> ProductOptionValue
-
-        # Preserve order as in YAML
         for type_name, values in option_cfg.items():
-            type_code = slugify(type_name)  # 'size', 'color'
+            type_code = slugify(type_name)
             pot, _ = ProductOptionType.objects.get_or_create(
                 product=product,
                 code=type_code,
-                defaults={
-                    "name": type_name,
-                    "active": True
-                }
+                defaults={"name": type_name, "active": True}
             )
             type_map[type_name] = pot
 
             for value_name in values or []:
-                value_code = slugify(value_name)  # 's', 'black'
+                value_code = slugify(value_name)
                 pov, _ = ProductOptionValue.objects.get_or_create(
                     option_type=pot,
                     code=value_code,
-                    defaults={
-                        "name": value_name,
-                        "active": True
-                    }
+                    defaults={"name": value_name, "active": True}
                 )
                 value_map[(type_name, value_name)] = pov
 
         return type_map, value_map
 
     # ------------------------------------------------------
-    # Variant group seeding (one folder = one image group)
+    # Variant group seeding
     # ------------------------------------------------------
-    def _seed_variant_group_from_folder(self, product, product_option_cfg, vdir: Path, value_map, default_price: Decimal, start_index: int) -> int:
-        """
-        Each folder under the product dir like:
-
-            Divine Hoodie/
-              Clouds/
-                variant.yml
-                Cloud Hoodie.png
-
-        defines a *group* of variants that all share the same image and
-        base config, and may fan out across some option types
-        (e.g. all Sizes).
-        """
+    def _seed_variant_group_from_folder(
+        self,
+        product,
+        product_option_cfg,
+        vdir: Path,
+        value_map,
+        default_price: Decimal,
+        start_index: int
+    ) -> int:
         var_yml = vdir / "variant.yml"
         if not var_yml.exists():
-            # Not a variant folder, just ignore
             return start_index
 
         group_cfg = yaml.safe_load(var_yml.read_text()) or {}
@@ -177,50 +152,48 @@ class Command(BaseCommand):
         is_group_display = bool(variant_meta.get("is_display_variant", False))
         group_price = Decimal(str(variant_meta.get("price", default_price)))
 
-        share_image_across = variant_meta.get("share_image_across") or []
-        share_image_across = list(share_image_across)
+        share_image_across = list(variant_meta.get("share_image_across") or [])
+
+        # STRICT: require image_key for shop variants
+        image_key = variant_meta.get("image_key")
+        if not image_key:
+            self.stdout.write(self.style.WARNING(f"      (Variant group '{group_name}' missing required 'image_key' in {var_yml})"))
+            image_key = ""
 
         self.stdout.write(f"      • Variant group: {group_name}")
 
-        # Build the expansion spec across option types
         type_order = list(product_option_cfg.keys())
 
-        # Map of type_name -> list of value names to use in this group
         dimension_values: dict[str, list[str]] = {}
         for type_name, all_values in product_option_cfg.items():
             if type_name in options_cfg:
-                # Fixed value for this type
-                val = options_cfg[type_name]
-                dimension_values[type_name] = [val]
+                dimension_values[type_name] = [options_cfg[type_name]]
             elif type_name in share_image_across:
-                # Fan out across all product values for this type
                 dimension_values[type_name] = list(all_values or [])
             else:
-                # No contribution from this type for this group
                 dimension_values[type_name] = []
 
         active_dims = [(t, vals) for t, vals in dimension_values.items() if vals]
-
         if not active_dims:
             self.stdout.write(self.style.WARNING(f"        (No active option dimensions for group '{group_name}' in {vdir})"))
             return start_index
 
-        # Cartesian product of all selected values
         dim_names = [t for t, _ in active_dims]
         dim_values_lists = [vals for _, vals in active_dims]
 
-        # --- Create or reuse a ProductImage for this group's image file ---
-        group_image_path = self._find_first_image_file(vdir)
         group_image_obj = None
-        if group_image_path:
-            group_image_obj = self._get_or_create_product_image(group_image_path)
+        if image_key:
+            try:
+                normalized_key = self._normalize_media_key(str(image_key))
+                group_image_obj = self._get_or_create_product_image(normalized_key)
+            except FileNotFoundError as e:
+                self.stdout.write(self.style.WARNING(f"        ({e})"))
 
         created_variants = []
 
         for combo_values in itertools.product(*dim_values_lists):
             combo = dict(zip(dim_names, combo_values, strict=True))
 
-            # Build a human-readable variant name in option type order
             ordered_value_names = []
             for tname in type_order:
                 vname = combo.get(tname)
@@ -228,15 +201,20 @@ class Command(BaseCommand):
                     ordered_value_names.append(vname)
             variant_name = " / ".join(ordered_value_names) if ordered_value_names else group_name
 
-            # Deterministic SKU: <PRODUCT-SLUG>-NNN
             prod_slug = slugify(product.name)
             index = start_index
             start_index += 1
             sku = f"{prod_slug.upper()}-{index:03d}"
 
-            # Create or get the variant
             variant, created = ProductVariant.objects.get_or_create(
-                product=product, sku=sku, defaults={"name": variant_name, "price": group_price, "active": True, "is_display_variant": False}
+                product=product,
+                sku=sku,
+                defaults={
+                    "name": variant_name,
+                    "price": group_price,
+                    "active": True,
+                    "is_display_variant": False
+                }
             )
             if not created:
                 variant.name = variant_name
@@ -244,7 +222,6 @@ class Command(BaseCommand):
                     variant.price = group_price
                 variant.save(update_fields=["name", "price"])
 
-            # Attach option values
             if created or not variant.option_values.exists():
                 ovs = []
                 for tname, vname in combo.items():
@@ -256,36 +233,33 @@ class Command(BaseCommand):
                 if ovs:
                     variant.option_values.set(ovs)
 
-            # Ensure inventory
             InventoryItem.objects.get_or_create(variant=variant, defaults={"on_hand": 25, "reserved": 0})
 
-            if group_image_obj and (created or not variant.image):
+            if group_image_obj and (created or self._needs_file(variant.image)):
                 variant.image = group_image_obj
                 variant.save(update_fields=["image"])
 
             created_variants.append(variant)
 
-        # If this group requested display variant and none set yet for the product,
-        # we mark the first variant in this group as display.
         if is_group_display and created_variants:
             if not product.variants.filter(is_display_variant=True).exists():
                 dv = created_variants[0]
                 dv.is_display_variant = True
                 dv.save(update_fields=["is_display_variant"])
             else:
-                self.stdout.write(self.style.WARNING(f"        (Group '{group_name}' requested display variant, " f"but product already has one; ignoring.)"))
+                self.stdout.write(
+                    self.style.WARNING(
+                        f"        (Group '{group_name}' requested display variant, but product already has one; ignoring.)"
+                    )
+                )
 
         return start_index
 
     # ------------------------------------------------------
-    # Image helpers
+    # Media + ProductImage helpers
     # ------------------------------------------------------
-
     @staticmethod
     def _needs_file(fieldfile) -> bool:
-        """
-        True if the FieldFile is missing or the referenced file is missing from storage.
-        """
         if not fieldfile:
             return True
 
@@ -298,42 +272,55 @@ class Command(BaseCommand):
             return True
 
     @staticmethod
-    def _find_first_image_file(vdir: Path) -> Path | None:
-        """Return the first image file in a variant group folder, or None."""
-        exts = {".jpg", ".jpeg", ".png", ".webp", ".avif"}
-        for p in sorted(vdir.iterdir(), key=lambda x: x.name.lower()):
-            if not p.is_file():
-                continue
-            if p.name.startswith("."):
-                continue
-            if p.suffix.lower() in exts:
-                return p
-        return None
+    def _normalize_media_key(key: str) -> str:
+        k = (key or "").strip().replace("\\", "/").lstrip("/")
+        if k.startswith("media/"):
+            k = k.removeprefix("media/")
+        return k
 
-    def _get_or_create_product_image(self, img_path: Path) -> ProductImage | None:
+    def _open_media(self, key: str):
         """
-        Create (or reuse) a ProductImage for a variant group folder.
+        Try local MEDIA_ROOT first, otherwise storage.
+        """
+        k = self._normalize_media_key(key)
+
+        local_path = Path(settings.MEDIA_ROOT) / k
+        if local_path.exists():
+            return local_path.open("rb")
+
+        if default_storage.exists(k):
+            return default_storage.open(k, "rb")
+
+        raise FileNotFoundError(f"Media not found (local or storage) for key: {k}")
+
+    def _get_or_create_product_image(self, image_key: str) -> ProductImage | None:
+        """
+        Create (or reuse) a ProductImage for a variant group, keyed by full storage path.
 
         Idempotency rules:
-          - If a ProductImage exists matching this filename AND its storage file exists -> reuse
-          - If it exists but file is missing -> re-save the file into the same row
+          - If a ProductImage exists with image.name == image_key and file exists -> reuse
+          - If row exists but file missing -> re-save the file into the same row
           - Else -> create new row and save file
         """
-        filename = img_path.name
 
-        existing = ProductImage.objects.filter(image__endswith=filename).first()
+        if not image_key:
+            return None
+
+        k = self._normalize_media_key(image_key)
+
+        existing = ProductImage.objects.filter(image=k).first()
         if existing:
-            # If DB points at a real file, we're done.
             if not self._needs_file(existing.image):
                 return existing
 
-            # DB row exists but storage file is gone (common after init wipe).
-            # Re-save into the same model instance to restore the file.
-            with img_path.open("rb") as f:
-                existing.image.save(filename, File(f), save=True)
+            with self._open_media(k) as f:
+                attach_image_if_missing(existing, 'image', k, f)
+            if not existing.alt_text:
+                existing.alt_text = Path(k).name
+                existing.save(update_fields=["alt_text"])
             return existing
 
-        img = ProductImage(alt_text=filename)
-        with img_path.open("rb") as f:
-            img.image.save(filename, File(f), save=True)
+        img = ProductImage(alt_text=Path(k).name)
+        with self._open_media(k) as f:
+            attach_image_if_missing(img, 'image', k, f)
         return img

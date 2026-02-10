@@ -1,9 +1,8 @@
 ##########################
-# BUILDER STAGE          #
+# PY BUILDER (prod deps) #
 ##########################
-FROM python:3.11-slim-bookworm AS builder
+FROM python:3.11-slim-bookworm AS py-builder
 
-# Prevent Python from writing pyc files and buffering stdout/stderr
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
@@ -11,104 +10,145 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /build
 
-# Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
     imagemagick \
     && rm -rf /var/lib/apt/lists/*
 
-# Install uv for Python package management
 RUN pip install uv
 
-# Copy dependency files
 COPY pyproject.toml uv.lock ./
 
-# Create venv
 RUN uv venv /opt/venv
-
-# Force uv + python to use THIS venv (no guessing / no accidental .venv)
 ENV VIRTUAL_ENV=/opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
+ENV UV_PROJECT_ENVIRONMENT=/opt/venv
 
-# Install dependencies into /opt/venv
 RUN uv sync --frozen --no-dev
-
-# Fail the build early if Django isn't actually installed in the venv
-RUN python -c "import django; print('Django OK', django.get_version())"
+RUN /opt/venv/bin/python -c "import django; print('Django OK', django.get_version())"
 
 
 ##########################
-# NODE BUILD STAGE       #
+# NODE BUILDER (prod)    #
 ##########################
 FROM node:20-slim AS node-builder
 
 WORKDIR /build
 
-# Copy package files
 COPY package.json package-lock.json ./
-
-# Install Node dependencies
 RUN npm ci
 
-# Copy source files for Vite build
 COPY hr_core/static_src ./hr_core/static_src
 COPY vite.config.js ./
 
-# Build static assets with Vite
 RUN npm run build
 
 
 ##########################
-# FINAL STAGE            #
+# PROD RUNTIME           #
 ##########################
-FROM python:3.11-slim-bookworm
+FROM python:3.11-slim-bookworm AS prod
 
-# Create app user and group
 RUN groupadd -r app && useradd -r -g app app
 
-# Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     VIRTUAL_ENV=/opt/venv \
     PATH="/opt/venv/bin:$PATH" \
     DJANGO_SETTINGS_MODULE=hr_config.settings.prod_docker
 
-# Install runtime dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq5 \
     imagemagick \
     netcat-openbsd \
     && rm -rf /var/lib/apt/lists/*
 
-# Create directory structure
-RUN mkdir -p /home/app/web && \
-    mkdir -p /home/app/web/staticfiles && \
-    mkdir -p /home/app/web/media && \
-    mkdir -p /home/app/web/logs
-
 WORKDIR /home/app/web
 
-# Copy virtual environment from builder
-COPY --from=builder /opt/venv /opt/venv
+RUN mkdir -p /home/app/web/staticfiles \
+             /home/app/web/media \
+             /home/app/web/logs
 
-# Copy built static assets from node-builder
+COPY --from=py-builder /opt/venv /opt/venv
 COPY --from=node-builder /build/hr_core/static/hr_core/dist ./hr_core/static/hr_core/dist
 
-# Copy application code
+# Copy app code (exclude heavy stuff via .dockerignore)
 COPY --chown=app:app . .
 
-# Copy entrypoint script
 COPY --chown=app:app docker/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+RUN chmod +x /entrypoint.sh && chown -R app:app /home/app
 
-# Set ownership
-RUN chown -R app:app /home/app
-
-# Switch to non-root user
 USER app
 
 EXPOSE 8000
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["sh", "-c", "gunicorn hr_django.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 4 --timeout 120 --access-logfile - --error-logfile -"]
+
+
+##########################
+# DEV IMAGE              #
+##########################
+FROM python:3.11-slim-bookworm AS dev
+
+RUN groupadd -r app && useradd -r -g app app
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    DJANGO_SETTINGS_MODULE=hr_config.settings.dev
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    imagemagick \
+    netcat-openbsd \
+    curl \
+    git \
+    tzdata \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Node for Vite (dev)
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get update && apt-get install -y --no-install-recommends nodejs && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN pip install uv
+
+WORKDIR /home/app/web
+
+RUN mkdir -p /home/app/web/staticfiles \
+             /home/app/web/media \
+             /home/app/web/logs
+
+# deps for caching
+COPY pyproject.toml uv.lock ./
+
+ENV UV_PROJECT_ENVIRONMENT=/opt/venv \
+    VIRTUAL_ENV=/opt/venv \
+    PATH="/opt/venv/bin:$PATH"
+
+RUN python -m venv /opt/venv && \
+    /opt/venv/bin/python -m pip install --upgrade pip && \
+    uv sync --frozen && \
+    rm -rf /home/app/web/.venv
+
+RUN chown -R app:app /opt/venv
+
+# node deps (dev)
+COPY package.json package-lock.json ./
+RUN npm install
+
+# App code (in compose you'll typically mount over this)
+COPY --chown=app:app . .
+
+COPY docker/entrypoint.dev.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh && chown -R app:app /home/app
+
+USER app
+
+EXPOSE 8000 5173
+
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

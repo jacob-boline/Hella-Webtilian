@@ -1,6 +1,7 @@
 # _seed_data/hr_shop/Side Arm Bazooka/Black/variant.yml
 Variant:
   name: "Black"
+  image_key: "variants/bazooka-black.png"
   is_display_variant: false
 
 options:

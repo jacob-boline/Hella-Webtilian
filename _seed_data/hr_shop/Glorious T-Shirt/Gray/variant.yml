@@ -1,6 +1,7 @@
 # _seed_data/hr_shop/Glorious T-Shirt/Gray/variant.yml
 Variant:
   name: "Gray"
+  image_key: "variants/t-shirt_glorious-black.png"
   is_display_variant: false
   share_image_across:
     - "Size"

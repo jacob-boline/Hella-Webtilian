@@ -1,5 +1,8 @@
 # hr_core/management/commands/seed_data.py
+from pathlib import Path
 
+from django.conf import settings
+from django.core.files import File
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
 
@@ -69,3 +72,40 @@ class Command(BaseCommand):
             call_command("seed_media_assets")
 
         self.stdout.write(self.style.SUCCESS("✅ All requested seeders completed."))
+
+
+def attach_image_if_missing(instance, field_name: str, image_key: str, opened_file) -> bool:
+    """
+    instance: model instance (e.g. Post)
+    field_name: str name of ImageField on instance (e.g. "hero")
+    key: relative path from MEDIA_ROOT
+    opened_file: file-like object (already open in rb mode)
+
+    Returns True if it wrote/saved a new file, else False.
+    """
+    ff = getattr(instance, field_name)
+
+    k = (image_key or "").strip().replace("\\", "/").lstrip("/")
+    if k.startswith("media/"):
+        k = k.removeprefix("media/")
+
+    basename = Path(k).name  # "foo.webp"
+
+    upload_to = (ff.field.upload_to or "").strip("/")
+
+    expected_rel = f"{upload_to}/{basename}" if upload_to else basename  # "posts/hero/foo.webp"
+
+    # Point to existing image file if found
+    local_path = Path(settings.MEDIA_ROOT) / expected_rel
+    if local_path.exists():
+        if ff.name != expected_rel:
+            ff.name = expected_rel
+            if getattr(instance, 'pk', None):
+                instance.save(update_fields=[field_name])
+            else:
+                instance.save()
+        return False
+
+    # Otherwise save
+    ff.save(basename, File(opened_file), save=True)
+    return True

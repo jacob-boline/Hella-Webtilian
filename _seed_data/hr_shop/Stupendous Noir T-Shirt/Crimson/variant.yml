@@ -1,6 +1,7 @@
 # _seed_data/hr_shop/Stupendous Noir T-Shirt/Crimson/variant.yml
 Variant:
   name: "Crimson"
+  image_key: "variants/t-shirt_noir-crimson.png"
   is_display_variant: true
   share_image_across:
     - "Size"

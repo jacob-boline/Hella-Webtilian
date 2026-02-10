@@ -113,3 +113,6 @@ if LOG_SQL:
     for h in ("console", "file"):
         if h in LOGGING["handlers"]:
             LOGGING["handlers"][h]["level"] = "DEBUG"
+
+FILE_UPLOAD_PERMISSIONS = None
+FILE_UPLOAD_DIRECTORY_PERMISSIONS = None

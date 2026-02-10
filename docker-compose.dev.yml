@@ -47,12 +47,13 @@ services:
 
   # ====================== #
   #        Django          #
-  # ====================== #
+  # ====================== #cd
   web:
     image: hella-webtilian-dev
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
+      target: dev
     container_name: hr_web_dev
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
@@ -80,8 +81,8 @@ services:
 
       # Volumes
       - static_volume_dev:/home/app/web/staticfiles
-      - media_volume_dev:/home/app/web/media
-      - logs_volume_dev:/home/app/web/logs
+      - ./media:/home/app/web/media
+      - ./logs:/home/app/web/logs
 
     env_file:
       - hr_config/env/dev.env
@@ -141,7 +142,8 @@ services:
     image: hella-webtilian-dev
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
+      target: dev
     container_name: hr_vite_dev
     command: npm run vite:dev -- --host 0.0.0.0 --port 5173
     volumes:
@@ -172,7 +174,8 @@ services:
     image: hella-webtilian-dev
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
+      target: dev
     container_name: hr_rq_worker_dev
     command: python manage.py rqworker default
     volumes:
@@ -182,9 +185,9 @@ services:
       - ./hr_payment:/home/app/web/hr_payment
       - ./hr_shop:/home/app/web/hr_shop
       - ./hr_email:/home/app/web/hr_email
-      - media_volume_dev:/home/app/web/media
-      - logs_volume_dev:/home/app/web/logs
-      - seed_data_dev:/home/app/web/_seed_data
+      - ./_seed_data:/home/app/web/_seed_data
+      - ./media:/home/app/web/media
+      - ./logs:/home/app/web/logs
     env_file:
       - hr_config/env/dev.env
     secrets:
@@ -235,7 +238,7 @@ services:
       dockerfile: Dockerfile
     container_name: hr_nginx_dev
     volumes:
-      - media_volume_dev:/home/app/web/media:ro
+      - ./media:/home/app/web/media:ro
       - nginx_logs_dev:/var/log/nginx
       - ./docker/nginx/nginx.dev.conf:/etc/nginx/conf.d/nginx.conf:ro
     ports:

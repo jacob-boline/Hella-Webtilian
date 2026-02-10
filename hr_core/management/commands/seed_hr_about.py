@@ -1,19 +1,22 @@
 # hr_core/management/commands/seed_hr_about.py
 
+from __future__ import annotations
+
 from pathlib import Path
 from typing import cast
 
 import yaml
 from django.conf import settings
-from django.core.files import File
+from django.core.files.storage import default_storage
 from django.core.management.base import BaseCommand
 from django.db.models.fields.files import ImageFieldFile
 
 from hr_about.models import CarouselSlide, PullQuote
+from hr_core.management.commands.seed_data import attach_image_if_missing
 
 
 class Command(BaseCommand):
-    help = "Seed hr_about data (carousel slides + pull quotes) from YAML + images."
+    help = "Seed hr_about data (carousel slides + pull quotes) from YAML + media keys."
 
     def handle(self, *args, **options):
         self._seed_hr_about()
@@ -22,18 +25,9 @@ class Command(BaseCommand):
     # hr_about seeding
     # ==============================
     def _seed_hr_about(self):
-        """
-        Seed hr_about from:
-
-            seed_data/hr_about/
-              carousel.yml
-              pullquotes.yml
-              carousel_images/
-                <image files>
-        """
         base = Path(settings.BASE_DIR) / "_seed_data" / "hr_about"
         if not base.exists():
-            self.stdout.write(self.style.WARNING(f"  → No seed_data/hr_about directory found at {base}"))
+            self.stdout.write(self.style.WARNING(f"  → No _seed_data/hr_about directory found at {base}"))
             return
 
         self.stdout.write("  → hr_about…")
@@ -43,24 +37,60 @@ class Command(BaseCommand):
 
         self.stdout.write("    • hr_about seed data applied.")
 
+    # ------------------------------------------------------
+    # Storage helpers
+    # ------------------------------------------------------
     @staticmethod
     def _needs_file(fieldfile) -> bool:
+        """
+        True if the FieldFile is missing or the referenced file is missing from storage.
+        """
         if not fieldfile:
             return True
+
         ff = cast(ImageFieldFile, fieldfile)
         try:
+            if not ff.name:
+                return True
             return not ff.storage.exists(ff.name)
         except Exception:
-            # be conservative: if storage check fails, re-save
+            # if storage check fails, re-save.
             return True
 
+    @staticmethod
+    def _normalize_media_key(key: str) -> str:
+        """
+        With AWS_PUBLIC_MEDIA_LOCATION='media', default_storage keys are relative
+        to that prefix.
+        """
+        k = (key or "").strip().replace("\\", "/").lstrip("/")
+
+        if k.startswith("media/"):
+            k = k.removeprefix("media/")
+
+        return k
+
+    def _open_media(self, key: str):
+        """
+        Check local MEDIA, if not present check S3
+        Returns an open file-like object or raises FileNotFoundError.
+        """
+        k = self._normalize_media_key(key)
+
+        local_path = Path(settings.MEDIA_ROOT) / k
+        if local_path.exists():
+            return local_path.open("rb")
+
+        if default_storage.exists(k):
+            return default_storage.open(k, "rb")
+
+        raise FileNotFoundError(f"Media not found (local or storage) for key: {k}")
 
     # ------------------------------------------------------
     # Carousel slides
     # ------------------------------------------------------
     def _seed_carousel(self, base: Path):
         carousel_yml = base / "carousel.yml"
-        images_dir = base / "carousel_images"
 
         if not carousel_yml.exists():
             self.stdout.write(self.style.WARNING("    • No carousel.yml found; skipping CarouselSlide seeding."))
@@ -73,9 +103,6 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING("    • carousel.yml contains no slides; skipping."))
             return
 
-        if not images_dir.exists():
-            self.stdout.write(self.style.WARNING(f"    • No carousel_images directory found at {images_dir}; " f"slides will be created without images."))
-
         self.stdout.write("    • Seeding CarouselSlide entries…")
 
         for idx, s in enumerate(slides_cfg, start=1):
@@ -83,16 +110,19 @@ class Command(BaseCommand):
             caption = s.get("caption") or ""
             order = s.get("order") or idx
             is_active = s.get("is_active", True)
-            image_name = s.get("image")
 
-            # Use 'order' as the stable key; update title/caption/active if it already exists.
+            image_key = s.get("image_key")
+            if not image_key:
+                self.stdout.write(self.style.WARNING(f"      (Slide order {order} missing required 'image_key'; skipping image.)"))
+                image_key = ""
+
             slide, created = CarouselSlide.objects.get_or_create(
                 order=order,
                 defaults={
                     "title": title,
                     "caption": caption,
-                    "is_active": is_active,
-                },
+                    "is_active": is_active
+                }
             )
             if not created:
                 slide.title = title
@@ -100,16 +130,14 @@ class Command(BaseCommand):
                 slide.is_active = is_active
                 slide.save(update_fields=["title", "caption", "is_active"])
 
-            # Attach image if configured and not already set
-            if image_name and images_dir.exists():
-                image_path = images_dir / image_name
-                if image_path.exists():
-                    if self._needs_file(slide.image):
-                        with image_path.open("rb") as f:
-                            # preserve the destination filename that your app expects
-                            slide.image.save(image_path.name, File(f), save=True)
-                else:
-                    self.stdout.write(self.style.WARNING(f"      (Image '{image_name}' not found in {images_dir} for slide order {order})"))
+            # Attach image if configured and missing from storage
+            if image_key and self._needs_file(slide.image):
+                try:
+                    normalized_key = self._normalize_media_key(str(image_key))
+                    with self._open_media(normalized_key) as f:
+                        attach_image_if_missing(slide, 'image', normalized_key, f)
+                except FileNotFoundError as e:
+                    self.stdout.write(self.style.WARNING(f"      ({e} for slide order {order})"))
 
     # ------------------------------------------------------
     # Pull quotes
@@ -139,20 +167,16 @@ class Command(BaseCommand):
             order = q.get("order") or idx
             is_active = q.get("is_active", True)
 
-            # Use 'order' as the stable key here as well
             quote, created = PullQuote.objects.get_or_create(
                 order=order,
                 defaults={
                     "text": text,
                     "attribution": attribution,
-                    "is_active": is_active,
-                },
+                    "is_active": is_active
+                }
             )
             if not created:
                 quote.text = text
                 quote.attribution = attribution
                 quote.is_active = is_active
                 quote.save(update_fields=["text", "attribution", "is_active"])
-
-
-

@@ -1,6 +1,7 @@
 # _seed_data/hr_shop/Stupendous Noir T-Shirt/Black Streetlight/variant.yml
 Variant:
   name: "Black Streetlight"
+  image_key: "variants/t-shirt_noir-streetlight.png"
   is_display_variant: false
   share_image_across:
     - "Size"
