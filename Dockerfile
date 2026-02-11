@@ -151,4 +151,4 @@ USER app
 EXPOSE 8000 5173
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["python", "manage.py", "runserver", "0.0.0.0:6666"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8080"]

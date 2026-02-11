@@ -7,7 +7,6 @@ from django.contrib.auth import views as auth_views
 from django.http import HttpResponse, JsonResponse
 from django.urls import include, path
 
-print('URL CHECK v1')
 
 def health_check(request):
     return HttpResponse('OK')
@@ -30,20 +29,14 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
-    print('DEBUG is TRUE')
     try:
-        import debug_toolbar
-        urlpatterns += path("__debug__/", include("debug_toolbar.urls"))
+        urlpatterns.append(path("__debug__/", include("debug_toolbar.urls")))
     except ModuleNotFoundError:
         pass
-
     try:
-        urlpatterns += path("__reload__/", include("django_browser_reload.urls"))
+        urlpatterns.append(path("__reload__/", include("django_browser_reload.urls")))
     except ModuleNotFoundError:
         pass
 
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-
-else:
-    print('DEBUG is FALSE')
