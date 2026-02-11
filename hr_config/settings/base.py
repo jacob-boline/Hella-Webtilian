@@ -130,7 +130,7 @@ STORAGES = {
     "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"}
 }
 
-STATICFILES_DIRS = [BASE_DIR / "hr_core" / "static"]
+STATICFILES_DIRS = []
 
 # -----------------------------
 # RQ (background jobs)

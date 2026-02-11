@@ -6,7 +6,7 @@
 }
 
 /* noinspection CssInvalidFunction,CssUnknownTarget */
-@supports (background-image: image-set(url("x.webp") type("image/webp") 1x)) {
+@supports (background-image: image-set(url("data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAQAQCdASoBAAEALwA0JaQAA3AA/v89WAAAAA==") type("image/webp") 1x)) {
   #section-wipe-0.section-wipe {
     background-image: image-set(
       url("/static/hr_core/images/wipes/opt_webp/wipe-eclipse-960w.webp") type("image/webp") 1x,
@@ -22,7 +22,7 @@
 }
 
 /* noinspection CssInvalidFunction,CssUnknownTarget */
-@supports (background-image: image-set(url("x.webp") type("image/webp") 1x)) {
+@supports (background-image: image-set(url("data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAQAQCdASoBAAEALwA0JaQAA3AA/v89WAAAAA==") type("image/webp") 1x)) {
   #section-wipe-1.section-wipe {
     background-image: image-set(
       url("/static/hr_core/images/wipes/opt_webp/wipe-diamond-960w.webp") type("image/webp") 1x,
@@ -34,11 +34,11 @@
 }
 
 #section-wipe-2.section-wipe {
-  background-image: url("/static/hr_core/images/wipes/wipe-blue-black-pillars.jpg");
+  background-image: url("/static/hr_core/images/wipes/wipe-blue-black-pillars.webp");
 }
 
 /* noinspection CssInvalidFunction,CssUnknownTarget */
-@supports (background-image: image-set(url("x.webp") type("image/webp") 1x)) {
+@supports (background-image: image-set(url("data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAQAQCdASoBAAEALwA0JaQAA3AA/v89WAAAAA==") type("image/webp") 1x)) {
   #section-wipe-2.section-wipe {
     background-image: image-set(
       url("/static/hr_core/images/wipes/opt_webp/wipe-blue-black-pillars-960w.webp") type("image/webp") 1x,
@@ -54,7 +54,7 @@
 }
 
 /* noinspection CssInvalidFunction,CssUnknownTarget */
-@supports (background-image: image-set(url("x.webp") type("image/webp") 1x)) {
+@supports (background-image: image-set(url("data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAQAQCdASoBAAEALwA0JaQAA3AA/v89WAAAAA==") type("image/webp") 1x)) {
   #section-wipe-3.section-wipe {
     background-image: image-set(
       url("/static/hr_core/images/wipes/opt_webp/wipe-chainlink-960w.webp") type("image/webp") 1x,
@@ -70,7 +70,7 @@
 }
 
 /* noinspection CssInvalidFunction,CssUnknownTarget */
-@supports (background-image: image-set(url("x.webp") type("image/webp") 1x)) {
+@supports (background-image: image-set(url("data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAQAQCdASoBAAEALwA0JaQAA3AA/v89WAAAAA==") type("image/webp") 1x)) {
   #parallax-section-shows .parallax-background {
     background-image: image-set(
       url("/static/hr_core/images/backgrounds/bg_opt/parallax_bg_1-0-960w.webp") type("image/webp") 1x,
@@ -84,7 +84,7 @@
 }
 
 /* noinspection CssInvalidFunction,CssUnknownTarget */
-@supports (background-image: image-set(url("x.webp") type("image/webp") 1x)) {
+@supports (background-image: image-set(url("data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAQAQCdASoBAAEALwA0JaQAA3AA/v89WAAAAA==") type("image/webp") 1x)) {
   #parallax-section-merch .parallax-background {
     background-image: image-set(
       url("/static/hr_core/images/backgrounds/bg_opt/parallax_bg_2-7-960w.webp") type("image/webp") 1x,
@@ -98,7 +98,7 @@
 }
 
 /* noinspection CssInvalidFunction,CssUnknownTarget */
-@supports (background-image: image-set(url("x.webp") type("image/webp") 1x)) {
+@supports (background-image: image-set(url("data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAQAQCdASoBAAEALwA0JaQAA3AA/v89WAAAAA==") type("image/webp") 1x)) {
   #parallax-section-about .parallax-background {
     background-image: image-set(
       url("/static/hr_core/images/backgrounds/bg_opt/parallax_bg_3-0-960w.webp") type("image/webp") 1x,
@@ -112,7 +112,7 @@
 }
 
 /* noinspection CssInvalidFunction,CssUnknownTarget */
-@supports (background-image: image-set(url("x.webp") type("image/webp") 1x)) {
+@supports (background-image: image-set(url("data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAQAQCdASoBAAEALwA0JaQAA3AA/v89WAAAAA==") type("image/webp") 1x)) {
   #parallax-section-bulletin .parallax-background {
     background-image: image-set(
       url("/static/hr_core/images/backgrounds/bg_opt/parallax_bg_4-3-960w.webp") type("image/webp") 1x,

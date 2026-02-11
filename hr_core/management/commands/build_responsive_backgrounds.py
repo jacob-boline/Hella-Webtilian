@@ -14,6 +14,12 @@ BACKGROUND_WIDTHS = (960, 1920)
 # write into Vite source tree
 OUT_ABS_PATH = Path(settings.BASE_DIR) / "hr_core" / "static_src" / "css" / "generated" / "responsive_backgrounds.css"
 
+STATIC_IMAGE_ROOT = Path(settings.BASE_DIR) / "hr_core" / "static" / "hr_core" / "images"
+
+WEBP_SUPPORTS_PROBE = (
+    'image-set(url("data:image/webp;base64,UklGRiIAAABXRUJQVlA4IBYAAAAQAQCdASoBAAEALwA0JaQAA3AA/v89WAAAAA==") '
+    'type("image/webp") 1x)'
+)
 
 def _stem(name: str) -> str:
     return Path(name).stem
@@ -36,6 +42,27 @@ def _imageset_lines(bucket: str, subdir: str, stem: str, widths: tuple[int, ...]
     return lines
 
 
+def _variants_exist(bucket: str, subdir: str, stem: str, widths: tuple[int, ...]) -> bool:
+    base = STATIC_IMAGE_ROOT / bucket / subdir
+    return all((base / f"{stem}-{w}w.webp").exists() for w in widths)
+
+
+def _fallback_path(bucket: str, configured_name: str) -> str:
+    bucket_dir = STATIC_IMAGE_ROOT / bucket
+    configured = bucket_dir / configured_name
+    if configured.exists():
+        return f'/static/hr_core/images/{bucket}/{configured_name}'
+
+    stem = Path(configured_name).stem
+    for ext in (".webp", ".jpg", ".png", ".jpeg"):
+        candidate = bucket_dir / f"{stem}{ext}"
+        if candidate.exists():
+            return f'/static/hr_core/images/{bucket}/{stem}{ext}'
+
+    # Keep configured path as the final fallback so we still emit deterministic CSS.
+    return f'/static/hr_core/images/{bucket}/{configured_name}'
+
+
 class Command(BaseCommand):
     help = "Generate responsive CSS (image-set) for parallax backgrounds and section wipes."
 
@@ -50,40 +77,42 @@ class Command(BaseCommand):
         # WIPES
         for key, filename in SECTION_WIPES.items():
             stem = _stem(filename)
-            fallback = f'/static/hr_core/images/wipes/{filename}'
+            fallback = _fallback_path("wipes", filename)
 
             css.append(f"#{key}.section-wipe {{")
             css.append(f'  background-image: url("{fallback}");')
             css.append("}")
             css.append("")
-            css.append("/* noinspection CssInvalidFunction,CssUnknownTarget */")
-            css.append('@supports (background-image: image-set(url("x.webp") type("image/webp") 1x)) {')
-            css.append(f"  #{key}.section-wipe {{")
-            css.append("    background-image: image-set(")
-            css.extend(_imageset_lines("wipes", "opt_webp", stem, WIPE_WIDTHS))
-            css.append("    );")
-            css.append("  }")
-            css.append("}")
-            css.append("")
+            if _variants_exist("wipes", "opt_webp", stem, WIPE_WIDTHS):
+                css.append("/* noinspection CssInvalidFunction,CssUnknownTarget */")
+                css.append(f"@supports (background-image: {WEBP_SUPPORTS_PROBE}) {{")
+                css.append(f"  #{key}.section-wipe {{")
+                css.append("    background-image: image-set(")
+                css.extend(_imageset_lines("wipes", "opt_webp", stem, WIPE_WIDTHS))
+                css.append("    );")
+                css.append("  }")
+                css.append("}")
+                css.append("")
 
         # BACKGROUNDS
         for key, filename in SECTION_BACKGROUNDS.items():
             stem = _stem(filename)
-            fallback = f'/static/hr_core/images/backgrounds/{filename}'
+            fallback = _fallback_path("backgrounds", filename)
 
             css.append(f"#{key} .parallax-background {{")
             css.append(f'  background-image: url("{fallback}");')
             css.append("}")
             css.append("")
-            css.append("/* noinspection CssInvalidFunction,CssUnknownTarget */")
-            css.append('@supports (background-image: image-set(url("x.webp") type("image/webp") 1x)) {')
-            css.append(f"  #{key} .parallax-background {{")
-            css.append("    background-image: image-set(")
-            css.extend(_imageset_lines("backgrounds", "bg_opt", stem, BACKGROUND_WIDTHS))
-            css.append("    );")
-            css.append("  }")
-            css.append("}")
-            css.append("")
+            if _variants_exist("backgrounds", "bg_opt", stem, BACKGROUND_WIDTHS):
+                css.append("/* noinspection CssInvalidFunction,CssUnknownTarget */")
+                css.append(f"@supports (background-image: {WEBP_SUPPORTS_PROBE}) {{")
+                css.append(f"  #{key} .parallax-background {{")
+                css.append("    background-image: image-set(")
+                css.extend(_imageset_lines("backgrounds", "bg_opt", stem, BACKGROUND_WIDTHS))
+                css.append("    );")
+                css.append("  }")
+                css.append("}")
+                css.append("")
 
         OUT_ABS_PATH.write_text("\n".join(css) + "\n", encoding="utf-8")
         self.stdout.write(self.style.SUCCESS(f"Wrote {OUT_ABS_PATH}"))

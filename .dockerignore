@@ -18,6 +18,7 @@ db.sqlite3
 Dockerfile.dev
 docker-compose.dev.yml
 !/docker/.md/
-
 /staticfiles/
 /static/
+
+/media/
