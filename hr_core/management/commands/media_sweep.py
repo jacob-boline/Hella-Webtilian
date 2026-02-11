@@ -7,10 +7,14 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from hr_core.media_jobs import RECIPES
+from hr_core.media_jobs import generate_variants_for_file
+
+
+WORKER_HINT = "Start an RQ worker to process jobs: python manage.py rqworker default"
 
 
 class Command(BaseCommand):
-    help = "Enqueue missing/outdated optimized media variants for known recipe buckets."
+    help = "Queue (or run inline) optimized media variant generation for known recipe buckets."
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -18,13 +22,22 @@ class Command(BaseCommand):
             choices=sorted(RECIPES.keys()),
             help="Only sweep a specific recipe (e.g. wipe, background, post_hero, variant, about).",
         )
+        parser.add_argument(
+            "--run-now",
+            action="store_true",
+            help="Run conversion jobs synchronously instead of enqueueing RQ jobs.",
+        )
 
     def handle(self, *args, **options):
         recipe_key = options.get("recipe")
+        run_now = options.get("run_now", False)
+        enqueue_available = not run_now
         keys = [recipe_key] if recipe_key else list(RECIPES.keys())
 
-        q = django_rq.get_queue("default")
+        q = None
         enqueued = 0
+        processed = 0
+        failed = 0
 
         for key in keys:
             recipe = RECIPES[key]
@@ -54,7 +67,33 @@ class Command(BaseCommand):
 
                 # For static_src recipes, pass path relative to STATIC_SOURCE_ROOT
                 rel = str(p.relative_to(root))
-                q.enqueue("hr_core.media_jobs.generate_variants_for_file", key, rel)
-                enqueued += 1
+                if enqueue_available:
+                    try:
+                        if q is None:
+                            q = django_rq.get_queue("default")
+                        q.enqueue("hr_core.media_jobs.generate_variants_for_file", key, rel)
+                        enqueued += 1
+                        continue
+                    except Exception as exc:
+                        enqueue_available = False
+                        self.stdout.write(
+                            self.style.WARNING(
+                                f"RQ unavailable ({exc}); falling back to inline processing for remaining files."
+                            )
+                        )
 
-        self.stdout.write(self.style.SUCCESS(f"Enqueued {enqueued} source files."))
+                result = generate_variants_for_file(key, rel)
+                processed += 1
+                if not result.get("ok", False):
+                    failed += 1
+
+        if processed:
+            self.stdout.write(self.style.SUCCESS(f"Processed {processed} source files inline ({failed} failures)."))
+
+        if enqueued:
+            self.stdout.write(self.style.SUCCESS(f"Enqueued {enqueued} source files."))
+            self.stdout.write(WORKER_HINT)
+            return
+
+        if not processed:
+            self.stdout.write(self.style.SUCCESS("No matching source files found."))
