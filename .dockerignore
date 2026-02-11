@@ -22,3 +22,4 @@ docker-compose.dev.yml
 /static/
 
 /media/
+/hr_core/static/hr_core/dist/
