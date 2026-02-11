@@ -94,7 +94,7 @@ def _get_roots(recipe: Recipe) -> tuple[Path, Path]:
         src_root = Path(settings.STATIC_SOURCE_ROOT)
         out_root = Path(settings.STATIC_VARIANTS_ROOT)
     elif recipe.src_root == 'repo_static':
-        src_root = Path(settings.REPO_STATIC_ROOT)
+        src_root = Path(settings.REPO_STATIC_ROOT)  # hr_core/static
         out_root = Path(settings.REPO_STATIC_ROOT)
     else:
         raise ValueError(f"Unknown recipe.src_root: {recipe.src_root!r}")

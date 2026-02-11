@@ -16,9 +16,8 @@ env/
 
 # --- Django runtime ---
 db.sqlite3
-static/
+/static/
 logs/
-
 
 docs/
 
@@ -28,7 +27,6 @@ node_modules/
 # --- IDEs / editors ---
 .idea/
 
-
 # --- Project-specific config dirs ---
 hr_config/env/
 
@@ -36,31 +34,8 @@ hr_config/env/
 backups/
 docker/.md/
 
-.stylelintrc.json.old
-### JetBrains template
-# Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
-# Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
-
-# User-specific stuff
-.idea/**/workspace.xml
-.idea/**/tasks.xml
-.idea/**/usage.statistics.xml
-.idea/**/dictionaries
-.idea/**/shelf
-
 # Generated files
 .idea/**/contentModel.xml
-
-# Sensitive or high-churn files
-.idea/**/dataSources/
-.idea/**/dataSources.ids
-.idea/**/dataSources.local.xml
-.idea/**/sqlDataSources.xml
-.idea/**/dynamic.xml
-.idea/**/uiDesigner.xml
-.idea/**/dbnavigator.xml
-
-
 
 ### VirtualEnv template
 # Virtualenv
@@ -76,13 +51,10 @@ pyvenv.cfg
 .venv
 pip-selfcheck.json
 
-
-
 ### Node template
 # Logs
 logs
 *.log
-
 
 # Optional npm cache directory
 .npm
@@ -90,20 +62,9 @@ logs
 # Optional eslint cache
 .eslintcache
 
-
 # dotenv environment variables file
 .env
 .env.test
-
-
-
-
-# Python Tools for Visual Studio (PTVS)
-__pycache__/
-*.pyc
-
-
-
 
 ### Python template
 # Byte-compiled / optimized / DLL files
@@ -113,7 +74,6 @@ __pycache__/
 # Distribution / packaging
 build/
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/
@@ -128,27 +88,10 @@ share/python-wheels/
 .installed.cfg
 MANIFEST
 
-
-
-
-
-
-# Django stuff:
-local_settings.py
-db.sqlite3-journal
-
-
-
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow
-__pypackages__/
-
 # Environments
 ENV/
-env.bak/
-venv.bak/
 
 
 # pytype static type analyzer
 .pytype/
-
-
+!/hr_core/static/hr_core/images/
