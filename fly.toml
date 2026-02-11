@@ -1,70 +1,49 @@
-# fly.toml app configuration file generated for hella-webtilian on 2026-02-09T13:44:32-06:00
-#
-# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
-#
+# fly.toml app configuration file
 
-app = 'hella-webtilian'
-primary_region = 'ord'
-kill_signal = 'SIGINT'
-kill_timeout = '5s'
+app = "hella-webtilian"
+primary_region = "ord"
+kill_signal = "SIGINT"
+kill_timeout = "5s"
 
 [experimental]
   auto_rollback = true
 
 [build]
-  dockerfile = 'Dockerfile'
-  build-target = 'prod'
+  dockerfile = "Dockerfile"
+  build-target = "prod"
 
 [env]
-  DJANGO_SETTINGS_MODULE = 'hr_config.settings.prod_docker'
-  DJANGO_VITE_DEV_MODE = 'false'
-  USE_S3_MEDIA = 'true'
+  DJANGO_SETTINGS_MODULE = "hr_config.settings.prod_docker"
+  DJANGO_VITE_DEV_MODE = "false"
+  USE_S3_MEDIA = "true"
 
+# ==========================================================
+# New Machines v2 HTTP Service (replaces [[services]])
+# ==========================================================
 [http_service]
   internal_port = 8000
-#  force_https = true
-  force_https = false
-  auto_stop_machines = 'off'
+  force_https = true
+  auto_stop_machines = "off"
   auto_start_machines = true
   min_machines_running = 1
-  processes = ['app']
+  processes = ["app"]
 
-[[services]]
-  protocol = 'tcp'
-  internal_port = 8080
-  auto_stop_machines = 'off'
-  auto_start_machines = true
-  processes = ['app']
-
-  [[services.ports]]
-    port = 80
-    handlers = ['http']
-    force_https = true
-
-  [[services.ports]]
-    port = 443
-    handlers = ['tls', 'http']
-
-  [services.concurrency]
-    type = 'connections'
+  # Equivalent of old concurrency settings
+  [http_service.concurrency]
+    type = "connections"
     hard_limit = 250
     soft_limit = 200
 
-  [[services.tcp_checks]]
-    interval = '15s'
-    timeout = '2s'
-    grace_period = '10s'
+#  # TCP health check (replaces [[services.tcp_checks]])
+#  [[http_service.checks]]
+#    grace_period = "30s"
+#    interval = "15s"
+#    timeout = "2s"
+#    type = "tcp"
 
-  [[services.http_checks]]
-    interval = '30s'
-    timeout = '10s'
-    grace_period = '30s'
-    method = 'GET'
-    path = '/health/'
-    protocol = 'http'
-    tls_skip_verify = false
-
+# ==========================================================
+# VM Resources
+# ==========================================================
 [[vm]]
-  memory = '1gb'
+  memory = "1gb"
   cpus = 1
-  memory_mb = 1024

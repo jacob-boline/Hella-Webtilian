@@ -5,7 +5,7 @@ import os  # noqa
 from dotenv import load_dotenv
 
 from hr_config.settings import sqlite as sqlite_settings
-from hr_config.settings.common import BASE_DIR, env_bool  # noqa
+from hr_config.settings.common import BASE_DIR, env_bool
 
 IN_DOCKER = env_bool('IN_DOCKER', default=False)
 
@@ -17,7 +17,6 @@ if not IN_DOCKER:
 
 from hr_config.settings.base import *  # noqa
 from hr_config.django_vite_patch import patch_django_vite_dev_url
-
 
 DEBUG = env_bool('DEBUG', True)
 DEBUG_TOKENS = True
@@ -36,23 +35,17 @@ patch_django_vite_dev_url()
 DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
 
 if DATABASE_URL:
-    # Use dj-database-url if installed; otherwise parse manually.
-    import dj_database_url  # type: ignore
+    import dj_database_url
 
     DATABASES = {"default": dj_database_url.parse(DATABASE_URL, conn_max_age=60)}
 else:
     DATABASES = sqlite_settings.DATABASES
 
-
 ENABLE_MEDIA_JOBS = True
 
-# --- Static files (dev) ---
-# Manifest storage is strict and will fail if built assets reference missing files.
-# In dev we prefer speed + resilience; prod will keep CompressedManifestStaticFilesStorage.
 STORAGES["staticfiles"] = {
     "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
 }
-
 
 # ===============================================
 #  Network
@@ -67,7 +60,6 @@ INTERNAL_IPS = ["127.0.0.1"]
 
 SITE_URL = os.getenv("SITE_URL", "http://localhost:8000")
 
-
 # ===============================================
 #  Apps + Middleware
 # ===============================================
@@ -77,18 +69,14 @@ MIDDLEWARE.insert(2, "debug_toolbar.middleware.DebugToolbarMiddleware")
 MIDDLEWARE.append("django_browser_reload.middleware.BrowserReloadMiddleware")
 MIDDLEWARE.append('hr_core.middleware.media_cache.MediaCacheMiddleware')
 
-
 TEMPLATES[0]["OPTIONS"]["context_processors"].append('hr_common.context_processors.template_flags')
 
 WHITENOISE_USE_FINDERS = True
-
 
 # ===============================================
 #  Debug Toolbar
 # ===============================================
 DEBUG_TOOLBAR_CONFIG = {"DISABLE_PANELS": ["debug_toolbar.panels.staticfiles.StaticFilesPanel"]}
-
-
 
 EXTERNAL_BASE_URL = os.getenv('EXTERNAL_BASE_URL', 'localhost:8080').rstrip('/')
 # ===============================================
@@ -102,7 +90,6 @@ if USE_NGROK:
         raise RuntimeError("USE_NGROK=1 but EXTERNAL_BASE_URL is empty.")
     if not (EXTERNAL_BASE_URL.startswith("http://") or EXTERNAL_BASE_URL.startswith("https://")):
         raise RuntimeError("EXTERNAL_BASE_URL must start with http:// or https://")
-
 
 # ===============================================
 #  Logging

@@ -19,11 +19,14 @@ if DEBUG:
 #  Network
 # ===============================================
 # Read from environment for Docker deployment
-allowed_hosts_str = os.environ.get("ALLOWED_HOSTS", "hellareptilian.com,www.hellareptilian.com")
-ALLOWED_HOSTS = [h.strip() for h in allowed_hosts_str.split(",") if h.strip()]
+# allowed_hosts_str = os.environ.get("ALLOWED_HOSTS", "hellareptilian.com,www.hellareptilian.com")
+# ALLOWED_HOSTS = [h.strip() for h in allowed_hosts_str.split(",") if h.strip()]
+# ALLOWED_HOSTS += ['172.19.2.178', '127.0.0.1', '0.0.0.0', '[::]']
+ALLOWED_HOSTS = ['*']
 
 csrf_origins_str = os.environ.get("CSRF_TRUSTED_ORIGINS", "https://hellareptilian.com")
 CSRF_TRUSTED_ORIGINS = [h.strip() for h in csrf_origins_str.split(",") if h.strip()]
+CSRF_TRUSTED_ORIGINS += ['http://172.19.2.178', 'http://localhost','http://127.0.0.1']
 
 SITE_URL = os.environ.get("SITE_URL", "https://hellareptilian.com")
 

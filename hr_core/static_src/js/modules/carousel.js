@@ -4,10 +4,12 @@ export function initCarousel (root = document) {
     const container = root.querySelector('#about-carousel');
     if (!container) return;
 
-    // If already initialized, destroy and re-init (idempotent)
+    // Idempotency
     if (container._carouselInstance?.destroy) {
         container._carouselInstance.destroy();
     }
+
+    const mediaBase = (container.dataset.mediaBase || '/media/').replace(/\/+$/, '');
 
     const stage = container.querySelector('.about-stage') || container;
     const stageImg = container.querySelector('.about-stage-img');
@@ -27,9 +29,9 @@ export function initCarousel (root = document) {
 
 
     /**
- * Preload all carousel images to avoid repeated network requests
- */
-    function preloadCarouselImages(thumbs, normalizeToAboutBase, aboutSrcset) {
+     * Preload all carousel images to avoid repeated network requests
+     */
+    function preloadCarouselImages (thumbs, normalizeToAboutBase, aboutSrcset) {
         if (!thumbs || !thumbs.length) return;
 
         // Create hidden container for preloading
@@ -54,7 +56,7 @@ export function initCarousel (root = document) {
 
             preloadContainer.appendChild(img);
         });
-}
+    }
 
 
     function centerThumb (thumb, rail) {
@@ -75,30 +77,32 @@ export function initCarousel (root = document) {
         const u = String(url || "");
         if (!u) return "";
 
-        const q = u.indexOf("?");
-        const noQuery = q >= 0 ? u.slice(0, q) : u;
+        // Remove querystring
+        const noQuery = u.split("?")[0];
 
-        // If it's already a processed about variant, strip -###w + extension
-        if (noQuery.includes("/media/") && /-\d+w\.(webp|png|jpg|jpeg)$/i.test(noQuery)) {
-            const noExt = noQuery.replace(/\.(webp|png|jpg|jpeg)$/i, "");
-            const noSize = noExt.replace(/-\d+w$/i, "");
-            return noSize;
-        }
+        // Remove extension
+        const noExt = noQuery.replace(/\.(webp|png|jpg|jpeg)$/i, "");
 
-        // Otherwise: derive from filename stem and point at the about variant directory.
-        const filename = noQuery.split("/").pop() || "";
-        const stem = filename.replace(/\.(webp|png|jpg|jpeg)$/i, "");
-        return `/media/hr_about/opt_webp/${stem}`;
+        // Remove trailing -###w (variant suffix) if present
+        const baseNoSize = noExt.replace(/-\d+w$/i, "");
+
+        // Take filename only (no folders)
+        const filename = baseNoSize.split("/").pop() || "";
+        if (!filename) return "";
+
+        // Build base path for variants using MEDIA_URL base
+        return `${mediaBase}/hr_about/opt_webp/${filename}`;
     }
 
     function aboutSrc (base, size) {
         return `${base}-${size}w.webp`;
     }
 
+
     function aboutSrcset (base) {
         return [
-            `${aboutSrc(base,  640)}  640w`,
-            `${aboutSrc(base,  960)}  960w`,
+            `${aboutSrc(base, 640)}  640w`,
+            `${aboutSrc(base, 960)}  960w`,
             `${aboutSrc(base, 1280)} 1280w`,
             `${aboutSrc(base, 1600)} 1600w`,
             `${aboutSrc(base, 1920)} 1920w`
@@ -282,34 +286,34 @@ export function initCarousel (root = document) {
     window.addEventListener('resize', onResize);
 
     /**
- * Preload all carousel images to avoid repeated network requests
- */
-function preloadCarouselImages(thumbs, normalizeToAboutBase, aboutSrcset) {
-    if (!thumbs || !thumbs.length) return;
+     * Preload all carousel images to avoid repeated network requests
+     */
+    function preloadCarouselImages (thumbs, normalizeToAboutBase, aboutSrcset) {
+        if (!thumbs || !thumbs.length) return;
 
-    // Create hidden container for preloading
-    const preloadContainer = document.createElement('div');
-    preloadContainer.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden;opacity:0;pointer-events:none;';
-    preloadContainer.setAttribute('aria-hidden', 'true');
-    document.body.appendChild(preloadContainer);
+        // Create hidden container for preloading
+        const preloadContainer = document.createElement('div');
+        preloadContainer.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden;opacity:0;pointer-events:none;';
+        preloadContainer.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(preloadContainer);
 
-    thumbs.forEach(thumb => {
-        const {src} = thumb.dataset;
-        if (!src) return;
+        thumbs.forEach(thumb => {
+            const {src} = thumb.dataset;
+            if (!src) return;
 
-        const base = normalizeToAboutBase(src);
-        if (!base) return;
+            const base = normalizeToAboutBase(src);
+            if (!base) return;
 
-        // Browser fetches and caches the appropriate size
-        const img = document.createElement('img');
-        img.srcset = aboutSrcset(base);
-        img.sizes = "(max-width: 640px) 88vw, (max-width: 1024px) 92vw, (max-width: 1600px) 80vw, 1800px";
-        img.loading = 'eager';
-        img.alt = '';
+            // Browser fetches and caches the appropriate size
+            const img = document.createElement('img');
+            img.srcset = aboutSrcset(base);
+            img.sizes = "(max-width: 640px) 88vw, (max-width: 1024px) 92vw, (max-width: 1600px) 80vw, 1800px";
+            img.loading = 'eager';
+            img.alt = '';
 
-        preloadContainer.appendChild(img);
-    });
-}
+            preloadContainer.appendChild(img);
+        });
+    }
 
     // ---------- auto-rotation  ----------
     if (itemCount > 1) {

@@ -1,0 +1,8 @@
+.git/
+.gitignore
+node_modules/
+venv/
+__pycache__/
+*.log
+media/
+hr_core/static/hr_core/dist/

@@ -8,41 +8,17 @@
     // ===========================
 
     const TIMINGS = {
-        logoFadeIn: 300,
-
-        highlightH: {
-            start: 500,
-            duration: 250
-        },
-        highlightR: {
-            start: 800,
-            duration: 250
-        },
-        highlightStroke: {
-            start: 1100,
-            duration: 250
-        },
-        highlightDot: {
-            start: 1100,
-            duration: 250
-        },
-
-        lockIn: {
-            start: 1400,
-            duration: 250
-        },
-
-        hold: 750,
-
-        introYield: {
-            start: 2400,  //self.lockIn.start + self.lockIn.duration + hold,
-            duration: 1500
-        },
-
-        total: 4000,  // self.introYield.start + self.introYield.duration,
-
-        hintIdleDelay: 6000,
-        hintNudgeDuration: 500
+        logoFadeIn:                                300,
+        highlightH:      { start:  500, duration:  250 },
+        highlightR:      { start:  800, duration:  250 },
+        highlightStroke: { start: 1100, duration:  250 },
+        highlightDot:    { start: 1100, duration:  250 },
+        lockIn:          { start: 1400, duration:  250 },
+        hold:                                      750,
+        introYield:      { start: 2400, duration: 1500 },  // lockIn.start + lockIn.duration + hold
+        total:                    3900,                    // introYield.start + introYield.duration,
+        hintIdleDelay:            6000,
+        hintNudgeDuration:                         500
     };
 
     // ===========================
@@ -112,20 +88,16 @@
         STATE.startTime = performance.now();
         overlay.classList.add('active');
 
-        // Phase 1: Logo fade-in (0-150ms)
-        // Logo starts at 0.35 opacity via CSS
-
-        // Phase 2: Diagnostic highlights (150-850ms)
+        // Phase 2: Diagnostic highlights
         addTimeout(() => {
             pulseHighlight(highlightH, TIMINGS.highlightH.duration);
-            pulseHighlight(highlightCenter, TIMINGS.highlightH.duration); // Shared vertical pulses with H
+            pulseHighlight(highlightCenter, TIMINGS.highlightH.duration);
         }, TIMINGS.highlightH.start);
 
         addTimeout(() => {
             pulseHighlight(highlightR, TIMINGS.highlightR.duration);
-            pulseHighlight(highlightCenter, TIMINGS.highlightR.duration); // Shared vertical pulses with R
+            pulseHighlight(highlightCenter, TIMINGS.highlightR.duration);
         }, TIMINGS.highlightR.start);
-
 
         addTimeout(() => {
             pulseHighlight(highlightStroke, TIMINGS.highlightStroke.duration);
@@ -135,7 +107,7 @@
             pulseHighlight(highlightDot, TIMINGS.highlightDot.duration);
         }, TIMINGS.highlightDot.start);
 
-        // Phase 3: Identity lock-in (850-1200ms)
+        // Phase 3: Identity
         addTimeout(() => {
             logoBase.classList.add('locked');
             introName.classList.add('visible');
@@ -144,10 +116,9 @@
             playGlitchName(introName, { settleMs: 520 });
         }, TIMINGS.lockIn.start);
 
-        // Phase 4: Hold (1200-1700ms)
-        // Just waiting
+        // Phase 4: Hold
 
-        // Phase 5: Yield (1700-2100ms)
+        // Phase 5: Yield
         addTimeout(() => {
             yieldToSite();
         }, TIMINGS.introYield.start);
@@ -183,11 +154,7 @@
     function completeIntro () {
         STATE.phase = 'complete';
         overlay.classList.add('complete');
-
-        // Show scroll hint
         showScrollHint();
-
-        // Remove skip listeners
         removeSkipListeners();
     }
 
@@ -240,19 +207,16 @@
     // ===========================
     // Scroll Hint (Post-Intro)
     // ===========================
-
+    // TODO - the scroll hint got voted of the island, but i feel like this can be used elsewhere on the site, so leaving for now
     function showScrollHint () {
         if (!scrollHint) return;
 
         const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-        // Fade in hint
         scrollHint.classList.add('visible');
 
-        // Add interaction listeners
         addHintInteractionListeners();
 
-        // Trigger nudge after idle delay (if not reduced motion)
         if (!prefersReducedMotion && !STATE.hintNudgeTriggered) {
             addTimeout(() => {
                 if (!STATE.interactionDetected) {
@@ -285,8 +249,6 @@
                 overlay.remove();
             }
         }, 400);
-
-        removeHintInteractionListeners();
     }
 
     function handleHintInteraction () {
@@ -307,7 +269,6 @@
 
 
     function setupGlitchName (el, text) {
-        // const pool = "¡™£¢∞§¶•ªº–≠åß∂ƒ©˙∆˚¬…æ≈ç√∫˜µ≤≥÷/?░▒▓<>/".split("");
         const pool = "HR!+*#=/\\<>[]{}:-_".split("");
 
         const frag = document.createDocumentFragment();
@@ -330,8 +291,6 @@
             span.style.setProperty("--c4", `"${picks[4]}"`);
             span.style.setProperty("--c5", `"${picks[5]}"`);
 
-
-
             const colors = ["var(--text)", "var(--neon-blue)", "darkorange"];
             for (let g = 0; g < 6; g++) {
                 span.style.setProperty(`--g${g}`, colors[Math.floor(Math.random() * colors.length)]);
@@ -340,7 +299,7 @@
             // stagger and iteration count
             const i = frag.childNodes.length;
             span.style.setProperty("--delay", `${i * 22}ms`);
-            span.style.setProperty("--iters", `${3 + ((Math.random() * 3) | 0)}`); // 2–4
+            span.style.setProperty("--iters", `${3 + ((Math.random() * 3) | 0)}`); // don't listen to the linter, the "| 0" is required
 
             span.textContent = finalChar;
             frag.appendChild(span);
@@ -361,6 +320,24 @@
             el.classList.remove("is-glitching");
         }, settleMs);
     }
+
+    // TODO might be work trying to rework this for metrics
+    // function releaseLayoutWhenFontsReady() {
+    //     if (!document.fonts || !document.fonts.ready) {
+    //         unlockLayout();
+    //         return;
+    //     }
+    //     document.fonts.ready.then(() => {
+    //         unlockLayout();
+    //     })
+    // }
+    //
+    // function unlockLayout() {
+    //     const shell = document.getElementById('app-shell');
+    //     if (shell) {
+    //         shell.classList.remove('is-intro');
+    //     }
+    // }
 
 
     // ===========================
@@ -391,13 +368,10 @@
             return;
         }
 
-        // Check reduced motion preference
         const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-        // Add skip listeners
         addSkipListeners();
 
-        // Start intro sequence
         runIntroSequence(prefersReducedMotion);
     }
 

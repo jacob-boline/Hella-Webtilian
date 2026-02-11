@@ -1,7 +1,7 @@
 {# hr_common/templates/hr_common/base.html #}
 
 {% load django_vite %}
-{% load django_browser_reload static %}
+{% load static %}
 
 <!DOCTYPE html>
 <!--suppress CheckEmptyScriptTag -->
@@ -22,6 +22,7 @@
     {% if debug|default:False %}
         {% vite_hmr_client %}
     {% endif %}
+
     {% vite_asset 'js/main.js' %}
 
     <script src="https://js.stripe.com/v3" defer></script>
@@ -97,49 +98,9 @@
         <div class="intro-name" id="introName">HELLA REPTILIAN!</div>
     </div>
 
-    {# Scroll hint (shown after intro yields) #}
-    {#    <div class="intro-scroll-hint">#}
-    {#        <svg class="hint-waveform" viewBox="0 0 40 24" aria-hidden="true">#}
-    {#            <rect x="2" y="12" width="3" height="8" rx="1.5" fill="currentColor"/>#}
-    {#            <rect x="10" y="8" width="3" height="12" rx="1.5" fill="currentColor"/>#}
-    {#            <rect x="18" y="4" width="3" height="16" rx="1.5" fill="currentColor"/>#}
-    {#            <rect x="26" y="6" width="3" height="14" rx="1.5" fill="currentColor"/>#}
-    {#            <rect x="34" y="10" width="3" height="10" rx="1.5" fill="currentColor"/>#}
-    {#        </svg>#}
-    {#        <span class="hint-text">Scroll</span>#}
-    {#    </div>#}
 </div>
 
 <div id="parallax-wrapper">
-
-    {# ---- Banner / Title ---- #}
-    {#    <section id="banner" class="w-full px-4 z-30 fixed">#}
-    {#        <div class="flex flex-wrap">#}
-    {#            <div class="w-full banner-row">#}
-    {#                <span class="blink">H</span>#}
-    {#                <span>E</span>#}
-    {#                <span>L</span>#}
-    {#                <span>L</span>#}
-    {#                <span>A</span>#}
-    {#                <span>&nbsp;</span>#}
-    {#                <span>R</span>#}
-    {#                <span>E</span>#}
-    {#                <span>P</span>#}
-    {#                <span>T</span>#}
-    {#                <span>I</span>#}
-    {#                <span>L</span>#}
-    {#                <span>I</span>#}
-    {#                <span>A</span>#}
-    {#                <span>N</span>#}
-    {#                <span>!</span>#}
-    {#            </div>#}
-    {#            <div class="w-full banner-row">#}
-    {#                <span id="banner-end"></span>#}
-    {#            </div>#}
-    {#        </div>#}
-    {#    </section>#}
-    {##}
-{#    <section id="banner-scroller"></section>#}
 
     {# ---- Sidebar / Drawer ---- #}
     <div id="open-nav-btn-container" class="prehide" style="visibility:hidden;">
@@ -205,7 +166,6 @@
         </div>
     </div>
 
-    {# ---- Page Content ---- #}
     {% block content %}{% endblock %}
 
     <div id="modal-loader"
@@ -215,12 +175,13 @@
          hx-swap="innerHTML transition:true">
     </div>
 
+    {# ---- page-specific scripts hook ---- #}
+    {% block extra_scripts %}{% endblock %}
+
+    {% if debug|default:False %}
+        {% include "hr_common/_dev_browser_reload.html" %}
+    {% endif %}
+
 </div>
-
-{# ---- page-specific scripts hook ---- #}
-{% block extra_scripts %}{% endblock %}
-
-{% django_browser_reload_script %}
-
 </body>
 </html>

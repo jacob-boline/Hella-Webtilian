@@ -2,7 +2,7 @@
 
 {% load static responsive_images %}
 
-<section id="about-carousel" class="about-gallery" aria-label="Band Photos" tabindex="0">
+<section id="about-carousel" class="about-gallery" aria-label="Band Photos" tabindex="0" data-media-base="{{ MEDIA_URL }}">
     <figure class="about-stage">
         {% if slides %}
             {% with first=slides.0 %}
