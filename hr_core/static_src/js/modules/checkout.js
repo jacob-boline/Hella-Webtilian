@@ -44,7 +44,6 @@ async function loadStripeJs () {
 
 /**
  * Initialize the Checkout Details modal/page behavior.
- * Call this after HTMX swaps in the checkout details content, or on DOMContentLoaded for SSR.
  */
 export function initCheckout (root = document) {
     const container = root || document;
@@ -120,7 +119,6 @@ function createFetchClientSecret ({endpoint, existingClientSecret, checkoutToken
         });
 
         if (!resp.ok) {
-            // Your backend may intentionally respond 404 to avoid leaking existence/ownership.
             if (resp.status === 401 || resp.status === 403 || resp.status === 404) {
                 throw new Error(
                     "Session expired or not authorized. Please return to checkout and try again."
@@ -236,6 +234,5 @@ export async function initCheckoutPay (root = document) {
  */
 export function initCheckoutModule (root = document) {
     initCheckout(root);
-    // don't await; it is internally guarded and will self-handle load timing
     initCheckoutPay(root).catch((e) => console.error("checkout-pay init failed", e));
 }

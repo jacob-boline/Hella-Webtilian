@@ -34,7 +34,6 @@ function whenHtmxReady (cb) {
         } else if (tries >= 80) { // ~2s
             clearInterval(t);
             window.removeEventListener('htmx:load', onLoad);
-            // console.warn('[tab-handoff] htmx never became ready');
         }
     }, 25);
 }

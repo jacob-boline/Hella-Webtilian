@@ -1,29 +1,4 @@
 // hr_core/static_src/js/modules/ui-global.js
-//
-// UI primitives (things that directly implement the behavior of UI components) -- modal, messages, drawer, etc.
-//
-// Also includes "Option A" landing-modal bootstrapping:
-//   - /?modal=email_confirmed -> loads email confirmation success partial into modal
-//   - /?modal=order_payment_result&order_id=...&t=... -> loads thank-you partial into modal
-//
-// Option B (recommended long-term; implementation notes):
-//   Instead of encoding modal intent into query params, do a "hash route" + single loader:
-//
-//     1) Stripe return_url -> SITE_URL + "/#thank-you?order_id=123&t=SIGNED"
-//     2) On page load, ui-global.js checks location.hash, parses #thank-you,
-//        then sets hx-get on #modal-loader and triggers hr:loadModal.
-//     3) After load, clean the hash with history.replaceState to avoid re-trigger on refresh.
-//
-//   Pros:
-//     - avoids query-string collisions with other links
-//     - keeps "modal routing" in one predictable place (hash)
-//     - generally friendlier to caching/CDNs and "shareable" URLs
-//
-// Cart badge updates:
-//   - The server is the authority. When order_payment_result clears cart, it should set:
-//       HX-Trigger: {"updateCart": {"count": 0}}
-//     events.js already listens for updateCart and updates both sidebar + floating badge.
-//   - Client does NOT guess cart state; it only reacts to server events.
 
 (function () {
     function initGlobalUI () {
@@ -377,7 +352,8 @@
                     const qs = cleanParams.toString();
                     const clean = window.location.pathname + (qs ? `?${qs}` : "") + window.location.hash;
                     window.history.replaceState({}, "", clean);
-                } catch (e) { }
+                } catch (e) {
+                }
             }, 0);
 
             return true;
@@ -389,7 +365,7 @@
         }
 
         if (!tryBootstrapLandingModal()) {
-          document.addEventListener("htmx:load", () => tryBootstrapLandingModal(), { once: true });
+            document.addEventListener("htmx:load", () => tryBootstrapLandingModal(), {once: true});
         }
 
         initDrawer();

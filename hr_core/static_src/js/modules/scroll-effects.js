@@ -87,21 +87,10 @@ import {applyStitchedLetters, wrapDateTimeChars} from "./ui-text.js";
             }
         };
 
-        // // -----------------------------
-        // // Per-frame reads (batching)
-        // // -----------------------------
-        // function beginFrameReads () {
-        //     // Read once per RAF tick
-        //     STATE.frame.scrollTop = window.scrollY;
-        //     STATE.frame.vh = getVH();
-        //     STATE.frame.dirty = false;
-        // }
-
 
         function beginFrameReads () {
             STATE.frame.scrollTop = window.scrollY;
 
-            // Use a "locked" vh while actively scrolling to prevent iOS address bar jitter
             const liveVh = getVH();
             const now = performance.now();
 
@@ -155,7 +144,6 @@ import {applyStitchedLetters, wrapDateTimeChars} from "./ui-text.js";
                 if (!content || !background) return;
 
                 if (section.classList.contains("parallax-sticky-bg")) {
-                    // Bounded stage: min(vh, content height) but clamped to N * vh
                     const mult = Number(
                         getComputedStyle(document.documentElement)
                             .getPropertyValue("--bulletin-stage-mult")
@@ -278,7 +266,6 @@ import {applyStitchedLetters, wrapDateTimeChars} from "./ui-text.js";
             });
         }
 
-        // Keep for API compatibility if anything calls it
         function onWipeScroll () {
             markFrameDirty();
             scheduleScrollRaf();

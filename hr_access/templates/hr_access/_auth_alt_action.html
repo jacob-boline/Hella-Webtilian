@@ -1,11 +1,12 @@
 {# hr_access/templates/hr_access/_auth_alt_action.html #}
+
 <p class="auth-alt-action">
     Remember your password?
     <button type="button"
             class="link-btn"
             hx-get="{% url 'hr_access:auth_login' %}"
             hx-target="#modal-content"
-            hx-swap="innerHTML">
+            hx-swap="innerHTML transition:true">
         Sign in
     </button>
 </p>

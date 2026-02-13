@@ -60,7 +60,6 @@ function runAll (root = document) {
     initTabHandoff(root);
     initAccountUI(root);
 
-    // Keep this immediate reflow (useful for many swaps)
     reflowParallaxNow();
 }
 
@@ -92,8 +91,6 @@ function isModalTarget (target) {
 */
 function initialBoot () {
     runAll(document);
-
-    // Critical: hash jumps + vh shims + parallax measurements need a settle pass
     settleParallaxAndWipe();
 }
 
@@ -115,7 +112,6 @@ document.addEventListener('htmx:afterSwap', (e) => {
     runAll(target);
 
     // If we swapped into the modal, do a settle pass.
-    // Modal open often changes layout (scrollbar, focus, vh shims), which breaks wipe math.
     if (isModalTarget(target)) {
         settleParallaxAndWipe();
     }
@@ -126,7 +122,6 @@ document.addEventListener('htmx:afterSettle', (e) => {
     if (!shouldReinit(target)) return;
 
     if (target.id === 'bulletin-root' || target.closest?.('#bulletin-root')) return;
-    // Still safe to reflow; just don't rely on it alone.
     reflowParallaxNow();
 });
 

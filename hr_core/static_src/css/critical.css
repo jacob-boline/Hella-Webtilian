@@ -1,0 +1,12 @@
+/* hr_core/static_src/css/critical.css */
+@import './intro.css';
+@import './base/core.css';
+@import './base/parallax.css';
+@import './generated/responsive_backgrounds.css';
+@import './sections/shows.css';
+@import './utilities/a11y.css';
+@import './utilities/utilities.css';
+@import './components/modal-ui.css';
+@import './components/drawer.css';
+@import './components/forms.css';
+@import './components/buttons.css';

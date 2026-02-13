@@ -143,14 +143,14 @@
 
         const detail = getDetail(event);
 
-        // 1) Message (optional)
+        // 1) Message
         const msg =
             (typeof detail === 'string' ? detail : null) ||
             detail.message || detail.text || '';
 
         if (msg) safeCall(window.hrSite?.showGlobalMessage, msg, detail.duration || 5000);
 
-        // 2) Open drawer/sidebar
+        // 2) Open sidebar drawer
         if (detail.open_drawer) {
             if (typeof window.hrSite?.openDrawer === 'function') {
                 safeCall(window.hrSite?.openDrawer);
@@ -159,7 +159,7 @@
             }
         }
 
-        // 3) Focus username (after drawer anim / layout)
+        // 3) Move focus to sign-in form username field
         const selector = detail.focus || '#id_username';
 
         const shouldAvoidStealingFocus = () => {
@@ -198,29 +198,6 @@
             (detail && typeof detail === 'object' ? (detail.message || detail.text || '') : '');
 
         if (!text) return;
-
-        // const modalEl = document.getElementById('modal');
-        // const modalOpen = modalEl && !modalEl.classList.contains('hidden') && modalEl.getAttribute('aria-hidden') !== 'true';
-        //
-        // if (modalOpen) {
-        //     const box = document.getElementById('modal-message-box');
-        //     const msg = document.getElementById('modal-message-content');
-        //     if (!box || !msg) {
-        //         safeCall(window.hrSite?.showGlobalMessage, text, duration);
-        //         return;
-        //     }
-        //
-        //     msg.textContent = text;
-        //     if (modalMsgTimer) window.clearTimeout(modalMsgTimer);
-        //
-        //     box.classList.add('is-visible');
-        //     modalMsgTimer = window.setTimeout(() => {
-        //         box.classList.remove('is-visible');
-        //         modalMsgTimer = null;
-        //     }, duration);
-        //
-        //     return;
-        // }
 
         safeCall(window.hrSite?.showGlobalMessage, text, duration);
     });
@@ -272,8 +249,6 @@
     // Requires:
     // - each row: .order-claim-row
     // - checkbox value: <input name="order_ids" value="...">
-    // - CSS classes (recommended):
-    //   .order-claim-row.is-claimed, .order-claim-row.is-vanishing, .order-claim-row.is-collapsing
     // ------------------------------
     document.body.addEventListener('unclaimedOrdersClaimed', (event) => {
         const detail = getDetail(event);
@@ -424,16 +399,14 @@
 
         const url = el.dataset.accessUrl;
         if (!url) {
-            // console.warn('[events] #sidebar-access missing data-access-url');
             return;
         }
 
         if (!window.htmx) {
-            // console.warn('[events] htmx not found; cannot refresh sidebar access');
             return;
         }
 
-        window.htmx.ajax('GET', url, {target: '#sidebar-access', swap: 'innerHTML'});
+        window.htmx.ajax('GET', url, {target: '#sidebar-access', swap: 'innerHTML transition:true'});
     });
 
 })();

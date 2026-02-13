@@ -1,7 +1,7 @@
 // hr_core/static_src/js/utils/vh-fix.js
 
 export function initVhFix () {
-    const ua = navigator.userAgent || "";
+    const ua = navigator["userAgent"] || "";
     const isIOS = /iP(hone|od|ad)/.test(ua);
     const isSafariIOS = isIOS &&
         /Safari/.test(ua) &&

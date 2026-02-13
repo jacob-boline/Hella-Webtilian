@@ -13,20 +13,19 @@
 
     <title>{% block title %}Hella Reptilian{% endblock %}</title>
 
-    <script>
-        (function () {
-            var href = (window.devicePixelRatio && window.devicePixelRatio >= 1.5)
-                ? "{% static 'hr_core/images/backgrounds/bg_opt/parallax_bg_1-0-1920w.webp' %}"
-                : "{% static 'hr_core/images/backgrounds/bg_opt/parallax_bg_1-0-960w.webp' %}";
+    <link rel="preload"
+          as="image"
+          href="{% static 'hr_core/images/backgrounds/bg_opt/parallax_bg_1-0-960w.webp' %}"
+          imagesrcset="{% static 'hr_core/images/backgrounds/bg_opt/parallax_bg_1-0-960w.webp' %} 960w, {% static 'hr_core/images/backgrounds/bg_opt/parallax_bg_1-0-1920w.webp' %} 1920w"
+          imagesizes="100vw"
+          fetchpriority="high">
 
-            var l = document.createElement("link");
-            l.rel = "preload";
-            l.as = "image";
-            l.href = href;
-            l.fetchPriority = "high";
-            document.head.appendChild(l);
-        })();
-    </script>
+
+    <link rel="preload"
+          href="{% static 'hr_core/fonts/Exo2-VariableFont_wght.woff2' %}"
+          as="font"
+          type="font/woff2"
+          crossorigin>
 
     <script>document.documentElement.classList.add("prepaint");</script>
 
@@ -41,10 +40,9 @@
         {% vite_hmr_client %}
     {% endif %}
 
-    {% vite_asset 'css/main.css' %}
+    {% vite_asset 'css/critical.css' %}
     {% vite_asset 'js/main.js' %}
-
-    <script src="https://js.stripe.com/v3" defer></script>
+    {% vite_asset 'css/noncritical.css' %}
 
     {% block extra_head %}{% endblock %}
 </head>

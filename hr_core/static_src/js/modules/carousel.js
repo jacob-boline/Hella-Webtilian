@@ -4,7 +4,7 @@ export function initCarousel (root = document) {
     const container = root.querySelector('#about-carousel');
     if (!container) return;
 
-    // Idempotency
+    // IDEMPOTENCY
     if (container._carouselInstance?.destroy) {
         container._carouselInstance.destroy();
     }
@@ -28,13 +28,12 @@ export function initCarousel (root = document) {
     const mod = (n, m) => ((n % m) + m) % m;
 
 
-    /**
-     * Preload all carousel images to avoid repeated network requests
-     */
+
+    //PRELOAD AND SAVE THE ENVIRONMENT
     function preloadCarouselImages (thumbs, normalizeToAboutBase, aboutSrcset) {
         if (!thumbs || !thumbs.length) return;
 
-        // Create hidden container for preloading
+        // STASH PRELOADED IMAGES
         const preloadContainer = document.createElement('div');
         preloadContainer.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden;opacity:0;pointer-events:none;';
         preloadContainer.setAttribute('aria-hidden', 'true');
@@ -77,20 +76,20 @@ export function initCarousel (root = document) {
         const u = String(url || "");
         if (!u) return "";
 
-        // Remove querystring
+        // REMOVE QUERYSTRING
         const noQuery = u.split("?")[0];
 
-        // Remove extension
+        // REMOVE EXTENSION
         const noExt = noQuery.replace(/\.(webp|png|jpg|jpeg)$/i, "");
 
-        // Remove trailing -###w (variant suffix) if present
+        // REMOVE VARIANT SUFFIX IF PRESENT
         const baseNoSize = noExt.replace(/-\d+w$/i, "");
 
-        // Take filename only (no folders)
+        // GRAB FILENAME
         const filename = baseNoSize.split("/").pop() || "";
         if (!filename) return "";
 
-        // Build base path for variants using MEDIA_URL base
+        // BUILD VARIANT BASE PATH
         return `${mediaBase}/hr_about/opt_webp/${filename}`;
     }
 
@@ -190,8 +189,8 @@ export function initCarousel (root = document) {
         const base = normalizeToAboutBase(data.src);
         if (!base) return;
 
-        stageImg.src = aboutSrc(base, 960);       // fallback
-        stageImg.srcset = aboutSrcset(base);      // browser picks best candidate
+        stageImg.src = aboutSrc(base, 960);       // SOURCE IMAGE AS FALLBACK
+        stageImg.srcset = aboutSrcset(base);      // ATTACH SRCSET
         stageImg.sizes = "(max-width: 640px) 88vw, (max-width: 1024px) 92vw, (max-width: 1600px) 80vw, 1800px";
         stageImg.alt = data.alt || '';
     }

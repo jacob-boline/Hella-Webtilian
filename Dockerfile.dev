@@ -57,18 +57,18 @@ RUN chown -R app:app /opt/venv
 COPY package.json package-lock.json ./
 RUN npm install
 
-# Copy application code
+# COPY APP CODE
 # In dev, mount the code as a volume for hot-reload
 COPY . .
 
-# Copy entrypoint script
+# COPY ENTRYPOINT SCRIPT
 COPY docker/entrypoint.dev.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# Set ownership
+# SET ACCESS
 RUN chown -R app:app /home/app
 
-# Switch to non-root user
+# SWITCH TO NON ROOT USER
 USER app
 
 EXPOSE 8000 5173

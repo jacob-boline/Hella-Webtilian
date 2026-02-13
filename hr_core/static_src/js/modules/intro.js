@@ -231,69 +231,6 @@
         window.removeEventListener('keydown', handleKeyDown);
     }
 
-    // ===========================
-    // Scroll Hint (Post-Intro)
-    // ===========================
-    // TODO - the scroll hint got voted of the island, but i feel like this can be used elsewhere on the site, so leaving for now
-    // function showScrollHint () {
-    //     if (!scrollHint) return;
-    //
-    //     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    //
-    //     scrollHint.classList.add('visible');
-    //
-    //     addHintInteractionListeners();
-    //
-    //     if (!prefersReducedMotion && !STATE.hintNudgeTriggered) {
-    //         addTimeout(() => {
-    //             if (!STATE.interactionDetected) {
-    //                 triggerHintNudge();
-    //             }
-    //         }, TIMINGS.hintIdleDelay);
-    //     }
-    // }
-    //
-    // function triggerHintNudge () {
-    //     if (!scrollHint || STATE.hintNudgeTriggered) return;
-    //
-    //     STATE.hintNudgeTriggered = true;
-    //     scrollHint.classList.add('nudge');
-    //
-    //     addTimeout(() => {
-    //         scrollHint.classList.remove('nudge');
-    //     }, TIMINGS.hintNudgeDuration);
-    // }
-    //
-    // function hideScrollHint () {
-    //     if (!scrollHint || STATE.interactionDetected) return;
-    //
-    //     STATE.interactionDetected = true;
-    //     scrollHint.classList.add('interacted');
-    //
-    //     // Remove hint and overlay after fade
-    //     addTimeout(() => {
-    //         if (overlay) {
-    //             overlay.remove();
-    //         }
-    //     }, 400);
-    // }
-    //
-    // function handleHintInteraction () {
-    //     hideScrollHint();
-    // }
-    //
-    // function addHintInteractionListeners () {
-    //     window.addEventListener('scroll', handleHintInteraction, {passive: true, once: true});
-    //     window.addEventListener('wheel', handleHintInteraction, {passive: true, once: true});
-    //     window.addEventListener('touchstart', handleHintInteraction, {passive: true, once: true});
-    // }
-    //
-    // function removeHintInteractionListeners () {
-    //     window.removeEventListener('scroll', handleHintInteraction);
-    //     window.removeEventListener('wheel', handleHintInteraction);
-    //     window.removeEventListener('touchstart', handleHintInteraction);
-    // }
-
 
     function setupGlitchName (el, text) {
         const pool = "HR!+*#=/\\<>[]{}:-_".split("");
@@ -304,13 +241,14 @@
             const span = document.createElement("span");
             span.className = "ch";
 
-            // preserve spaces
+            // PRESERVE SPACES
             const finalChar = ch === " " ? "\u00A0" : ch;
             span.dataset.final = finalChar;
 
-            // pick 6 random glitch chars for this letter
+            // SET 6 RANDOMIZED GLIPHS PER CHARACTER
             const picks = Array.from({length: 6}, () => pool[(Math.random() * pool.length) | 0]);
-            // set CSS vars used by keyframes
+
+            // KEYS USED FOR RANDOMIZATION
             span.style.setProperty("--c0", `"${picks[0]}"`);
             span.style.setProperty("--c1", `"${picks[1]}"`);
             span.style.setProperty("--c2", `"${picks[2]}"`);
@@ -323,10 +261,10 @@
                 span.style.setProperty(`--g${g}`, colors[Math.floor(Math.random() * colors.length)]);
             }
 
-            // stagger and iteration count
+            // STAGGARED ITERATION
             const i = frag.childNodes.length;
             span.style.setProperty("--delay", `${i * 22}ms`);
-            span.style.setProperty("--iters", `${3 + ((Math.random() * 3) | 0)}`); // don't listen to the linter, the "| 0" is required
+            span.style.setProperty("--iters", `${3 + ((Math.random() * 3) | 0)}`); // LINTER IS LIES, HEED NO WARNING
 
             span.textContent = finalChar;
             frag.appendChild(span);
@@ -338,7 +276,7 @@
     }
 
     function playGlitchName (el, opts = {}) {
-        const settleMs = opts.settleMs ?? 1200; // how long before showing real text
+        const settleMs = opts.settleMs ?? 1200; // LENGTH OF GLITCH EFFECT
         if (el.querySelectorAll('.ch').length === 0) return;
         el.classList.add("is-glitching");
 
