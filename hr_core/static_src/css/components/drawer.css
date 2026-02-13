@@ -440,3 +440,19 @@ form.login-form div.form-control {
 article button {
     width: 100%;
 }
+
+/* ===========================
+   Prepaint Performance Overrides
+   =========================== */
+
+html.prepaint .floating-cart-btn,
+html.prepaint #nav-open-btn {
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+  transition: none !important;
+  background: rgba(0,0,0,0.45) !important;
+}
+
+html.prepaint .floating-cart-count {
+  box-shadow: none !important;
+}

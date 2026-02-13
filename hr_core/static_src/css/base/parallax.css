@@ -96,6 +96,21 @@ div.parallax-content p {
     background-position: 50% 50%;
 }
 
+#section-wipe-1::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+
+    background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAQAAAAAYLlVAAAAL0lEQVR42u3MMQEAAAgDIN8/9K3hHFQgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPgG8oAAAUoH0xkAAAAASUVORK5CYII=");
+    background-repeat: repeat;
+    background-size: 64px 64px;
+
+    opacity: 0.05;
+    mix-blend-mode: overlay;
+}
+
 /* iOS non-Safari settle-based vh fix (avoid svh jitter on wipes). */
 html.has-vh-fix .section-wipe {
     height:     calc(var(--vh) * 60);

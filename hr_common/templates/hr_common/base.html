@@ -13,6 +13,24 @@
 
     <title>{% block title %}Hella Reptilian{% endblock %}</title>
 
+    <script>
+        (function () {
+            var href = (window.devicePixelRatio && window.devicePixelRatio >= 1.5)
+                ? "{% static 'hr_core/images/backgrounds/bg_opt/parallax_bg_1-0-1920w.webp' %}"
+                : "{% static 'hr_core/images/backgrounds/bg_opt/parallax_bg_1-0-960w.webp' %}";
+
+            var l = document.createElement("link");
+            l.rel = "preload";
+            l.as = "image";
+            l.href = href;
+            l.fetchPriority = "high";
+            document.head.appendChild(l);
+        })();
+    </script>
+
+    <script>document.documentElement.classList.add("prepaint");</script>
+
+
     {# Favicons are served by Django staticfiles (NOT Vite manifest) #}
     <link rel="icon" type="image/svg+xml" href="{% static 'icons/favicon.svg' %}">
     <link rel="icon" type="image/png" sizes="96x96" href="{% static 'icons/favicon-96x96.png' %}">
@@ -23,6 +41,7 @@
         {% vite_hmr_client %}
     {% endif %}
 
+    {% vite_asset 'css/main.css' %}
     {% vite_asset 'js/main.js' %}
 
     <script src="https://js.stripe.com/v3" defer></script>

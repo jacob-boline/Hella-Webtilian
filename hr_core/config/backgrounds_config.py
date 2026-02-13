@@ -3,8 +3,16 @@
 # Keys are DOM element IDs (without the leading "#")
 
 SECTION_WIPES: dict[str, str] = {
-    "section-wipe-0": "wipe-eclipse.webp",
-    "section-wipe-1": "wipe-diamond.jpg",
+
+    # "section-wipe-1": "wipe-boxes.jpg",
+    # "section-wipe-1": "wipe-glass-fractal.jpg",
+    # "section-wipe-1": "wipe-poleframe.jpg",
+
+    # "section-wipe-0": "wipe-eclipse.webp",
+    # "section-wipe-1": "wipe-atrium.jpg",
+
+    "section-wipe-1": "wipe-towers.jpg",
+    # "section-wipe-1": "wipe-tunnels.jpg",
     "section-wipe-2": "wipe-blue-black-pillars.jpg",
     "section-wipe-3": "wipe-chainlink.jpg"
 }

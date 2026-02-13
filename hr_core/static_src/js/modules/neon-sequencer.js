@@ -97,9 +97,10 @@
     }
 
     function initAllNeonActs (root = document) {
+        if (document.documentElement.classList.contains("prepaint")) return;
         root.querySelectorAll('.act-name').forEach(initNeonAct);
     }
 
-    document.addEventListener('DOMContentLoaded', () => initAllNeonActs());
+    document.addEventListener("hr:prepaintCleared", () => initAllNeonActs());
     document.addEventListener('htmx:afterSwap', (evt) => initAllNeonActs(evt.target));
 })();

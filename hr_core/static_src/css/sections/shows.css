@@ -245,7 +245,7 @@
     0% { opacity: 1;    filter: brightness(1.3); text-shadow: 0 0  6px currentColor, 0 0 20px currentColor, 0 0 40px currentColor; }
    20% { opacity: 1;    filter: brightness(1.8); text-shadow: 0 0 12px currentColor, 0 0 30px currentColor, 0 0 60px currentColor; }
    40% { opacity: 1;    filter: brightness(2.6); text-shadow: 0 0 30px white, 0 0 60px white, 0 0 120px white, 0 0 200px white;     color: white; }
-   55% { opacity: 0.45; filter: brightness(0.6); text-shadow: 0 0  4px currentColor;                                                color: var(--neon-color); }
+   55% { opacity: 0.45; filter: brightness(0.6); text-shadow: 0 0  4px currentColor;                                                color: var(--neon-magenta); }
    75% { opacity: 0.85; filter: brightness(1.1); text-shadow: 0 0  8px currentColor, 0 0 20px currentColor; }
   100% { opacity: 1;    filter: brightness(1.3); text-shadow: 0 0  6px currentColor, 0 0 24px currentColor, 0 0 50px currentColor; }
 }
@@ -284,10 +284,10 @@
 
 /* Variant K – Supernova */
 @keyframes neon-sequence-k {
-    0% { opacity: 0.8;  filter: brightness(1.0); text-shadow: 0 0  4px currentColor, 0 0 14px currentColor;                                   color: var(--neon-color); }
+    0% { opacity: 0.8;  filter: brightness(1.0); text-shadow: 0 0  4px currentColor, 0 0 14px currentColor;                                   color: var(--neon-magenta); }
    20% { opacity: 1;    filter: brightness(1.8); text-shadow: 0 0  8px currentColor, 0 0 26px currentColor, 0 0  40px currentColor; }
    28% { opacity: 1;    filter: brightness(2.6); text-shadow: 0 0 20px white,        0 0 50px        white, 0 0 110px white, 0 0 180px white; color: white; }
-   40% { opacity: 0.4;  filter: brightness(0.7); text-shadow: 0 0  1px currentColor, 0 0  4px currentColor;                                   color: var(--neon-color); }
+   40% { opacity: 0.4;  filter: brightness(0.7); text-shadow: 0 0  1px currentColor, 0 0  4px currentColor;                                   color: var(--neon-magenta); }
    55% { opacity: 0.55; filter: brightness(0.9); text-shadow: 0 0  2px currentColor, 0 0  8px currentColor; }
    75% { opacity: 0.8;  filter: brightness(1.1); text-shadow: 0 0  3px currentColor, 0 0 12px currentColor; }
   100% { opacity: 0.9;  filter: brightness(1.2); text-shadow: 0 0  4px currentColor, 0 0 14px currentColor; }
@@ -303,20 +303,8 @@
   100% { opacity: 0.15; filter: brightness(0.5); text-shadow: 0 0 1px #FF7A33, 0 0  3px #803C1A; }
 }
 
-
-.card-btn.directions-btn {
-    display:         inline-flex;
-    gap:             0.5rem;
-    align-items:     center;
-    justify-content: center;
-    font-family:     "Bungee Hairline", sans-serif;
-    text-decoration: none;
-    transition:      transform  .2s ease,
-                     color      .2s ease,
-                     box-shadow .2s ease;
-}
-
 .date-panel .directions-btn--inline {
+    gap:             0.5rem;
     display:         flex;
     align-items:     center;
     justify-content: center;
@@ -328,12 +316,11 @@
     letter-spacing:  0.15em;
     text-transform:  uppercase;
     color:           var(--text);
-    background:      #181818;
     text-decoration: none;
     border-radius:   0 0 0 0.75rem;
     border-right:    2px solid var(--text);
     border-left:     2px solid var(--text);
-    border-bottom:   2pt solid var(--text);
+    border-bottom:   2px solid var(--text);
     border-top:      1px solid var(--white-alpha-15);
     box-shadow:      3px  3px 6px var(--black-alpha-90),
                     -3px -3px 6px var(--white-alpha-15);
@@ -349,22 +336,22 @@
 }
 
 .date-panel .directions-btn--inline:hover {
-    background:  #181818;
-    box-shadow:  0   -1px     0    var(--white-alpha-15),
-                 0 0.22rem 0.55rem var(--black-alpha-90);
+    /*background:  #181818;*/
+    box-shadow:  3px  3px 6px var(--black-alpha-90),
+                -3px -3px 6px var(--white-alpha-15),
+                 0 0 10px rgba(240, 240, 240, 0.25),
+                 0 0 22px rgba(240, 240, 240, 0.15);
     color:       white;
     text-shadow: 0 0  1px rgba(20, 20, 20, 0.8),
                  0 0  4px rgba(240, 240, 240, 0.9),
                  0 0 10px rgba(205, 205, 205, 0.8),
                  0 0 18px rgba(200, 200, 200, 0.7);
-    transition:  color .2s ease, opacity .2s ease;
 }
 
 .date-panel .directions-btn--inline:active {
     box-shadow: inset  3px  3px 5px var(--black-alpha-90),
                 inset -2px -2px 4px var(--white-alpha-15);
     transform:  translateY(2px);
-    transition: transform .2s ease, opacity .2s ease;
 }
 
 
@@ -417,33 +404,36 @@
     }
 
     .directions-container {
-        margin-left:     -0.85rem;
-        margin-right:    -0.85rem;
+        margin-left:    -0.85rem;
+        margin-right:   -0.85rem;
         justify-content: center;
     }
 
     .date-panel .directions-btn--inline {
         border-radius: 0;
-        transition: background .2s,
-                    box-shadow .2s,
-                    transform  .2s;
-        background: linear-gradient(315deg,
-                    var(--black-alpha-90)  33%,
-                    var(--black-alpha-75)  66%,
-                    var(--black-alpha-60) 100%);
-        box-shadow: 3px  3px 6px var(--black-alpha-90),
-                   -3px -3px 6px var(--white-alpha-15);
+        transition:    background .2s,
+                       box-shadow .2s,
+                       transform  .2s;
+        background:    linear-gradient(315deg,
+                       var(--black-alpha-90)  33%,
+                       var(--black-alpha-75)  66%,
+                       var(--black-alpha-60) 100%);
+        box-shadow:    3px  3px 6px var(--black-alpha-90),
+                      -3px -3px 6px var(--white-alpha-15);
     }
 
     .date-panel .directions-btn--inline:hover {
-        background: linear-gradient( 315deg,
-                    rgba(0,0,0,0.95) 33%,
-                    rgba(0,0,0,0.80) 66%,
-                    rgba(0,0,0,0.70) 100%
-        );
-        box-shadow: inset  3px  3px 6px var(--black-alpha-90),
-                    inset -2px -2px 4px rgba(255, 255, 255, 0.10);
-        transform: translateY(1px);
+        background:  linear-gradient(
+                             315deg,
+                             rgba(0,0,0,0.95) 33%,
+                             rgba(0,0,0,0.80) 66%,
+                             rgba(0,0,0,0.70) 100%
+                     );
+        text-shadow: 0 0  1px rgba(20, 20, 20, 0.8),
+                     0 0  4px rgba(240, 240, 240, 0.9),
+                     0 0 10px rgba(205, 205, 205, 0.8),
+                     0 0 18px rgba(200, 200, 200, 0.7);
+        transform:   translateY(1px);
     }
 
     .card-center {
@@ -457,6 +447,29 @@
     .directions-btn {
         border-bottom-left-radius: 0;
         border-bottom-right-radius: 0;
+    }
+}
+
+@media (min-width: 768px) {
+
+    .date-panel .directions-btn--inline {
+        background: linear-gradient(
+            145deg,
+            var(--card-bg-0)  33%,
+            var(--card-bg-1)  66%,
+            var(--card-bg-2) 100%
+        );
+
+        border-top: 1px solid var(--white-alpha-15);
+    }
+
+    .date-panel .directions-btn--inline:hover {
+        background: linear-gradient(
+            145deg,
+            var(--card-bg-1) 33%,
+            var(--card-bg-2) 66%,
+            #0C0C0C         100%
+        );
     }
 }
 
@@ -512,4 +525,32 @@
 
 .directions-container.prehide {
     visibility: visible !important;
+}
+
+
+/* ===========================
+   Prepaint Performance Overrides
+   =========================== */
+
+html.prepaint .concert-card,
+html.prepaint .date-panel,
+html.prepaint .card-center,
+html.prepaint .card-center::before {
+  box-shadow: none !important;
+}
+
+html.prepaint .act-name {
+  /* No filters or neon shadows during the first paint */
+  filter: none !important;
+  text-shadow: 2px 2px 0 rgba(0,0,0,0.85) !important; /* keep the "ink" */
+  animation: none !important;
+  transition: none !important;
+  will-change: auto !important;
+}
+
+html.prepaint .date-panel .directions-btn--inline {
+  box-shadow: 3px 3px 6px var(--black-alpha-90),
+             -3px -3px 6px var(--white-alpha-15) !important;
+  text-shadow: none !important;
+  transition: none !important;
 }

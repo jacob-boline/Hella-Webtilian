@@ -329,7 +329,6 @@
         // Landing modal bootstrap (query params)   //
         // ---------------------------------------- //
         function bootstrapLandingModalFromUrl () {
-            console.log('IN bootstrapLandingModalFromUrl');
             const loader = document.getElementById("modal-loader");
             if (!loader) return false;
 
@@ -389,10 +388,8 @@
             return bootstrapLandingModalFromUrl();
         }
 
-        // Try immediately; if HTMX isn't ready, try once on htmx:load + one small retry.
         if (!tryBootstrapLandingModal()) {
-            document.addEventListener("htmx:load", () => tryBootstrapLandingModal(), {once: true});
-            window.setTimeout(tryBootstrapLandingModal, 50);
+          document.addEventListener("htmx:load", () => tryBootstrapLandingModal(), { once: true });
         }
 
         initDrawer();

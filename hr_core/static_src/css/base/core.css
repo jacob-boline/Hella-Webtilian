@@ -26,8 +26,7 @@
 @font-face {
     font-family:  "Quantico";
     font-display: swap;
-    src:          url("/static/hr_core/fonts/Quantico-Regular.woff2") format("woff2"),
-                  url("/static/hr_core/fonts/Quantico-Regular.ttf") format("truetype");
+    src:          url("/static/hr_core/fonts/Quantico-Regular.woff2") format("woff2");
     font-weight:  400;
     font-style:   normal;
 }
@@ -35,8 +34,7 @@
 @font-face {
     font-family:  "Quantico";
     font-display: swap;
-    src:          url("/static/hr_core/fonts/Quantico-Bold.woff2") format("woff2"),
-                  url("/static/hr_core/fonts/Quantico-Bold.ttf") format("truetype");
+    src:          url("/static/hr_core/fonts/Quantico-Bold.woff2") format("woff2");
     font-weight:  700;
     font-style:   normal;
 }
@@ -44,8 +42,7 @@
 @font-face {
     font-family:  "Quantico";
     font-display: swap;
-    src:          url("/static/hr_core/fonts/Quantico-Italic.woff2") format("woff2"),
-                  url("/static/hr_core/fonts/Quantico-Italic.ttf") format("truetype");
+    src:          url("/static/hr_core/fonts/Quantico-Italic.woff2") format("woff2");
     font-weight:  400;
     font-style:   italic;
 }
@@ -53,38 +50,34 @@
 @font-face {
     font-family:  "Quantico";
     font-display: swap;
-    src:          url("/static/hr_core/fonts/Quantico-BoldItalic.woff2") format("woff2"),
-                  url("/static/hr_core/fonts/Quantico-BoldItalic.ttf") format("truetype");
+    src:          url("/static/hr_core/fonts/Quantico-BoldItalic.woff2") format("woff2");
     font-weight:  700;
     font-style:   italic;
 }
 
-@font-face {
-    font-family:  "KARNIVBL";
-    font-display: swap;
-    src:          url("/static/hr_core/fonts/KARNIVBL.woff2") format("woff2"),
-                  url("/static/hr_core/fonts/KARNIVBL.ttf") format("truetype");
-}
+/*@font-face {*/
+/*    font-family:  "KARNIVBL";*/
+/*    font-display: swap;*/
+/*    src:          url("/static/hr_core/fonts/KARNIVBL.woff2") format("woff2"),*/
+/*                  url("/static/hr_core/fonts/KARNIVBL.ttf") format("truetype");*/
+/*}*/
 
 @font-face {
     font-family:  "Exo 2";
     font-display: swap;
-    src:          url("/static/hr_core/fonts/Exo2-VariableFont_wght.woff2") format("woff2"),
-                  url("/static/hr_core/fonts/Exo2-VariableFont_wght.ttf") format("truetype");
+    src:          url("/static/hr_core/fonts/Exo2-VariableFont_wght.woff2") format("woff2");
 }
 
 @font-face {
     font-family:  "Syne Mono";
     font-display: swap;
-    src:          url("/static/hr_core/fonts/SyneMono-Regular.woff2") format("woff2"),
-                  url("/static/hr_core/fonts/SyneMono-Regular.ttf") format("truetype");
+    src:          url("/static/hr_core/fonts/SyneMono-Regular.woff2") format("woff2");
 }
 
 @font-face {
     font-family:  "Edu SA Beginner";
     font-display: swap;
-    src:          url("/static/hr_core/fonts/EduSABeginner-Regular.woff2") format("woff2"),
-                  url("/static/hr_core/fonts/EduSABeginner-Regular.ttf") format("truetype");
+    src:          url("/static/hr_core/fonts/EduSABeginner-Regular.woff2") format("woff2");
 }
 
 
@@ -144,7 +137,7 @@
     --accent:                 #FA0;
     --gold:                   #FFA500;
     --glow:                   #FD6;
-    --neon-color:             #FF00F7;
+    --neon-magenta:           #FF00F7;
     --neon-blue:              #00EAFF;
     --neon-red:               #FF6B6B;
     --neon-green:             #39FF14;
@@ -154,18 +147,12 @@
 
     --neon-duration:          6.5s;
 
-    /* wipe edge tuning */
-    --edge-fade:              15%;
-    --wipe-edge-fade-outside: 15svh;
-    --wipe-edge-fade-inside:  10svh;
 
     /* Viewport shims (kept in sync via JS) */
     --svh:                    1svh;
     --vh:                     1vh;
     --vw:                     1vw;
     --pad-inline:             clamp(1rem, 6vw, 3rem);
-    --modal-pad-inline:       clamp(1rem, 4vw, 1.75rem);
-    --modal-pad-block:        clamp(0.75rem, 3vh, 1.5rem);
 
     /* Modal sizing tokens */
     --modal-gutter:           clamp(12px, 3vw, 24px);
@@ -176,12 +163,9 @@
                                       - env(safe-area-inset-top, 0px)
                                       - env(safe-area-inset-bottom, 0px)
                               );
-    --m-maxw:                 var(--modal-max-w);
-    --m-maxh:                 var(--modal-max-h);
     --m-pad:                  clamp(0.75rem, 2.5vw, 1.50rem);
     --m-gap:                  clamp(0.75rem, 2.0vw, 1.25rem);
     --m-radius:               clamp(0.85rem, 1.5vw, 1.50rem);
-    --m-title:                clamp(1.25rem, 3.0vw, 1.75rem);
     --m-text:                 clamp(0.85rem, 1.6vw, 1.00rem);
 
     /* shared vertical paddings (avoid duplication drift) */
@@ -193,10 +177,6 @@
     --q-rise-frac:            -0.28;
     --q-rise:                 calc(var(--q-clear) * var(--q-rise-frac));
 
-    --padding-sm:             clamp(1.0rem, 3%, 1.5rem);
-    --padding-md:             clamp(1.5rem, 6%, 3.0rem);
-    --padding-lg:             clamp(3.0rem, 12%, 6.0rem);
-
     --panel-bg:               #F3F4F6;
     --panel-hi:               #FFF;
     --panel-lo:               #DADDE3;
@@ -205,8 +185,7 @@
     --ink-700:                #2B2F36;
     --muted:                  #5B6472;
 
-    --purple:                 #9D00FF;
-
+    --card-bg-0:              #393939;
     --card-bg-1:              #2A2A2A;
     --card-bg-2:              #1B1B1B;
 
@@ -215,13 +194,13 @@
     --bulletin-stage-h:       calc(var(--svh) * 100);
 }
 
-/* iOS non-Safari settle-based vh fix (keep Safari svh behavior unchanged). */
+/* iOS non-Safari settle-based vh fix. */
 html.has-vh-fix {
     --modal-max-h: calc(
-                           (var(--vh) * 100)
-                           - (2 * var(--modal-gutter))
-                           - env(safe-area-inset-top, 0px)
-                           - env(safe-area-inset-bottom, 0px)
+                       (var(--vh) * 100)
+                       - (2 * var(--modal-gutter))
+                       - env(safe-area-inset-top, 0px)
+                       - env(safe-area-inset-bottom, 0px)
                    );
 }
 

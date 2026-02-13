@@ -232,7 +232,7 @@
 
 .checkout-review-modal {
     /*noinspection CssInvalidPropertyValue*/
-    max-height:    80 svh;
+    max-height:    80svh;
     text-align:    left;
     padding:       1.25rem;
     color:         var(--text);
@@ -467,7 +467,7 @@
 @container modal (max-width: 599.98px) {
     .checkout-review-modal {
         /*noinspection CssInvalidPropertyValue*/
-        max-height: 85 svh;
+        max-height: 85svh;
         width:      min(92%, 1200px);
         max-width:  min(92%, 1200px);
         padding:    1rem;
@@ -824,7 +824,7 @@
 
 .checkout-review-modal.order-payment-result {
     /*noinspection CssInvalidPropertyValue*/
-    max-height:                 75 svh;
+    max-height:                 75svh;
     overflow-y:                 auto;
     overflow-x:                 hidden;
     overscroll-behavior:        contain;

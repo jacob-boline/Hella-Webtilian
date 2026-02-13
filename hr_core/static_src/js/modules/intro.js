@@ -17,8 +17,8 @@
         hold:                                      750,
         introYield:      { start: 2400, duration: 1500 },  // lockIn.start + lockIn.duration + hold
         total:                    3900,                    // introYield.start + introYield.duration,
-        hintIdleDelay:            6000,
-        hintNudgeDuration:                         500
+        // hintIdleDelay:            6000,
+        // hintNudgeDuration:                         500
     };
 
     // ===========================
@@ -30,7 +30,7 @@
         timeouts: [],
         startTime: null,
         skipRequested: false,
-        hintNudgeTriggered: false,
+        // hintNudgeTriggered: false,
         interactionDetected: false
     };
 
@@ -46,7 +46,7 @@
     let highlightStroke = null;
     let highlightDot = null;
     let introName = null;
-    let scrollHint = null;
+    // let scrollHint = null;
 
     // ===========================
     // Utilities
@@ -74,6 +74,29 @@
         }, duration);
     }
 
+    function warmBelowFoldFonts() {
+        if (!document.fonts || typeof document.fonts.load !== "function") return;
+
+        try {
+            const syne = document.fonts.load('400 1em "Syne Mono"');
+            const edu  = document.fonts.load('400 1em "Edu SA Beginner"');
+
+            // Optional: once loaded, mark as ready (if you want to flip CSS later)
+            Promise.allSettled([syne, edu]).then(() => {
+                document.documentElement.classList.add("fonts-belowfold-ready");
+            });
+        } catch (e) { }
+    }
+
+    function scheduleFontWarmup() {
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                warmBelowFoldFonts();
+            });
+        });
+    }
+
+
     // ===========================
     // Animation Sequence
     // ===========================
@@ -87,6 +110,8 @@
         STATE.phase = 'active';
         STATE.startTime = performance.now();
         overlay.classList.add('active');
+
+        scheduleFontWarmup();
 
         // Phase 2: Diagnostic highlights
         addTimeout(() => {
@@ -128,6 +153,8 @@
         STATE.phase = 'active';
         overlay.classList.add('active');
 
+        scheduleFontWarmup();
+
         // Show everything immediately
         logoBase.classList.add('locked');
         logoBase.style.opacity = '1';
@@ -154,7 +181,7 @@
     function completeIntro () {
         STATE.phase = 'complete';
         overlay.classList.add('complete');
-        showScrollHint();
+        // showScrollHint();
         removeSkipListeners();
     }
 
@@ -208,64 +235,64 @@
     // Scroll Hint (Post-Intro)
     // ===========================
     // TODO - the scroll hint got voted of the island, but i feel like this can be used elsewhere on the site, so leaving for now
-    function showScrollHint () {
-        if (!scrollHint) return;
-
-        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-        scrollHint.classList.add('visible');
-
-        addHintInteractionListeners();
-
-        if (!prefersReducedMotion && !STATE.hintNudgeTriggered) {
-            addTimeout(() => {
-                if (!STATE.interactionDetected) {
-                    triggerHintNudge();
-                }
-            }, TIMINGS.hintIdleDelay);
-        }
-    }
-
-    function triggerHintNudge () {
-        if (!scrollHint || STATE.hintNudgeTriggered) return;
-
-        STATE.hintNudgeTriggered = true;
-        scrollHint.classList.add('nudge');
-
-        addTimeout(() => {
-            scrollHint.classList.remove('nudge');
-        }, TIMINGS.hintNudgeDuration);
-    }
-
-    function hideScrollHint () {
-        if (!scrollHint || STATE.interactionDetected) return;
-
-        STATE.interactionDetected = true;
-        scrollHint.classList.add('interacted');
-
-        // Remove hint and overlay after fade
-        addTimeout(() => {
-            if (overlay) {
-                overlay.remove();
-            }
-        }, 400);
-    }
-
-    function handleHintInteraction () {
-        hideScrollHint();
-    }
-
-    function addHintInteractionListeners () {
-        window.addEventListener('scroll', handleHintInteraction, {passive: true, once: true});
-        window.addEventListener('wheel', handleHintInteraction, {passive: true, once: true});
-        window.addEventListener('touchstart', handleHintInteraction, {passive: true, once: true});
-    }
-
-    function removeHintInteractionListeners () {
-        window.removeEventListener('scroll', handleHintInteraction);
-        window.removeEventListener('wheel', handleHintInteraction);
-        window.removeEventListener('touchstart', handleHintInteraction);
-    }
+    // function showScrollHint () {
+    //     if (!scrollHint) return;
+    //
+    //     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    //
+    //     scrollHint.classList.add('visible');
+    //
+    //     addHintInteractionListeners();
+    //
+    //     if (!prefersReducedMotion && !STATE.hintNudgeTriggered) {
+    //         addTimeout(() => {
+    //             if (!STATE.interactionDetected) {
+    //                 triggerHintNudge();
+    //             }
+    //         }, TIMINGS.hintIdleDelay);
+    //     }
+    // }
+    //
+    // function triggerHintNudge () {
+    //     if (!scrollHint || STATE.hintNudgeTriggered) return;
+    //
+    //     STATE.hintNudgeTriggered = true;
+    //     scrollHint.classList.add('nudge');
+    //
+    //     addTimeout(() => {
+    //         scrollHint.classList.remove('nudge');
+    //     }, TIMINGS.hintNudgeDuration);
+    // }
+    //
+    // function hideScrollHint () {
+    //     if (!scrollHint || STATE.interactionDetected) return;
+    //
+    //     STATE.interactionDetected = true;
+    //     scrollHint.classList.add('interacted');
+    //
+    //     // Remove hint and overlay after fade
+    //     addTimeout(() => {
+    //         if (overlay) {
+    //             overlay.remove();
+    //         }
+    //     }, 400);
+    // }
+    //
+    // function handleHintInteraction () {
+    //     hideScrollHint();
+    // }
+    //
+    // function addHintInteractionListeners () {
+    //     window.addEventListener('scroll', handleHintInteraction, {passive: true, once: true});
+    //     window.addEventListener('wheel', handleHintInteraction, {passive: true, once: true});
+    //     window.addEventListener('touchstart', handleHintInteraction, {passive: true, once: true});
+    // }
+    //
+    // function removeHintInteractionListeners () {
+    //     window.removeEventListener('scroll', handleHintInteraction);
+    //     window.removeEventListener('wheel', handleHintInteraction);
+    //     window.removeEventListener('touchstart', handleHintInteraction);
+    // }
 
 
     function setupGlitchName (el, text) {
@@ -348,7 +375,7 @@
         // Get DOM references
         overlay = document.getElementById('intro-overlay');
         if (!overlay) {
-            console.warn('[intro] #intro-overlay not found, skipping intro');
+            // console.warn('[intro] #intro-overlay not found, skipping intro');
             return;
         }
         overlay.classList.add('ready');
@@ -360,10 +387,10 @@
         highlightStroke = overlay.querySelector('.intro-logo-highlight-stroke');
         highlightDot = overlay.querySelector('.intro-logo-highlight-dot');
         introName = overlay.querySelector('.intro-name');
-        scrollHint = overlay.querySelector('.intro-scroll-hint');
+        // scrollHint = overlay.querySelector('.intro-scroll-hint');
 
         if (!logoBase || !introName) {
-            console.warn('[intro] Required elements not found, skipping intro');
+            // console.warn('[intro] Required elements not found, skipping intro');
             overlay.classList.add('complete');
             return;
         }

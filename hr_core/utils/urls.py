@@ -9,13 +9,8 @@ from django.http import HttpRequest
 
 
 def _configured_base_url() -> str:
-    """
-    Canonical base URL for "external" links (emails, redirects, etc).
-    If EXTERNAL_BASE_URL is set, use it always.
-    (USE_NGROK can still be used for validation/policies elsewhere.)
-    """
-    base = (getattr(settings, "EXTERNAL_BASE_URL", "") or "").strip()
-    return base.rstrip("/") if base else ""
+    base = getattr(settings, "EXTERNAL_BASE_URL", "")
+    return base.strip().rstrip("/")
 
 
 def build_external_absolute_url(request: HttpRequest | None, path: str, *, query: dict | None = None) -> str:

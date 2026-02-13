@@ -10,13 +10,13 @@
     let lastIntent = null;
     let pendingIntent = null;
     let _authRequiredLockUntil = 0;
-    let modalMsgTimer = null;
+    // let modalMsgTimer = null;
 
     function safeCall (fn, ...args) {
         try {
             return typeof fn === 'function' ? fn(...args) : undefined;
         } catch (e) {
-            console.error('[events] handler error', e);
+            // console.error('[events] handler error', e);
             return undefined;
         }
     }
@@ -424,12 +424,12 @@
 
         const url = el.dataset.accessUrl;
         if (!url) {
-            console.warn('[events] #sidebar-access missing data-access-url');
+            // console.warn('[events] #sidebar-access missing data-access-url');
             return;
         }
 
         if (!window.htmx) {
-            console.warn('[events] htmx not found; cannot refresh sidebar access');
+            // console.warn('[events] htmx not found; cannot refresh sidebar access');
             return;
         }
 

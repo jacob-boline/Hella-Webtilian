@@ -1,20 +1,24 @@
 /* hr_core/static_src/css/intro.css */
 
+
+
+
+
 /* ===========================
    Intro Overlay Container
    =========================== */
 
 .intro-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
+    position:         fixed;
+    inset:            0;
+    z-index:          9999;
     background-color: black;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 1;
-    transition: opacity 1500ms ease-out;
-    pointer-events: all;
+    display:          flex;
+    align-items:      center;
+    justify-content:  center;
+    opacity:          1;
+    transition:       opacity 1500ms ease-out;
+    pointer-events:   all;
 }
 
 .intro-overlay.yielding {
@@ -22,7 +26,7 @@
 }
 
 .intro-overlay.complete {
-    display: none;
+    display:        none;
     pointer-events: none;
 }
 
@@ -31,23 +35,23 @@
    =========================== */
 
 .intro-container {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    position:        relative;
+    display:         flex;
+    flex-direction:  column;
+    align-items:     center;
     justify-content: center;
-    gap: 2rem;
-    width: 100%;
-    max-width: min(92vw, 900px);
-    padding: 2rem;
+    gap:             2rem;
+    width:           100%;
+    max-width:       min(92vw, 900px);
+    padding:         2rem;
 }
 
 .intro-logo-stack {
-    position: relative;
-    width: min(60vw, 300px);
-    height: min(60vw, 300px);
-    display: block;
-    flex: 0 0 auto;
+    position:    relative;
+    width:       min(60vw, 300px);
+    height:      min(60vw, 300px);
+    display:     block;
+    flex:        0 0 auto;
     line-height: 0;
 }
 
@@ -62,69 +66,35 @@
 .intro-logo-base,
 .intro-logo-highlight {
     position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
+    inset:    0;
+    width:    100%;
+    height:   100%;
 }
 
-/* Remove the old centering transform from highlight layers */
 .intro-logo-highlight {
-    opacity: 0;
+    opacity:        0;
     pointer-events: none;
-    color: var(--neon-blue, #4ec5ec);
-    fill: var(--neon-blue, #4ec5ec);
-    stroke: var(--neon-blue, #4ec5ec);
+    color:          var(--neon-blue, #4EC5EC);
+    fill:           var(--neon-blue, #4EC5EC);
+    stroke:         var(--neon-blue, #4EC5EC);
 }
 
-/* Base logo opacity rules can stay */
 .intro-logo-base {
-    opacity: 0.35;
+    opacity:    0.35;
     transition: opacity 350ms ease-out;
-    color: darkorange;
-    fill: darkorange;
-    stroke: darkorange;
+    color:      darkorange;
+    fill:       darkorange;
+    stroke:     darkorange;
 }
-
-/*.intro-logo-base,*/
-/*.intro-logo-highlight {*/
-/*    width: min(60vw, 300px);*/
-/*    height: min(60vw, 300px);*/
-/*    color: darkorange;*/
-/*    fill: darkorange;*/
-/*    stroke: darkorange;*/
-/*    stroke-width: 3;*/
-/*    stroke-linecap: round;*/
-/*    stroke-linejoin: round;*/
-/*    will-change: opacity;*/
-/*}*/
-
-/*.intro-logo-base {*/
-/*    opacity: 0.35;*/
-/*    transition: opacity 350ms ease-out;*/
-/*}*/
 
 .intro-logo-base.locked {
     opacity: 1;
 }
 
-/* Highlight layers positioned absolutely over base */
-/*.intro-logo-highlight {*/
-/*    position: absolute;*/
-/*    top: 50%;*/
-/*    left: 50%;*/
-/*    transform: translate(-50%, -50%);*/
-/*    opacity: 0;*/
-/*    pointer-events: none;*/
-/*    color: var(--neon-blue, #4ec5ec);*/
-/*    fill: var(--neon-blue, #4ec5ec);*/
-/*    stroke: var(--neon-blue, #4ec5ec);*/
-/*}*/
-
 .intro-logo-highlight.pulse {
     animation: diagnostic-pulse 200ms ease-out forwards;
 }
 
-/* Shorter pulse for exclamation mark parts */
 .intro-logo-highlight-stroke.pulse,
 .intro-logo-highlight-dot.pulse {
     animation: diagnostic-pulse 150ms ease-out forwards;
@@ -133,15 +103,15 @@
 @keyframes diagnostic-pulse {
     0% {
         opacity: 0;
-        filter: drop-shadow(0 0 0px currentColor);
+        filter:  drop-shadow(0 0 0px currentColor);
     }
     40% {
         opacity: 0.9;
-        filter: drop-shadow(0 0 8px currentColor);
+        filter:  drop-shadow(0 0 8px currentColor);
     }
     100% {
         opacity: 0;
-        filter: drop-shadow(0 0 0px currentColor);
+        filter:  drop-shadow(0 0 0px currentColor);
     }
 }
 
@@ -150,96 +120,101 @@
    =========================== */
 
 .intro-name {
-    font-family: "Exo 2" ,serif; /* cut me out 3, embossing tape 3, lekton, Tilt Prism, Investigation */
-    /*font-family: "Megrim", cursive;*/
-    font-size: clamp(2rem, 8vw, 3rem);
-    font-weight: 600;
-    height: 1em;
-    flex: 0 0 auto;
-    overflow: visible;
-    /*color: var(--text);*/
-    color: black;
-    text-align: center;
+    font-family:    "Exo 2", serif; /* cut me out 3, embossing tape 3, lekton, Tilt Prism, Investigation */
+    font-size:      clamp(2rem, 8vw, 3rem);
+    font-weight:    600;
+    height:         1em;
+    flex:           0 0 auto;
+    overflow:       visible;
+    color:          black;
+    text-align:     center;
     letter-spacing: 0.1em;
-    white-space: nowrap;
-    opacity: 0;
-    /*transform: translateY(8px);*/
-    transition: opacity 250ms ease-out, color 250ms ease, transform 250ms ease-out;
-    will-change: opacity, transform;
-    max-width: 100vw;
+    white-space:    nowrap;
+    opacity:        0;
+    transition:     opacity 250ms ease-out,
+                    color 250ms ease,
+                    transform 250ms ease-out;
+    will-change:    opacity,
+                    transform;
+    max-width:      100vw;
 }
 
 .intro-name .ch {
     white-space: nowrap;
 }
 
-.intro-overlay:not(.ready) .intro-logo-base { opacity: 0.35; }
-.intro-overlay:not(.ready) .intro-name { opacity: 0; }
+.intro-overlay:not(.ready) .intro-logo-base {
+    opacity: 0.35;
+}
+
+.intro-overlay:not(.ready) .intro-name {
+    opacity: 0;
+}
 
 .intro-name.visible {
-    opacity: 1;
+    opacity:   1;
     transform: translateY(0);
-    color: var(--text);
+    color:     var(--text);
 }
 
 /* ===========================
    Scroll Hint (Post-Intro)
-   =========================== */
+/*   =========================== *!*/
 
-.intro-scroll-hint {
-    position: fixed;
-    bottom: 8svh;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    opacity: 0;
-    transition: opacity 400ms ease-out;
-    pointer-events: none;
-    z-index: 9998;
-}
+/*.intro-scroll-hint {*/
+/*    position:       fixed;*/
+/*    bottom:         8 svh;*/
+/*    left:           50%;*/
+/*    transform:      translateX(-50%);*/
+/*    display:        flex;*/
+/*    flex-direction: column;*/
+/*    align-items:    center;*/
+/*    gap:            0.5rem;*/
+/*    opacity:        0;*/
+/*    transition:     opacity 400ms ease-out;*/
+/*    pointer-events: none;*/
+/*    z-index:        9998;*/
+/*}*/
 
-.intro-scroll-hint.visible {
-    opacity: 1;
-}
+/*.intro-scroll-hint.visible {*/
+/*    opacity: 1;*/
+/*}*/
 
-.intro-scroll-hint.interacted {
-    opacity: 0;
-}
+/*.intro-scroll-hint.interacted {*/
+/*    opacity: 0;*/
+/*}*/
 
-.hint-waveform {
-    width: 40px;
-    height: 24px;
-    color: darkorange;
-    fill: darkorange;
-    will-change: transform;
-}
+/*.hint-waveform {*/
+/*    width:       40px;*/
+/*    height:      24px;*/
+/*    color:       darkorange;*/
+/*    fill:        darkorange;*/
+/*    will-change: transform;*/
+/*}*/
 
-.intro-scroll-hint.nudge .hint-waveform {
-    animation: hint-nudge 500ms ease-in-out;
-}
+/*.intro-scroll-hint.nudge .hint-waveform {*/
+/*    animation: hint-nudge 500ms ease-in-out;*/
+/*}*/
 
-@keyframes hint-nudge {
-    0% {
-        transform: translateY(0);
-    }
-    60% {
-        transform: translateY(12px);
-    }
-    100% {
-        transform: translateY(0);
-    }
-}
+/*@keyframes hint-nudge {*/
+/*    0% {*/
+/*        transform: translateY(0);*/
+/*    }*/
+/*    60% {*/
+/*        transform: translateY(12px);*/
+/*    }*/
+/*    100% {*/
+/*        transform: translateY(0);*/
+/*    }*/
+/*}*/
 
-.hint-text {
-    font-family: "Quantico", sans-serif;
-    font-size: 0.875rem;
-    color: darkorange;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-}
+/*.hint-text {*/
+/*    font-family:    "Quantico", sans-serif;*/
+/*    font-size:      0.875rem;*/
+/*    color:          darkorange;*/
+/*    letter-spacing: 0.05em;*/
+/*    text-transform: uppercase;*/
+/*}*/
 
 /* ===========================
    Reduced Motion Overrides
@@ -260,16 +235,16 @@
 
     .intro-name {
         transition: none;
-        transform: translateY(0);
+        transform:  translateY(0);
     }
 
-    .intro-scroll-hint {
-        transition: none;
-    }
+/*    .intro-scroll-hint {*/
+/*        transition: none;*/
+/*    }*/
 
-    .intro-scroll-hint.nudge .hint-waveform {
-        animation: none !important;
-    }
+/*    .intro-scroll-hint.nudge .hint-waveform {*/
+/*        animation: none !important;*/
+/*    }*/
 }
 
 /* ===========================
@@ -279,44 +254,44 @@
 @media (max-width: 640px) {
 
     .intro-logo-stack {
-        width: min(70vw, 280px);
+        width:  min(70vw, 280px);
         height: min(70vw, 280px);
     }
 
     .intro-container {
-        gap: 1.5rem;
+        gap:     1.5rem;
         padding: 1.5rem;
     }
 
     .intro-logo-base,
     .intro-logo-highlight {
-        width: min(70vw, 280px);
+        width:  min(70vw, 280px);
         height: min(70vw, 280px);
     }
 
-    .intro-scroll-hint {
-        bottom: 10svh;
-    }
+    /*.intro-scroll-hint {*/
+    /*    bottom: 10 svh;*/
+    /*}*/
 
-    .hint-waveform {
-        width: 48px;
-        height: 28px;
-    }
+    /*.hint-waveform {*/
+    /*    width:  48px;*/
+    /*    height: 28px;*/
+    /*}*/
 
-    .hint-text {
-        font-size: 1rem;
-    }
+    /*.hint-text {*/
+    /*    font-size: 1rem;*/
+    /*}*/
 }
 
 .intro-name .ch {
-  --iters: 3;
-  --delay: 0ms;
-  --c0: " ";
-  --c1: " ";
-  --c2: " ";
-  --c3: " ";
-  --c4: " ";
-  --c5: " ";
+    --iters: 3;
+    --delay: 0ms;
+    --c0:    " ";
+    --c1:    " ";
+    --c2:    " ";
+    --c3:    " ";
+    --c4:    " ";
+    --c5:    " ";
 }
 
 :root {
@@ -326,51 +301,63 @@
 }
 
 .intro-name.visible {
-  opacity: 1;
-  transform: translateY(0);
+    opacity:   1;
+    transform: translateY(0);
 }
 
-/* Split chars */
 .intro-name .ch {
-  display: inline-block;
-  position: relative;
-    color: var(--text);
+    display:  inline-block;
+    position: relative;
+    color:    var(--text);
 }
 
 /* Hide real glyph until we settle */
 .intro-name.is-glitching .ch {
-  color: transparent;
+    color: transparent;
 }
 
 /* Show swapped glyph in :after */
 .intro-name .ch::after {
-  content: attr(data-final);
-  position: absolute;
-  left: 0;
-  top: 0;
-  /*color: var(--text);*/
-    color: var(var(--text));
-  animation: none;
+    content:   attr(data-final);
+    position:  absolute;
+    left:      0;
+    top:       0;
+    color:     var(var(--text));
+    animation: none;
 }
 
 /* When glitching, animate the content swaps */
 .intro-name.is-glitching .ch::after {
-  animation-name: hr-glitch-switch;
-  animation-duration: 260ms;              /* tweak feel */
-  animation-timing-function: steps(1);
-  animation-fill-mode: both;
-  animation-iteration-count: var(--iters, 4);
-  animation-delay: var(--delay, 0ms);
-  filter: drop-shadow(0 0 10px rgba(255,140,0,0.25));
+    animation-name:            hr-glitch-switch;
+    animation-duration:        260ms;
+    animation-timing-function: steps(1);
+    animation-fill-mode:       both;
+    animation-iteration-count: var(--iters, 4);
+    animation-delay:           var(--delay, 0ms);
+    filter:                    drop-shadow(0 0 10px rgba(255, 140, 0, 0.25));
 }
 
-/* keyframes use CSS vars (like the example you found) */
 @keyframes hr-glitch-switch {
-    0% { content: var(--c0, attr(data-final)); color: var(--g0, var(--text)); }
-   16% { content: var(--c1, attr(data-final)); color: var(--g1, var(--text)); }
-   33% { content: var(--c2, attr(data-final)); color: var(--g2, var(--text)); }
-   50% { content: var(--c3, attr(data-final)); color: var(--g3, var(--text)); }
-   66% { content: var(--c4, attr(data-final)); color: var(--g4, var(--text)); }
-   83% { content: var(--c5, attr(data-final)); color: var(--g5, var(--text)); }
-  100% { content:           attr(data-final);  color: var(--text); }
+      0% { content: var(--c0, attr(data-final)); color: var(--g0, var(--text)); }
+     16% { content: var(--c1, attr(data-final)); color: var(--g1, var(--text)); }
+     33% { content: var(--c2, attr(data-final)); color: var(--g2, var(--text)); }
+     50% { content: var(--c3, attr(data-final)); color: var(--g3, var(--text)); }
+     66% { content: var(--c4, attr(data-final)); color: var(--g4, var(--text)); }
+     83% { content: var(--c5, attr(data-final)); color: var(--g5, var(--text)); }
+    100% { content:           attr(data-final);  color:           var(--text); }
+}
+
+
+/* ===========================
+   Prepaint Performance Overrides
+   =========================== */
+
+html.prepaint .intro-logo-highlight,
+html.prepaint .intro-name .ch::after {
+  filter: none !important;
+}
+
+html.prepaint .intro-logo-highlight.pulse,
+html.prepaint .intro-name.is-glitching .ch::after {
+  animation: none !important;
 }

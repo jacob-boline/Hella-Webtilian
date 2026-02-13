@@ -17,9 +17,16 @@
     padding:        1.5rem;
     border-radius:  0.75rem;
     color:          var(--text);
-    background:     linear-gradient(145deg, rgba(14, 22, 16, 0.75), rgba(4, 6, 8, 0.92));
-    box-shadow:     0 0 2.00rem var(--black-alpha-75), 0 0 1.50rem rgba(0, 255, 180, 0.08), inset 0 0 0.75rem rgba(0, 255, 120, 0.04);
-    transition:     box-shadow .2s ease, transform .2s ease;
+    background:     linear-gradient(
+                            145deg,
+                            rgba(14, 22, 16, 0.75),
+                            rgba(4, 6, 8, 0.92)
+                    );
+    box-shadow:     0 0 2.00rem var(--black-alpha-75),
+                    0 0 1.50rem rgba(0, 255, 180, 0.08),
+              inset 0 0 0.75rem rgba(0, 255, 120, 0.04);
+    transition:     box-shadow .2s ease,
+                    transform  .2s ease;
     display:        flex;
     flex-direction: column;
     max-height:     80svh;
@@ -84,6 +91,62 @@
     padding-bottom:        0.75rem;
     text-align:            center;
 }
+
+@media (min-width: 720px) and (max-width: 1023.98px) {
+
+    .merch-grid {
+        grid-template-columns: 1fr; /* explicit, in case future rules change */
+        gap: 1rem;
+    }
+
+    .merch-card {
+        flex-direction: row;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+
+        /* Let height be content-driven on desktop-ish layouts */
+        height: auto;
+        max-height: none;
+    }
+
+    .merch-img {
+        width: auto;
+        height: 100%;
+        flex: 0 0 auto;
+
+        /* pick one of these depending on how big you want the image */
+        max-width: min(320px, 45%);
+        /* max-width: min(360px, 48%); */
+    }
+
+    .merch-body {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        min-width: 0;
+        min-height: 0;
+        gap: 0.5rem;
+        padding: 0.25rem;
+    }
+
+    .merch-body .merch-meta {
+        padding: 0;
+        gap: 0.25rem;
+    }
+
+    .merch-body .merch-actions {
+        margin-top: auto;
+        padding: 0;
+        gap: 0.5rem;
+    }
+
+    .merch-body .merch-actions .card-btn {
+        width: 100%;
+        min-width: 0;
+    }
+}
+
 
 @media (min-width: 1024px) {
     .merch-grid {
@@ -471,7 +534,8 @@
     landscape orientation breakpoints
 ****************************************/
 
-@media (orientation: landscape) and (max-width: 1199.98px) {
+@media (orientation: landscape) and (pointer: coarse) and (hover: none)
+  and (max-width: 1199.98px) {
 
     .merch-body {
         display:         flex;
@@ -519,7 +583,8 @@
 }
 
 /* Small phones */
-@media (orientation: landscape) and (max-height: 389.98px) and (max-width: 740px) {
+@media (orientation: landscape) and (pointer: coarse) and (hover: none)
+  and (max-height: 389.98px) and (max-width: 740px) {
     .merch-card {
         flex-direction: row;
         align-items:    center;
@@ -551,7 +616,8 @@
 
 
 /* Medium phones (most modern phones) */
-@media (orientation: landscape) and (min-height: 390px) and (max-height: 449.98px) and (max-width: 800px) {
+@media (orientation: landscape) and (pointer: coarse) and (hover: none) and (min-height: 390px)
+  and (max-height: 449.98px) and (max-width: 800px) {
 
     .merch-card {
         flex-direction: row;
@@ -584,7 +650,8 @@
 
 
 /* Large phones / phablets */
-@media (orientation: landscape) and (min-height: 450px) and (max-height: 549.98px) and (max-width: 900px) {
+@media (orientation: landscape) and (pointer: coarse) and (hover: none)
+  and (min-height: 450px) and (max-height: 549.98px) and (max-width: 900px) {
 
     .merch-card {
         flex-direction: row;
@@ -617,7 +684,8 @@
 
 
 /* Small tablets */
-@media (orientation: landscape) and (min-height: 550px)and (max-height: 699.98px) and (min-width: 901px) and (max-width: 1199.98px) {
+@media (orientation: landscape) and (pointer: coarse) and (hover: none)
+  and (min-height: 550px)and (max-height: 699.98px) and (min-width: 901px) and (max-width: 1199.98px) {
 
     .merch-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -655,7 +723,8 @@
 
 
 /* Large tablets */
-@media (orientation: landscape) and (min-height: 700px) and (min-width: 900px) {
+@media (orientation: landscape) and (pointer: coarse) and (hover: none)
+  and (min-height: 700px) and (min-width: 900px) {
 
     .merch-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));

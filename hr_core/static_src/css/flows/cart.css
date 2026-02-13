@@ -166,7 +166,7 @@ section.m-body:has(.review-section) {
 }
 
 #modal:has(.view-cart-modal) .modal-panel {
-    max-height: 90 svh;
+    max-height: 90svh;
     overflow:   hidden;
 }
 

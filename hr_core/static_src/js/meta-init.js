@@ -146,7 +146,7 @@ document.body.addEventListener('initModules', (e) => {
     list.forEach((name) => {
         const fn = MODULES[name];
         if (!fn) {
-            console.warn('[meta-init] unknown module:', name);
+            // console.warn('[meta-init] unknown module:', name);
             return;
         }
         fn(document);

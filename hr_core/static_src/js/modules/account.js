@@ -32,11 +32,8 @@ function initUnclaimedOrders (root = document) {
 
     selectAll.addEventListener("change", () => {
         const boxes = getBoxes();
-        console.log(`boxes.length = ${boxes.length}}`);
-
         boxes.forEach(b => (b.checked = selectAll.checked));
         selectAll.indeterminate = false;
-        console.debug('[unclaimed] selectAll', selectAll.checked, 'boxes:', boxes.length);
     });
 
     list.addEventListener("change", (e) => {

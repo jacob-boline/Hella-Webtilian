@@ -34,7 +34,7 @@ function whenHtmxReady (cb) {
         } else if (tries >= 80) { // ~2s
             clearInterval(t);
             window.removeEventListener('htmx:load', onLoad);
-            console.warn('[tab-handoff] htmx never became ready');
+            // console.warn('[tab-handoff] htmx never became ready');
         }
     }, 25);
 }
@@ -59,16 +59,10 @@ function tryOpenModal (payload, attempts = 30) {
     if (loader && h && payload?.modalUrl) {
         const url = payload.modalUrl;
         window.htmx.trigger(document.body, 'loadModal', {url});
-        console.log('[tab-handoff] opening modal via hx-get', payload.modalUrl);
         return true;
     }
 
     if (attempts <= 0) {
-        console.warn('[tab-handoff] modal open failed: htmx/loader not ready', {
-            hasLoader: !!loader,
-            hasHtmx: !!h,
-            modalUrl: payload?.modalUrl
-        });
         return false;
     }
 
@@ -77,13 +71,13 @@ function tryOpenModal (payload, attempts = 30) {
 }
 
 
-function cleanUrlKeepHash () {
-    console.warn('[tab-handoff] CLEANING URL', window.location.href);
-    console.trace();
-
-    const clean = window.location.pathname + window.location.hash;
-    window.history.replaceState({}, '', clean);
-}
+// function cleanUrlKeepHash () {
+//     console.warn('[tab-handoff] CLEANING URL', window.location.href);
+//     console.trace();
+//
+//     const clean = window.location.pathname + window.location.hash;
+//     window.history.replaceState({}, '', clean);
+// }
 
 export function initTabHandoff (root = document) {
     console.log('[tab-handoff] init', {
