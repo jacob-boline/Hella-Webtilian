@@ -2,20 +2,17 @@
 
 (function () {
     function initGlobalUI () {
-        // ------------------------------
-        // Idempotency guard
-        // ------------------------------
+
+        // idempotency
         window.hrSite = window.hrSite || {};
         if (window.hrSite.__globalUiInitialized) return;
         window.hrSite.__globalUiInitialized = true;
 
-        const modalEl = document.getElementById("modal");
+        const modalEl      = document.getElementById("modal");
         const modalContent = document.getElementById("modal-content");
-        const modalMsg = document.getElementById("modal-message-box");
-
-        const messageBar = document.getElementById("global-message-bar");
-        const messageText = document.getElementById("global-message-content");
-
+        const modalMsg     = document.getElementById("modal-message-box");
+        const messageBar   = document.getElementById("global-message-bar");
+        const messageText  = document.getElementById("global-message-content");
         const floatingCart = document.querySelector('.floating-cart-btn');
 
         let _drawerScrollY = 0;
@@ -45,9 +42,9 @@
         }
 
         function refreshScrollOnModalClose () {
-            const reflow = window.hrSite?.reflowParallax;
+            const reflow   = window.hrSite?.reflowParallax;
             const syncWipe = window.hrSite?.syncActiveWipe;
-            const banner = window.hrSite?.banner;
+            const banner   = window.hrSite?.banner;
 
             // Let scroll restore land + any viewport resize happen first
             requestAnimationFrame(() => {
@@ -86,14 +83,14 @@
             modalEl.classList.add('hidden');
             modalEl.setAttribute('aria-hidden', 'true');
 
-            // Unfreeze body
+            // unfreeze body
             document.body.classList.remove('modal-open');
             document.body.style.top = '';
 
             // IMPORTANT: restore scroll synchronously, before the next paint
             window.scrollTo(0, scrollY);
 
-            // Now fix parallax/wipes once the DOM has settled for this frame
+            // fix parallax/wipes once the DOM has settled for this frame
             refreshScrollOnModalClose();
 
             if (modalContent) modalContent.replaceChildren();
@@ -247,6 +244,14 @@
             if (!drawer || !openBtn) return;
 
             const openDrawer = () => {
+
+                // Delay load of BC player until the sidebar is first opened
+                const bandcamp = drawer.querySelector('iframe[data-src]');
+                if (bandcamp) {
+                    bc.src = bc.dataset.src;
+                    delete bc.dataset.src;
+                }
+
                 const isMobile = window.matchMedia("(max-width: 767.98px)").matches;
                 const isOpen = drawer.classList.contains('show');
 
@@ -340,7 +345,7 @@
             const build = routes[modal];
             const hxGet = build ? build() : null;
 
-            if (hxGet === null) return true; // unknown or missing params -> don't retry forever
+            if (hxGet === null) return true; // exit on missing param
 
             window.htmx.trigger(document.body, 'loadModal', {hxGet});
 

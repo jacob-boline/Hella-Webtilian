@@ -129,7 +129,7 @@ services:
     stdin_open: true
     tty: true
     healthcheck:
-      test: ["CMD-SHELL", "nc -z 127.0.0.1 8000"]
+      test: [ "CMD-SHELL", "nc -z 127.0.0.1 8000" ]
       interval: 2s
       timeout: 2s
       retries: 30
@@ -142,10 +142,10 @@ services:
     image: hella-webtilian-dev
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile  # Dockerfile is now multistep
       target: dev
     container_name: hr_vite_dev
-    command: npm run vite:dev -- --host 0.0.0.0 --port 5173
+    command: npm run vite:dev
     volumes:
       - ./package-lock.json:/home/app/web/package-lock.json
       - ./hr_core/static_src:/home/app/web/hr_core/static_src
@@ -153,17 +153,20 @@ services:
       - ./package.json:/home/app/web/package.json
       - ./hr_core/static:/home/app/web/hr_core/static
     env_file:
-      -  hr_config/env/dev.env
+      - hr_config/env/dev.env
     ports:
-      - "5174:5173"  # Alternative port to avoid conflicts
+      - "5173:5173"
     environment:
       NODE_ENV: development
       IN_DOCKER: 1
       VITE_PUBLIC_HOST: ""
-#      VITE_DEV_HOST: 0.0.0.0
-#      VITE_HMR_HOST: 192.168.0.84
-#      VITE_HMR_CLIENT_PORT: 5174
-#      VITE_DEV_ORIGIN: http://192.168.0.84:5174
+      VITE_DEV_HOST: '0.0.0.0'
+      VITE_HMR_HOST: 'localhost'
+      VITE_HMR_CLIENT_PORT: 5173
+      VITE_DEV_ORIGIN: 'http://localhost:5173'
+    #      VITE_HMR_HOST: 192.168.0.84
+    #      VITE_HMR_CLIENT_PORT: 5173
+    #      VITE_DEV_ORIGIN: http://192.168.0.84:5173
     networks:
       - hr_network_dev
 

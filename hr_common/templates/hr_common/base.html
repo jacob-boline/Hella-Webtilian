@@ -10,12 +10,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token }}">
+    <meta name="description" content="Hella Webtilian!">
 
     <title>{% block title %}Hella Reptilian{% endblock %}</title>
 
     <link rel="preload"
           as="image"
-          href="{% static 'hr_core/images/backgrounds/bg_opt/parallax_bg_1-0-960w.webp' %}"
           imagesrcset="{% static 'hr_core/images/backgrounds/bg_opt/parallax_bg_1-0-960w.webp' %} 960w, {% static 'hr_core/images/backgrounds/bg_opt/parallax_bg_1-0-1920w.webp' %} 1920w"
           imagesizes="100vw"
           fetchpriority="high">
@@ -29,12 +29,11 @@
 
     <script>document.documentElement.classList.add("prepaint");</script>
 
-
-    {# Favicons are served by Django staticfiles (NOT Vite manifest) #}
-    <link rel="icon" type="image/svg+xml" href="{% static 'icons/favicon.svg' %}">
-    <link rel="icon" type="image/png" sizes="96x96" href="{% static 'icons/favicon-96x96.png' %}">
-    <link rel="apple-touch-icon" href="{% static 'icons/apple-touch-icon.png' %}">
-    <link rel="manifest" href="{% static 'icons/site.webmanifest' %}">
+    <link rel="icon" href="{% static 'icons/favicon-16.png' %}" sizes="16x16" type="image/png">
+    <link rel="icon" href="{% static 'icons/favicon-32.png' %}" sizes="32x32" type="image/png">
+    <link rel="icon" href="{% static 'icons/favicon-48.png' %}" sizes="48x48" type="image/png">
+    <link rel="icon" href="{% static 'icons/apple-touch-icon.png' %}" sizes="180x180" type="image/png">
+    <link rel="icon" href="{% static 'icons/favicon.ico' %}" type="text/html">
 
     {% if debug|default:False %}
         {% vite_hmr_client %}
@@ -53,59 +52,58 @@
     <span id="global-message-content"></span>
 </div>
 
-{# ---- Intro Overlay (New) ---- #}
 <div id="intro-overlay" class="intro-overlay">
     <div class="intro-container">
-        {# Base logo with circle #}
+
         <div class="intro-logo-stack">
 
             <svg class="intro-logo-base" viewBox="0 0 200 200" aria-label="Hella Reptilian" style="opacity: 0.35;">
-                {# Circle border #}
+                {# Circle Border #}
                 <circle cx="100" cy="100" r="92" fill="none" stroke="currentColor" stroke-width="2.5"/>
 
-                {# H letter - left vertical bar and crossbar #}
+                {# Base H Strokes #}
                 <rect x="59" y="60" width="8" height="70" fill="currentColor"/>
                 <rect x="59" y="90" width="43" height="8" fill="currentColor"/>
 
-                {# Shared center vertical stroke (right side of H, left side of R, aligned with !) #}
+                {# Base Crossbar #}
                 <rect x="94" y="60" width="8" height="70" fill="currentColor"/>
 
-                {# R letter - curved top and diagonal leg (shares the center vertical) #}
+                {# Base R Strokes #}
                 <path d="M98,63 L118,63 Q138,63 138,80 Q138,94 118,94 L98,94 Z" fill="black" stroke-width="9"/>
                 <path d="M102,94 L140,130" stroke="currentColor" stroke-width="8" stroke-linecap="butt" stroke-linejoin="bevel"/>
 
-                {# Exclamation mark - vertical stroke (aligned with shared center stroke) and dot #}
+                {# Base Exclamation Tittle #}
                 <rect x="94" y="60" width="8" height="70" rx="2" fill="currentColor"/>
                 <circle cx="98" cy="145" r="6" fill="currentColor"/>
             </svg>
 
-            {# Highlight layer for H (left vertical + crossbar only) #}
+            {# Highlight H Strokes #}
             <svg class="intro-logo-highlight intro-logo-highlight-h" viewBox="0 0 200 200" aria-hidden="true">
                 <circle cx="100" cy="100" r="92" fill="none" stroke="transparent" stroke-width="2.5"/>
                 <rect x="59" y="60" width="8" height="70" fill="currentColor"/>
                 <rect x="59" y="90" width="43" height="8" fill="currentColor"/>
             </svg>
 
-            {# Highlight layer for shared center vertical (used by H, R, and !) #}
+            {# Highlight Crossbar #}
             <svg class="intro-logo-highlight intro-logo-highlight-center" viewBox="0 0 200 200" aria-hidden="true">
                 <circle cx="100" cy="100" r="92" fill="none" stroke="transparent" stroke-width="2.5"/>
                 <rect x="94" y="60" width="8" height="70" fill="currentColor"/>
             </svg>
 
-            {# Highlight layer for R (curved top + diagonal leg only, shares center vertical with H) #}
+            {# Highlight R Strokes #}
             <svg class="intro-logo-highlight intro-logo-highlight-r" viewBox="0 0 200 200" aria-hidden="true">
                 <circle cx="100" cy="100" r="92" fill="none" stroke="transparent" stroke-width="2.5"/>
                 <path d="M98,63 L118,63 Q138,63 138,80 Q138,94 118,94 L98,94 Z" fill="black" stroke-width="9"/>
                 <path d="M102,94 L140,130" stroke="currentColor" stroke-width="8" stroke-linecap="butt" stroke-linejoin="miter"/>
             </svg>
 
-            {# Highlight layer for exclamation stroke (aligned with shared center vertical) #}
+            {# Highlight Exclamation Crossbar#}
             <svg class="intro-logo-highlight intro-logo-highlight-stroke" viewBox="0 0 200 200" aria-hidden="true">
                 <circle cx="100" cy="100" r="92" fill="none" stroke="transparent" stroke-width="2.5"/>
                 <rect x="94" y="60" width="8" height="70" rx="2" fill="currentColor"/>
             </svg>
 
-            {# Highlight layer for exclamation dot (centered with shared vertical) #}
+            {# Highlight Exclamation Tittle #}
             <svg class="intro-logo-highlight intro-logo-highlight-dot" viewBox="0 0 200 200" aria-hidden="true">
                 <circle cx="100" cy="100" r="92" fill="none" stroke="transparent" stroke-width="2.5"/>
                 <circle cx="98" cy="145" r="6" fill="currentColor"/>
@@ -125,7 +123,8 @@
                 id="nav-open-btn"
                 type="button"
                 data-drawer-target="drawer-navigation"
-                data-drawer-show="drawer-navigation">
+                data-drawer-show="drawer-navigation"
+                aria-label="Open sidebar menu">
             <i class="fa-solid fa-bars"></i>
         </button>
     </div>
@@ -142,10 +141,10 @@
         <aside id="sidebar-access"
                hx-get="{% url 'hr_access:account_get_sidebar_panel' %}"
                hx-trigger="load, accessChanged from:body"
-               hx-swap="innerHTML">
+               hx-swap="innerHTML transition:true">
         </aside>
 
-        <iframe src="https://bandcamp.com/EmbeddedPlayer/album=1766078263/size=large/bgcol=333333/linkcol=4ec5ec/tracklist=false/transparent=true/"
+        <iframe data-src="https://bandcamp.com/EmbeddedPlayer/album=1766078263/size=large/bgcol=333333/linkcol=4ec5ec/tracklist=false/transparent=true/"
                 class="bc-embed"
                 width="360"
                 height="480"
@@ -161,7 +160,7 @@
             style="visibility: hidden;"
             class="prehide floating-cart-btn {% if cart_item_count|default:0 <= 0 %}is-hidden{% endif %}"
             type="button"
-            aria-label="Open cart"
+            aria-label="View Cart"
             hx-get="{% url 'hr_shop:checkout_resume' %}"
             hx-target="#modal-content"
             hx-swap="innerHTML transition:true">
@@ -192,7 +191,6 @@
          hx-swap="innerHTML transition:true">
     </div>
 
-    {# ---- page-specific scripts hook ---- #}
     {% block extra_scripts %}{% endblock %}
 
     {% if debug|default:False %}

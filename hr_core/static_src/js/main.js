@@ -42,7 +42,6 @@ async function loadNonCriticalAssets () {
         import('../css/noncritical.css'),
         import('./meta-init.js'),
         import('./modules/account.js'),
-        import('./modules/banner.js'),
         import('./modules/events.js'),
         import('./modules/neon-sequencer.js'),
         import('./modules/scroll-effects.js'),
