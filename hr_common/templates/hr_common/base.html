@@ -39,9 +39,20 @@
         {% vite_hmr_client %}
     {% endif %}
 
-    {% vite_asset 'css/critical.css' %}
+    {# Critical CSS — loads immediately, blocks render intentionally #}
+    <link rel="stylesheet" href="{% vite_asset_url 'css/critical.css' %}">
+
+    {# JS bundle #}
     {% vite_asset 'js/main.js' %}
-    {% vite_asset 'css/noncritical.css' %}
+
+    {# Noncritical CSS — deferred #}
+    <link rel="stylesheet"
+          href="{% vite_asset_url 'css/noncritical.css' %}"
+          media="print"
+          onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="{% vite_asset_url 'css/noncritical.css' %}">
+    </noscript>
 
     {% block extra_head %}{% endblock %}
 </head>
