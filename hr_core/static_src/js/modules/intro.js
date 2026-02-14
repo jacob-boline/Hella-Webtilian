@@ -3,6 +3,8 @@
 (function () {
     'use strict';
 
+    const INTRO_BOOT_FLAG = '__hrIntroInitialized';
+
     // ===========================
     // Configuration & Timing
     // ===========================
@@ -310,12 +312,18 @@
     // ===========================
 
     function initIntro () {
+        if (window[INTRO_BOOT_FLAG]) {
+            return;
+        }
+
         // Get DOM references
         overlay = document.getElementById('intro-overlay');
         if (!overlay) {
             // console.warn('[intro] #intro-overlay not found, skipping intro');
             return;
         }
+
+        window[INTRO_BOOT_FLAG] = true;
         overlay.classList.add('ready');
 
         logoBase = overlay.querySelector('.intro-logo-base');
