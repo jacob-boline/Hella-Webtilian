@@ -47,7 +47,11 @@ export default defineConfig(({mode}) => {
             outDir: path.resolve(webRoot, "hr_core/static/hr_core/dist"),
             emptyOutDir: true,
             rollupOptions: {
-                input: { main: path.resolve(srcRoot, "js/main.js") }
+                input: {
+                    main: path.resolve(srcRoot, "js/main.js"),
+                    critical: path.resolve(srcRoot, "css/critical.css"),
+                    noncritical: path.resolve(srcRoot, "css/noncritical.css"),
+                }
             }
         }
     };
