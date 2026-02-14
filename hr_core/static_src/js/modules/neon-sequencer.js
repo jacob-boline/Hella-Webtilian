@@ -102,5 +102,5 @@
     }
 
     document.addEventListener("hr:prepaintCleared", () => initAllNeonActs());
-    document.addEventListener('htmx:afterSwap', (evt) => initAllNeonActs(evt.target));
+     document.addEventListener('htmx:afterSwap', (evt) => initAllNeonActs(evt.target));
 })();

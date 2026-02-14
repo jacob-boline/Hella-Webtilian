@@ -42,7 +42,6 @@ function initUnclaimedOrders (root = document) {
         syncSelectAll();
     });
 
-    // optional: keep state correct if rows removed by animation
     const mo = new MutationObserver(syncSelectAll);
     mo.observe(list, {childList: true, subtree: true});
 
