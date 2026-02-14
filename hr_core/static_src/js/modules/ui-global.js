@@ -248,8 +248,8 @@
                 // Delay load of BC player until the sidebar is first opened
                 const bandcamp = drawer.querySelector('iframe[data-src]');
                 if (bandcamp) {
-                    bc.src = bc.dataset.src;
-                    delete bc.dataset.src;
+                    bandcamp.src = bandcamp.dataset.src;
+                    delete bandcamp.dataset.src;
                 }
 
                 const isMobile = window.matchMedia("(max-width: 767.98px)").matches;
