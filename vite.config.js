@@ -8,10 +8,10 @@ export default defineConfig(({mode}) => {
 
     const webRoot = path.resolve(__dirname); // /home/app/web in the container
     const srcRoot = path.resolve(webRoot, "hr_core/static_src");
-    const staticRoot  = path.resolve(webRoot, "hr_core/static");   // 👈 ADD THIS
-    const nodeModules = path.resolve(webRoot, "node_modules"); // where npm install puts deps
+    const staticRoot  = path.resolve(webRoot, "hr_core/static");
+    const nodeModules = path.resolve(webRoot, "node_modules");
 
-    // Tunnel support (optional)
+
     const publicHost = process.env.VITE_PUBLIC_HOST || "";
     const usingTunnel = isDev && !!publicHost;
 
@@ -23,7 +23,7 @@ export default defineConfig(({mode}) => {
 
     // When the page is served by Django/Nginx (e.g. :8080) but CSS/JS come from Vite (:5173),
     // any CSS url("/static/...") requests will hit Vite. Proxy them back to the app server.
-    // Override VITE_BACKEND_ORIGIN if your backend isn't reachable at localhost from the Vite process/container.
+    // Override VITE_BACKEND_ORIGIN if backend isn't reachable at localhost from the Vite process/container.
     const backendOrigin = process.env.VITE_BACKEND_ORIGIN || "http://localhost:8080";
 
     return {

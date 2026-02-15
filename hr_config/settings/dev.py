@@ -43,9 +43,18 @@ else:
 
 ENABLE_MEDIA_JOBS = True
 
-STORAGES["staticfiles"] = {
-    "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-}
+
+# Static files: match prod behaviour (CompressedManifestStaticFilesStorage from base.py).
+# collectstatic + npm run build are run in entrypoint.dev.sh before the server starts.
+# Nginx serves /static/ from the staticfiles/ volume, just like prod.
+#
+# NOTE: if you need Vite HMR while working on frontend assets, temporarily:
+#   1. Re-enable the `vite` service in docker-compose.dev.yml
+#   2. Set DJANGO_VITE_DEV_MODE=1 in dev.env
+#   3. Uncomment the two lines below:
+# STORAGES["staticfiles"] = {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}
+# WHITENOISE_USE_FINDERS = True
+
 
 # ===============================================
 #  Network
@@ -71,7 +80,6 @@ MIDDLEWARE.append('hr_core.middleware.media_cache.MediaCacheMiddleware')
 
 TEMPLATES[0]["OPTIONS"]["context_processors"].append('hr_common.context_processors.template_flags')
 
-WHITENOISE_USE_FINDERS = True
 
 # ===============================================
 #  Debug Toolbar

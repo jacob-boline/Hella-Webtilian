@@ -44,6 +44,15 @@ wait_for_redis() {
 wait_for_db
 wait_for_redis
 
+# Build Vite assets (prod-like: compile JS/CSS bundles + manifest.json)
+echo "Building Vite assets..."
+npm run build
+
+# Collect static files into staticfiles/ so nginx can serve them
+echo "Collecting static files..."
+python manage.py collectstatic --noinput --clear
+
+
 echo "========================================="
 echo "Container dependencies ready; starting main process..."
 echo "========================================="

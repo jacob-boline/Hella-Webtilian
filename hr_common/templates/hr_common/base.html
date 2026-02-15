@@ -14,12 +14,13 @@
 
     <title>{% block title %}Hella Reptilian{% endblock %}</title>
 
-    <link rel="preload"
-          as="image"
-          href="{% static 'hr_core/images/backgrounds/bg_opt/parallax_bg_1-0-1920w.webp' %}"
-          imagesrcset="{% static 'hr_core/images/backgrounds/bg_opt/parallax_bg_1-0-960w.webp' %} 960w, {% static 'hr_core/images/backgrounds/bg_opt/parallax_bg_1-0-1920w.webp' %} 1920w"
-          imagesizes="100vw"
-          fetchpriority="high">
+<link rel="preload"
+      as="image"
+      href="{% static 'hr_core/images/backgrounds/bg_opt/parallax_bg_1-0-1920w.webp' %}"
+      imagesrcset="{% static 'hr_core/images/backgrounds/bg_opt/parallax_bg_1-0-960w.webp' %} 960w,
+                   {% static 'hr_core/images/backgrounds/bg_opt/parallax_bg_1-0-1920w.webp' %} 1920w"
+      imagesizes="100vw"
+      fetchpriority="high">
 
 
     <link rel="preload"

@@ -102,8 +102,9 @@ services:
       DB_HOST: db
       DB_PORT: 5432
       DATABASE_URL: postgres://hruser:devpassword@db:5432/hella_reptilian_dev
-      COLLECTSTATIC: false
+      COLLECTSTATIC: "true"
       IN_DOCKER: 1
+      DJANGO_VITE_DEV_MODE: 0
       VIRTUAL_ENV: /opt/venv
       UV_PROJECT_ENVIRONMENT: /opt/venv
       PATH: /opt/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -135,40 +136,53 @@ services:
       retries: 30
 
 
-  # ====================== #
-  #         Vite           #
-  # ====================== #
-  vite:
-    image: hella-webtilian-dev
-    build:
-      context: .
-      dockerfile: Dockerfile  # Dockerfile is now multistep
-      target: dev
-    container_name: hr_vite_dev
-    command: npm run vite:dev
-    volumes:
-      - ./package-lock.json:/home/app/web/package-lock.json
-      - ./hr_core/static_src:/home/app/web/hr_core/static_src
-      - ./vite.config.js:/home/app/web/vite.config.js
-      - ./package.json:/home/app/web/package.json
-      - ./hr_core/static:/home/app/web/hr_core/static
-    env_file:
-      - hr_config/env/dev.env
-    ports:
-      - "5173:5173"
-    environment:
-      NODE_ENV: development
-      IN_DOCKER: 1
-      VITE_PUBLIC_HOST: ""
-      VITE_DEV_HOST: '0.0.0.0'
-      VITE_HMR_HOST: 'localhost'
-      VITE_HMR_CLIENT_PORT: 5173
-      VITE_DEV_ORIGIN: 'http://localhost:5173'
-    #      VITE_HMR_HOST: 192.168.0.84
-    #      VITE_HMR_CLIENT_PORT: 5173
-    #      VITE_DEV_ORIGIN: http://192.168.0.84:5173
-    networks:
-      - hr_network_dev
+    # ====================== #
+    #         Vite           #
+    #                        #
+    # Vite now runs as a     #
+    # build step in          #
+    # entrypoint.dev.sh      #
+    # (matches prod).        #
+    #                        #
+    # To restore HMR during  #
+    # active frontend work:  #
+    #  1. Uncomment below    #
+    #  2. Set                #
+    #     DJANGO_VITE_DEV_   #
+    #     MODE=1 in web env  #
+    #  3. In dev.py uncomment#
+    #     StaticFilesStorage  #
+    #     + USE_FINDERS lines #
+    # ====================== #
+    # vite:
+    #   image: hella-webtilian-dev
+    #   build:
+    #     context: .
+    #     dockerfile: Dockerfile
+    #     target: dev
+    #   container_name: hr_vite_dev
+    #   command: npm run vite:dev
+    #   volumes:
+    #     - ./package-lock.json:/home/app/web/package-lock.json
+    #     - ./hr_core/static_src:/home/app/web/hr_core/static_src
+    #     - ./vite.config.js:/home/app/web/vite.config.js
+    #     - ./package.json:/home/app/web/package.json
+    #     - ./hr_core/static:/home/app/web/hr_core/static
+    #   env_file:
+    #     - hr_config/env/dev.env
+    #   ports:
+    #     - "5173:5173"
+    #   environment:
+    #     NODE_ENV: development
+    #     IN_DOCKER: 1
+    #     VITE_PUBLIC_HOST: ""
+    #     VITE_DEV_HOST: '0.0.0.0'
+    #     VITE_HMR_HOST: 'localhost'
+    #     VITE_HMR_CLIENT_PORT: 5173
+    #     VITE_DEV_ORIGIN: 'http://localhost:5173'
+    #   networks:
+    #     - hr_network_dev
+
 
   # ====================== #
   #       RQ Worker        #
@@ -242,6 +256,7 @@ services:
     container_name: hr_nginx_dev
     volumes:
       - ./media:/home/app/web/media:ro
+      - static_volume_dev:/home/app/web/staticfiles:ro
       - nginx_logs_dev:/var/log/nginx
       - ./docker/nginx/nginx.dev.conf:/etc/nginx/conf.d/nginx.conf:ro
     ports:
