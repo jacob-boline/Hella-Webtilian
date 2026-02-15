@@ -896,8 +896,7 @@ def checkout_resume(request):
     # Validate draft is still usable
     # -------------------------------------------------------------------------
     if draft and not draft.is_valid():
-        log_event(logger, logging.INFO, "checkout.resume.invalid_draft",
-                  customer_id=customer.id, draft_id=draft.id)
+        log_event(logger, logging.INFO, "checkout.resume.invalid_draft", customer_id=customer.id, draft_id=draft.id)
         resp = _render_cart_modal(request)
         if guest_token:
             resp.delete_cookie("guest_checkout_token")
@@ -978,7 +977,7 @@ def checkout_resume(request):
             message="Please confirm your email to continue.",
             rate_limited=False,
             sent_at=None,
-            error=False,
+            error=False
         )
 
     return _render_checkout_review(request, ctx=ctx)
@@ -1275,7 +1274,6 @@ def checkout_create_order(request):
     log_event(logger, logging.INFO, "checkout.order.create.created",
               order_id=order.id, customer_id=customer.id, draft_id=draft.id if draft else None, item_count=len(items), total=str(order.total))
 
-    # pay_url = reverse("hr_shop:checkout_pay", args=[int(order.id)])
     return reverse('hr_shop:checkout_pay', args=[order.id])
 
 

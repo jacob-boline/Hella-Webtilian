@@ -1,23 +1,26 @@
 // hr_core/static_src/js/main.js
 
-import feather from "feather-icons";
-import * as htmx from "htmx.org";
+import feather from 'feather-icons';
+import * as htmx from 'htmx.org';
 import "../css/critical.css";
 import './modules/intro.js';
 import './modules/ui-global.js';
-
-import './utils/core-utils.js';
 import './utils/globals.js';
 import './utils/htmx-csrf.js';
+import {renderIcons} from './utils/icons.js';
 import {initVhFix} from './utils/vh-fix.js';
 
 window.htmx = htmx?.default ?? htmx;
 
+document.addEventListener('DOMContentLoaded', () => {
+    renderIcons(document);
+});
+
 function removePrepaintAfterFirstFrame () {
     requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-            document.documentElement.classList.remove("prepaint");
-            document.dispatchEvent(new Event("hr:prepaintCleared"));
+            document.documentElement.classList.remove('prepaint');
+            document.dispatchEvent(new Event('hr:prepaintCleared'));
         });
     });
 }
@@ -30,7 +33,7 @@ function deferUntilAfterFirstPaint (fn) {
 
 deferUntilAfterFirstPaint(initVhFix);
 
-window.addEventListener("DOMContentLoaded", () => feather.replace());
+window.addEventListener('DOMContentLoaded', () => feather.replace());
 
 let nonCriticalBooted = false;
 

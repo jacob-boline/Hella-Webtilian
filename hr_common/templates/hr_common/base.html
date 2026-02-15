@@ -16,6 +16,7 @@
 
     <link rel="preload"
           as="image"
+          href="{% static 'hr_core/images/backgrounds/bg_opt/parallax_bg_1-0-1920w.webp' %}"
           imagesrcset="{% static 'hr_core/images/backgrounds/bg_opt/parallax_bg_1-0-960w.webp' %} 960w, {% static 'hr_core/images/backgrounds/bg_opt/parallax_bg_1-0-1920w.webp' %} 1920w"
           imagesizes="100vw"
           fetchpriority="high">
@@ -33,19 +34,19 @@
     <link rel="icon" href="{% static 'icons/favicon-32.png' %}" sizes="32x32" type="image/png">
     <link rel="icon" href="{% static 'icons/favicon-48.png' %}" sizes="48x48" type="image/png">
     <link rel="icon" href="{% static 'icons/apple-touch-icon.png' %}" sizes="180x180" type="image/png">
-    <link rel="icon" href="{% static 'icons/favicon.ico' %}" type="text/html">
+    <link rel="icon" href="{% static 'icons/favicon.ico' %}" type="image/x-icon">
 
     {% if debug|default:False %}
         {% vite_hmr_client %}
     {% endif %}
 
-    {# Critical CSS — loads immediately, blocks render intentionally #}
+    {# Critical CSS - loads immediately, blocks render intentionally #}
     <link rel="stylesheet" href="{% vite_asset_url 'css/critical.css' %}">
 
     {# JS bundle #}
     {% vite_asset 'js/main.js' %}
 
-    {# Noncritical CSS — deferred #}
+    {# Noncritical CSS - Deferred, loaded w/ media="print" to not block initial render. Switched to media="all" on load to apply noncritical styles after first paint. #}
     <link rel="stylesheet"
           href="{% vite_asset_url 'css/noncritical.css' %}"
           media="print"
@@ -192,6 +193,7 @@
             <div id="modal-content" hx-swap="innerHTML transition:true"></div>
         </div>
     </div>
+
 
     {% block content %}{% endblock %}
 

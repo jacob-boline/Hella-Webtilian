@@ -10,7 +10,7 @@ const bc = ('BroadcastChannel' in window) ? new BroadcastChannel(CHANNEL_NAME) :
 function whenHtmxReady (cb) {
     if (typeof cb !== 'function') return;
 
-    // Fast path: already present
+    // Fast path: htmx is already present
     if (window.htmx) {
         Promise.resolve().then(cb);
         return;

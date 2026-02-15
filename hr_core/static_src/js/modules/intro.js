@@ -17,8 +17,6 @@
         hold:                                      750,
         introYield:      { start: 2400, duration: 1500 },  // lockIn.start + lockIn.duration + hold
         total:                    3900,                    // introYield.start + introYield.duration,
-        // hintIdleDelay:            6000,
-        // hintNudgeDuration:                         500
     };
 
     // ===========================
@@ -30,7 +28,6 @@
         timeouts: [],
         startTime: null,
         skipRequested: false,
-        // hintNudgeTriggered: false,
         interactionDetected: false
     };
 
@@ -46,7 +43,6 @@
     let highlightStroke = null;
     let highlightDot = null;
     let introName = null;
-    // let scrollHint = null;
 
     // ===========================
     // Utilities
@@ -81,7 +77,6 @@
             const syne = document.fonts.load('400 1em "Syne Mono"');
             const edu  = document.fonts.load('400 1em "Edu SA Beginner"');
 
-            // Optional: once loaded, mark as ready (if you want to flip CSS later)
             Promise.allSettled([syne, edu]).then(() => {
                 document.documentElement.classList.add("fonts-belowfold-ready");
             });
@@ -181,7 +176,6 @@
     function completeIntro () {
         STATE.phase = 'complete';
         overlay.classList.add('complete');
-        // showScrollHint();
         removeSkipListeners();
     }
 
@@ -310,10 +304,9 @@
     // ===========================
 
     function initIntro () {
-        // Get DOM references
         overlay = document.getElementById('intro-overlay');
         if (!overlay) {
-            // console.warn('[intro] #intro-overlay not found, skipping intro');
+            console.warn('[intro] #intro-overlay not found, skipping intro');
             return;
         }
         overlay.classList.add('ready');
@@ -325,10 +318,9 @@
         highlightStroke = overlay.querySelector('.intro-logo-highlight-stroke');
         highlightDot = overlay.querySelector('.intro-logo-highlight-dot');
         introName = overlay.querySelector('.intro-name');
-        // scrollHint = overlay.querySelector('.intro-scroll-hint');
 
         if (!logoBase || !introName) {
-            // console.warn('[intro] Required elements not found, skipping intro');
+            console.warn('[intro] Required elements not found, skipping intro');
             overlay.classList.add('complete');
             return;
         }

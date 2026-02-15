@@ -4,12 +4,11 @@
 
 {% load static shop_tags shop_images responsive_images %}
 
-{% block title %}Hella Reptilian — Home{% endblock %}
+{% block title %}Hella Reptilian!{% endblock %}
 
 {% block content %}
 
-{#    <div id="section-wipe-0" class="section-wipe z-20 absolute"></div>#}
-
+    {# SHOWS #}
     <section id="parallax-section-shows" class="parallax-section relative flex items-center justify-center min-h-vhfix">
         <div class="parallax-background absolute inset-0 bg-cover bg-center"></div>
         <div class="parallax-content relative isolate z-10 mx-auto max-w-6xl px-5 py-vh-18 text-center flex flex-col items-center justify-center min-h-vhfix bg-transparent">
@@ -27,8 +26,10 @@
         </div>
     </section>
 
+    {# FIRST WIPE #}
     <div id="section-wipe-1" class="section-wipe z-20 absolute"></div>
 
+    {# MERCH #}
     <section id="parallax-section-merch" class="parallax-section merch-section relative flex items-center justify-center min-h-vhfix">
         <div class="parallax-background absolute inset-0 bg-cover bg-center"></div>
         <div class="parallax-content relative isolate z-10 mx-auto max-w-6xl px-5 py-vh-18 text-center flex flex-col items-center justify-center min-h-vhfix bg-transparent">
@@ -63,8 +64,8 @@
                                          class="merch-thumb-img">
                                 {% endif %}
                             </button>
-                            <div class="merch-body">
 
+                            <div class="merch-body">
 
                                 <div class="merch-meta">
                                     <h3 class="merch-title">{{ product.name }}</h3>
@@ -77,7 +78,7 @@
                                             hx-get="{% url 'hr_shop:get_product_modal_partial' product_slug=product.slug %}"
                                             hx-target="#modal-content"
                                             hx-swap="innerHTML transition:true">
-                                        <i class="fas fa-circle-info"></i> Details
+                                        <i class="fa-solid fa-circle-info"></i> Details
                                     </button>
 
                                     <button class="card-btn btn-neon btn-green btn-sm"
@@ -85,7 +86,7 @@
                                             hx-post="{% url 'hr_shop:add_to_cart' variant_slug=display_variant.slug %}"
                                             hx-vals='{"quantity": 1}'
                                             hx-swap="none">
-                                        <i class="fas fa-cart-plus"></i> Add to cart
+                                        <i class="fa-solid fa-cart-plus"></i> Add to cart
                                     </button>
                                 </div>
                             </div>
@@ -98,8 +99,10 @@
         </div>
     </section>
 
+    {# SECOND WIPE #}
     <div id="section-wipe-2" class="section-wipe z-20 absolute"></div>
 
+    {# ABOUT #}
     <section id="parallax-section-about" class="parallax-section relative flex items-center justify-center min-h-vhfix">
         <div class="parallax-background absolute inset-0 bg-cover bg-center"></div>
 
@@ -133,8 +136,11 @@
         </div>
     </section>
 
+    {# THIRD WIPE #}
     <div id="section-wipe-3" class="section-wipe z-20 absolute"></div>
 
+
+    {# BULLETIN #}
     <section id="parallax-section-bulletin"
              class="parallax-section parallax-sticky-bg relative min-h-vhfix">
         <div class="parallax-background bg-cover bg-center"></div>
@@ -145,10 +151,10 @@
             <div id="bulletin-root" class="bulletin-root">
                 <p class="bulletin-loading">Loading posts...</p>
 
-                <!-- where posts get appended -->
+                {# Posts are loaded into here #}
                 <div id="bulletin-feed"></div>
 
-                <!-- sentinel stays forever -->
+                {# Sentinel to load next page #}
                 <div id="bulletin-sentinel"
                      class="bulletin-sentinel"
                      hx-get="{% url 'hr_bulletin:bulletin_list_partial' %}?page=1"

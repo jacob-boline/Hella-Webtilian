@@ -1,28 +1,30 @@
 // hr_core/static_src/js/modules/auto-advance.js
 
-/**
- * Auto-advance utility:
- * Finds nodes with [data-hr-auto-advance] and schedules a delayed HTMX swap.
+/*
+ *  Auto-advance utility:
+ *  Finds nodes with [data-hr-auto-advance] and schedules a delayed HTMX swap.
  *
- * Generic enough to reuse in other modal states:
- * - delayed transitions (success -> next step)
- * - soft redirects inside modal
+ *  Generic enough to reuse in other modal states:
+ *  - delayed transitions (success -> next step)
+ *  - soft redirects inside modal
  *
- * Cancellation:
- * - By default cancels if user interacts inside the closest modal content area.
+ *  Cancellation:
+ *  - By default cancels if user interacts inside the closest modal content area.
  */
 
 function parseList (val) {
     if (!val) return [];
     return String(val)
         .split(',')
-        .map(s => s.trim())
+        .map((s) => s.trim())
         .filter(Boolean);
 }
 
 function isModalOpen () {
     const modal = document.getElementById('modal');
-    return !!modal && !modal.classList.contains('hidden') && modal.getAttribute('aria-hidden') !== 'true';
+    return (
+        !!modal && !modal.classList.contains('hidden') && modal.getAttribute('aria-hidden') !== 'true'
+    );
 }
 
 function defaultTargetEl (selector) {
@@ -44,7 +46,11 @@ export function initAutoAdvance (root = document) {
         const nextUrl = node.getAttribute('data-next-url');
         const targetSel = node.getAttribute('data-target') || '#modal-content';
         const swap = node.getAttribute('data-swap') || 'innerHTML';
-        const cancelOn = parseList(node.getAttribute('data-cancel-on')) || ['click', 'keydown', 'submit'];
+        const cancelOn = parseList(node.getAttribute('data-cancel-on')) || [
+            'click',
+            'keydown',
+            'submit',
+        ];
 
         if (!nextUrl || delayMs <= 0) return;
 
@@ -83,7 +89,7 @@ export function initAutoAdvance (root = document) {
             }
 
             // Perform the swap
-            window.htmx.ajax('GET', nextUrl, {
+            window.htmx.ajax('get', nextUrl, {
                 target: targetSel,
                 swap,
             });

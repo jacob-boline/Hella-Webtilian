@@ -5,7 +5,7 @@
 <div class="checkout-session-expired flex-col-center">
 
     <div class="expired-icon">
-        <i class="fas fa-clock"></i>
+        <i class="fa-solid fa-clock"></i>
     </div>
 
     <h2 class="checkout-title">Session Expired</h2>
@@ -21,7 +21,7 @@
                 hx-get="{% url 'hr_shop:checkout_details' %}"
                 hx-target="#modal-content"
                 hx-swap="innerHTML transition:true">
-            <i class="fas fa-redo"></i> Start Again
+            <i class="fa-solid fa-redo"></i> Start Again
         </button>
 
         <button type="button"
@@ -29,7 +29,7 @@
                 hx-get="{% url 'hr_shop:view_cart' %}"
                 hx-target="#modal-content"
                 hx-swap="innerHTML transition:true">
-            <i class="fas fa-shopping-cart"></i> View Cart
+            <i class="fa-solid fa-shopping-cart"></i> View Cart
         </button>
     </div>
 </div>

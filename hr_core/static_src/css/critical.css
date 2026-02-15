@@ -1,5 +1,6 @@
 /* hr_core/static_src/css/critical.css */
-@import './intro.css';
+
+@import "./sections/intro.css";
 @import './base/core.css';
 @import './base/parallax.css';
 @import './generated/responsive_backgrounds.css';

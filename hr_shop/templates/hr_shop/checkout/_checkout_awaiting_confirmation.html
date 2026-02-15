@@ -14,11 +14,11 @@
 
     <div class="confirmation-icon">
         {% if rate_limited %}
-            <i class="fas fa-exclamation-triangle"></i>
+            <i class="fa-solid fa-exclamation-triangle"></i>
         {% elif error %}
-            <i class="fas fa-times-circle"></i>
+            <i class="fa-solid fa-times-circle"></i>
         {% else %}
-            <i class="fas fa-envelope"></i>
+            <i class="fa-solid fa-envelope"></i>
         {% endif %}
     </div>
 
@@ -48,10 +48,10 @@
                     hx-indicator="#resend-spinner"
                     hx-disabled-elt="this">
                 <span class="htmx-indicator" id="resend-spinner">
-                    <i class="fas fa-spinner fa-spin"></i>
+                    <i class="fa-solid fa-spinner fa-spin"></i>
                 </span>
                 <span class="btn-text">
-                    <i class="fas fa-redo"></i>
+                    <i class="fa-solid fa-redo"></i>
                     Resend Email
                 </span>
             </button>
@@ -62,7 +62,7 @@
                 hx-get="{% url 'hr_shop:checkout_details' %}"
                 hx-target="#modal-content"
                 hx-swap="innerHTML">
-            <i class="fas fa-edit"></i> Change Email
+            <i class="fa-solid fa-edit"></i> Change Email
         </button>
     </div>
 

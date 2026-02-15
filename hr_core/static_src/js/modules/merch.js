@@ -1,6 +1,6 @@
 // hr_core/static_src/js/modules/merch.js
 
-export function initMerch(root = document) {
+export function initMerch (root = document) {
     // One-time init for global delegated listeners
     if (document.body._merchInitDone) return;
     document.body._merchInitDone = true;
@@ -20,13 +20,12 @@ export function initMerch(root = document) {
         if (thumb) thumb.classList.add('is-active');
     });
 
-    function openModal() {
+    function openModal () {
         const modal = document.getElementById('modal');
         if (!modal) return;
         modal.classList.remove('hidden');
     }
 
-    // When HTMX swaps the modal content in:
     document.addEventListener('htmx:afterSwap', (event) => {
         const detail = event.detail;
         if (!detail || !detail.target) return;

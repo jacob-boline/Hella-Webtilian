@@ -10,13 +10,12 @@
     let lastIntent = null;
     let pendingIntent = null;
     let _authRequiredLockUntil = 0;
-    // let modalMsgTimer = null;
 
     function safeCall (fn, ...args) {
         try {
             return typeof fn === 'function' ? fn(...args) : undefined;
         } catch (e) {
-            // console.error('[events] handler error', e);
+            console.error('[events] handler error', e);
             return undefined;
         }
     }
@@ -49,7 +48,7 @@
 
         const elt = d.elt;
         const targetSel = elt?.getAttribute('hx-target') || elt?.dataset?.hxTarget || null;
-        const swap = (elt?.getAttribute('hx-swap') || elt?.dataset?.hxSwap || null);
+        const swap = elt?.getAttribute('hx-swap') || elt?.dataset?.hxSwap || null;
 
         return {
             verb: (d.verb || 'GET').toUpperCase(),
@@ -57,7 +56,7 @@
             parameters: d.parameters || {},
             headers: d.headers || {},
             target: targetSel || null,
-            swap: swap || null
+            swap: swap || null,
         };
     }
 
@@ -69,10 +68,7 @@
 
         // Avoiding doubling actions such as payments for now by restricting this to GET/HEAD 401s
         if (!['GET', 'HEAD'].includes(intent.verb)) {
-            safeCall(window.hrSite?.showGlobalMessage,
-                'Signed in. Please retry your last action.',
-                5000
-            );
+            safeCall(window.hrSite?.showGlobalMessage, 'Signed in. Please retry your last action.', 5000);
             return;
         }
 
@@ -83,7 +79,7 @@
         // Re-run the request
         window.htmx.ajax(intent.verb, intent.path, {
             ...opts,
-            values: intent.parameters
+            values: intent.parameters,
         });
     }
 
@@ -96,7 +92,6 @@
             requestAnimationFrame(replayPendingIntent);
         });
     });
-
 
     // -----------------------------------------------------------------
     //   0) Global HTMX 401 handler -> authRequired
@@ -115,10 +110,9 @@
         triggerAuthRequired({
             message: 'Please sign in.',
             open_drawer: true,
-            focus: '#id_username'
+            focus: '#id_username',
         });
     });
-
 
     document.body.addEventListener('htmx:configRequest', (event) => {
         const intent = buildIntentFromHtmxConfig(event);
@@ -130,7 +124,6 @@
         // rolling 'last intent' for debugging
         lastIntent = intent;
     });
-
 
     // ------------------------------
     // 0b) authRequired -> close modal, open drawer, focus username
@@ -144,9 +137,7 @@
         const detail = getDetail(event);
 
         // 1) Message
-        const msg =
-            (typeof detail === 'string' ? detail : null) ||
-            detail.message || detail.text || '';
+        const msg = (typeof detail === 'string' ? detail : null) || detail.message || detail.text || '';
 
         if (msg) safeCall(window.hrSite?.showGlobalMessage, msg, detail.duration || 5000);
 
@@ -173,8 +164,7 @@
             if (shouldAvoidStealingFocus()) return;
 
             const el =
-                document.querySelector(selector) ||
-                document.getElementById(selector.replace(/^#/, ''));
+                document.querySelector(selector) || document.getElementById(selector.replace(/^#/, ''));
 
             if (el && typeof el.focus === 'function') el.focus();
         };
@@ -183,7 +173,6 @@
             requestAnimationFrame(focusNow);
         });
     });
-
 
     // ------------------------------
     // 1) showMessage -> global message bar
@@ -195,13 +184,12 @@
 
         const text =
             (typeof detail === 'string' ? detail : '') ||
-            (detail && typeof detail === 'object' ? (detail.message || detail.text || '') : '');
+            (detail && typeof detail === 'object' ? detail.message || detail.text || '' : '');
 
         if (!text) return;
 
         safeCall(window.hrSite?.showGlobalMessage, text, duration);
     });
-
 
     document.body.addEventListener('loadModal', (e) => {
         const d = e.detail;
@@ -228,9 +216,7 @@
         loader.setAttribute('hx-get', url);
         h.process(loader);
         h.trigger(loader, 'hr:loadModal');
-
     });
-
 
     // ------------------------------
     // 2) closeModal -> close modal only
@@ -238,7 +224,6 @@
     document.body.addEventListener('closeModal', () => {
         safeCall(window.hrSite?.hideModal);
     });
-
 
     // ------------------------------
     // 3) unclaimedOrdersClaimed -> highlight claimed rows, then slide/fade out
@@ -256,51 +241,51 @@
         if (!ids.size) return;
 
         const rows = Array.from(document.querySelectorAll('.order-claim-row'));
-        const matched = rows.filter(row => {
+        const matched = rows.filter((row) => {
             const box = row.querySelector('input[name="order_ids"]');
             return box && ids.has(String(box.value));
         });
 
         if (!matched.length) return;
 
-        // Beat timings tuned for "confirm then vanish"
-        const HIGHLIGHT_MS = 900;   // 0.9s highlight before fading
-        const FADE_MS = 240;        // should roughly match CSS transition time
-        const REMOVE_MS = 260;      // buffer to ensure collapse completes
+        const HIGHLIGHT_MS = 900;
+        const FADE_MS = 240;
+        const REMOVE_MS = 260;
 
         // 1) Mark claimed (color)
-        matched.forEach(row => row.classList.add('is-claimed'));
+        matched.forEach((row) => row.classList.add('is-claimed'));
 
         // 2) Fade/slide
-        setTimeout(() => {
-            matched.forEach(row => row.classList.add('is-vanishing'));
+        setTimeout(
+            () => {
+                matched.forEach((row) => row.classList.add('is-vanishing'));
 
-            // 3) Collapse + remove
-            setTimeout(() => {
-                matched.forEach(row => {
-                    row.classList.add('is-collapsing');
+                // 3) Collapse + remove
+                setTimeout(
+                    () => {
+                        matched.forEach((row) => {
+                            row.classList.add('is-collapsing');
 
-                    // animate max-height from current height -> 0
-                    row.style.maxHeight = row.scrollHeight + 'px';
-                    // force reflow so maxHeight is applied before collapsing
-                    row.offsetHeight;
-                    row.style.maxHeight = '0px';
-                });
+                            // animate max-height from current height -> 0
+                            row.style.maxHeight = row.scrollHeight + 'px';
+                            // force reflow so maxHeight is applied before collapsing
+                            row.offsetHeight;
+                            row.style.maxHeight = '0px';
+                        });
 
-                setTimeout(() => {
-                    matched.forEach(row => row.remove());
+                        setTimeout(() => {
+                            matched.forEach((row) => row.remove());
 
-                    const selectAll = document.getElementById('select-all-unclaimed');
-                    if (selectAll) selectAll.checked = false;
-
-
-                }, REMOVE_MS);
-
-            }, Math.max(FADE_MS, 0));
-
-        }, Math.max(HIGHLIGHT_MS, 0));
+                            const selectAll = document.getElementById('select-all-unclaimed');
+                            if (selectAll) selectAll.checked = false;
+                        }, REMOVE_MS);
+                    },
+                    Math.max(FADE_MS, 0)
+                );
+            },
+            Math.max(HIGHLIGHT_MS, 0)
+        );
     });
-
 
     // ------------------------------
     // 4) updateCart -> badge count(s)
@@ -313,40 +298,38 @@
         if (floatingBadge) floatingBadge.textContent = String(count);
     });
 
-
     // ------------------------------
     // 5) variantPreviewUpdated -> update modal image/price/buy button
     // ------------------------------
 
     function normalizeToBaseVariantUrl (url) {
-        const u = String(url || "");
-        if (!u) return "";
+        const u = String(url || '');
+        if (!u) return '';
 
         // strip query
-        const q = u.indexOf("?");
+        const q = u.indexOf('?');
         const noQuery = q >= 0 ? u.slice(0, q) : u;
 
         // If it's already a variants URL (with or without opt_webp/opt_web)
-        if (noQuery.includes("/media/variants/")) {
+        if (noQuery.includes('/media/variants/')) {
             // remove extension and size suffix
-            const noExt = noQuery.replace(/\.(webp|png|jpg|jpeg)$/i, "");
-            const noSize = noExt.replace(/-\d+w$/i, "");
+            const noExt = noQuery.replace(/\.(webp|png|jpg|jpeg)$/i, '');
+            const noSize = noExt.replace(/-\d+w$/i, '');
 
             // If it already contains /opt_webp/ or /opt_web/, normalize to opt_webp
-            if (noSize.includes("/opt_webp/")) return noSize;
-            if (noSize.includes("/opt_web/")) return noSize.replace("/opt_web/", "/opt_webp/");
+            if (noSize.includes('/opt_webp/')) return noSize;
+            if (noSize.includes('/opt_web/')) return noSize.replace('/opt_web/', '/opt_webp/');
 
             // If it's missing the folder entirely, insert it:
             // /media/variants/Foo  -> /media/variants/opt_webp/Foo
-            return noSize.replace("/media/variants/", "/media/variants/opt_webp/");
+            return noSize.replace('/media/variants/', '/media/variants/opt_webp/');
         }
 
         // Otherwise derive from filename stem
-        const filename = noQuery.split("/").pop() || "";
-        const stem = filename.replace(/\.(webp|png|jpg|jpeg)$/i, "");
+        const filename = noQuery.split('/').pop() || '';
+        const stem = filename.replace(/\.(webp|png|jpg|jpeg)$/i, '');
         return `/media/variants/opt_webp/${stem}`;
     }
-
 
     function makeSrc (base, size) {
         return `${base}-${size}w.webp`;
@@ -357,17 +340,17 @@
             `${makeSrc(base, 256)} 256w`,
             `${makeSrc(base, 512)} 512w`,
             `${makeSrc(base, 768)} 768w`,
-        ].join(", ");
+        ].join(', ');
     }
 
-    document.body.addEventListener("variantPreviewUpdated", (event) => {
+    document.body.addEventListener('variantPreviewUpdated', (event) => {
         const detail = getDetail(event);
         if (!detail?.image_url) return;
 
-        const modal = document.querySelector(".modal-product");
+        const modal = document.querySelector('.modal-product');
         if (!modal) return;
 
-        const imgEl = modal.querySelector(".modal-image");
+        const imgEl = modal.querySelector('.modal-image');
         const priceEl = modal.querySelector('[data-role="modal-price"]');
         const buyBtn = modal.querySelector('[data-role="buy-selected-variant"]');
 
@@ -375,23 +358,20 @@
             const base = normalizeToBaseVariantUrl(detail.image_url);
             imgEl.srcset = makeSrcset(base);
             imgEl.src = makeSrc(base, 768); // fallback
-            imgEl.sizes = "(max-width: 640px) 92vw, (max-width: 1024px) 70vw, 900px";
+            imgEl.sizes = '(max-width: 640px) 92vw, (max-width: 1024px) 70vw, 900px';
         }
 
         if (priceEl && detail.price) priceEl.textContent = `$${detail.price}`;
 
         if (buyBtn && detail.variant_slug) {
-            buyBtn.setAttribute("hx-post", `/shop/cart/add/${detail.variant_slug}/`);
-            buyBtn.setAttribute("hx-swap", "none");
+            buyBtn.setAttribute('hx-post', `/shop/cart/add/${detail.variant_slug}/`);
+            buyBtn.setAttribute('hx-swap', 'none');
             if (window.htmx) window.htmx.process(buyBtn);
         }
     });
 
-
     // ------------------------------
-    // 6) accessChanged -> refresh sidebar access panel (optional)
-    // Requires an element like:
-    //   <div id="sidebar-access" data-access-url="/access/sidebar/"></div>
+    // 6) accessChanged -> refresh sidebar access panel
     // ------------------------------
     document.body.addEventListener('accessChanged', () => {
         const el = document.getElementById('sidebar-access');
@@ -408,5 +388,4 @@
 
         window.htmx.ajax('GET', url, {target: '#sidebar-access', swap: 'innerHTML transition:true'});
     });
-
 })();

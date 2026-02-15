@@ -1,6 +1,7 @@
 // hr_core/static_src/js/modules/bulletin.js
 
 export function initBulletin () {
+    // idempotency
     if (document.body._bulletinInitDone) return;
     document.body._bulletinInitDone = true;
 
@@ -46,8 +47,8 @@ export function initBulletin () {
     });
 
     // Initialize tag overflow detection
-    function checkTagOverflow() {
-        document.querySelectorAll('.bulletin-tags').forEach(tagsContainer => {
+    function checkTagOverflow () {
+        document.querySelectorAll('.bulletin-tags').forEach((tagsContainer) => {
             // Skip if already processed
             if (tagsContainer.dataset.overflowChecked === 'true') return;
 
@@ -72,25 +73,25 @@ export function initBulletin () {
     // Run on load and after new content is added
     checkTagOverflow();
 
-    document.body.addEventListener("htmx:afterSwap", (e) => {
+    document.body.addEventListener('htmx:afterSwap', (e) => {
         // Reset overflow check flags for new content
         const target = e.detail?.target;
         if (target) {
-            target.querySelectorAll('.bulletin-tags').forEach(el => {
+            target.querySelectorAll('.bulletin-tags').forEach((el) => {
                 el.dataset.overflowChecked = 'false';
             });
             checkTagOverflow();
         }
     });
 
-    document.body.addEventListener("htmx:afterSwap", (e) => {
+    document.body.addEventListener('htmx:afterSwap', (e) => {
         const target = e.detail?.target || e.target;
         if (!target) return;
 
         // If anything swapped into the feed, kill the loading message
-        if (target.id === "bulletin-feed") {
-            const root = document.getElementById("bulletin-root");
-            const loading = root?.querySelector(".bulletin-loading");
+        if (target.id === 'bulletin-feed') {
+            const root = document.getElementById('bulletin-root');
+            const loading = root?.querySelector('.bulletin-loading');
             if (loading) loading.remove();
 
             requestAnimationFrame(() => {
@@ -99,12 +100,10 @@ export function initBulletin () {
         }
     });
 
-    document.body.addEventListener("htmx:afterSwap", (e) => {
+    document.body.addEventListener('htmx:afterSwap', (e) => {
         const target = e.detail?.target;
-        if (!target || target.id !== "bulletin-feed") return;
+        if (!target || target.id !== 'bulletin-feed') return;
 
         requestAnimationFrame(() => window.hrSite?.reflowParallax?.());
     });
-
 }
-

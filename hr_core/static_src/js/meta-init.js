@@ -41,8 +41,6 @@ function settleParallaxAndWipe () {
     requestAnimationFrame(() => {
         requestAnimationFrame(() => {
             window.hrSite.reflowParallax();
-
-            // If wipe/parallax state is scroll-driven, this ensures a recompute
             window.dispatchEvent(new Event('scroll'));
         });
     });
@@ -133,6 +131,7 @@ document.addEventListener('htmx:afterSettle', (e) => {
 | HX-Trigger: {"initModules":{"modules":["textModule"],"reflow":false}}
 |--------------------------------------------------------------------------
 */
+
 document.body.addEventListener('initModules', (e) => {
     const detail = e.detail || {};
     const mods = detail.modules || detail.module || detail;
@@ -141,7 +140,7 @@ document.body.addEventListener('initModules', (e) => {
     list.forEach((name) => {
         const fn = MODULES[name];
         if (!fn) {
-            // console.warn('[meta-init] unknown module:', name);
+            console.warn('[meta-init] unknown module:', name);
             return;
         }
         fn(document);

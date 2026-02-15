@@ -1,4 +1,5 @@
 # hr_config/structlog_config.py
+
 from __future__ import annotations
 
 import os

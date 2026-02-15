@@ -203,8 +203,7 @@ import {applyStitchedLetters, wrapDateTimeChars} from "./ui-text.js";
             });
         }
 
-        // Cache section "document top" so we don't call getBoundingClientRect()
-        // on every animation frame during scroll.
+        // Cache section "document top"
         function computeSectionData () {
             STATE.sectionData.clear();
             parallaxSections.forEach((section) => {
@@ -305,7 +304,6 @@ import {applyStitchedLetters, wrapDateTimeChars} from "./ui-text.js";
             );
         }
 
-        // -----------------------------
         function clamp (n, min, max) {
             return Math.max(min, Math.min(max, n));
         }
@@ -407,7 +405,7 @@ import {applyStitchedLetters, wrapDateTimeChars} from "./ui-text.js";
 
         const reflowDebounced = debounce(reflowParallax, 80);
 
-        // Any image load can shift section tops; reflow wipes/parallax.
+        // reflow wipes/parallax on any image load
         document.addEventListener("load", (e) => {
             const el = e.target;
             if (!el || el.tagName !== "IMG") return;
@@ -415,9 +413,9 @@ import {applyStitchedLetters, wrapDateTimeChars} from "./ui-text.js";
             reflowDebounced();
         }, true);
 
-        // -----------------------------
-        // Init sequence (preserve order)
-        // -----------------------------
+        // --------------
+        // Init sequence
+        // --------------
         wrapDateTimeChars(document);
         applyStitchedLetters(document, "#parallax-section-1 .act-name");
 
@@ -439,14 +437,12 @@ import {applyStitchedLetters, wrapDateTimeChars} from "./ui-text.js";
 
         markFrameDirty();
 
-        // -----------------------------
-        // Event wiring (preserve behavior)
-        // -----------------------------
+        // ------------
+        // Event wiring
+        // -------------
         window.addEventListener("scroll", onScroll, {passive: true});
-
         window.addEventListener("resize", reflowDebounced);
         window.addEventListener("orientationchange", reflowDebounced);
-        // window.visualViewport?.addEventListener("resize", reflowDebounced);
         window.visualViewport?.addEventListener("resize", () => {
           // record the new vh, but don't force layout while scrolling
           const live = defaultGetVH();

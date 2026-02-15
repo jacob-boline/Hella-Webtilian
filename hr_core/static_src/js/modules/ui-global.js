@@ -3,7 +3,7 @@
 (function () {
     function initGlobalUI () {
 
-        // idempotency
+        // GUARD - double init
         window.hrSite = window.hrSite || {};
         if (window.hrSite.__globalUiInitialized) return;
         window.hrSite.__globalUiInitialized = true;
@@ -372,6 +372,7 @@
         if (!tryBootstrapLandingModal()) {
             document.addEventListener("htmx:load", () => tryBootstrapLandingModal(), {once: true});
         }
+
 
         initDrawer();
 

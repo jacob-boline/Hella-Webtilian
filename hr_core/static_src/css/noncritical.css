@@ -1,6 +1,5 @@
 /* hr_core/static_src/css/noncritical.css */
 
-@import '@fortawesome/fontawesome-free/css/all.min.css';
 @import './sections/about.css';
 @import './sections/bulletin.css';
 @import './sections/merch.css';
