@@ -1,4 +1,5 @@
 # hr_config/settings/vite.py
+
 import os
 from pathlib import Path
 

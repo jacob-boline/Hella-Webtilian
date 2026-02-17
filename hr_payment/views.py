@@ -14,7 +14,7 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
-from hr_common.security.secrets import read_secret
+from hr_common.security import secrets
 from hr_common.utils.http.htmx import hx_trigger
 from hr_common.utils.unified_logging import log_event
 from hr_core.utils.urls import build_external_absolute_url
@@ -80,7 +80,7 @@ def checkout_stripe_session(request, order_id: int):
             header_keys=list(request.headers.keys())
         )
 
-    stripe.api_key = read_secret('STRIPE_SECRET_KEY')
+    stripe.api_key = secrets.read_secret('STRIPE_SECRET_KEY')
 
     order = get_object_or_404(Order, pk=int(order_id))
 
@@ -266,7 +266,7 @@ def checkout_stripe_session(request, order_id: int):
 @csrf_exempt
 @require_POST
 def stripe_webhook(request):
-    stripe.api_key = read_secret('STRIPE_SECRET_KEY')
+    stripe.api_key = secrets.read_secret('STRIPE_SECRET_KEY')
     payload = request.body
     sig_header = request.META.get("HTTP_STRIPE_SIGNATURE", "")
 
@@ -274,7 +274,7 @@ def stripe_webhook(request):
         event = stripe.Webhook.construct_event(
             payload=payload,
             sig_header=sig_header,
-            secret=read_secret('STRIPE_WEBHOOK_SECRET')
+            secret=secrets.read_secret('STRIPE_WEBHOOK_SECRET')
         )
     except stripe.error.SignatureVerificationError:
         log_event(logger, logging.WARNING, "payment.webhook.invalid_signature", signature_present=bool(sig_header))
@@ -380,7 +380,7 @@ def _handle_checkout_session_completed(session: dict) -> None:
 
     order.payment_status = PaymentStatus.PAID
     order.save(update_fields=["stripe_checkout_session_id", "stripe_payment_intent_id", "payment_status", "updated_at"])
-    mark_checkout_draft_used(order)
+    mark_checkout_draft_used(order.id)
 
     attempt = _find_attempt_for_session(session)
     if attempt:
@@ -439,21 +439,28 @@ def _handle_payment_intent_succeeded(pi: dict) -> None:
     order.stripe_payment_intent_id = pid
     order.payment_status = PaymentStatus.PAID
     order.save(update_fields=["stripe_payment_intent_id", "payment_status", "updated_at"])
-    mark_checkout_draft_used(order)
+    mark_checkout_draft_used(order.id)
 
     if attempt and attempt.status != PaymentAttemptStatus.SUCCEEDED:
         attempt.raw = {
-            "id":             pi['id'],
-            "livemode":       pi['livemode'],
-            "amount_total":   pi['amount_total'],
-            "currency":       pi['currency'],
-            "status":         pi['status'],
-            "payment_status": pi['payment_status'],
-            "expires_at":     pi['expires_at'],
-            "customer_email": pi['customer_email'],
-            "ui_mode":        pi['ui_mode'],
-            "return_url":     pi['return_url'],
+            "id":       pi.get("id"),
+            "livemode": pi.get("livemode"),
+            "amount":   pi.get("amount"),
+            "currency": pi.get("currency"),
+            "status":   pi.get("status")
         }
+        # attempt.raw = {
+        #     "id":             pi['id'],
+        #     "livemode":       pi['livemode'],
+        #     "amount_total":   pi['amount_total'],
+        #     "currency":       pi['currency'],
+        #     "status":         pi['status'],
+        #     "payment_status": pi['payment_status'],
+        #     "expires_at":     pi['expires_at'],
+        #     "customer_email": pi['customer_email'],
+        #     "ui_mode":        pi['ui_mode'],
+        #     "return_url":     pi['return_url'],
+        # }
         attempt.save(update_fields=["raw", "updated_at"])
         attempt.mark_final(PaymentAttemptStatus.SUCCEEDED)
 
@@ -475,17 +482,25 @@ def _handle_payment_intent_failed(pi: dict) -> None:
 
     if attempt and attempt.status != PaymentAttemptStatus.SUCCEEDED:
         last_err = pi.get("last_payment_error") or {}
+        # attempt.raw = {
+        #     "id":             pi['id'],
+        #     "livemode":       pi['livemode'],
+        #     "amount_total":   pi['amount_total'],
+        #     "currency":       pi['currency'],
+        #     "status":         pi['status'],
+        #     "payment_status": pi['payment_status'],
+        #     "expires_at":     pi['expires_at'],
+        #     "customer_email": pi['customer_email'],
+        #     "ui_mode":        pi['ui_mode'],
+        #     "return_url":     pi['return_url'],
+        # }
         attempt.raw = {
-            "id":             pi['id'],
-            "livemode":       pi['livemode'],
-            "amount_total":   pi['amount_total'],
-            "currency":       pi['currency'],
-            "status":         pi['status'],
-            "payment_status": pi['payment_status'],
-            "expires_at":     pi['expires_at'],
-            "customer_email": pi['customer_email'],
-            "ui_mode":        pi['ui_mode'],
-            "return_url":     pi['return_url'],
+            "id":                 pi.get("id"),
+            "livemode":           pi.get("livemode"),
+            "amount":             pi.get("amount"),
+            "currency":           pi.get("currency"),
+            "status":             pi.get("status"),
+            "last_payment_error": pi.get("last_payment_error")
         }
         attempt.save(update_fields=["raw", "updated_at"])
         attempt.mark_final(
@@ -511,17 +526,24 @@ def _handle_payment_intent_canceled(pi: dict) -> None:
         order.save(update_fields=["payment_status", "updated_at"])
 
     if attempt and attempt.status not in (PaymentAttemptStatus.SUCCEEDED, PaymentAttemptStatus.FAILED):
+        # attempt.raw = {
+        #     "id":             pi['id'],
+        #     "livemode":       pi['livemode'],
+        #     "amount_total":   pi['amount_total'],
+        #     "currency":       pi['currency'],
+        #     "status":         pi['status'],
+        #     "payment_status": pi['payment_status'],
+        #     "expires_at":     pi['expires_at'],
+        #     "customer_email": pi['customer_email'],
+        #     "ui_mode":        pi['ui_mode'],
+        #     "return_url":     pi['return_url'],
+        # }
         attempt.raw = {
-            "id":             pi['id'],
-            "livemode":       pi['livemode'],
-            "amount_total":   pi['amount_total'],
-            "currency":       pi['currency'],
-            "status":         pi['status'],
-            "payment_status": pi['payment_status'],
-            "expires_at":     pi['expires_at'],
-            "customer_email": pi['customer_email'],
-            "ui_mode":        pi['ui_mode'],
-            "return_url":     pi['return_url'],
+            "id":       pi.get("id"),
+            "livemode": pi.get("livemode"),
+            "amount":   pi.get("amount"),
+            "currency": pi.get("currency"),
+            "status":   pi.get("status"),
         }
 
         attempt.save(update_fields=["raw", "updated_at"])

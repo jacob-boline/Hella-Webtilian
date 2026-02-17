@@ -167,9 +167,9 @@ def get_cart_item_count(request) -> int:
 
 class CartItemNotFoundError(Exception):
     def __init__(self, variant_id, message=None):
-        self.variant = ProductVariant.objects.get(id=variant_id)
-        self.message = message or "Item must be present in the cart before it can be updated. " "Use <cart.add()> first."
+        self.variant_id = variant_id
+        self.message = message or "Item must be present in the cart before it can be updated. Use <cart.add()> first."
         super().__init__(self.message)
 
     def __str__(self):
-        return f"{self.variant} -> {self.message}"
+        return f"variant_id={self.variant_id} -> {self.message}"

@@ -1,4 +1,5 @@
 # hr_core/services/payments/stripe_mock.py
+
 import json
 import logging
 import uuid
@@ -6,14 +7,14 @@ import uuid
 from django.urls import reverse
 
 from hr_common.utils.unified_logging import log_event
-from .base import CheckoutSession, PaymentGateway
+from hr_core.services.payments.base import CheckoutSession, PaymentGateway
 
 logger = logging.getLogger(__name__)
 
 
 class MockGateway(PaymentGateway):
     def __init__(self, signer=None):
-        self.signer = signer  # optional
+        self.signer = signer
 
     def create_checkout_session(self, *, line_items, success_url, cancel_url, customer_email=None, metadata=None):
         session_id = f"fake_cs_{uuid.uuid4().hex[:24]}"

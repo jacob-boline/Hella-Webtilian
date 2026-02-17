@@ -1,8 +1,9 @@
 # hr_core/services/payments/__init__.py
+
 from django.conf import settings
 
-from .stripe_mock import MockGateway
-from .stripe_real import StripeGateway
+from hr_core.services.payments.stripe_mock import MockGateway
+from hr_core.services.payments.stripe_real import StripeGateway
 
 
 def get_gateway():

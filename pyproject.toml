@@ -13,12 +13,15 @@ dependencies = [
     "django-rq>=3.2.2",
     "django-storages[boto3]>=1.14.6",
     "django-vite>=3.1.0",
+    "factory-boy>=3.3.3",
     "gunicorn>=21.2.0",
     "mailjet-rest>=1.5.1",
     "phonenumbers>=9.0.22",
     "pillow>=12.1.0",
     "pip>=26.0.1",
     "psycopg[binary]>=3.3.2",
+    "pytest>=9.0.2",
+    "pytest-django>=4.12.0",
     "pyyaml>=6.0.3",
     "redis>=7.1.0",
     "stripe>=14.2.0",
@@ -38,6 +41,17 @@ dev = [
     "rich>=14.2.0",
     "ruff>=0.14.14",
 ]
+test = [
+    "pytest>=8.0",
+    "pytest-django>=4.9",
+    "factory-boy>=3.3"
+]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "hr_config.settings.dev"
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
 
 [tool.black]
 line-length = 180

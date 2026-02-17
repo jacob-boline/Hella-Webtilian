@@ -374,7 +374,11 @@ nav.navbar {
     position:       absolute;
     inset:          0;
     pointer-events: auto;
-    background:     radial-gradient(circle at top, var(--black-alpha-60), black);
+    background:     radial-gradient(
+                            circle at top,
+                            var(--black-alpha-60),
+                            black
+                    );
     opacity:        0.9;
 }
 

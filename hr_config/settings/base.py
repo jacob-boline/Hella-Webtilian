@@ -5,14 +5,14 @@ import os
 from django.core.management.utils import get_random_secret_key
 from django.urls import reverse_lazy
 
-from hr_common.security.secrets import read_secret
+from hr_common.security import secrets
 from hr_config.settings.common import BASE_DIR
 
 # TODO - In Docker, it will be safer to move SECRET_KEY to the environment.
 #        Otherwise, if the file is recreated below, sessions/tokens = invalid.
 # ENV_SECRET_KEY = (os.getenv("DJANGO_SECRET_KEY") or "").strip()
 
-ENV_SECRET_KEY = (read_secret('DJANGO_SECRET_KEY') or '').strip()
+ENV_SECRET_KEY = (secrets.read_secret('DJANGO_SECRET_KEY') or '').strip()
 
 if ENV_SECRET_KEY:
     SECRET_KEY = ENV_SECRET_KEY

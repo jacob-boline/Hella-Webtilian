@@ -1,12 +1,14 @@
 {# hr_shop/templates/hr_shop/checkout/email_confirmation_success.html #}
+
+
 {% extends "hr_common/base.html" %}
 
 {% block title %}Email Confirmed · Hella Reptilian{% endblock %}
 
 {% block content %}
-  <main class="page-center">
-    <div class="page-panel">
-      {% include "hr_shop/checkout/_email_confirmation_success.html" %}
-    </div>
-  </main>
+    <main class="page-center">
+        <div class="page-panel">
+            {% include "hr_shop/checkout/_email_confirmation_success.html" %}
+        </div>
+    </main>
 {% endblock %}

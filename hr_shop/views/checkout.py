@@ -22,7 +22,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
 
 from hr_common.models import Address
-from hr_common.security.secrets import read_secret
+from hr_common.security import secrets
 from hr_common.utils.email import normalize_email
 from hr_common.utils.http.htmx import hx_load_modal, hx_trigger, merge_hx_trigger_after_settle
 from hr_common.utils.unified_logging import log_event
@@ -453,7 +453,7 @@ def _stripe_session_payment_intent_id(session_id: str) -> str | None:
     if not session_id:
         return None
 
-    stripe.api_key = read_secret('STRIPE_SECRET_KEY')
+    stripe.api_key = secrets.read_secret('STRIPE_SECRET_KEY')
 
     try:
         sess = stripe.checkout.Session.retrieve(session_id)
@@ -478,7 +478,7 @@ def _stripe_session_result(session_id: str | None) -> tuple[str, str | None, str
     if not session_id:
         return StripePaymentOutcome(StripePaymentResult.UNKNOWN, "Missing checkout session id for this order.", "missing_session_id").as_tuple()
 
-    stripe.api_key = read_secret('STRIPE_SECRET_KEY')
+    stripe.api_key = secrets.read_secret('STRIPE_SECRET_KEY')
 
     InvalidRequestError   = stripe.error.InvalidRequestError
     AuthenticationError   = stripe.error.AuthenticationError
@@ -1312,7 +1312,7 @@ def checkout_pay(request, order_id: int):
 
         return render(request, "hr_shop/checkout/_checkout_pay.html", {
             "order":                  order,
-            "stripe_publishable_key": read_secret('STRIPE_PUBLIC_KEY'),
+            "stripe_publishable_key": secrets.read_secret('STRIPE_PUBLIC_KEY'),
             "client_secret":          "",
             "checkout_ctx_token":     ""
         })
@@ -1346,7 +1346,7 @@ def checkout_pay(request, order_id: int):
 
             resp = render(request, 'hr_shop/checkout/_checkout_pay.html', {
                 'order': order,
-                'stripe_publishable_key': read_secret('STRIPE_PUBLIC_KEY'),
+                'stripe_publishable_key': secrets.read_secret('STRIPE_PUBLIC_KEY'),
                 'client_secret': '',
                 'checkout_ctx_token': guest_checkout_token
             })
@@ -1380,7 +1380,7 @@ def checkout_pay(request, order_id: int):
 
     resp = render(request, "hr_shop/checkout/_checkout_pay.html", {
         "order":                  order,
-        "stripe_publishable_key": read_secret('STRIPE_PUBLIC_KEY'),
+        "stripe_publishable_key": secrets.read_secret('STRIPE_PUBLIC_KEY'),
         "client_secret":          "",
         "checkout_ctx_token":     checkout_ctx_token
     })

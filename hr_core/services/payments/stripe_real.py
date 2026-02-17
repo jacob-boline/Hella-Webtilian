@@ -5,7 +5,7 @@ import logging
 import stripe
 
 from hr_common.utils.unified_logging import log_event
-from .base import CheckoutSession, PaymentGateway
+from hr_core.services.payments.base import CheckoutSession, PaymentGateway
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ class StripeGateway(PaymentGateway):
             success_url=kw["success_url"],
             cancel_url=kw["cancel_url"],
             customer_email=kw.get("customer_email"),
-            metadata=kw.get("metadata") or {},
+            metadata=kw.get("metadata") or {}
         )
         log_event(logger, logging.INFO,"payments.stripe.checkout_session.created", session_id=sess.id, has_customer_email=bool(kw.get("customer_email")))
         return CheckoutSession(sess.id, sess.url)

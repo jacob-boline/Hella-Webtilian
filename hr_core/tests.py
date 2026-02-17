@@ -36,7 +36,9 @@ class RequestIdMiddlewareTests(SimpleTestCase):
 
 
 class MediaSweepCommandTests(SimpleTestCase):
-    def test_run_now_processes_sources_inline(self):
+
+    @staticmethod
+    def test_run_now_processes_sources_inline():
         with tempfile.TemporaryDirectory() as media_root:
             src_dir = Path(media_root) / "variants"
             src_dir.mkdir(parents=True)
@@ -47,7 +49,7 @@ class MediaSweepCommandTests(SimpleTestCase):
                 src_rel_dir="variants",
                 out_subdir="opt_webp",
                 widths=(256,),
-                crop=CropSpec(1, 1),
+                crop=CropSpec(1, 1)
             )
 
             with override_settings(MEDIA_ROOT=media_root):
@@ -68,7 +70,7 @@ class MediaSweepCommandTests(SimpleTestCase):
                 src_rel_dir="variants",
                 out_subdir="opt_webp",
                 widths=(256,),
-                crop=CropSpec(1, 1),
+                crop=CropSpec(1, 1)
             )
 
             queue = Mock()
@@ -92,7 +94,7 @@ class MediaSweepCommandTests(SimpleTestCase):
                 src_rel_dir="variants",
                 out_subdir="opt_webp",
                 widths=(256,),
-                crop=CropSpec(1, 1),
+                crop=CropSpec(1, 1)
             )
 
             out = StringIO()

@@ -151,10 +151,10 @@
             <div id="bulletin-root" class="bulletin-root">
                 <p class="bulletin-loading">Loading posts...</p>
 
-                {# Posts are loaded into here #}
+                {# Posts load into this #}
                 <div id="bulletin-feed"></div>
 
-                {# Sentinel to load next page #}
+                {# Sentinel to load next #}
                 <div id="bulletin-sentinel"
                      class="bulletin-sentinel"
                      hx-get="{% url 'hr_bulletin:bulletin_list_partial' %}?page=1"

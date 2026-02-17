@@ -23,4 +23,4 @@ docker-compose.dev.yml
 
 /media/
 /hr_core/static/hr_core/dist/
-/docs/test_prompt.txt
+/docs/
