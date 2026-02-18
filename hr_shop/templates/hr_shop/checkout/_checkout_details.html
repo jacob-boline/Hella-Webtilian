@@ -6,13 +6,7 @@
 
     <header class="m-head">
         <h2 class="sub-header modal-title">Checkout Details</h2>
-        {% if form.non_field_errors %}
-            <div class="form-errors">
-                {% for error in form.non_field_errors %}
-                    <p>{{ error }}</p>
-                {% endfor %}
-            </div>
-        {% endif %}
+        {% include 'hr_common/_non_field_errors.html' %}
     </header>
 
     <form

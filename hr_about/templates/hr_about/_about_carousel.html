@@ -10,14 +10,14 @@
                      src="{{ first.image.url|about_img_url:960 }}"
                      srcset="{{ first.image.url|about_img_srcset }}"
                      sizes="(max-width: 640px) 88vw, (max-width: 1024px) 92vw, (max-width: 1600px) 80vw, 1800px"
-                     width="1920"
-                     height="1080"
+                     width="16"
+                     height="9"
                      alt="{{ first.title }}"
                      loading="lazy"
                      decoding="async">
             {% endwith %}
         {% else %}
-            <img class="about-stage-img" width="1920" height="1080" src="" alt="No images available">
+            <img class="about-stage-img" width="16" height="9" src="" alt="No images available">
         {% endif %}
     </figure>
 
@@ -31,10 +31,10 @@
                 <li data-index="{{ forloop.counter0 }}">
                     <button type="button"
                             class="about-thumb{% if forloop.first %} is-active{% endif %}"
-                            data-src="{{ slide.image.url }}"
+                            data-src="{{ slide.image_thumb }}"
                             data-alt="{{ slide.title }}"
                             data-index="{{ forloop.counter0 }}">
-                        <img src="{{ slide.image.url }}" alt="{{ slide.title }}" width="78" height="78">
+                        <img src="{{ slide.image_thumb }}" alt="{{ slide.title }}" width="1" height="1">
                     </button>
                 </li>
             {% endfor %}

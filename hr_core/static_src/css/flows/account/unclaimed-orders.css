@@ -126,7 +126,7 @@
 }
 
 
-@container modal (min-width: 640px) {
+@container modal (min-width: 768px) {
     #modal-content:has(.unclaimed-orders-modal) .unclaimed-orders-modal .modal-actions {
         flex-direction: row;
         gap:            3rem;
@@ -141,7 +141,7 @@
     }
 }
 
-@container modal (max-width: 639.98px) {
+@container modal (max-width: 767.98px) {
     #modal-content:has(.unclaimed-orders-modal) .modal-actions {
         flex-direction: column;
         gap:            0.75rem;

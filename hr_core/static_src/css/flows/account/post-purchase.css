@@ -8,10 +8,26 @@
     width: 100%;
 }
 
+.pp-acct-scss-hr {
+    border-color: var(--white-alpha-45);
+    width: 100%;
+    margin: 0.75rem -2px;
+}
+
+.post-purchase-account .modal-helpbox {
+    margin: 0;
+    padding: 0;
+}
+
 .post-purchase-account .flex-col-center p {
     margin: 1rem 0;
 }
 
 .post-purchase-account input {
     margin-top: 0.5rem;
+}
+
+.post-purchase-account-success .flex-col-center p {
+    margin: 0.25rem 0;
+    text-align: center;
 }

@@ -89,3 +89,4 @@ if USE_S3_MEDIA:
         **STORAGES,
         "default": {"BACKEND": "hr_storage.storage_backends.PublicMediaStorage"}
     }
+

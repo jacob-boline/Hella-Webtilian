@@ -1,10 +1,10 @@
 {# hr_access/templates/hr_access/post_purchase/_post_purchase_account_success.html #}
 
-<div id="post-purchase-account" class="post-purchase-account">
+<div id="post-purchase-account" class="post-purchase-account post-purchase-account-success">
     <div class="flex-col-center">
         <h3 class="modal-title">Account created</h3>
         <p class="text-muted">This order is now linked to your account.</p>
-
+        <hr class="pp-acct-scss-hr"/>
         {% if claimed_count %}
             <p class="text-faint">
                 Claimed {{ claimed_count }} additional order{{ claimed_count|pluralize }}.

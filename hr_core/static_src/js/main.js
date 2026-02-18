@@ -2,7 +2,6 @@
 
 import feather from 'feather-icons';
 import * as htmx from 'htmx.org';
-import "../css/critical.css";
 import './modules/intro.js';
 import './modules/ui-global.js';
 import './utils/globals.js';
@@ -42,7 +41,6 @@ async function loadNonCriticalAssets () {
     nonCriticalBooted = true;
 
     await Promise.all([
-        import('../css/noncritical.css'),
         import('./meta-init.js'),
         import('./modules/account.js'),
         import('./modules/events.js'),

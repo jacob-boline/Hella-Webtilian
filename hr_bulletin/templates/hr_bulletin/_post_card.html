@@ -1,4 +1,5 @@
 {# hr_bulletin/templates/hr_bulletin/_post_card.html #}
+
 {% load responsive_images %}
 
 
@@ -9,8 +10,8 @@
             <img src="{{ post.hero.url|post_hero_url:960 }}"
                  srcset="{{ post.hero.url|post_hero_srcset }}"
                  sizes="(max-width: 768px) calc(100vw - 1.5rem), (max-width: 1000px) calc(100vw - 2rem), 980px"
-                 width="1600"
-                 height="900"
+                 width="16"
+                 height="9"
                  alt="{{ post.title }}"
                  loading="lazy"
                  decoding="async">
@@ -19,7 +20,7 @@
 
     <header class="bulletin-header">
         <h3 class="bulletin-title">
-            <a href="{% url 'hr_bulletin:bulletin_detail' slug=post.slug  %}">
+            <a href="{% url 'hr_bulletin:bulletin_detail' slug=post.slug %}">
                 {{ post.title }}
             </a>
         </h3>
@@ -46,21 +47,22 @@
         {# --- Body preview / full text --- #}
         {% if post.body %}
             <div class="bulletin-body">
+
                 <div class="bulletin-body-inner">
                     {{ post.body|linebreaksbr }}
                 </div>
 
                 {% if post.body|length > 260 %}
-                    <button type="button"
-                            class="bulletin-toggle"
-                            aria-expanded="false">
+                    <button type="button" class="bulletin-toggle" aria-expanded="false">
                         <span class="bulletin-gradient"></span>
                         <span class="bulletin-toggle-label">
                             Read more
                         </span>
                     </button>
                 {% endif %}
+
             </div>
         {% endif %}
+
     </header>
 </article>

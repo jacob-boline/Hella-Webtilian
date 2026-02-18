@@ -52,8 +52,8 @@
                                     <img src="{{ display_image.image.url|variant_img_url:512 }}"
                                          srcset="{{ display_image.image.url|variant_img_srcset }}"
                                          sizes="(max-width: 1440px) 33vw, (max-width: 1024px) 50vw, 100vw"
-                                         width="768"
-                                         height="768"
+                                         width="1"
+                                         height="1"
                                          alt="{{ product.name }}{% if display_variant.name %} ({{ display_variant.name }}){% endif %}"
                                          class="merch-thumb-img"
                                          loading="lazy"
@@ -61,6 +61,8 @@
                                 {% else %}
                                     <img src="{% static 'hr_shop/img/placeholder_2.png' %}"
                                          alt="{{ product.name }}{% if display_variant.name %} ({{ display_variant.name }}){% endif %}"
+                                         width="1"
+                                         height="1"
                                          class="merch-thumb-img">
                                 {% endif %}
                             </button>

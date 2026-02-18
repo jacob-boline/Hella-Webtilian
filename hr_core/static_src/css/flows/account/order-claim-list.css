@@ -52,11 +52,10 @@
 :is(.order-claim-header, .order-claim-row) {
     display:               grid;
     grid-template-columns: 18px
-                           minmax( 6ch, 1.00fr)
+                           minmax( 6ch, 0.75fr)
+                           minmax(24ch, 1.75fr)
                            minmax(12ch, 1.50fr)
-                           minmax( 8ch, 1.25fr)
-                           minmax(10ch, 1.50fr)
-                           minmax(10ch, 1.50fr);
+                           minmax(12ch, 1.25fr);
     gap:                   0.75rem;
     align-items:           center;
     white-space:           nowrap;
