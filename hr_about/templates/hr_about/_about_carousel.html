@@ -31,10 +31,10 @@
                 <li data-index="{{ forloop.counter0 }}">
                     <button type="button"
                             class="about-thumb{% if forloop.first %} is-active{% endif %}"
-                            data-src="{{ slide.image_thumb }}"
+                            data-src="{{ slide.image_thumb.url }}"
                             data-alt="{{ slide.title }}"
                             data-index="{{ forloop.counter0 }}">
-                        <img src="{{ slide.image_thumb }}" alt="{{ slide.title }}" width="1" height="1">
+                        <img src="{{ slide.image_thumb.url }}" alt="{{ slide.title }}" width="1" height="1">
                     </button>
                 </li>
             {% endfor %}

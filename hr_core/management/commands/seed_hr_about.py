@@ -54,7 +54,7 @@ class Command(BaseCommand):
                 return True
             return not ff.storage.exists(ff.name)
         except Exception:
-            # if storage check fails, re-save.
+            # If storage check fails, treat as missing.
             return True
 
     @staticmethod
@@ -64,15 +64,13 @@ class Command(BaseCommand):
         to that prefix.
         """
         k = (key or "").strip().replace("\\", "/").lstrip("/")
-
         if k.startswith("media/"):
             k = k.removeprefix("media/")
-
         return k
 
     def _open_media(self, key: str):
         """
-        Check local MEDIA, if not present check S3
+        Check local MEDIA_ROOT first, otherwise default_storage (e.g. S3).
         Returns an open file-like object or raises FileNotFoundError.
         """
         k = self._normalize_media_key(key)
@@ -85,6 +83,31 @@ class Command(BaseCommand):
             return default_storage.open(k, "rb")
 
         raise FileNotFoundError(f"Media not found (local or storage) for key: {k}")
+
+    def _ensure_slide_image_name(self, slide: CarouselSlide, image_key: str) -> None:
+        """
+        Keep variant filenames stable (stem-based) by enforcing that the DB points to the
+        canonical original name from YAML (e.g. hr_about/amsterdam_2.jpg).
+
+        This does NOT rename any existing objects in storage.
+        It only:
+          1) normalizes slide.image.name to the canonical key
+          2) uploads the canonical object if it's missing
+        """
+        k = self._normalize_media_key(image_key)  # e.g. "hr_about/amsterdam_2.jpg"
+        basename = Path(k).name                   # e.g. "amsterdam_2.jpg"
+        expected_rel = slide.image.field.generate_filename(slide, basename).lstrip("/")
+
+        # 1) Always correct the DB reference (even if current name exists)
+        if slide.image.name != expected_rel:
+            slide.image.name = expected_rel
+            slide.save(update_fields=["image"])
+
+        # 2) Ensure the canonical object exists in storage; upload if missing
+        if not default_storage.exists(expected_rel):
+            with self._open_media(k) as f:
+                # Pass expected_rel as the "image_key" so attach_image_if_missing targets the canonical key.
+                attach_image_if_missing(slide, "image", expected_rel, f)
 
     # ------------------------------------------------------
     # Carousel slides
@@ -113,7 +136,9 @@ class Command(BaseCommand):
 
             image_key = s.get("image_key")
             if not image_key:
-                self.stdout.write(self.style.WARNING(f"      (Slide order {order} missing required 'image_key'; skipping image.)"))
+                self.stdout.write(self.style.WARNING(
+                    f"      (Slide order {order} missing required 'image_key'; skipping image.)"
+                ))
                 image_key = ""
 
             slide, created = CarouselSlide.objects.get_or_create(
@@ -121,8 +146,8 @@ class Command(BaseCommand):
                 defaults={
                     "title": title,
                     "caption": caption,
-                    "is_active": is_active
-                }
+                    "is_active": is_active,
+                },
             )
             if not created:
                 slide.title = title
@@ -130,12 +155,10 @@ class Command(BaseCommand):
                 slide.is_active = is_active
                 slide.save(update_fields=["title", "caption", "is_active"])
 
-            # Attach image if configured and missing from storage
-            if image_key and self._needs_file(slide.image):
+            # Enforce canonical image key in DB so responsive URL stems match existing S3 variants
+            if image_key:
                 try:
-                    normalized_key = self._normalize_media_key(str(image_key))
-                    with self._open_media(normalized_key) as f:
-                        attach_image_if_missing(slide, 'image', normalized_key, f)
+                    self._ensure_slide_image_name(slide, str(image_key))
                 except FileNotFoundError as e:
                     self.stdout.write(self.style.WARNING(f"      ({e} for slide order {order})"))
 
@@ -172,8 +195,8 @@ class Command(BaseCommand):
                 defaults={
                     "text": text,
                     "attribution": attribution,
-                    "is_active": is_active
-                }
+                    "is_active": is_active,
+                },
             )
             if not created:
                 quote.text = text
