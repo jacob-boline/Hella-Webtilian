@@ -1,7 +1,6 @@
 # hr_core/management/commands/seed_data.py
 from pathlib import Path
 
-from django.conf import settings
 from django.core.files import File
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
@@ -73,39 +72,50 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS("✅ All requested seeders completed."))
 
+def _set_field_and_save(instance, field_name: str, field_file, name: str) -> None:
+    if field_file.name == name:
+        return
+
+    field_file.name = name
+    if getattr(instance, "pk", None):
+        instance.save(update_fields=[field_name])
+    else:
+        instance.save()
+
 
 def attach_image_if_missing(instance, field_name: str, image_key: str, opened_file) -> bool:
-    """
-    instance: model instance (e.g. Post)
-    field_name: str name of ImageField on instance (e.g. "hero")
-    key: relative path from MEDIA_ROOT
-    opened_file: file-like object (already open in rb mode)
-
-    Returns True if it wrote/saved a new file, else False.
-    """
     ff = getattr(instance, field_name)
 
     k = (image_key or "").strip().replace("\\", "/").lstrip("/")
     if k.startswith("media/"):
         k = k.removeprefix("media/")
 
-    basename = Path(k).name  # "foo.webp"
+    basename = Path(k).name
+    expected_rel = ff.field.generate_filename(instance, basename).lstrip("/")
 
-    upload_to = (ff.field.upload_to or "").strip("/")
+    try:
+        if ff.storage.exists(expected_rel):
+            _set_field_and_save(instance, field_name, ff, expected_rel)
+            return False
+    except Exception as exc:
+        raise RuntimeError(f"Storage exists() failed for {expected_rel}") from exc
 
-    expected_rel = f"{upload_to}/{basename}" if upload_to else basename  # "posts/hero/foo.webp"
+    try:
+        opened_file.seek(0)
+    except Exception:
+        pass
 
-    # Point to existing image file if found
-    local_path = Path(settings.MEDIA_ROOT) / expected_rel
-    if local_path.exists():
-        if ff.name != expected_rel:
-            ff.name = expected_rel
-            if getattr(instance, 'pk', None):
-                instance.save(update_fields=[field_name])
-            else:
-                instance.save()
-        return False
+    _save = getattr(ff.storage, "_save", None)
+    if not _save:
+        raise RuntimeError("Storage backend does not support _save(); cannot guarantee deterministic names.")
 
-    # Otherwise save
-    ff.save(basename, File(opened_file), save=True)
+    saved_name = _save(expected_rel, File(opened_file))
+
+    if saved_name != expected_rel:
+        raise RuntimeError(
+            f"Storage wrote unexpected key: {saved_name} (expected {expected_rel}). "
+            "Refusing to create suffixed duplicates."
+        )
+
+    _set_field_and_save(instance, field_name, ff, expected_rel)
     return True
