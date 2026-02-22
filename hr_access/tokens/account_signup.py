@@ -1,4 +1,5 @@
 # hr_access/tokens/account_signup.py
+
 from __future__ import annotations
 
 from dataclasses import dataclass

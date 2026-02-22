@@ -37,7 +37,8 @@ def create_post_purchase_account(order: Order, post_data) -> tuple[User, list[Or
             order.save(update_fields=["user", "updated_at"])
 
     other_orders = list(
-        Order.objects.filter(email__iexact=order.email, user__isnull=True)
+        Order.objects
+        .filter(email__iexact=order.email, user__isnull=True)
         .exclude(pk=order.id)
         .order_by("-created_at")[:25]
     )
@@ -46,7 +47,8 @@ def create_post_purchase_account(order: Order, post_data) -> tuple[User, list[Or
 
 def get_post_purchase_unclaimed_orders(email: str, *, exclude_order_id: int) -> list[Order]:
     return list(
-        Order.objects.filter(email__iexact=email, user__isnull=True)
+        Order.objects
+        .filter(email__iexact=email, user__isnull=True)
         .exclude(pk=exclude_order_id)
         .order_by("-created_at")
     )

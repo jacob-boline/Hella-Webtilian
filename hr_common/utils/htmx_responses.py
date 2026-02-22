@@ -22,7 +22,6 @@ Conventions:
 - Non-HTMX fallbacks are intentionally simple until full-page versions exist.
 """
 
-import json
 from functools import wraps
 
 from django.conf import settings
@@ -30,8 +29,10 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.shortcuts import redirect
 
-from hr_common.utils.http.htmx import is_htmx
+from hr_common.utils.http.htmx import hx_trigger, is_htmx
+from hr_common.utils.http.messages import show_message
 
+USERNAME = "#id_username"
 
 def hx_login_required(view):
     @wraps(view)
@@ -41,11 +42,9 @@ def hx_login_required(view):
 
         if is_htmx(request):
             # Explicitely handled here, but *could* just emit the 401 and let the global 401 handler take over
-            resp = HttpResponse(status=401)
-            resp["HX-Trigger"] = json.dumps({"closeModal": None, "authRequired": {"message": "Please sign in.", "focus": "#id_username", "open_drawer": True}})
-            return resp
+            return hx_trigger({"closeModal": None, "authRequired": {"message": "Please sign in.", "focus": USERNAME, "open_drawer": True}}, status=401)
 
-        # Non-HTMX: basically a placeholder until progressive enhancements join the party
+        # Non-HTMX: basically a placeholder full page responses are implemented in the case requests made from outside the site
         return redirect("index")
 
     return _wrapped
@@ -56,16 +55,12 @@ def hx_superuser_required(view):
     def _wrapped(request, *args, **kwargs):
         if not request.user.is_authenticated:
             if is_htmx(request):
-                resp = HttpResponse(status=401)
-                resp["HX-Trigger"] = json.dumps({"closeModal": None, "authRequired": {"message": "Please sign in.", "open_drawer": True, "focus": "#id_username"}})
-                return resp
+                return hx_trigger({"closeModal": None, "authRequired": {"message": "Please sign in.", "open_drawer": True, "focus": USERNAME}}, status=401)
             return redirect("index")
 
         if not request.user.is_superuser:
             if is_htmx(request):
-                resp = HttpResponse(status=403)
-                resp["HX-Trigger"] = json.dumps({"showMessage": "Not authorized."})
-                return resp
+                return hx_trigger({"showMessage": show_message("Not authorized.")}, status=403)
 
             # Non-HTMX: prefer raising PermissionDenied
             # When later implementing progressive enhancements this can probably be handled more cleanly
@@ -94,10 +89,7 @@ def csrf_failure(request, _reason="", **_kwargs):
 
     if likely_session_expired(request):
         msg = "Your session expired. Please sign in again."
-        resp = HttpResponse(status=403)
-        resp["HX-Trigger"] = json.dumps({"showMessage": msg, "closeModal": None, "authRequired": {"message": msg, "open_drawer": True, "focus": "#id_username"}})
-        return resp
+        return hx_trigger({
+            "showMessage": show_message(msg), "closeModal": None, "authRequired": {"message": msg, "open_drawer": True, "focus": USERNAME}}, status=403)
 
-    resp = HttpResponse(status=403)
-    resp["HX-Trigger"] = json.dumps({"showMessage": "Security check failed. Please refresh and try again."})
-    return resp
+    return hx_trigger({"showMessage": show_message("Security check failed. Please refresh and try again.")}, status=403)

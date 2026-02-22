@@ -78,10 +78,10 @@ class AccountAdmin(BaseUserAdmin):
     )
 
     # Add user (single password field)
-    add_fieldsets = ((None, {
+    add_fieldsets = (None, {
         "classes": ("wide",),
         "fields": ("username", "email", "password", "role", "is_active")
-    }))
+    })
 
     # role-derived fields should be read-only to avoid "changed back" confusion
     readonly_fields = ("username_ci", "is_staff", "is_superuser", "groups", "last_login")

@@ -8,7 +8,6 @@ from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.sessions.models import Session
 from django.core.cache import cache
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -27,7 +26,7 @@ from hr_access.tokens.account_signup import generate_account_signup_token, verif
 from hr_access.tokens.email_change import generate_email_change_token, verify_email_change_token
 from hr_common.utils.email import normalize_email
 from hr_common.utils.htmx_responses import hx_login_required
-from hr_common.utils.http.htmx import hx_trigger, merge_hx_trigger_after_settle
+from hr_common.utils.http.htmx import hx_trigger, hx_trigger_bad_request, merge_hx_trigger_after_settle
 from hr_common.utils.http.messages import show_message
 from hr_common.utils.unified_logging import log_event
 from hr_core.utils.urls import build_external_absolute_url
@@ -47,6 +46,10 @@ EMAIL_CHANGE_RATE_LIMIT_MAX_EMAILS = 3
 EMAIL_CHANGE_RATE_LIMIT_WINDOW_SECONDS = 3600
 EMAIL_CHANGE_COUNT_KEY = "account_email_change_count:{user_id}"
 EMAIL_CHANGE_SENT_AT_KEY = "account_email_change_sent_at:{user_id}"
+
+EMAIL_SEND_FAILURE = "Could not send confirmation email. Please try again."
+EMAIL_RATE_LIMITED = "Too many confirmation emails sent. Please check your inbox or try again."
+EMAIL_LINK_INVALID = "Invalid or expired confirmation link."
 
 
 def _increment_signup_email_count(email: str) -> int:
@@ -71,10 +74,10 @@ def send_account_verify_email(request, user: User) -> str:
     Mirrors the checkout confirmation flow (rate limiting + cache tracking)
     """
     if not user.email:
-        raise ValueError("User email is required for signup verification.")  # TODO Review
+        raise ValueError("User email is required for signup verification.")
 
     if not _can_send_signup_email(user.email):
-        raise RateLimitExceeded("Too many confirmation emails sent. Please check your inbox or try again.")  # TODO Review
+        raise RateLimitExceeded(EMAIL_RATE_LIMITED)
 
     token = generate_account_signup_token(user_id=user.id, email=user.email)
 
@@ -93,7 +96,7 @@ def send_account_verify_email(request, user: User) -> str:
         send_app_email(to_emails=[user.email], subject=subject, text_body=text_body, html_body=html_body, custom_id=f"account_signup_confirm_{user.id}")
     except EmailProviderError as exc:
         log_event(logger, logging.ERROR, "access.signup_confirmation.send_failed", email=user.email, error=str(exc))
-        raise EmailSendError("Could not send confirmation email. Please try again.") from exc  # TODO Review
+        raise EmailSendError(EMAIL_SEND_FAILURE) from exc
 
     _increment_signup_email_count(user.email)
     cache.set(SIGNUP_SENT_AT_KEY.format(email=user.email), timezone.now(), timeout=SIGNUP_RATE_LIMIT_WINDOW_SECONDS)
@@ -119,7 +122,7 @@ def _get_last_email_change_sent_at(user_id: int):
 
 def send_email_change_verification(request, user: User, new_email: str) -> str:
     if not _can_send_email_change(user.id):
-        raise RateLimitExceeded("Too many confirmation emails sent. Please try again later.")  # TODO Review
+        raise RateLimitExceeded(EMAIL_RATE_LIMITED)
 
     token = generate_email_change_token(user_id=user.id, new_email=new_email)
 
@@ -139,7 +142,7 @@ def send_email_change_verification(request, user: User, new_email: str) -> str:
         )
     except EmailProviderError as exc:
         log_event(logger, logging.ERROR, "access.email_change_confirmation.send_failed", email=new_email, user_id=user.id, error=str(exc))
-        raise EmailSendError("Could not send confirmation email. Please try again.") from exc  # TODO Review
+        raise EmailSendError(EMAIL_SEND_FAILURE) from exc
 
     _increment_email_change_email_count(user.id)
     cache.set(EMAIL_CHANGE_SENT_AT_KEY.format(user_id=user.id), timezone.now(), timeout=EMAIL_CHANGE_RATE_LIMIT_WINDOW_SECONDS)
@@ -180,7 +183,7 @@ def account_signup(request):
                 "sent_at": _get_last_signup_confirmation_sent_at(user.email),
                 "rate_limited": True,
                 "error": False,
-                "message": "Too many confirmation emails sent. Please check your inbox or try again later."
+                "message": EMAIL_RATE_LIMITED
             }
         except EmailSendError:
             log_event(logger, logging.WARNING, "access.account_signup.email_send_error", user_id=user.id, email=user.email, exc_info=True)
@@ -189,7 +192,7 @@ def account_signup(request):
                 "sent_at": _get_last_signup_confirmation_sent_at(user.email),
                 "rate_limited": False,
                 "error": True,
-                "message": "Could not send confirmation email. Please try again."
+                "message": EMAIL_SEND_FAILURE
             }
         resp = render(request, "hr_access/registration/_signup_check_email.html", context)
         message = context.get("message") or "Check your email to confirm your account."
@@ -205,7 +208,7 @@ def account_signup_confirm(request):
     token = verify_account_signup_token(raw_token)
     if not token:
         log_event(logger, logging.WARNING, "access.signup_confirmation.invalid_token")
-        return HttpResponse("Invalid or expired confirmation link.", status=400)  # TODO HX-Trigger
+        return hx_trigger_bad_request(request, EMAIL_LINK_INVALID)
 
     user = get_object_or_404(User, pk=int(token.user_id))
     log_event(logger, logging.INFO, "access.signup_confirmation.started", user_id=user.id)
@@ -213,11 +216,11 @@ def account_signup_confirm(request):
     # bind token to the intended user + email
     if int(token.user_id) != int(user.id):
         log_event(logger, logging.WARNING, "access.signup_confirmation.user_mismatch", user_id=user.id)
-        return HttpResponse("Invalid confirmation link.", status=400)  # TODO HX-Trigger
+        return hx_trigger_bad_request(request, EMAIL_LINK_INVALID)
 
     if normalize_email(token.email) != user.email:
         log_event(logger, logging.WARNING, "access.signup_confirmation.email_mismatch", user_id=user.id, token_email=token.email, user_email=user.email)
-        return HttpResponse("Invalid confirmation link.", status=400)  # TODO HX-Trigger
+        return hx_trigger_bad_request(request, EMAIL_LINK_INVALID)
 
     if not user.is_active:
         user.is_active = True
@@ -330,21 +333,21 @@ def account_change_email_confirm(request):
     data = verify_email_change_token(token)
     if not data:
         log_event(logger, logging.WARNING, "access.email_change.invalid_token", token_present=bool(token), user_id=user.id)
-        return HttpResponse("Invalid or expired confirmation link.", status=400)  # TODO HX-Trigger
+        return hx_trigger_bad_request(request, EMAIL_LINK_INVALID)
 
     if not user.is_active:
         log_event(logger, logging.WARNING, "access.email_change.user_inactive", user_id=user.id)
-        return HttpResponse("Account is inactive.", status=400)  # TODO HX-Trigger
+        return hx_trigger_bad_request(request, "Account is inactive.")
 
-    if int(data["user_id"]) != int(user.id):
-        log_event(logger, logging.WARNING, "access.email_change.user_mismatch", user_id=user.id, token_user_id=data["user_id"])
-        return HttpResponse("Invalid confirmation link.", status=400)  # TODO HX-Trigger
+    if int(data.user_id) != int(user.id):
+        log_event(logger, logging.WARNING, "access.email_change.user_mismatch", user_id=user.id, token_user_id=data.user_id)
+        return hx_trigger_bad_request(request, EMAIL_LINK_INVALID)
 
-    new_email = normalize_email(data["email"])
+    new_email = normalize_email(data.email)
 
     if User.objects.filter(email__iexact=new_email).exclude(pk=user.id).exists():
         log_event(logger, logging.WARNING, "access.email_change.email_in_use", email=new_email, user_id=user.id)
-        return HttpResponse("This email is already in use.", status=400)  # TODO use HX-Trigger
+        return hx_trigger_bad_request(request, "This email is already in use.")
 
     if user.email != new_email:
         user.email = new_email

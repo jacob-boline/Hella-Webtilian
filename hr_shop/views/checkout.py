@@ -115,7 +115,6 @@ def _restore_checkout_context_from_guest_token(request) -> tuple[dict | None, bo
         return None, True
 
     # Claims are expected to include at least customer_id + draft_id.
-    # (Your generate_guest_checkout_token call sites imply these fields.)
     try:
         customer_id = int(guest_checkout_token.customer_id)
         draft_id = int(guest_checkout_token.draft_id)

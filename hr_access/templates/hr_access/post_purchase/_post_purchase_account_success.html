@@ -20,11 +20,10 @@
                 </ul>
             </div>
 
-            <form
-                    method="post"
-                    hx-post="{% url 'hr_access:account_submit_post_purchase_claim_orders' order.id %}"
-                    hx-target="#post-purchase-account"
-                    hx-swap="outerHTML transition:true">
+            <form method="post"
+                  hx-post="{% url 'hr_access:account_submit_post_purchase_claim_orders' order.id %}"
+                  hx-target="#post-purchase-account"
+                  hx-swap="outerHTML transition:true">
 
                 {% csrf_token %}
 

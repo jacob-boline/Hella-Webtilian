@@ -16,9 +16,7 @@ class Tag(models.Model):
     slug = models.SlugField(max_length=60, unique=True)
 
     class Meta:
-        ordering = [
-            "name",
-        ]
+        ordering = ["name",]
 
     def __str__(self):
         return self.name
@@ -37,17 +35,17 @@ class PublishedManager(models.Manager):
 class Post(models.Model):
     STATUS_CHOICES = [("draft", "Draft"), ("published", "Published")]
 
-    title = models.CharField(max_length=200)
-    slug = models.SlugField(max_length=220, unique=True, blank=True)
-    body = models.TextField()  # HTML or Markdown
-    hero = models.ImageField(upload_to="posts/hero/", blank=True, null=True)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="posts")
+    tags   = models.ManyToManyField(Tag, blank=True, related_name="posts")
+    hero   = models.ImageField(upload_to="posts/hero/", blank=True, null=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="draft")
+    title  = models.CharField(max_length=200)
+    slug   = models.SlugField(max_length=220, unique=True, blank=True)
+    body   = models.TextField()  # HTML or Markdown
     publish_at = models.DateTimeField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(default=timezone.now)
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="posts")
-    pin_until = models.DateTimeField(null=True, blank=True)
-    tags = models.ManyToManyField(Tag, blank=True, related_name="posts")
+    pin_until  = models.DateTimeField(null=True, blank=True)
     allow_comments = models.BooleanField(default=False)
 
     objects = PostManager()
@@ -141,7 +139,6 @@ class Post(models.Model):
         _, ext = os.path.splitext(self.hero.name or "")
         ext = (ext or "").lower() or ".bin"
 
-        # Flat destination to keep your current opt/ layout stable
         relpath = f"posts/hero/{sha}{ext}"
 
         # If it already exists, just point at it

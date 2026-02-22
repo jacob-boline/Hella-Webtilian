@@ -104,7 +104,7 @@ export function initTabHandoff (root = document) {
                 if (el) el.scrollIntoView({behavior: 'smooth', block: 'start'});
             }
 
-            if (msg.payload.modal && msg.payload.url) {
+            if (msg.payload.url) {
                 // Ensure HTMX/DOM are ready-ish before trying
                 whenHtmxReady(() => {
                     tryOpenModal({modalUrl: msg.payload.url});
@@ -134,7 +134,7 @@ export function initTabHandoff (root = document) {
                     if (!opened && window.htmx) {
                         window.htmx.ajax('GET', payload.modalUrl, {
                             target: '#modal-root',
-                            swap: 'innerHTML'
+                            swap: 'innerHTML transition:true'
                         });
                     }
                 }

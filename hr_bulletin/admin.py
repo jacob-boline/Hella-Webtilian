@@ -10,13 +10,7 @@ from hr_bulletin.models import Post, Tag
 class PostAdmin(ModelAdmin):
     list_display = ("id", "title", "slug", "hero", "status", "author", "body", "publish_at", "created_at", "updated_at", "pin_until", "allow_comments")
     list_editable = ("title", "hero", "status", "pin_until", "allow_comments", "body")
-    readonly_fields = (
-        "slug",
-        "author",
-        "publish_at",
-        "created_at",
-        "updated_at",
-    )
+    readonly_fields = ("slug", "author", "publish_at", "created_at", "updated_at")
     list_filter = ("tags", "status", "author")
 
 

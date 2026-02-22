@@ -46,8 +46,7 @@
                 <form id="product-options-form">
                     {% csrf_token %}
 
-                    {# Use existing modal-ui field row helpers so 2-up starts at @container modal (min-width: 600px) #}
-                    <div class="field-row field-row-two-cols">
+                    <div class="field-row">
                         {% for opt in option_types %}
                             <div class="modal-variant-group">
                                 <label for="opt-{{ opt.code }}">{{ opt.name }}</label>
@@ -60,12 +59,12 @@
                                         hx-trigger="change"
                                         hx-include="#product-options-form"
                                         hx-swap="none">
-                                    {% for val in opt.values.all %}
-                                        <option value="{{ val.id }}"
-                                                {% if opt.default_value_id == val.id %}selected{% endif %}>
-                                            {{ val.name }}
-                                        </option>
-                                    {% endfor %}
+                                        {% for val in opt.values.all %}
+                                            <option value="{{ val.id }}"
+                                                    {% if opt.default_value_id == val.id %}selected{% endif %}>
+                                                {{ val.name }}
+                                            </option>
+                                        {% endfor %}
                                 </select>
                             </div>
                         {% endfor %}
@@ -83,7 +82,7 @@
                     {% endif %}
                 </span>
 
-                <button class="card-btn btn-neon btn-green btn-sm"
+                <button class="card-btn btn-neon btn-green"
                         type="button"
                         {% if display_variant %}
                             hx-post="{% url 'hr_shop:add_to_cart' variant_slug=display_variant.slug %}"
@@ -93,7 +92,7 @@
                     <i class="fa-solid fa-cart-plus"></i> Add
                 </button>
 
-                <button class="card-btn btn-neon btn-blue btn-sm" type="button" data-modal-close>
+                <button class="card-btn btn-neon btn-blue" type="button" data-modal-close>
                     Close
                 </button>
             </div>

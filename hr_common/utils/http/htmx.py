@@ -26,6 +26,8 @@ from typing import Any
 
 from django.http import HttpResponse
 
+from hr_common.utils.http.messages import show_message
+
 
 def merge_hx_trigger(resp: HttpResponse, extra: dict) -> HttpResponse:
     existing_raw = resp.get("HX-Trigger")
@@ -69,6 +71,11 @@ def hx_trigger(payload: dict, *, status: int = 204) -> HttpResponse:
     resp = HttpResponse(status=status)
     resp["HX-Trigger"] = json.dumps(payload)
     return resp
+
+def hx_trigger_bad_request(request, text: str) -> HttpResponse:
+    if is_htmx(request):
+        return hx_trigger({"showMessage": show_message(text), "closeModal": None}, status=400)
+    return HttpResponse(text, status=400)
 
 
 def hx_load_modal(url: str, *, after_settle: dict[str, Any] | None = None, status: int = 204) -> HttpResponse:

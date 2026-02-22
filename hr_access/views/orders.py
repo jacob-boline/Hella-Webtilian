@@ -24,7 +24,8 @@ def account_get_orders(request):
     email = request.user.email
 
     base_qs = (
-        Order.objects.filter(user=request.user)
+        Order.objects
+        .filter(user=request.user)
         .select_related("shipping_address", "customer")
         .prefetch_related(
             Prefetch("items", queryset=OrderItem.objects.select_related("variant", "variant__product")))

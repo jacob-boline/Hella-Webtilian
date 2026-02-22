@@ -1,4 +1,5 @@
 # hr_access/tokens/email_change.py
+
 from __future__ import annotations
 
 from dataclasses import dataclass

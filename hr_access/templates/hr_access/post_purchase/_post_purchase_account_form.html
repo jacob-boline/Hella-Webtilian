@@ -10,32 +10,32 @@
                 Your purchase will be listed under Orders in your new account.
             </p>
 
-        <form method="post"
-              class="form"
-              hx-post="{% url 'hr_access:account_submit_post_purchase_create_account' order.id %}"
-              hx-target="#modal-content"
-              hx-swap="innerHTML transition:true">
+            <form method="post"
+                  class="form"
+                  hx-post="{% url 'hr_access:account_submit_post_purchase_create_account' order.id %}"
+                  hx-target="#modal-content"
+                  hx-swap="innerHTML transition:true">
 
-            {% csrf_token %}
+                {% csrf_token %}
 
-            {% include 'hr_common/_non_field_errors.html' %}
+                {% include 'hr_common/_non_field_errors.html' %}
 
-            {# Keep email in the form for validation plumbing, but don’t render it as an input. #}
-            {% if form.email %}
-                {{ form.email.as_hidden }}
-            {% endif %}
+                {# Keep email in the form for validation plumbing, but don’t render it as an input. #}
+                {% if form.email %}
+                    {{ form.email.as_hidden }}
+                {% endif %}
 
-            {% form_group form.username label='Username' %}
-            {% form_group form.password label='Password' %}
+                {% form_group form.username label='Username' %}
+                {% form_group form.password label='Password' %}
 
-            <div class="modal-actions inline uniform grid grid-cols-1 md:grid-cols-2">
-                <button type="submit" class="card-btn btn-neon btn-green btn-small">
-                    Create Account
-                </button>
-                <button type="button" class="card-btn btn-neon btn-blue btn-small" data-modal-close>
-                    Not now
-                </button>
-            </div>
+                <div class="modal-actions inline uniform grid grid-cols-1 md:grid-cols-2">
+                    <button type="submit" class="card-btn btn-neon btn-green btn-small">
+                        Create Account
+                    </button>
+                    <button type="button" class="card-btn btn-neon btn-blue btn-small" data-modal-close>
+                        Not now
+                    </button>
+                </div>
             </form>
         </div>
     </div>

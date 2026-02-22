@@ -1,9 +1,5 @@
 /* hr_core/static_src/css/sections/intro.css */
 
-
-
-
-
 /* ===========================
    Intro Overlay Container
    =========================== */
@@ -157,64 +153,6 @@
     color:     var(--text);
 }
 
-/* ===========================
-   Scroll Hint (Post-Intro)
-/*   =========================== *!*/
-
-/*.intro-scroll-hint {*/
-/*    position:       fixed;*/
-/*    bottom:         8 svh;*/
-/*    left:           50%;*/
-/*    transform:      translateX(-50%);*/
-/*    display:        flex;*/
-/*    flex-direction: column;*/
-/*    align-items:    center;*/
-/*    gap:            0.5rem;*/
-/*    opacity:        0;*/
-/*    transition:     opacity 400ms ease-out;*/
-/*    pointer-events: none;*/
-/*    z-index:        9998;*/
-/*}*/
-
-/*.intro-scroll-hint.visible {*/
-/*    opacity: 1;*/
-/*}*/
-
-/*.intro-scroll-hint.interacted {*/
-/*    opacity: 0;*/
-/*}*/
-
-/*.hint-waveform {*/
-/*    width:       40px;*/
-/*    height:      24px;*/
-/*    color:       darkorange;*/
-/*    fill:        darkorange;*/
-/*    will-change: transform;*/
-/*}*/
-
-/*.intro-scroll-hint.nudge .hint-waveform {*/
-/*    animation: hint-nudge 500ms ease-in-out;*/
-/*}*/
-
-/*@keyframes hint-nudge {*/
-/*    0% {*/
-/*        transform: translateY(0);*/
-/*    }*/
-/*    60% {*/
-/*        transform: translateY(12px);*/
-/*    }*/
-/*    100% {*/
-/*        transform: translateY(0);*/
-/*    }*/
-/*}*/
-
-/*.hint-text {*/
-/*    font-family:    "Quantico", sans-serif;*/
-/*    font-size:      0.875rem;*/
-/*    color:          darkorange;*/
-/*    letter-spacing: 0.05em;*/
-/*    text-transform: uppercase;*/
-/*}*/
 
 /* ===========================
    Reduced Motion Overrides
@@ -238,13 +176,6 @@
         transform:  translateY(0);
     }
 
-/*    .intro-scroll-hint {*/
-/*        transition: none;*/
-/*    }*/
-
-/*    .intro-scroll-hint.nudge .hint-waveform {*/
-/*        animation: none !important;*/
-/*    }*/
 }
 
 /* ===========================
@@ -269,18 +200,6 @@
         height: min(70vw, 280px);
     }
 
-    /*.intro-scroll-hint {*/
-    /*    bottom: 10 svh;*/
-    /*}*/
-
-    /*.hint-waveform {*/
-    /*    width:  48px;*/
-    /*    height: 28px;*/
-    /*}*/
-
-    /*.hint-text {*/
-    /*    font-size: 1rem;*/
-    /*}*/
 }
 
 .intro-name .ch {

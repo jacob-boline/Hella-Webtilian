@@ -21,16 +21,3 @@ def is_site_admin(user) -> bool:
 
     # group membership; Group.DoesNotExist won't be raised here, so no try/except needed
     return user.groups.filter(name="Site admin").exists()
-
-
-#
-# def staff_or_site_admin_required(view_func):
-#     """
-#     Decorator: require authenticated + is_site_admin(user).
-#
-#     Usage:
-#         @staff_or_site_admin_required
-#         def some_view(request):
-#             ...
-#     """
-#     return login_required(user_passes_test(is_site_admin)(view_func))

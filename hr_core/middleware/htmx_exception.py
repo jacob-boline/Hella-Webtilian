@@ -14,14 +14,14 @@ HtmxExceptionMiddleware
 
 from __future__ import annotations
 
-import json
 from collections.abc import Callable
 
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpRequest, HttpResponse
 
 from hr_common.utils.htmx_responses import likely_session_expired
-from hr_common.utils.http.htmx import is_htmx
+from hr_common.utils.http.htmx import hx_trigger, is_htmx
+from hr_common.utils.http.messages import show_message
 
 
 class HtmxExceptionMiddleware:
@@ -33,9 +33,7 @@ class HtmxExceptionMiddleware:
             return self.get_response(request)
         except Http404:
             if is_htmx(request):
-                resp = HttpResponse(status=404)
-                resp["HX-Trigger"] = json.dumps({"showMessage": "Not found.", "closeModal": None})
-                return resp
+                return hx_trigger({"showMessage": show_message("Not found."), "closeModal": None}, status=404)
             raise
 
         except PermissionDenied:
@@ -43,8 +41,5 @@ class HtmxExceptionMiddleware:
                 msg = "Not authorized."
                 if likely_session_expired(request):
                     msg = "Your session may have expired. Please sign in again."
-
-                resp = HttpResponse(status=403)
-                resp["HX-Trigger"] = json.dumps({"showMessage": msg, "closeModal": None})
-                return resp
+                return hx_trigger({"showMessage": show_message(msg), "closeModal": None}, status=403)
             raise

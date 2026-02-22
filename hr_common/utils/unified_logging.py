@@ -30,6 +30,7 @@ from structlog.contextvars import bind_contextvars, unbind_contextvars
 
 REQUEST_ID_HEADER = "X-Request-ID"
 REQUEST_ID_META_KEY = "HTTP_X_REQUEST_ID"
+REDACTED = "**redacted**"
 
 _request_id_var: contextvars.ContextVar[str | None] = contextvars.ContextVar("request_id", default=None)
 
@@ -58,13 +59,13 @@ _SENSITIVE_KEY_PARTS = (
 
 def _safe_email(value: Any) -> Any:
     if not isinstance(value, str):
-        return "**redacted**"
+        return REDACTED
     v = value.strip().lower()
     if "@" not in v:
-        return "**redacted**"
+        return REDACTED
     domain = v.rsplit("@", 1)[-1]
     fp = hashlib.sha256(v.encode("utf-8")).hexdigest()[:12]
-    return f"**redacted** ({domain}, fp={fp}"
+    return f"{REDACTED} ({domain}, fp={fp}"
 
 
 def get_user_id() -> int | None:
