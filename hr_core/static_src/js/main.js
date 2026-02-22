@@ -66,4 +66,22 @@ function scheduleNonCriticalBoot () {
     requestAnimationFrame(() => requestAnimationFrame(start));
 }
 
-scheduleNonCriticalBoot();
+async function bootstrapApp () {
+    const params = new URLSearchParams(window.location.search);
+    const isHandoff = params.has('handoff');
+
+    if (isHandoff) {
+        // Make sure the modal listener is loaded
+        await import('./modules/events.js');
+
+        // this contains initializer for tab-handoff
+        await import ('./meta-init.js');
+
+        scheduleNonCriticalBoot();
+        return;
+    }
+
+    scheduleNonCriticalBoot();
+}
+
+bootstrapApp();
