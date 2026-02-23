@@ -1,6 +1,29 @@
 // hr_core/static_src/js/modules/ui-global.js
 
 (function () {
+
+    let checkoutPayInitPromise = null;
+
+    async function initCheckoutPayIfPresent (target) {
+        const scope = target && target.querySelector ? target : document;
+        const hasCheckoutPayRoot = !!scope.querySelector?.('#checkout-pay-root');
+        if (!hasCheckoutPayRoot) return;
+
+        if (!checkoutPayInitPromise) {
+            checkoutPayInitPromise = import('./checkout.js')
+                .then((mod) => mod?.initCheckoutPay)
+                .catch((error) => {
+                    checkoutPayInitPromise = null;
+                    throw error;
+                });
+        }
+
+        const initCheckoutPay = await checkoutPayInitPromise;
+        if (typeof initCheckoutPay !== 'function') return;
+
+        await initCheckoutPay(scope);
+    }
+
     function initGlobalUI () {
 
         // GUARD - double init
@@ -137,6 +160,10 @@
                 if (!target) return;
                 if (!isModalSwapTarget(target)) return;
                 openModal();
+
+                initCheckoutPayIfPresent(target).catch((error) => {
+                    console.error('checkout-pay lazy init failed', error);
+                });
             });
 
             document.addEventListener("htmx:beforeSwap", (e) => {

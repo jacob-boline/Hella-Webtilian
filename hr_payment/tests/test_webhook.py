@@ -144,6 +144,52 @@ class TestIdempotency:
 # ---------------------------------------------------------------------------
 
 class TestCheckoutSessionCompleted:
+
+    def test_happy_path_sends_initial_receipt_email(self, client, pending_attempt, checkout_draft):
+        """
+        On first transition to PAID, webhook should send the initial receipt email.
+        """
+        order = pending_attempt.order
+        event = make_checkout_session_event(
+            order_id=order.id,
+            attempt_id=pending_attempt.id,
+            session_id=pending_attempt.provider_session_id,
+            payment_intent_id="pi_test_receipt"
+        )
+
+        with patch("hr_payment.views.send_order_receipt_email") as mock_send_receipt:
+            with patch(CONSTRUCT_EVENT, return_value=event):
+                resp = post_webhook(client, event)
+
+        assert resp.status_code == 200
+        mock_send_receipt.assert_called_once()
+        sent_order = mock_send_receipt.call_args.kwargs["order"]
+        assert sent_order.id == order.id
+        assert mock_send_receipt.call_args.kwargs["request"] is None
+
+    def test_does_not_resend_initial_receipt_when_order_already_paid(self, client, pending_attempt, checkout_draft):
+        """
+        A late duplicate success webhook should not send another initial receipt,
+        because the order is already in PAID state.
+        """
+        order = pending_attempt.order
+        order.payment_status = PaymentStatus.PAID
+        order.save(update_fields=["payment_status", "updated_at"])
+
+        event = make_checkout_session_event(
+            order_id=order.id,
+            attempt_id=pending_attempt.id,
+            session_id=pending_attempt.provider_session_id,
+            payment_intent_id="pi_test_receipt_duplicate"
+        )
+
+        with patch("hr_payment.views.send_order_receipt_email") as mock_send_receipt:
+            with patch(CONSTRUCT_EVENT, return_value=event):
+                resp = post_webhook(client, event)
+
+        assert resp.status_code == 200
+        mock_send_receipt.assert_not_called()
+
     def test_happy_path_marks_order_paid(self, client, pending_attempt, checkout_draft):
         """
         The core success path: order moves to PAID, attempt moves to SUCCEEDED,

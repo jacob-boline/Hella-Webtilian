@@ -2,18 +2,29 @@
 
 import feather from 'feather-icons';
 import * as htmx from 'htmx.org';
-import './modules/intro.js';
 import './modules/ui-global.js';
 import './utils/globals.js';
 import './utils/htmx-csrf.js';
 import {renderIcons} from './utils/icons.js';
 import {initVhFix} from './utils/vh-fix.js';
 
+
+let nonCriticalBootPromise = null;
+let coreInteractionModulesPromise = null;
+
 window.htmx = htmx?.default ?? htmx;
 
-document.addEventListener('DOMContentLoaded', () => {
-    renderIcons(document);
-});
+function fireAndForget(makePromise, label = 'async task') {
+    try {
+        Promise.resolve(makePromise()).catch(err => console.error(`[main] ${label} failed`, err));
+    } catch (err) {
+        console.error(`[main] ${label} failed (sync)`, err);
+    }
+}
+
+function deferUntilAfterFirstPaint (fn) {
+    requestAnimationFrame(() => requestAnimationFrame(fn));
+}
 
 function removePrepaintAfterFirstFrame () {
     requestAnimationFrame(() => {
@@ -24,46 +35,47 @@ function removePrepaintAfterFirstFrame () {
     });
 }
 
-removePrepaintAfterFirstFrame();
-
-function deferUntilAfterFirstPaint (fn) {
-    requestAnimationFrame(() => requestAnimationFrame(fn));
+function ensureCoreInteractionModules() {
+    if (!coreInteractionModulesPromise) {
+        coreInteractionModulesPromise = Promise.all([
+            import('./modules/events.js'),
+            import('./meta-init.js')
+        ]).catch((err) => {
+            coreInteractionModulesPromise = null;
+            throw err;
+        });
+    }
+    return coreInteractionModulesPromise;
 }
 
-deferUntilAfterFirstPaint(initVhFix);
+function loadNonCriticalAssets() {
+    if (!nonCriticalBootPromise) {
+        nonCriticalBootPromise = Promise.all([
+            ensureCoreInteractionModules(),
+            import('./modules/account.js'),
+            import('./modules/neon-sequencer.js'),
+            import('./modules/scroll-effects.js'),
+        ]).catch((err) => {
+            nonCriticalBootPromise = null; // allow retry
+            throw err;
+        });
+    }
+    return nonCriticalBootPromise;
+}
 
-window.addEventListener('DOMContentLoaded', () => feather.replace());
-
-let nonCriticalBooted = false;
-
-async function loadNonCriticalAssets () {
-    if (nonCriticalBooted) return;
-    nonCriticalBooted = true;
-
-    await Promise.all([
-        import('./meta-init.js'),
-        import('./modules/account.js'),
-        import('./modules/events.js'),
-        import('./modules/neon-sequencer.js'),
-        import('./modules/scroll-effects.js'),
-    ]);
+/** @param {() => void} task */
+function schedule(task) {
+    if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(task, { timeout: 1200 });
+    } else {
+        setTimeout(() => task(), 200);
+    }
 }
 
 function scheduleNonCriticalBoot () {
-    const start = () => {
-        if ('requestIdleCallback' in window) {
-            window.requestIdleCallback(() => {
-                loadNonCriticalAssets();
-            }, {timeout: 1200});
-            return;
-        }
-
-        setTimeout(() => {
-            loadNonCriticalAssets();
-        }, 200);
-    };
-
-    requestAnimationFrame(() => requestAnimationFrame(start));
+    deferUntilAfterFirstPaint(() =>
+        schedule(() => fireAndForget(() => loadNonCriticalAssets(), 'loadNonCriticalAssets'))
+    );
 }
 
 async function bootstrapApp () {
@@ -71,17 +83,20 @@ async function bootstrapApp () {
     const isHandoff = params.has('handoff');
 
     if (isHandoff) {
-        // Make sure the modal listener is loaded
-        await import('./modules/events.js');
-
-        // this contains initializer for tab-handoff
-        await import ('./meta-init.js');
-
+        await ensureCoreInteractionModules();
         scheduleNonCriticalBoot();
         return;
     }
 
+    await import('./modules/intro.js');
     scheduleNonCriticalBoot();
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    renderIcons(document);
+    feather.replace();
+});
+
+removePrepaintAfterFirstFrame();
+deferUntilAfterFirstPaint(initVhFix);
 bootstrapApp();

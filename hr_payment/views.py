@@ -21,10 +21,25 @@ from hr_core.utils.urls import build_external_absolute_url
 from hr_payment.models import PaymentAttempt, PaymentAttemptStatus, WebhookEvent
 from hr_payment.services.payment_state import mark_checkout_draft_used
 from hr_shop.models import CheckoutDraft, Order, PaymentStatus
+from hr_shop.services.order_receipt import send_order_receipt_email
 from hr_shop.tokens.order_receipt_token import generate_order_receipt_token
-from hr_shop.views.checkout import _validate_guest_checkout
+from hr_shop.views.checkout_helpers import _validate_guest_checkout
 
 logger = logging.getLogger(__name__)
+
+
+
+def _send_initial_receipt_email(order: Order) -> None:
+    if not order.email:
+        return
+
+    try:
+        send_order_receipt_email(order=order, request=None)
+        log_event(logger, logging.INFO, "payment.receipt.sent", order_id=order.id, email=order.email)
+    except Exception as exc:
+        log_event(logger, logging.ERROR, "payment.receipt.send_failed",
+            order_id=order.id, email=order.email, error=str(exc), exc_info=True,
+        )
 
 def _delete_checkout_draft(order: Order) -> None:
     CheckoutDraft.objects.filter(order=order).delete()
@@ -325,25 +340,17 @@ def _process_stripe_event(event: dict) -> None:
     etype = event.get("type")
     data_obj = (event.get("data") or {}).get("object") or {}
 
-    if etype == "checkout.session.completed":
-        _handle_checkout_session_completed(data_obj)
-        return
+    _EVENT_HANDLERS = {
+        "checkout.session.completed":    _handle_checkout_session_completed,
+        "checkout.session.expired":      _handle_checkout_session_expired,
+        "payment_intent.succeeded":      _handle_payment_intent_succeeded,
+        "payment_intent.payment_failed": _handle_payment_intent_failed,
+        "payment_intent.canceled":       _handle_payment_intent_canceled
+    }
 
-    if etype == "checkout.session.expired":
-        _handle_checkout_session_expired(data_obj)
-        return
-
-    if etype == "payment_intent.succeeded":
-        _handle_payment_intent_succeeded(data_obj)
-        return
-
-    if etype == "payment_intent.payment_failed":
-        _handle_payment_intent_failed(data_obj)
-        return
-
-    if etype == "payment_intent.canceled":
-        _handle_payment_intent_canceled(data_obj)
-        return
+    handler = _EVENT_HANDLERS.get(etype)
+    if handler:
+        handler(data_obj)
 
 
 def _find_attempt_for_session(session: dict) -> PaymentAttempt | None:
@@ -370,6 +377,7 @@ def _handle_checkout_session_completed(session: dict) -> None:
         return
 
     order = Order.objects.select_for_update().get(pk=int(order_id))
+    was_paid = order.payment.status == PaymentStatus.PAID
     sid = session.get("id")
     pi = session.get("payment_intent")
 
@@ -381,6 +389,9 @@ def _handle_checkout_session_completed(session: dict) -> None:
     order.payment_status = PaymentStatus.PAID
     order.save(update_fields=["stripe_checkout_session_id", "stripe_payment_intent_id", "payment_status", "updated_at"])
     mark_checkout_draft_used(order.id)
+
+    if not was_paid:
+        _send_initial_receipt_email(order)
 
     attempt = _find_attempt_for_session(session)
     if attempt:
@@ -400,7 +411,7 @@ def _handle_checkout_session_completed(session: dict) -> None:
             "expires_at":     session['expires_at'],
             "customer_email": session['customer_email'],
             "ui_mode":        session['ui_mode'],
-            "return_url":     session['return_url'],
+            "return_url":     session['return_url']
         }
         attempt.save(update_fields=["provider_session_id", "provider_payment_intent_id", "client_secret", "raw", "updated_at"])
         attempt.mark_final(PaymentAttemptStatus.SUCCEEDED)
@@ -419,9 +430,8 @@ def _handle_checkout_session_expired(session: dict) -> None:
             "expires_at":     session['expires_at'],
             "customer_email": session['customer_email'],
             "ui_mode":        session['ui_mode'],
-            "return_url":     session['return_url'],
+            "return_url":     session['return_url']
         }
-
         attempt.save(update_fields=["raw", "updated_at"])
         attempt.mark_final(PaymentAttemptStatus.EXPIRED)
 
@@ -436,10 +446,15 @@ def _handle_payment_intent_succeeded(pi: dict) -> None:
     if not order:
         return
 
+    was_paid = order.payment_status == PaymentStatus.PAID
+
     order.stripe_payment_intent_id = pid
     order.payment_status = PaymentStatus.PAID
     order.save(update_fields=["stripe_payment_intent_id", "payment_status", "updated_at"])
     mark_checkout_draft_used(order.id)
+
+    if not was_paid:
+        _send_initial_receipt_email(order)
 
     if attempt and attempt.status != PaymentAttemptStatus.SUCCEEDED:
         attempt.raw = {
@@ -449,18 +464,6 @@ def _handle_payment_intent_succeeded(pi: dict) -> None:
             "currency": pi.get("currency"),
             "status":   pi.get("status")
         }
-        # attempt.raw = {
-        #     "id":             pi['id'],
-        #     "livemode":       pi['livemode'],
-        #     "amount_total":   pi['amount_total'],
-        #     "currency":       pi['currency'],
-        #     "status":         pi['status'],
-        #     "payment_status": pi['payment_status'],
-        #     "expires_at":     pi['expires_at'],
-        #     "customer_email": pi['customer_email'],
-        #     "ui_mode":        pi['ui_mode'],
-        #     "return_url":     pi['return_url'],
-        # }
         attempt.save(update_fields=["raw", "updated_at"])
         attempt.mark_final(PaymentAttemptStatus.SUCCEEDED)
 
@@ -482,18 +485,6 @@ def _handle_payment_intent_failed(pi: dict) -> None:
 
     if attempt and attempt.status != PaymentAttemptStatus.SUCCEEDED:
         last_err = pi.get("last_payment_error") or {}
-        # attempt.raw = {
-        #     "id":             pi['id'],
-        #     "livemode":       pi['livemode'],
-        #     "amount_total":   pi['amount_total'],
-        #     "currency":       pi['currency'],
-        #     "status":         pi['status'],
-        #     "payment_status": pi['payment_status'],
-        #     "expires_at":     pi['expires_at'],
-        #     "customer_email": pi['customer_email'],
-        #     "ui_mode":        pi['ui_mode'],
-        #     "return_url":     pi['return_url'],
-        # }
         attempt.raw = {
             "id":                 pi.get("id"),
             "livemode":           pi.get("livemode"),
@@ -503,11 +494,7 @@ def _handle_payment_intent_failed(pi: dict) -> None:
             "last_payment_error": pi.get("last_payment_error")
         }
         attempt.save(update_fields=["raw", "updated_at"])
-        attempt.mark_final(
-            PaymentAttemptStatus.FAILED,
-            code=(last_err.get("code") or None),
-            msg=(last_err.get("message") or None)
-        )
+        attempt.mark_final(PaymentAttemptStatus.FAILED, code=(last_err.get("code") or None), msg=(last_err.get("message") or None))
 
 
 def _handle_payment_intent_canceled(pi: dict) -> None:
@@ -526,25 +513,12 @@ def _handle_payment_intent_canceled(pi: dict) -> None:
         order.save(update_fields=["payment_status", "updated_at"])
 
     if attempt and attempt.status not in (PaymentAttemptStatus.SUCCEEDED, PaymentAttemptStatus.FAILED):
-        # attempt.raw = {
-        #     "id":             pi['id'],
-        #     "livemode":       pi['livemode'],
-        #     "amount_total":   pi['amount_total'],
-        #     "currency":       pi['currency'],
-        #     "status":         pi['status'],
-        #     "payment_status": pi['payment_status'],
-        #     "expires_at":     pi['expires_at'],
-        #     "customer_email": pi['customer_email'],
-        #     "ui_mode":        pi['ui_mode'],
-        #     "return_url":     pi['return_url'],
-        # }
         attempt.raw = {
             "id":       pi.get("id"),
             "livemode": pi.get("livemode"),
             "amount":   pi.get("amount"),
             "currency": pi.get("currency"),
-            "status":   pi.get("status"),
+            "status":   pi.get("status")
         }
-
         attempt.save(update_fields=["raw", "updated_at"])
         attempt.mark_final(PaymentAttemptStatus.CANCELED)
