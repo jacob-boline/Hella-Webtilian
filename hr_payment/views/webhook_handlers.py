@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import logging
 
+import stripe
+
 from hr_common.utils.unified_logging import log_event
 from hr_payment.models import PaymentAttempt, PaymentAttemptStatus
 from hr_payment.services.payment_state import mark_checkout_draft_used
@@ -44,6 +46,23 @@ def _find_attempt_for_session(session: dict) -> PaymentAttempt | None:
         return PaymentAttempt.objects.select_for_update().filter(provider_session_id=sid).first()
 
     return None
+
+
+def _find_attempt_order_from_metadata(metadata: dict) -> tuple[PaymentAttempt | None, Order | None]:
+    attempt = None
+    order = None
+
+    attempt_id = metadata.get("payment_attempt_id")
+    if attempt_id:
+        attempt = PaymentAttempt.objects.select_for_update().filter(pk=int(attempt_id)).first()
+        if attempt:
+            order = attempt.order
+    if not order:
+        order_id = metadata.get("order_id")
+        if order_id:
+            order = Order.objects.select_for_update().filter(pk=int(order_id)).first()
+
+    return attempt, order
 
 
 def _handle_checkout_session_completed(session: dict) -> None:
@@ -98,7 +117,16 @@ def _handle_payment_intent_succeeded(pi: dict) -> None:
 
     attempt = PaymentAttempt.objects.select_for_update().filter(provider_payment_intent_id=pid).first()
     order = attempt.order if attempt else Order.objects.select_for_update().filter(stripe_payment_intent_id=pid).first()
+
     if not order:
+        metadata_attempt, metadata_order = _find_attempt_order_from_metadata(pi.get("metadata") or {})
+        if metadata_attempt and not attempt:
+            attempt = metadata_attempt
+        if metadata_order:
+            order = metadata_order
+
+    if not order:
+        log_event(logger, logging.WARNING, "payment.intent.succeeded.no_order_match", payment_intent_id=pid)
         return
 
     was_paid = order.payment_status == PaymentStatus.PAID
@@ -112,6 +140,7 @@ def _handle_payment_intent_succeeded(pi: dict) -> None:
         _send_initial_receipt_email(order)
 
     if attempt and attempt.status != PaymentAttemptStatus.SUCCEEDED:
+        attempt.provider_payment_intent_id = pid
         attempt.raw = {
             "id":       pi.get("id"),
             "livemode": pi.get("livemode"),
@@ -119,7 +148,7 @@ def _handle_payment_intent_succeeded(pi: dict) -> None:
             "currency": pi.get("currency"),
             "status":   pi.get("status")
         }
-        attempt.save(update_fields=["raw", "updated_at"])
+        attempt.save(update_fields=["provider_payment_intent_id", "raw", "updated_at"])
         attempt.mark_final(PaymentAttemptStatus.SUCCEEDED)
 
 
@@ -127,6 +156,13 @@ def _handle_charge_succeeded(charge: dict) -> None:
     payment_intent_id = charge.get("payment_intent")
     if not payment_intent_id:
         return
+
+    try:
+        full_pi = stripe.PaymentIntent.retrieve(payment_intent_id)
+        _handle_payment_intent_succeeded(dict(full_pi))
+        return
+    except Exception as exc:
+        log_event(logger, logging.WARNING, "payment.charge.succeeded.pi_retrieval_failed", payment_intent_id=payment_intent_id, error=str(exc))
 
     _handle_payment_intent_succeeded({
         "id": payment_intent_id,

@@ -82,7 +82,13 @@ def _build_stripe_session_kwargs(*, order: Order, attempt: PaymentAttempt,
             "order_id": str(order.id),
             "payment_attempt_id": str(attempt.id),
         },
-        "return_url": return_url,
+        "payment_intent_data": {
+            "metadata": {
+                "order_id": str(order.id),
+                "payment_attempt_id": str(attempt.id)
+            }
+        },
+        "return_url": return_url
     }
 
     if attach_customer:

@@ -411,6 +411,42 @@ class TestPaymentIntentFailed:
         attempt.refresh_from_db()
         assert attempt.status == PaymentAttemptStatus.SUCCEEDED  # unchanged
 
+
+class TestPaymentIntentSucceededMetadataFallback:
+    def test_payment_intent_succeeded_falls_back_to_metadata_lookup(self, client, db):
+        """payment_intent.succeeded should resolve order/attempt via metadata when PI ids are not yet persisted."""
+        from hr_payment.tests.conftest import PaymentAttemptFactory, OrderFactory
+
+        order = OrderFactory(payment_status=PaymentStatus.PENDING)
+        attempt = PaymentAttemptFactory(order=order, status=PaymentAttemptStatus.PENDING)
+
+        event = make_payment_intent_event(
+            event_type="payment_intent_succeeded",
+            event_id="evt_test_pi_meta_001",
+            payment_intent_id="pi_test_meta_lookup_001",
+            status="succeeded"
+        )
+        event["data"]["object"]["metadata"] = {
+            "order_id": str(order.id),
+            "payment_attempt_id": str(attempt.id)
+        }
+
+        with patch("hr_payment.views.send_order_receipt_email") as mock_send_receipt:
+            with patch(CONSTRUCT_EVENT, return_value=event):
+                resp = post_webhook(client, event)
+
+        assert resp.status_code == 200
+        order.refresh_from_db()
+        attempt.refresh_from_db()
+
+        assert order.payment_status == PaymentStatus.PAID
+        assert order.stripe_payment_intent_id == "pi_test_meta_lookup_001"
+        assert attempt.provider_payment_intent_id == "pi_test_meta_lookup_001"
+        assert attempt.status == PaymentAttemptStatus.SUCCEEDED
+
+        mock_send_receipt.assert_called_once()
+
+
 # ---------------------------------------------------------------------------
 # charge.succeeded
 # ---------------------------------------------------------------------------
@@ -432,9 +468,55 @@ class TestChargeSucceeded:
             payment_intent_id="pi_test_charge_001"
         )
 
+        retrieved_pi = {
+            "id": "pi_test_charge_meta_001",
+            "livemode": False,
+            "amount": 2999,
+            "currency": "usd",
+            "status": "succeeded",
+            "metadata": {
+                "order_id": str(order.id),
+                "payment_attempt_id": str(attempt.id)
+            }
+        }
+
+        with patch("hr_payment.views.send_order_receipt_email") as mock_send_receipt:
+            with patch("hr_payment.views.webhook_handlers.stripe.PaymentIntent.retrieve", return_value=retrieved_pi):
+                with patch(CONSTRUCT_EVENT, return_value=event):
+                    resp = post_webhook(client, event)
+
+        assert resp.status_code == 200
+
+        order.refresh_from_db()
+        assert order.payment_status == PaymentStatus.PAID
+        assert order.stripe_payment_intent_id == "pi_test_charge_001"
+
+        attempt.refresh_from_db()
+        assert attempt.provider_payment_intent_id == "pi_test_charge_meta_001"
+        assert attempt.status == PaymentAttemptStatus.SUCCEEDED
+
+        mock_send_receipt.assert_called_once()
+
+    def test_charge_succeeded_marks_order_paid_and_sends_receipt(self, client, db):
+        """charge.succeeded should finalize payment using payment_intent linkage."""
+        from hr_payment.tests.conftest import PaymentAttemptFactory, OrderFactory
+
+        order = OrderFactory(payment_status=PaymentStatus.PENDING)
+        attempt = PaymentAttemptFactory(
+            order=order,
+            status=PaymentAttemptStatus.PENDING,
+            provider_payment_intent_id="pi_test_charge_001"
+        )
+
+        event = make_charge_event(
+            event_id="evt_test_charge_success_001",
+            payment_intent_id="pi_test_charge_001"
+        )
+
         with patch("hr_payment.views.send_order_receipt_email") as mock_send_receipt:
             with patch(CONSTRUCT_EVENT, return_value=event):
                 resp = post_webhook(client, event)
+
         assert resp.status_code == 200
 
         order.refresh_from_db()
@@ -458,5 +540,3 @@ class TestChargeSucceeded:
         pending_attempt.refresh_from_db()
 
         assert pending_attempt.status == PaymentAttemptStatus.PENDING
-
-
