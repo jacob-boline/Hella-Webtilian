@@ -14,7 +14,7 @@
 from unittest.mock import patch
 
 from hr_payment.models import PaymentAttemptStatus, WebhookEvent
-from hr_payment.tests.conftest import make_checkout_session_event, make_payment_intent_event
+from hr_payment.tests.conftest import make_charge_event, make_checkout_session_event, make_payment_intent_event
 from hr_shop.models import PaymentStatus
 
 WEBHOOK_URL = "/payment/webhooks/stripe/"
@@ -410,3 +410,53 @@ class TestPaymentIntentFailed:
         assert resp.status_code == 200
         attempt.refresh_from_db()
         assert attempt.status == PaymentAttemptStatus.SUCCEEDED  # unchanged
+
+# ---------------------------------------------------------------------------
+# charge.succeeded
+# ---------------------------------------------------------------------------
+
+class TestChargeSucceeded:
+    def test_charge_succeeded_marks_order_paid_and_sends_receipt(self, client, db):
+        """charge.succeeded should finalize payment using payment_intent linkage."""
+        from hr_payment.tests.conftest import PaymentAttemptFactory, OrderFactory
+
+        order = OrderFactory(payment_status=PaymentStatus.PENDING)
+        attempt = PaymentAttemptFactory(
+            order=order,
+            status=PaymentAttemptStatus.PENDING,
+            provider_payment_intent_id="pi_test_charge_001"
+        )
+
+        event = make_charge_event(
+            event_id="evt_test_charge_success_001",
+            payment_intent_id="pi_test_charge_001"
+        )
+
+        with patch("hr_payment.views.send_order_receipt_email") as mock_send_receipt:
+            with patch(CONSTRUCT_EVENT, return_value=event):
+                resp = post_webhook(client, event)
+        assert resp.status_code == 200
+
+        order.refresh_from_db()
+        assert order.payment_status == PaymentStatus.PAID
+        assert order.stripe_payment_intent_id == "pi_test_charge_001"
+
+        attempt.refresh_from_db()
+        assert attempt.status == PaymentAttemptStatus.SUCCEEDED
+
+        mock_send_receipt.assert_called_once()
+
+    def test_charge_succeeded_without_payment_intent_is_noop(self, client, pending_attempt):
+        """charge.succeeded without payment_intent should be ignored safely."""
+        event = make_charge_event(payment_intent_id=None)
+        event["data"]["object"]["payment_intent"] = None
+
+        with patch(CONSTRUCT_EVENT, return_value=event):
+            resp = post_webhook(client, event)
+
+        assert resp.status_code == 200
+        pending_attempt.refresh_from_db()
+
+        assert pending_attempt.status == PaymentAttemptStatus.PENDING
+
+

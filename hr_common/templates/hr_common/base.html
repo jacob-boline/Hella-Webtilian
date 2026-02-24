@@ -31,10 +31,22 @@
 
     <script>
         const html = document.documentElement;
-        const qs = location.search;
-        html.className += (qs.indexOf('handoff') === -1)
-            ? ' prepaint intro-pending'
-            : ' prepaint';
+        const navEntry = performance.getEntriesByType?.('navigation')?.[0];
+        const navType = navEntry?.type || 'navigate';
+        const params = new URLSearchParams(location.search);
+        const isHandoff = params.has('handoff');
+
+        let hasSameOriginReferrer = false;
+        if (document.referrer) {
+            try {
+                hasSameOriginReferrer = new URL(document.referrer).origin === location.origin;
+            } catch (_err) {
+                hasSameOriginReferrer = false;
+            }
+        }
+
+        const shouldRunIntro = !isHandoff && (navType === 'reload' || !hasSameOriginReferrer);
+        html.className += shouldRunIntro ? ' prepaint intro-pending' : 'prepaint';
     </script>
 
     <script>

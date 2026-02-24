@@ -21,11 +21,10 @@ from hr_config.django_vite_patch import patch_django_vite_dev_url
 DEBUG = env_bool('DEBUG', True)
 DEBUG_TOKENS = True
 
-if EMAIL_PROVIDER == 'mailjet':
-    if not MAILJET_API_KEY or not MAILJET_API_SECRET:
-        raise RuntimeError(
-            'Mailjet selected but MAILJET_API_KEY / MAILJET_API_SECRET are not set'
-        )
+if EMAIL_PROVIDER == 'mailjet' and (not MAILJET_API_KEY or not MAILJET_API_SECRET):
+    raise RuntimeError(
+        'Mailjet selected but MAILJET_API_KEY / MAILJET_API_SECRET are not set'
+    )
 
 patch_django_vite_dev_url()
 
@@ -86,7 +85,7 @@ TEMPLATES[0]["OPTIONS"]["context_processors"].append('hr_common.context_processo
 # ===============================================
 DEBUG_TOOLBAR_CONFIG = {"DISABLE_PANELS": ["debug_toolbar.panels.staticfiles.StaticFilesPanel"]}
 
-EXTERNAL_BASE_URL = os.getenv('EXTERNAL_BASE_URL', 'localhost:8080').rstrip('/')
+EXTERNAL_BASE_URL = os.getenv('EXTERNAL_BASE_URL', 'http://localhost:8080').rstrip('/')
 # ===============================================
 #  Ngrok
 # ===============================================

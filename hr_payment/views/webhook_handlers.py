@@ -1,4 +1,5 @@
 # hr_payment/views/webhook_handlers.py
+
 from __future__ import annotations
 
 import logging
@@ -15,7 +16,10 @@ logger = logging.getLogger(__name__)
 
 def _send_initial_receipt_email(order: Order) -> None:
     if not order.email:
+        log_event(logger, logging.WARNING, "payment.receipt.skipped_missing_email", order_id=order.id)
         return
+
+    log_event(logger, logging.INFO, "payment.receipt.initial_email_attempt", order_id=order.id, email=order.email)
 
     try:
         send_order_receipt_email(order=order, request=None)
@@ -119,6 +123,20 @@ def _handle_payment_intent_succeeded(pi: dict) -> None:
         attempt.mark_final(PaymentAttemptStatus.SUCCEEDED)
 
 
+def _handle_charge_succeeded(charge: dict) -> None:
+    payment_intent_id = charge.get("payment_intent")
+    if not payment_intent_id:
+        return
+
+    _handle_payment_intent_succeeded({
+        "id": payment_intent_id,
+        "livemode": charge.get("livemode"),
+        "amount": charge.get("amount"),
+        "currency": charge.get("currency"),
+        "status": charge.get("status")
+    })
+
+
 def _handle_payment_intent_failed(pi: dict) -> None:
     pid = pi.get("id")
     if not pid:
@@ -184,9 +202,13 @@ def _process_stripe_event(event: dict) -> None:
         "checkout.session.expired":      _handle_checkout_session_expired,
         "payment_intent.succeeded":      _handle_payment_intent_succeeded,
         "payment_intent.payment_failed": _handle_payment_intent_failed,
-        "payment_intent.canceled":       _handle_payment_intent_canceled
+        "payment_intent.canceled":       _handle_payment_intent_canceled,
+        "charge.succeeded":              _handle_charge_succeeded
     }
 
     handler = _EVENT_HANDLERS.get(etype)
     if handler:
+        log_event(logger, logging.INFO, "payment.webhook.event_handled", event_type=etype)
         handler(data_obj)
+    else:
+        log_event(logger, logging.INFO, "payment.webhook.event_ignored", event_type=etype)

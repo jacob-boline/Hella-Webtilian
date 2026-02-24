@@ -41,7 +41,7 @@ function ensureCoreInteractionModules () {
             import('./modules/events.js'),
             import('./meta-init.js')
         ]).catch((err) => {
-            coreInteractionModulesPromise = null;
+            coreInteractionModulesPromise = null; // don't cache failed imports
             throw err;
         });
     }
@@ -54,7 +54,7 @@ function loadNonCriticalAssets () {
             ensureCoreInteractionModules(),
             import('./modules/account.js'),
             import('./modules/neon-sequencer.js'),
-            import('./modules/scroll-effects.js'),
+            import('./modules/scroll-effects.js')
         ]).catch((err) => {
             nonCriticalBootPromise = null; // allow retry
             throw err;
@@ -81,12 +81,13 @@ function scheduleNonCriticalBoot () {
 async function bootstrapApp () {
     const params = new URLSearchParams(window.location.search);
     const isHandoff = params.has('handoff');
-
+    const shouldRunIntro = document.documentElement.classList.contains('intro-pending');
     if (isHandoff) {
         const url = new URL(location.href);
         url.searchParams.delete('handoff');
         history.replaceState({}, '', url);
-
+    }
+    if (!shouldRunIntro) {
         await ensureCoreInteractionModules();
         scheduleNonCriticalBoot();
         removePrepaintAfterFirstFrame();

@@ -128,6 +128,34 @@ def make_payment_intent_event(
     }
 
 
+def make_charge_event(
+        *,
+        event_type="charge.succeeded",
+        event_id="evt_test_charge_001",
+        charge_id="ch_test_abc123",
+        payment_intent_id="pi_test_abc123",
+        status="succeeded",
+        amount=2999,
+        livemode=False
+) -> dict:
+    """Build a charge.* event payload."""
+    return {
+        "id": event_id,
+        "type": event_type,
+        "data": {
+            "object": {
+                "id": charge_id,
+                "object": "charge",
+                "livemode": livemode,
+                "status": status,
+                "amount": amount,
+                "currency": "usd",
+                "payment_intent": payment_intent_id
+            }
+        }
+    }
+
+
 # ---------------------------------------------------------------------------
 # Convenience fixtures
 # ---------------------------------------------------------------------------
