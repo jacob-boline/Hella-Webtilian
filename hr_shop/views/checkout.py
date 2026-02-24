@@ -288,7 +288,7 @@ def checkout_create_order(request):
     log_event(logger, logging.INFO, "checkout.order.create.created",
               order_id=order.id, customer_id=customer.id, draft_id=draft.id if draft else None, item_count=len(items), total=str(order.total))
 
-    return reverse('hr_shop:checkout_pay', args=[order.id])
+    return hx_load_modal(reverse('hr_shop:checkout_pay', args=[order.id]))
 
 
 @require_GET

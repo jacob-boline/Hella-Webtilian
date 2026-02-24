@@ -14,7 +14,7 @@ let coreInteractionModulesPromise = null;
 
 window.htmx = htmx?.default ?? htmx;
 
-function fireAndForget(makePromise, label = 'async task') {
+function fireAndForget (makePromise, label = 'async task') {
     try {
         Promise.resolve(makePromise()).catch(err => console.error(`[main] ${label} failed`, err));
     } catch (err) {
@@ -35,7 +35,7 @@ function removePrepaintAfterFirstFrame () {
     });
 }
 
-function ensureCoreInteractionModules() {
+function ensureCoreInteractionModules () {
     if (!coreInteractionModulesPromise) {
         coreInteractionModulesPromise = Promise.all([
             import('./modules/events.js'),
@@ -48,7 +48,7 @@ function ensureCoreInteractionModules() {
     return coreInteractionModulesPromise;
 }
 
-function loadNonCriticalAssets() {
+function loadNonCriticalAssets () {
     if (!nonCriticalBootPromise) {
         nonCriticalBootPromise = Promise.all([
             ensureCoreInteractionModules(),
@@ -64,9 +64,9 @@ function loadNonCriticalAssets() {
 }
 
 /** @param {() => void} task */
-function schedule(task) {
+function schedule (task) {
     if ('requestIdleCallback' in window) {
-        window.requestIdleCallback(task, { timeout: 1200 });
+        window.requestIdleCallback(task, {timeout: 1200});
     } else {
         setTimeout(() => task(), 200);
     }
@@ -83,13 +83,34 @@ async function bootstrapApp () {
     const isHandoff = params.has('handoff');
 
     if (isHandoff) {
+        const url = new URL(location.href);
+        url.searchParams.delete('handoff');
+        history.replaceState({}, '', url);
+
         await ensureCoreInteractionModules();
         scheduleNonCriticalBoot();
+        removePrepaintAfterFirstFrame();
         return;
     }
 
+    // Safety: if intro never signals done, don’t black-screen forever
+    const failSafe = setTimeout(() => {
+        document.documentElement.classList.remove('intro-pending');
+        document.getElementById('intro-overlay')?.classList.add('complete');
+        removePrepaintAfterFirstFrame();
+    }, 6000);
+
+    document.addEventListener('hr:introDone', () => {
+        clearTimeout(failSafe);
+        document.documentElement.classList.remove('intro-pending');
+
+        // Now fade/transition to main page
+        removePrepaintAfterFirstFrame();
+    }, {once: true});
+
     await import('./modules/intro.js');
     scheduleNonCriticalBoot();
+
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -99,4 +120,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 removePrepaintAfterFirstFrame();
 deferUntilAfterFirstPaint(initVhFix);
-bootstrapApp();
+fireAndForget(() => bootstrapApp(), 'bootstrapApp');

@@ -173,7 +173,7 @@ def webhook_client(client):
 
     def post_webhook(payload: dict, signature: str = "t=1,v1=fake_sig"):
         return client.post(
-            "/payments/webhooks/stripe/",
+            "/payment/webhooks/stripe/",
             data=json.dumps(payload),
             content_type="application/json",
             HTTP_STRIPE_SIGNATURE=signature

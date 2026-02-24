@@ -14,13 +14,13 @@
 
     <title>{% block title %}Hella Reptilian{% endblock %}</title>
 
-<link rel="preload"
-      as="image"
-      href="{% static 'hr_core/images/backgrounds/bg_opt/parallax_bg_1-0-1920w.webp' %}"
-      imagesrcset="{% static 'hr_core/images/backgrounds/bg_opt/parallax_bg_1-0-960w.webp' %} 960w,
-                   {% static 'hr_core/images/backgrounds/bg_opt/parallax_bg_1-0-1920w.webp' %} 1920w"
-      imagesizes="100vw"
-      fetchpriority="high">
+    <link rel="preload"
+          as="image"
+          href="{% static 'hr_core/images/backgrounds/bg_opt/parallax_bg_1-0-1920w.webp' %}"
+          imagesrcset="{% static 'hr_core/images/backgrounds/bg_opt/parallax_bg_1-0-960w.webp' %} 960w,
+                       {% static 'hr_core/images/backgrounds/bg_opt/parallax_bg_1-0-1920w.webp' %} 1920w"
+          imagesizes="100vw"
+          fetchpriority="high">
 
 
     <link rel="preload"
@@ -29,7 +29,20 @@
           type="font/woff2"
           crossorigin>
 
-    <script>document.documentElement.classList.add("prepaint");</script>
+    <script>
+        const html = document.documentElement;
+        const qs = location.search;
+        html.className += (qs.indexOf('handoff') === -1)
+            ? ' prepaint intro-pending'
+            : ' prepaint';
+    </script>
+
+    <script>
+        setTimeout(() => {
+            document.documentElement.classList.remove('prepaint');
+            document.documentElement.classList.remove('intro-pending');
+        }, 8000)
+    </script>
 
     <link rel="icon" href="{% static 'icons/favicon-16.png' %}" sizes="16x16" type="image/png">
     <link rel="icon" href="{% static 'icons/favicon-32.png' %}" sizes="32x32" type="image/png">

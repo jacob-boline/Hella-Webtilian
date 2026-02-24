@@ -17,7 +17,7 @@ from hr_payment.models import PaymentAttemptStatus, WebhookEvent
 from hr_payment.tests.conftest import make_checkout_session_event, make_payment_intent_event
 from hr_shop.models import PaymentStatus
 
-WEBHOOK_URL = "/payments/webhooks/stripe/"
+WEBHOOK_URL = "/payment/webhooks/stripe/"
 CONSTRUCT_EVENT = "stripe.Webhook.construct_event"
 
 

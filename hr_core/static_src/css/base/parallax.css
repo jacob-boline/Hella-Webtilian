@@ -31,6 +31,10 @@
     background-size:     cover;
 }
 
+.pb-shows-ratio {
+    aspect-ratio: 214 /463;
+}
+
 #parallax-section-bulletin.parallax-sticky-bg {
     background: linear-gradient(135deg, #000 0%, #0A0A0A 60%, #0F1115);
     position:   relative;

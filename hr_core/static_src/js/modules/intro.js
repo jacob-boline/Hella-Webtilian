@@ -179,6 +179,7 @@
         STATE.phase = 'complete';
         overlay.classList.add('complete');
         removeSkipListeners();
+        document.dispatchEvent(new Event('hr:introDone'));
     }
 
     // ===========================
