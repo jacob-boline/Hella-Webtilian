@@ -57,12 +57,12 @@ def _render_option_type_panel(request, option_type, *, option_type_form=None, va
     })
 
 
-@staff_member_required
-def product_manager(request):
-    """
-    Main management UI shell. HTMX fills product list, product panel, and option type panel.
-    """
-    return render(request, "hr_shop/manage/manage_products.html")
+# @staff_member_required
+# def product_manager(request):
+#     """
+#     Main management UI shell. HTMX fills product list, product panel, and option type panel.
+#     """
+#     return render(request, "hr_shop/manage/_unified_product_manager.html")
 
 
 @staff_member_required

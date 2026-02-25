@@ -1,0 +1,123 @@
+/* hr_core/static_src/css/flows/product-manager.css */
+.pmu-page {
+    max-width: 1400px;
+    margin: 2.5rem auto;
+    padding: 0 1.5rem 2rem;
+}
+
+.pmu-page-head {
+    margin-bottom: 1rem;
+}
+
+.pmu-subtitle {
+    color: var(--text-muted, rgba(255, 255, 255, 0.75));
+}
+
+.pmu-layout {
+    display: grid;
+    grid-template-columns: 380px minmax(0, 1fr);
+    gap: 1rem;
+    align-items: start;
+}
+
+.pmu-left,
+.pmu-right {
+    border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.2));
+    border-radius: 14px;
+    padding: 1rem;
+    background: rgba(6, 10, 20, 0.72);
+    backdrop-filter: blur(8px);
+}
+
+.pmu-select-block {
+    margin-bottom: 1rem;
+}
+
+.pmu-select-block label {
+    display: block;
+    margin-bottom: 0.3rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--neon-blue);
+}
+
+.pmu-select-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 0.35rem;
+    align-items: center;
+}
+
+.pmu-select-row select {
+    width: 100%;
+}
+
+.pmu-card {
+    border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.2));
+    border-radius: 12px;
+    padding: 1rem;
+    background: rgba(5, 8, 18, 0.65);
+}
+
+.pmu-card p label {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--neon-blue);
+    margin-bottom: 0.25rem;
+}
+
+.pmu-card p {
+    margin: 0.5rem 0;
+}
+
+.pmu-card p input,
+.pmu-card p textarea,
+.pmu-card p select {
+    width: 100%;
+}
+
+.pmu-field {
+    margin: 0.5rem 0;
+}
+
+.pmu-field label {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--neon-blue);
+    margin-bottom: 0.25rem;
+}
+
+.pmu-field input[disabled] {
+    opacity: 0.7;
+}
+
+.pmu-action-row {
+    display: flex;
+    gap: 0.65rem;
+    margin-top: 1rem;
+    justify-content: flex-end;
+}
+
+.pmu-note {
+    font-size: 0.9rem;
+    color: #facc15;
+}
+
+.pmu-inline-title {
+    margin-top: 1rem;
+}
+
+.pmu-value-list {
+    margin: 0;
+    padding-left: 1rem;
+}
+
+.is-disabled {
+    pointer-events: none;
+    opacity: 0.45;
+}

@@ -82,6 +82,50 @@ class ProductVariantForm(forms.ModelForm):
         fields = ["sku", "name", "price", "is_display_variant"]
 
 
+class ProductManagerProductForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = ["name", "slug", "description", "active"]
+        widgets = {
+            "description": forms.Textarea(attrs={"rows": 4}),
+        }
+
+
+class ProductManagerVariantForm(forms.ModelForm):
+    class Meta:
+        model = ProductVariant
+        fields = ["sku", "slug", "name", "price", "is_display_variant", "active", "image", "option_values"]
+        widgets = {
+            "option_values": forms.CheckboxSelectMultiple(),
+        }
+
+    def __init__(self, *args, product=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        qs = ProductOptionValue.objects.none()
+        if product is not None:
+            qs = ProductOptionValue.objects.filter(option_type__product=product).select_related("option_type").order_by("option_type__position", "position", "id")
+        self.fields["option_values"].queryset = qs
+
+
+class ProductManagerOptionTypeForm(forms.ModelForm):
+    class Meta:
+        model = ProductOptionType
+        fields = ["name", "code", "position", "drives_image", "default_value", "active"]
+
+    def __init__(self, *args, product=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        qs = ProductOptionValue.objects.none()
+        if product is not None:
+            qs = ProductOptionValue.objects.filter(option_type__product=product).order_by("option_type__position", "position", "id")
+        self.fields["default_value"].queryset = qs
+
+
+class ProductManagerOptionValueForm(forms.ModelForm):
+    class Meta:
+        model = ProductOptionValue
+        fields = ["name", "code", "position", "active"]
+
+
 class CheckoutDetailsForm(forms.Form):
     email                = forms.EmailField(  required=True,  label="Email")
     phone                = PhoneNumberField(  required=False, label="Phone",           region="US")

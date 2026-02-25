@@ -2,7 +2,7 @@
 
 from django.urls import path
 
-from hr_shop.views import cart, checkout, manage, products
+from hr_shop.views import cart, checkout, manage, manage_unified, products
 
 app_name = "hr_shop"
 
@@ -13,7 +13,7 @@ urlpatterns = [
     path("product/<slug:product_slug>/variant-preview", products.update_details_modal, name="update_details_modal"),
     path("product/<slug:product_slug>/image-for-selection/", products.product_image_for_selection, name="product_image_for_selection"),
     # Admin: main product manager shell
-    path("manage/", manage.product_manager, name="product_manager"),
+    path("manage/", manage_unified.product_manager, name="product_manager"),
     # Admin: product management partials
     path("manage/products/", manage.get_manage_product_list_partial, name="get_product_list_partial"),
     path("manage/product/<int:pk>/", manage.get_manage_product_panel_partial, name="get_product_panel_partial"),
