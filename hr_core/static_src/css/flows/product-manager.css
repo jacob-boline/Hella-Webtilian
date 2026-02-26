@@ -10,7 +10,7 @@
 }
 
 .pmu-subtitle {
-    color: var(--text-muted, rgba(255, 255, 255, 0.75));
+    color: var(--muted-text, rgba(255, 255, 255, 0.75));
 }
 
 .pmu-layout {
@@ -120,4 +120,115 @@
 .is-disabled {
     pointer-events: none;
     opacity: 0.45;
+}
+
+.pmu-option-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.pmu-option-row {
+    margin-bottom: 0.75rem;
+}
+
+.pmu-option-row-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.35rem;
+    gap: 0.5rem;
+}
+
+.pmu-option-name {
+    font-weight: 600;
+}
+
+.pmu-option-row-actions {
+    display: flex;
+    gap: 0.35rem;
+}
+
+.pmu-pill-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.pmu-pill {
+    border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.2));
+    border-radius: 999px;
+    padding: 0.2rem 0.6rem;
+    text-decoration: none;
+    font-size: 0.85rem;
+    color: var(--text, #fff);
+    background: rgba(17, 24, 39, 0.65);
+}
+
+.pmu-pill.is-active {
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 0 1px var(--neon-blue);
+}
+
+.pmu-action-row-left {
+    justify-content: flex-start;
+}
+
+.pmu-note-neutral {
+    font-size: 0.9rem;
+    color: var(--muted-text, rgba(255, 255, 255, 0.75));
+}
+
+.pmu-variant-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+    gap: 0.75rem;
+}
+
+.pmu-variant-tile {
+    text-decoration: none;
+    border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.2));
+    border-radius: 10px;
+    padding: 0.5rem;
+    background: rgba(8, 12, 24, 0.8);
+}
+
+.pmu-variant-tile.is-selected {
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 0 1px var(--neon-blue);
+}
+
+.pmu-variant-thumb-wrap {
+    aspect-ratio: 1 / 1;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 0.4rem;
+    background: rgba(0, 0, 0, 0.35);
+}
+
+.pmu-variant-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.pmu-variant-thumb-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    color: var(--muted-text, rgba(255, 255, 255, 0.6));
+}
+
+.pmu-variant-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.2rem;
+}
+
+.pmu-variant-meta {
+    font-size: 0.75rem;
+    color: var(--muted-text, rgba(255, 255, 255, 0.7));
 }
