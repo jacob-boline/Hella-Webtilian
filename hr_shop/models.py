@@ -72,6 +72,7 @@ class Product(models.Model):
     slug = models.SlugField(max_length=220, unique=True, blank=True)
     description = models.TextField(blank=True, null=True)
     active = models.BooleanField(default=False)
+    image = models.ForeignKey("ProductImage", related_name="products", null=True, blank=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.name
@@ -303,9 +304,12 @@ class ProductVariant(models.Model):
     def resolve_image(self):
         """
         Return the best ProductImage for this variant, or None.
+        Variant-specific image always wins over product-level fallback image.
         """
         if self.image:
             return self.image
+        if self.product_id and self.product and self.product.image:
+            return self.product.image
         return None
 
 
@@ -362,8 +366,8 @@ class Customer(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, blank=True, null=True, related_name="customer", on_delete=models.SET_NULL)
     first_name = models.CharField(max_length=100, blank=True)
     last_name = models.CharField(max_length=100, blank=True)
-    middle_initial = models.CharField(max_length=5, null=True, blank=True)
-    suffix = models.CharField(max_length=20, null=True, blank=True)
+    middle_initial = models.CharField(max_length=5, blank=True, default="")
+    suffix = models.CharField(max_length=20, blank=True, default="")
     phone = PhoneNumberField(blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
@@ -418,11 +422,11 @@ class PaymentStatus(models.TextChoices):
 
 
 class Order(models.Model):
-    customer = models.ForeignKey(Customer, null=False, blank=False, on_delete=models.PROTECT, related_name="account_get_orders")
+    customer = models.ForeignKey(Customer, null=False, blank=False, on_delete=models.PROTECT, related_name="orders")
 
     # Order.user is the per-order ownership field (separate from Customer.user),
-    # so users can claim or ignore older guest account_get_orders tied to the same email.
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="account_get_orders")
+    # so users can claim or ignore older guest orders tied to the same email.
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="claimed_orders")
 
     email: str
     email = NormalizedEmailField(db_index=True)
@@ -436,7 +440,7 @@ class Order(models.Model):
     order_status = models.CharField(max_length=20, choices=OrderStatus.choices, default=OrderStatus.RECEIVED)
     shipping_address = models.ForeignKey(Address, on_delete=models.PROTECT, null=True, blank=True)
     total = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
-    note = models.CharField(max_length=1000, null=True, blank=True)
+    note = models.CharField(max_length=1000, blank=True, default="")
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -521,7 +525,7 @@ class CheckoutDraft(models.Model):
     email = NormalizedEmailField(db_index=True)
     customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
     address = models.ForeignKey(Address, on_delete=models.PROTECT)
-    note = models.CharField(max_length=1000, blank=True, null=True)
+    note = models.CharField(max_length=1000, blank=True, default="")
     cart = models.JSONField(default=list)  # [{'variant_id': 123, 'qty': 2, 'unit_price': '19.99'}, ...]
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField(db_index=True)

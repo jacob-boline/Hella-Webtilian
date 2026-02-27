@@ -66,6 +66,12 @@ class TestAddVariantToCart:
         trigger = json.loads(resp.get("HX-Trigger", "{}"))
         assert "updateCart" in trigger
 
+    def test_hx_trigger_show_message_uses_text_key(self, client, variant):
+        resp = client.post(add_url(variant))
+
+        trigger = json.loads(resp.get("HX-Trigger", "{}"))
+        assert trigger["showMessage"]["text"].startswith("Added")
+
     def test_inactive_variant_returns_404(self, client, inactive_variant):
         resp = client.post(add_url(inactive_variant))
 

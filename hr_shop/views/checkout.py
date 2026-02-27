@@ -220,7 +220,7 @@ def checkout_create_order(request):
 
     customer = ctx["customer"]
     shipping_address = ctx["address"]
-    note = ctx["note"]
+    note = (ctx["note"] or "").strip()
 
     if not is_email_confirmed_for_checkout(request, customer.email):
         log_event(logger, logging.WARNING, "checkout.order.create.email_unconfirmed", customer_id=customer.id)
@@ -263,7 +263,7 @@ def checkout_create_order(request):
             total=Decimal("0.00"),
             order_status=OrderStatus.RECEIVED,
             payment_status=PaymentStatus.UNPAID,
-            note=note or None
+            note=note
         )
 
         subtotal = Decimal("0.00")
@@ -349,7 +349,7 @@ def checkout_pay(request, order_id: int):
         if draft and draft.is_valid():
             request.session['checkout_customer_id'] = draft.customer_id
             request.session['checkout_address_id'] = draft.address_id
-            request.session['checkout_note'] = draft.note or ''
+            request.session['checkout_note'] = draft.note
             request.session.modified = True
 
             guest_checkout_token = generate_guest_checkout_token(
@@ -460,7 +460,7 @@ def email_confirmation_process_response(request, token: str):
         # Restore session context
         request.session["checkout_customer_id"] = draft.customer_id
         request.session["checkout_address_id"] = draft.address_id
-        request.session["checkout_note"] = draft.note or ""
+        request.session["checkout_note"] = draft.note
         request.session.modified = True
 
         # Restore cart only if empty

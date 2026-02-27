@@ -5,6 +5,7 @@ import time
 from typing import Any
 
 from django.http import HttpResponse, HttpResponseBadRequest
+from django.db.models import Count
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_POST
 
@@ -151,7 +152,7 @@ def _cart_triggers(cart: Cart, *, message: str | None = None) -> dict[str, Any]:
     """
     payload: dict[str, Any] = {"updateCart": {"item_count": _cart_item_count(cart)}}
     if message:
-        payload["showMessage"] = {"message": message}
+        payload["showMessage"] = {"text": message}
     return payload
 
 
@@ -238,10 +239,21 @@ def add_to_cart_by_options(request, product_slug):
     variants = product.variants.filter(active=True).prefetch_related("option_values")
 
     chosen_variant = None
-    for variant in variants:
-        if variant.option_value_ids_set == selected_set:
-            chosen_variant = variant
-            break
+    if product.variants.filter(active=True).count() > 20:
+        candidate_qs = product.variants.filter(active=True)
+        for option_value_id in selected_set:
+            candidate_qs = candidate_qs.filter(option_values__id=option_value_id)
+        chosen_variant = (
+            candidate_qs.annotate(option_value_count=Count("option_values", distinct=True))
+            .filter(option_value_count=len(selected_set))
+            .first()
+        )
+
+    if not chosen_variant:
+        for variant in variants:
+            if variant.option_value_ids_set == selected_set:
+                chosen_variant = variant
+                break
 
     if not chosen_variant:
         log_event(logger, logging.WARNING, "cart.add_by_options.no_variant", product_slug=product_slug, selected_value_ids=selected_value_ids)

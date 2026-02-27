@@ -63,6 +63,7 @@ def resolve_variant_for_values(product: Product, option_value_ids: Iterable[int 
 def resolve_variant_preview_image_payload(
     variant: ProductVariant | None,
     *,
+    product: Product | None = None,
     placeholder_url: str | None = None,
     fallback_alt: str = "",
 ) -> PreviewImagePayload:
@@ -80,6 +81,11 @@ def resolve_variant_preview_image_payload(
     placeholder: str = placeholder_url or static("hr_shop/img/placeholder_2.png")
 
     if not variant:
+        if product and product.image and getattr(product.image, "image", None):
+            return {
+                "url": product.image.image.url,
+                "alt": (product.image.alt_text or fallback_alt or "").strip(),
+            }
         return {"url": placeholder, "alt": fallback_alt}
 
     img = variant.resolve_image()

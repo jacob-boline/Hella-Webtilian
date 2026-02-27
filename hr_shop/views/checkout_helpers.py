@@ -108,14 +108,14 @@ def _apply_customer_updates(customer: Customer, form: CheckoutDetailsForm, user)
     updates: list[tuple[str, Any]] = [
         ("first_name",     form.cleaned_data["first_name"].strip()                      ),
         ("last_name",      form.cleaned_data["last_name"].strip()                       ),
-        ("middle_initial", form.cleaned_data.get("middle_initial", "").strip() or None  ),
-        ("suffix",         form.cleaned_data.get("suffix", "").strip() or None          ),
+        ("middle_initial", form.cleaned_data.get("middle_initial", "").strip()          ),
+        ("suffix",         form.cleaned_data.get("suffix", "").strip()                  ),
         ("phone",          form.cleaned_data.get("phone", "") or None                   )
     ]
 
     updated_fields = []
     for field, new_value in updates:
-        if new_value is not None and getattr(customer, field) != new_value:
+        if getattr(customer, field) != new_value:
             setattr(customer, field, new_value)
             updated_fields.append(field)
 
@@ -132,9 +132,9 @@ def _get_or_create_customer(email: str, user, form: CheckoutDetailsForm) -> Cust
         defaults={
             "user":             user if user and user.is_authenticated else None,
             "first_name":       form.cleaned_data["first_name"].strip(),
-            "middle_initial":   form.cleaned_data.get("middle_initial", "").strip() or None,
+            "middle_initial":   form.cleaned_data.get("middle_initial", "").strip(),
             "last_name":        form.cleaned_data["last_name"].strip(),
-            "suffix":           form.cleaned_data.get("suffix", "").strip() or None,
+            "suffix":           form.cleaned_data.get("suffix", "").strip(),
             "phone":            form.cleaned_data.get("phone") or None,
             "wants_saved_info": form.cleaned_data["wants_saved_info"]
         }
@@ -325,7 +325,7 @@ def _restore_checkout_context_from_guest_token(request) -> tuple[dict | None, bo
     # restore session context
     request.session["checkout_customer_id"] = draft.customer_id
     request.session["checkout_address_id"] = draft.address_id
-    request.session["checkout_note"] = draft.note or ""
+    request.session["checkout_note"] = draft.note
     request.session["wants_saved_info"] = bool(getattr(draft.customer, "wants_saved_info", False))
     request.session.modified = True
 
@@ -337,7 +337,7 @@ def _restore_checkout_context_from_guest_token(request) -> tuple[dict | None, bo
     return {
        "customer":     draft.customer,
        "address":      draft.address,
-       "note":         draft.note or "",
+       "note":         draft.note,
        "_guest_token": guest_checkout_token,
        "_draft":       draft
    }, False
