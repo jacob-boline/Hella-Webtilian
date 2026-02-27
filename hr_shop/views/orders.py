@@ -59,7 +59,7 @@ def orders_page(request, n: int):
     rows, has_more = _paginate(qs, page=page, per=PER_PAGE)
 
     ctx = {
-        "account_get_orders": rows,
+        "orders": rows,
         "has_more": has_more,
         "page": page,
     }

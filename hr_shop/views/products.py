@@ -114,7 +114,7 @@ def update_details_modal(request: HttpRequest, product_slug: str):
     variant = resolve_variant_for_values(product, selected_value_ids)
 
     # Assumption: variants should have images. If not, we show the placeholder.
-    img_payload: PreviewImagePayload = resolve_variant_preview_image_payload(variant, fallback_alt=product.name) if variant else {"url": "", "alt": product.name}
+    img_payload: PreviewImagePayload = resolve_variant_preview_image_payload(variant, product=product, fallback_alt=product.name)
 
     payload = {
         "variantPreviewUpdated": {
@@ -144,6 +144,7 @@ def product_image_for_selection(request: HttpRequest, product_slug: str):
 
     img_payload: PreviewImagePayload = resolve_variant_preview_image_payload(
         variant,
+        product=product,
         fallback_alt=product.name
     )
 

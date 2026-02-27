@@ -24,6 +24,15 @@
                      decoding="async"
                      width="1"
                      height="1">
+            {% elif product.image and product.image.image %}
+                <img src="{{ product.image.image.url|variant_img_url:'768' }}"
+                     srcset="{{ product.image.image.url|variant_img_srcset }}"
+                     sizes="(max-width: 640px) 92vw, (max-width: 1024px) 70vw, 900px"
+                     alt="{{ product.name }}"
+                     class="modal-image"
+                     decoding="async"
+                     width="1"
+                     height="1">
             {% else %}
                 <img src="{% static 'hr_shop/img/placeholder_2.png' %}"
                      alt="{{ product.name }}"

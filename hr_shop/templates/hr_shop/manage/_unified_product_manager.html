@@ -5,190 +5,256 @@
 <div class="pmu-page">
     <header class="pmu-page-head">
         <h1 class="sub-header">Product Management</h1>
-        <p class="pmu-subtitle">Unified product, variant, and option configuration.</p>
+        <p class="pmu-subtitle">Option-first variant management with filtered variant resolution.</p>
     </header>
 
     <div class="pmu-layout">
         <aside class="pmu-left m-shell">
             <form method="get" class="pmu-select-block">
-                <label for="pmu-product-select">Product</label>
+                <label class="pmu-left-header" for="pmu-product-select">PRODUCT</label>
                 <div class="pmu-select-row">
+                    <input type="hidden" name="include_disabled" value="{{ include_disabled|yesno:'1,0' }}">
                     <select id="pmu-product-select" name="product" onchange="this.form.submit()">
                         <option value="">Select a product</option>
                         {% for product in products %}
                             <option value="{{ product.id }}" {% if selected_product and selected_product.id == product.id %}selected{% endif %}>{{ product.name }}</option>
                         {% endfor %}
                     </select>
-                    <a class="card-btn btn-neon btn-blue btn-sm" href="?mode=new_product">+</a>
-                    <a class="card-btn btn-neon btn-red btn-sm {% if not selected_product or not is_superuser %}is-disabled{% endif %}"
-                       href="?product={{ selected_product.id|default:'' }}&mode=confirm_delete_product">🗑</a>
+                    <a class="card-btn btn-neon btn-green btn-sm" href="?mode=new_product">+</a>
+                    <a class="card-btn btn-neon btn-red btn-sm {% if not selected_product or not is_superuser %}is-disabled{% endif %}" href="?product={{ selected_product.id|default:'' }}&mode=confirm_delete_product">🗑</a>
                 </div>
             </form>
 
-            <form method="get" class="pmu-select-block">
-                <input type="hidden" name="product" value="{{ selected_product.id|default:'' }}">
-                <label for="pmu-variant-select">Variant</label>
-                <div class="pmu-select-row">
-                    <select id="pmu-variant-select" name="variant" onchange="this.form.submit()" {% if not selected_product %}disabled{% endif %}>
-                        <option value="">Select a variant</option>
-                        {% for variant in variants %}
-                            <option value="{{ variant.id }}" {% if selected_variant and selected_variant.id == variant.id %}selected{% endif %}>{{ variant.name }}</option>
-                        {% endfor %}
-                    </select>
-                    <a class="card-btn btn-neon btn-blue btn-sm {% if not selected_product %}is-disabled{% endif %}" href="?product={{ selected_product.id|default:'' }}&mode=new_variant">+</a>
-                    <a class="card-btn btn-neon btn-red btn-sm {% if not selected_variant or not is_superuser %}is-disabled{% endif %}"
-                       href="?product={{ selected_product.id|default:'' }}&variant={{ selected_variant.id|default:'' }}&mode=confirm_delete_variant">🗑</a>
-                </div>
-            </form>
+            {% if selected_product %}
+                <div class="pmu-select-block">
+                    <div class="pmu-option-head">
+                        <label class="pmu-left-header">OPTION FILTERS</label>
+                        <a href="{{ clear_all_filter_url }}" class="card-btn btn-neon btn-yellow btn-sm">Clear all</a>
+                    </div>
 
-            <form method="get" class="pmu-select-block">
-                <input type="hidden" name="product" value="{{ selected_product.id|default:'' }}">
-                <input type="hidden" name="variant" value="{{ selected_variant.id|default:'' }}">
-                <label for="pmu-option-type-select">Option Type</label>
-                <div class="pmu-select-row">
-                    <select id="pmu-option-type-select" name="option_type" onchange="this.form.submit()" {% if not selected_variant %}disabled{% endif %}>
-                        <option value="">Select an option type</option>
-                        {% for option_type in option_types %}
-                            <option value="{{ option_type.id }}" {% if selected_option_type and selected_option_type.id == option_type.id %}selected{% endif %}>{{ option_type.name }}</option>
-                        {% endfor %}
-                    </select>
-                    <a class="card-btn btn-neon btn-blue btn-sm {% if not selected_variant %}is-disabled{% endif %}" href="?product={{ selected_product.id|default:'' }}&variant={{ selected_variant.id|default:'' }}&mode=new_option_type">+</a>
-                    <a class="card-btn btn-neon btn-red btn-sm {% if not selected_option_type or not is_superuser %}is-disabled{% endif %}"
-                       href="?product={{ selected_product.id|default:'' }}&variant={{ selected_variant.id|default:'' }}&option_type={{ selected_option_type.id|default:'' }}&mode=confirm_delete_option_type">🗑</a>
+                    {% for row in option_filter_rows %}
+                        <div class="pmu-option-row">
+                            <div class="pmu-option-row-head">
+                                <span class="pmu-option-name">{{ row.option_type.name }}</span>
+                                <div class="pmu-option-row-actions">
+                                    <a class="card-btn btn-neon btn-blue btn-sm" href="{{ row.manage_url }}">Edit</a>
+                                    <a class="card-btn btn-neon btn-yellow btn-sm" href="{{ row.clear_url }}">Clear</a>
+                                </div>
+                            </div>
+                            <div class="pmu-pill-list">
+                                {% for value in row.values %}
+                                    <a href="{{ value.url }}" class="pmu-pill {% if value.active %}is-active{% endif %} {% if value.disabled %}is-disabled-value{% endif %}">{{ value.name }}</a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% empty %}
+                        <p class="pmu-note">No option types yet for this product.</p>
+                    {% endfor %}
                 </div>
-            </form>
 
-            <form method="get" class="pmu-select-block">
-                <input type="hidden" name="product" value="{{ selected_product.id|default:'' }}">
-                <input type="hidden" name="variant" value="{{ selected_variant.id|default:'' }}">
-                <input type="hidden" name="option_type" value="{{ selected_option_type.id|default:'' }}">
-                <label for="pmu-option-value-select">Option Value</label>
-                <div class="pmu-select-row">
-                    <select id="pmu-option-value-select" name="option_value" onchange="this.form.submit()" {% if not selected_option_type %}disabled{% endif %}>
-                        <option value="">Select an option value</option>
-                        {% for option_value in option_values %}
-                            <option value="{{ option_value.id }}" {% if selected_option_value and selected_option_value.id == option_value.id %}selected{% endif %}>{{ option_value.name }}</option>
-                        {% endfor %}
-                    </select>
-                    <a class="card-btn btn-neon btn-blue btn-sm {% if not selected_option_type %}is-disabled{% endif %}" href="?product={{ selected_product.id|default:'' }}&variant={{ selected_variant.id|default:'' }}&option_type={{ selected_option_type.id|default:'' }}&mode=new_option_value">+</a>
-                    <a class="card-btn btn-neon btn-red btn-sm {% if not selected_option_value or not is_superuser %}is-disabled{% endif %}"
-                       href="?product={{ selected_product.id|default:'' }}&variant={{ selected_variant.id|default:'' }}&option_type={{ selected_option_type.id|default:'' }}&option_value={{ selected_option_value.id|default:'' }}&mode=confirm_delete_option_value">🗑</a>
+                <div class="pmu-left-actions">
+                    <a class="card-btn btn-neon btn-green pmu-action-btn" href="?product={{ selected_product.id }}&mode=new_variant&panel=variant{% for selected_fv in selected_filter_value_ids %}&fv={{ selected_fv }}{% endfor %}&include_disabled={{ include_disabled|yesno:'1,0' }}">+ Variant</a>
+                    <a class="card-btn btn-neon btn-green pmu-action-btn" href="?product={{ selected_product.id }}&mode=new_option_type&panel=option_type{% for selected_fv in selected_filter_value_ids %}&fv={{ selected_fv }}{% endfor %}&include_disabled={{ include_disabled|yesno:'1,0' }}">+ Option Type</a>
+                    <a class="card-btn btn-neon btn-blue pmu-action-btn" href="{{ edit_product_url }}">Edit Product</a>
                 </div>
-            </form>
+            {% endif %}
         </aside>
 
         <section class="pmu-right m-shell">
-            {% if delete_plan %}
+            {% if panel_state == 'delete' and delete_plan %}
                 <article class="pmu-card">
-                    <h2 class="modal-title">Confirm {{ delete_plan.kind|cut:'_'|title }}</h2>
-                    <p>You are about to remove <strong>{{ delete_plan.label }}</strong>.</p>
+                    <h2 class="modal-title">Confirm delete: {{ delete_plan.label }}</h2>
                     {% if delete_plan.soft_delete %}
                         <p class="pmu-note">This item has related records and will be set to inactive instead of hard-deleted.</p>
                     {% else %}
                         <p class="pmu-note">No protected related records were found. A hard delete will occur.</p>
                     {% endif %}
                     {% if delete_plan.cascades %}
-                        <h3>Related records that may cascade:</h3>
+                        <p><strong>Also affected:</strong></p>
                         <ul>
-                            {% for cascade in delete_plan.cascades %}
-                                <li>{{ cascade }}</li>
+                            {% for item in delete_plan.cascades %}
+                                <li>{{ item }}</li>
                             {% endfor %}
                         </ul>
                     {% endif %}
-
-                    <form method="post" class="pmu-action-row">
+                    <form method="post" class="pmu-action-row pmu-grid-actions">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="delete_confirmed">
                         <input type="hidden" name="delete_kind" value="{{ delete_plan.kind }}">
                         <input type="hidden" name="delete_id" value="{{ delete_plan.id }}">
                         <input type="hidden" name="selected_product" value="{{ selected_product.id|default:'' }}">
-                        <input type="hidden" name="selected_variant" value="{{ selected_variant.id|default:'' }}">
-                        <input type="hidden" name="selected_option_type" value="{{ selected_option_type.id|default:'' }}">
-                        <input type="hidden" name="selected_option_value" value="{{ selected_option_value.id|default:'' }}">
-                        <button type="submit" class="card-btn btn-neon btn-red">Confirm</button>
-                        <a href="?product={{ selected_product.id|default:'' }}&variant={{ selected_variant.id|default:'' }}&option_type={{ selected_option_type.id|default:'' }}&option_value={{ selected_option_value.id|default:'' }}" class="card-btn btn-neon btn-blue">Cancel</a>
+                        <input type="hidden" name="include_disabled" value="{{ include_disabled|yesno:'1,0' }}">
+                        {% for selected_fv in selected_filter_value_ids %}<input type="hidden" name="selected_fv" value="{{ selected_fv }}">{% endfor %}
+                        <button type="submit" class="card-btn btn-neon btn-red pmu-action-btn">Confirm delete</button>
+                        <a href="{{ clear_all_filter_url }}" class="card-btn btn-neon btn-blue pmu-action-btn">Cancel</a>
                     </form>
                 </article>
-            {% elif option_value_form %}
+
+            {% elif panel_state == 'option_value' and option_value_form %}
                 <article class="pmu-card">
                     <h2 class="modal-title">Option Value Details</h2>
-                    <form method="post">
+                    <form method="post" class="pmu-form-grid">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="save_option_value">
                         <input type="hidden" name="option_type_id" value="{{ selected_option_type.id|default:'' }}">
                         <input type="hidden" name="option_value_id" value="{{ selected_option_value.id|default:'' }}">
-                        <input type="hidden" name="selected_product" value="{{ selected_product.id|default:'' }}">
-                        <input type="hidden" name="selected_variant" value="{{ selected_variant.id|default:'' }}">
-                        <input type="hidden" name="selected_option_type" value="{{ selected_option_type.id|default:'' }}">
+                        <input type="hidden" name="include_disabled" value="{{ include_disabled|yesno:'1,0' }}">
+                        {% for selected_fv in selected_filter_value_ids %}<input type="hidden" name="selected_fv" value="{{ selected_fv }}">{% endfor %}
                         <div class="pmu-field"><label>ID</label><input type="text" value="{{ selected_option_value.id|default:'(new)' }}" disabled></div>
                         {{ option_value_form.as_p }}
-                        <div class="pmu-action-row">
-                            <button type="submit" class="card-btn btn-neon btn-green">Save</button>
-                            <a href="?product={{ selected_product.id|default:'' }}&variant={{ selected_variant.id|default:'' }}&option_type={{ selected_option_type.id|default:'' }}" class="card-btn btn-neon btn-blue">Cancel</a>
+                        <div class="pmu-action-row pmu-grid-actions">
+                            <button type="submit" class="card-btn btn-neon btn-green pmu-action-btn">Save</button>
+                            <a href="{{ clear_all_filter_url }}" class="card-btn btn-neon btn-blue pmu-action-btn">Cancel</a>
                         </div>
                     </form>
                 </article>
-            {% elif option_type_form %}
+
+            {% elif panel_state == 'option_type' and option_type_form %}
                 <article class="pmu-card">
                     <h2 class="modal-title">Option Type Details</h2>
-                    <form method="post">
+                    <form method="post" class="pmu-form-grid">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="save_option_type">
                         <input type="hidden" name="product_id" value="{{ selected_product.id|default:'' }}">
                         <input type="hidden" name="option_type_id" value="{{ selected_option_type.id|default:'' }}">
-                        <input type="hidden" name="selected_variant" value="{{ selected_variant.id|default:'' }}">
+                        <input type="hidden" name="include_disabled" value="{{ include_disabled|yesno:'1,0' }}">
+                        {% for selected_fv in selected_filter_value_ids %}<input type="hidden" name="selected_fv" value="{{ selected_fv }}">{% endfor %}
                         <div class="pmu-field"><label>ID</label><input type="text" value="{{ selected_option_type.id|default:'(new)' }}" disabled></div>
                         {{ option_type_form.as_p }}
-                        <div class="pmu-action-row">
-                            <button type="submit" class="card-btn btn-neon btn-green">Save</button>
-                            <a href="?product={{ selected_product.id|default:'' }}&variant={{ selected_variant.id|default:'' }}" class="card-btn btn-neon btn-blue">Cancel</a>
+                        <div class="pmu-action-row pmu-grid-actions">
+                            <button type="submit" class="card-btn btn-neon btn-green pmu-action-btn">Save</button>
+                            <a href="{{ clear_all_filter_url }}" class="card-btn btn-neon btn-blue pmu-action-btn">Cancel</a>
+                            {% if selected_option_type %}
+                                <a href="?product={{ selected_product.id|default:'' }}&option_type={{ selected_option_type.id }}&mode=new_option_value&panel=option_value{% for selected_fv in selected_filter_value_ids %}&fv={{ selected_fv }}{% endfor %}&include_disabled={{ include_disabled|yesno:'1,0' }}" class="card-btn btn-neon btn-blue pmu-action-btn">+ Value</a>
+                                <a class="card-btn btn-neon btn-red pmu-action-btn {% if not is_superuser %}is-disabled{% endif %}" href="?product={{ selected_product.id|default:'' }}&option_type={{ selected_option_type.id }}&mode=confirm_delete_option_type{% for selected_fv in selected_filter_value_ids %}&fv={{ selected_fv }}{% endfor %}&include_disabled={{ include_disabled|yesno:'1,0' }}">Delete</a>
+                            {% endif %}
                         </div>
                     </form>
-
-                    {% if selected_option_type %}
-                        <h3 class="pmu-inline-title">Option Values</h3>
-                        <ul class="pmu-value-list">
-                            {% for value in option_values %}
-                                <li>
-                                    <a href="?product={{ selected_product.id }}&variant={{ selected_variant.id }}&option_type={{ selected_option_type.id }}&option_value={{ value.id }}">{{ value.name }}</a>
-                                </li>
-                            {% empty %}
-                                <li>No values yet.</li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
                 </article>
-            {% elif variant_form %}
+
+            {% elif panel_state == 'variant' and variant_form %}
                 <article class="pmu-card">
                     <h2 class="modal-title">Variant Details</h2>
-                    <form method="post" enctype="multipart/form-data">
+                    <form method="post" enctype="multipart/form-data" class="pmu-form-grid" id="pmu-variant-form">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="save_variant">
                         <input type="hidden" name="product_id" value="{{ selected_product.id|default:'' }}">
                         <input type="hidden" name="variant_id" value="{{ selected_variant.id|default:'' }}">
+                        <input type="hidden" name="selected_product" value="{{ selected_product.id|default:'' }}">
+                        <input type="hidden" name="include_disabled" value="{{ include_disabled|yesno:'1,0' }}">
+                        {% for selected_fv in selected_filter_value_ids %}<input type="hidden" name="selected_fv" value="{{ selected_fv }}">{% endfor %}
+
                         <div class="pmu-field"><label>ID</label><input type="text" value="{{ selected_variant.id|default:'(new)' }}" disabled></div>
-                        {{ variant_form.as_p }}
-                        <div class="pmu-action-row">
-                            <button type="submit" class="card-btn btn-neon btn-green">Save</button>
-                            <a href="?product={{ selected_product.id|default:'' }}" class="card-btn btn-neon btn-blue">Cancel</a>
+
+                        {% for field in variant_form %}
+                            {% if field.name != 'option_values' %}
+                                <div class="pmu-field">
+                                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% if field.errors %}<div class="pmu-error">{{ field.errors }}</div>{% endif %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+
+                        <div class="pmu-field pmu-field-full">
+                            <div class="pmu-option-group-head">
+                                <label>Option values</label>
+                                <a href="?product={{ selected_product.id }}&panel=variant&variant={{ selected_variant.id|default:'' }}{% for selected_fv in selected_filter_value_ids %}&fv={{ selected_fv }}{% endfor %}&include_disabled={% if include_disabled %}0{% else %}1{% endif %}" class="card-btn btn-neon btn-blue btn-sm">{% if include_disabled %}Hide disabled{% else %}Show disabled{% endif %}</a>
+                            </div>
+                            {% for group in variant_option_groups %}
+                                <div class="pmu-option-group-row">
+                                    <div class="pmu-option-group-title">{{ group.type.name }}</div>
+                                    <div class="pmu-option-group-values">
+                                        {% for value in group.values %}
+                                            <label class="pmu-option-check {% if not value.active %}is-disabled-value{% endif %}">
+                                                <input type="checkbox" name="option_values" value="{{ value.id }}" {% if value.checked %}checked{% endif %} {% if not value.active %}disabled{% endif %}>
+                                                <span>{{ value.name }}</span>
+                                            </label>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% empty %}
+                                <p class="pmu-note-neutral">No option values are available for this product.</p>
+                            {% endfor %}
+                        </div>
+
+                        <div class="pmu-image-meta pmu-field-full">
+                            <h3 class="pmu-inline-title">Variant Image</h3>
+                            <div class="pmu-image-row">
+                                <img id="pmu-image-preview" src="{% if selected_variant and selected_variant.resolve_image and selected_variant.resolve_image.image %}{{ selected_variant.resolve_image.image.url }}{% elif selected_product and selected_product.image and selected_product.image.image %}{{ selected_product.image.image.url }}{% else %}#{% endif %}" alt="Variant image preview" class="pmu-form-image-preview {% if not selected_variant or not selected_variant.resolve_image %}is-hidden{% endif %}">
+                                <div>
+                                    {% if selected_variant and selected_variant.resolve_image and selected_variant.resolve_image.image %}
+                                        <p><strong>Filepath:</strong> {{ selected_variant.resolve_image.image.name }}</p>
+                                    {% elif selected_product and selected_product.image and selected_product.image.image %}
+                                        <p><strong>Using product image fallback:</strong> {{ selected_product.image.image.name }}</p>
+                                    {% else %}
+                                        <p class="pmu-note-neutral">No image assigned to this variant yet.</p>
+                                    {% endif %}
+                                    <p class="pmu-note-neutral">Variant image takes precedence over product image when both exist.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pmu-action-row pmu-grid-actions pmu-field-full">
+                            <button type="submit" class="card-btn btn-neon btn-green pmu-action-btn">Save</button>
+                            <a href="{{ clear_all_filter_url }}" class="card-btn btn-neon btn-blue pmu-action-btn">Cancel</a>
+                            {% if selected_variant %}
+                                <a class="card-btn btn-neon btn-red pmu-action-btn {% if not is_superuser %}is-disabled{% endif %}" href="?product={{ selected_product.id|default:'' }}&variant={{ selected_variant.id|default:'' }}&mode=confirm_delete_variant{% for selected_fv in selected_filter_value_ids %}&fv={{ selected_fv }}{% endfor %}&include_disabled={{ include_disabled|yesno:'1,0' }}">Delete</a>
+                            {% endif %}
                         </div>
                     </form>
                 </article>
-            {% elif product_form %}
+
+            {% elif panel_state == 'product' and product_form %}
                 <article class="pmu-card">
                     <h2 class="modal-title">Product Details</h2>
-                    <form method="post">
+                    <form method="post" enctype="multipart/form-data" class="pmu-form-grid">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="save_product">
                         <input type="hidden" name="product_id" value="{{ selected_product.id|default:'' }}">
-                         <div class="pmu-field"><label>ID</label><input type="text" value="{{ selected_product.id|default:'(new)' }}" disabled></div>
+                        <input type="hidden" name="include_disabled" value="{{ include_disabled|yesno:'1,0' }}">
+                        {% for selected_fv in selected_filter_value_ids %}<input type="hidden" name="selected_fv" value="{{ selected_fv }}">{% endfor %}
+                        <div class="pmu-field"><label>ID</label><input type="text" value="{{ selected_product.id|default:'(new)' }}" disabled></div>
                         {{ product_form.as_p }}
-                        <div class="pmu-action-row">
-                            <button type="submit" class="card-btn btn-neon btn-green">Save</button>
-                            <a href="{% url 'hr_shop:product_manager' %}" class="card-btn btn-neon btn-blue">Cancel</a>
+                        <div class="pmu-action-row pmu-grid-actions">
+                            <button type="submit" class="card-btn btn-neon btn-green pmu-action-btn">Save</button>
+                            <a href="{{ clear_all_filter_url }}" class="card-btn btn-neon btn-blue pmu-action-btn">Cancel</a>
                         </div>
                     </form>
                 </article>
+
+            {% elif panel_state == 'browser' %}
+                <article class="pmu-card">
+                    <h2 class="modal-title">Variant Browser</h2>
+                    <p class="pmu-note-neutral">
+                        {% if selected_filter_value_ids %}
+                            Showing {{ variant_tiles|length }} variant{{ variant_tiles|length|pluralize }} matching your selected option values.
+                        {% else %}
+                            Showing all {{ variant_tiles|length }} variant{{ variant_tiles|length|pluralize }} for this product.
+                        {% endif %}
+                    </p>
+                    {% for group_label, group_tiles in grouped_variant_tiles.items %}
+                        <h3 class="pmu-group-title">{{ group_label }}</h3>
+                        <div class="pmu-variant-grid">
+                            {% for tile in group_tiles %}
+                                <a href="{{ tile.url }}" class="pmu-variant-tile {% if tile.is_selected %}is-selected{% endif %}">
+                                    <div class="pmu-variant-thumb-wrap">
+                                        {% if tile.variant.resolve_image and tile.variant.resolve_image.image %}
+                                            <img src="{{ tile.variant.resolve_image.image.url }}" alt="{{ tile.variant.name }}" class="pmu-variant-thumb">
+                                        {% else %}
+                                            <div class="pmu-variant-thumb pmu-variant-thumb-empty">No image</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="pmu-variant-title">{{ tile.variant.name }}</div>
+                                    {% if tile.label %}<div class="pmu-variant-meta">{{ tile.label }}</div>{% endif %}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% empty %}
+                        <p class="pmu-note">No variants match the selected option values.</p>
+                    {% endfor %}
+                </article>
+
             {% else %}
                 <article class="pmu-card">
                     <h2 class="modal-title">Select or add a product to begin.</h2>
@@ -197,4 +263,19 @@
         </section>
     </div>
 </div>
+
+<script>
+(function(){
+  const fileInput = document.getElementById('id_new_image_file');
+  const preview = document.getElementById('pmu-image-preview');
+  if(!fileInput || !preview) return;
+  fileInput.addEventListener('change', (e)=>{
+    const file = e.target.files && e.target.files[0];
+    if(!file) return;
+    const url = URL.createObjectURL(file);
+    preview.src = url;
+    preview.classList.remove('is-hidden');
+  });
+})();
+</script>
 {% endblock %}
