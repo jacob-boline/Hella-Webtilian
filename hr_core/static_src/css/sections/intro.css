@@ -17,6 +17,14 @@
     pointer-events:   none;
 }
 
+/* Keep intro overlay visible during startup when intro is expected.
+   Prevents a flash of page content before JS activates the intro on slower/mobile devices. */
+html.intro-pending .intro-overlay:not(.ready) {
+    opacity:        1;
+    pointer-events: all;
+    transition:     none;
+}
+
 .intro-overlay.active {
     opacity: 1;
     pointer-events: all;
