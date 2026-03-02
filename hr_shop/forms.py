@@ -52,13 +52,15 @@ class ProductAdminForm(forms.ModelForm):
 class ProductManagerProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ["name", "slug", "description", "active"]
+        fields = ["name", "slug", "description", "image", "active"]
         widgets = {
             "description": forms.Textarea(attrs={"rows": 4}),
         }
 
 
 class ProductManagerVariantForm(forms.ModelForm):
+    new_image_file = forms.ImageField(required=False, label="Upload new image")
+
     class Meta:
         model = ProductVariant
         fields = ["sku", "slug", "name", "price", "is_display_variant", "active", "image", "option_values"]

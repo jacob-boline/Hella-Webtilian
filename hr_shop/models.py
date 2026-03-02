@@ -70,8 +70,9 @@ def max_per_purchase(product):
 class Product(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=220, unique=True, blank=True)
-    description = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True, null=False, default="")
     active = models.BooleanField(default=False)
+    image = models.ForeignKey("ProductImage", related_name="products", null=True, blank=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.name
@@ -106,9 +107,7 @@ class Product(models.Model):
 
 
 class ProductOptionType(models.Model):
-    """
-    Per-product attribute type: e.g. Size, Color, Format.
-    """
+    """ Per-product attribute type: e.g. Size, Color, Format. """
 
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="option_types")
     name = models.CharField(max_length=64)
@@ -117,7 +116,7 @@ class ProductOptionType(models.Model):
     active = models.BooleanField(default=True)
 
     # does this option affect the display image?
-    drives_image = models.BooleanField(default=False, help_text=("If true, different values of this option type are expected to " "map to different images for this product."))
+    drives_image = models.BooleanField(default=False, help_text=("If true, different values of this option type are expected to map to different images for this product."))
 
     # default selection to pre-populate selects in the UI
     default_value = models.ForeignKey("ProductOptionValue", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
@@ -143,9 +142,7 @@ class ProductOptionType(models.Model):
 
 
 class ProductOptionValue(models.Model):
-    """
-    Per-product value for a given option type: e.g. Black, Purple, XL, Vinyl.
-    """
+    """ Per-product value for a given option type: e.g. Black, Purple, XL, Vinyl. z"""
 
     option_type = models.ForeignKey(ProductOptionType, on_delete=models.CASCADE, related_name="values")
     name = models.CharField(max_length=50)  # e.g. 'Black', 'XL'
@@ -269,17 +266,12 @@ class ProductImage(models.Model):
 class ProductVariant(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="variants")
     sku = models.CharField(max_length=64, unique=True)
-    slug = models.SlugField(max_length=160, blank=True, unique=True)
+    slug = models.SlugField(max_length=160, blank=True)
     name = models.CharField(max_length=128)
-
     price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal("0"))])
-
-    is_display_variant = models.BooleanField(default=False, help_text=("If set, this variant will be used as the product default/" "display variant."))
-
+    is_display_variant = models.BooleanField(default=False, help_text=("If set, this variant will be used as the product default display variant."))
     option_values = models.ManyToManyField(ProductOptionValue, through="ProductVariantOption", related_name="variants", blank=True)
-
     active = models.BooleanField(default=True)
-
     image = models.ForeignKey(ProductImage, related_name="variants", null=True, blank=True, on_delete=models.SET_NULL)
 
     class Meta:
@@ -303,9 +295,12 @@ class ProductVariant(models.Model):
     def resolve_image(self):
         """
         Return the best ProductImage for this variant, or None.
+        Variant-specific image always wins over product-level fallback image.
         """
         if self.image:
             return self.image
+        if self.product_id and self.product and self.product.image:
+            return self.product.image
         return None
 
 
@@ -362,8 +357,8 @@ class Customer(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, blank=True, null=True, related_name="customer", on_delete=models.SET_NULL)
     first_name = models.CharField(max_length=100, blank=True)
     last_name = models.CharField(max_length=100, blank=True)
-    middle_initial = models.CharField(max_length=5, null=True, blank=True)
-    suffix = models.CharField(max_length=20, null=True, blank=True)
+    middle_initial = models.CharField(max_length=5, null=False, blank=True, default="")
+    suffix = models.CharField(max_length=20, null=False, blank=True, default="")
     phone = PhoneNumberField(blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
@@ -377,6 +372,11 @@ class Customer(models.Model):
     def __str__(self):
         label = f"{self.first_name} {self.last_name}".strip() or self.email
         return f"Customer {self.pk} - {label}"
+
+    def save(self, *args, **kwargs):
+        if self.stripe_customer_id == "":
+            self.stripe_customer_id = None
+        super().save(*args, **kwargs)
 
     @property
     def full_name(self):
@@ -395,48 +395,44 @@ class CustomerAddress(models.Model):
         constraints = [
             models.UniqueConstraint(fields=["customer", "address"], name="uq_customer_address"),
             models.UniqueConstraint(fields=["customer"], condition=Q(is_default_shipping=True), name="uq_one_default_shipping_per_customer"),
-            models.UniqueConstraint(fields=["customer"], condition=Q(is_default_billing=True), name="uq_one_default_billing_per_customer"),
+            models.UniqueConstraint(fields=["customer"], condition=Q(is_default_billing=True), name="uq_one_default_billing_per_customer")
         ]
 
 
 # Not currently used, but would like to replace STATUS_CHOICES with this.
 class OrderStatus(models.TextChoices):
-    RECEIVED = "received"
+    RECEIVED   = "received"
     PROCESSING = "processing"
-    SHIPPED = "shipped"
-    DELIVERED = "delivered"
-    CANCELLED = "cancelled"
-    RETURNED = "returned"
+    SHIPPED    = "shipped"
+    DELIVERED  = "delivered"
+    CANCELLED  = "cancelled"
+    RETURNED   = "returned"
 
 
 class PaymentStatus(models.TextChoices):
-    PENDING = "pending"
-    UNPAID = "unpaid"
-    PAID = "paid"
-    FAILED = "failed"
+    PENDING  = "pending"
+    UNPAID   = "unpaid"
+    PAID     = "paid"
+    FAILED   = "failed"
     REFUNDED = "refunded"
 
 
 class Order(models.Model):
-    customer = models.ForeignKey(Customer, null=False, blank=False, on_delete=models.PROTECT, related_name="account_get_orders")
+    customer = models.ForeignKey(Customer, null=False, blank=False, on_delete=models.PROTECT, related_name="orders")
 
     # Order.user is the per-order ownership field (separate from Customer.user),
     # so users can claim or ignore older guest account_get_orders tied to the same email.
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="account_get_orders")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="orders")
 
     email: str
     email = NormalizedEmailField(db_index=True)
-
-    stripe_checkout_session_id = models.CharField(max_length=255, blank=True, null=True)
-
-    stripe_payment_intent_id = models.CharField(max_length=255, blank=True, null=True)
-
+    stripe_checkout_session_id = models.CharField(max_length=255, blank=True, null=True, db_index=True)
+    stripe_payment_intent_id = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     payment_status = models.CharField(max_length=20, choices=PaymentStatus.choices, default=PaymentStatus.UNPAID)
-
     order_status = models.CharField(max_length=20, choices=OrderStatus.choices, default=OrderStatus.RECEIVED)
     shipping_address = models.ForeignKey(Address, on_delete=models.PROTECT, null=True, blank=True)
     total = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
-    note = models.CharField(max_length=1000, null=True, blank=True)
+    note = models.CharField(max_length=1000, null=False, blank=True, default="")
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -521,7 +517,7 @@ class CheckoutDraft(models.Model):
     email = NormalizedEmailField(db_index=True)
     customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
     address = models.ForeignKey(Address, on_delete=models.PROTECT)
-    note = models.CharField(max_length=1000, blank=True, null=True)
+    note = models.CharField(max_length=1000, blank=True, null=False, default="")
     cart = models.JSONField(default=list)  # [{'variant_id': 123, 'qty': 2, 'unit_price': '19.99'}, ...]
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField(db_index=True)

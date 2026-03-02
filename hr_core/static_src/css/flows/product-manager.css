@@ -121,7 +121,6 @@
     pointer-events: none;
     opacity: 0.45;
 }
-
 .pmu-option-head {
     display: flex;
     justify-content: space-between;
@@ -162,7 +161,7 @@
     padding: 0.2rem 0.6rem;
     text-decoration: none;
     font-size: 0.85rem;
-    color: var(--text, #fff);
+    color: var(--text-default, #fff);
     background: rgba(17, 24, 39, 0.65);
 }
 
@@ -177,7 +176,7 @@
 
 .pmu-note-neutral {
     font-size: 0.9rem;
-    color: var(--muted-text, rgba(255, 255, 255, 0.75));
+    color: var(--text-muted, rgba(255, 255, 255, 0.75));
 }
 
 .pmu-variant-grid {
@@ -219,7 +218,7 @@
     align-items: center;
     justify-content: center;
     font-size: 0.8rem;
-    color: var(--muted-text, rgba(255, 255, 255, 0.6));
+    color: var(--text-muted, rgba(255, 255, 255, 0.6));
 }
 
 .pmu-variant-title {
@@ -230,5 +229,119 @@
 
 .pmu-variant-meta {
     font-size: 0.75rem;
-    color: var(--muted-text, rgba(255, 255, 255, 0.7));
+    color: var(--text-muted, rgba(255, 255, 255, 0.7));
+}
+
+.pmu-image-meta {
+    margin-top: 0.9rem;
+    padding-top: 0.7rem;
+    border-top: 1px solid var(--glass-border, rgba(255, 255, 255, 0.2));
+}
+
+.pmu-form-image-preview {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.2));
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.pmu-left-header {
+    font-size: 1rem !important;
+    font-weight: 700;
+    color: #22d3ee !important;
+}
+
+.pmu-option-name {
+    font-size: 0.96rem;
+    color: #d1d5db;
+}
+
+.pmu-left-actions {
+    display: grid;
+    gap: 0.55rem;
+    margin-top: 1rem;
+}
+
+.pmu-action-btn {
+    min-width: 130px;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.pmu-grid-actions {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.pmu-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.75rem 0.9rem;
+}
+
+.pmu-form-grid > p {
+    margin: 0;
+}
+
+.pmu-form-grid > p label,
+.pmu-form-grid .pmu-field label {
+    text-align: left;
+}
+
+.pmu-field-full {
+    grid-column: 1 / -1;
+}
+
+.pmu-group-title {
+    margin: 0.7rem 0 0.35rem;
+    color: #facc15;
+}
+
+.is-disabled-value {
+    opacity: 0.55;
+}
+
+.pmu-option-group-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.pmu-option-group-row {
+    margin-top: 0.65rem;
+}
+
+.pmu-option-group-title {
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+    color: #93c5fd;
+}
+
+.pmu-option-group-values {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+}
+
+.pmu-option-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.22rem 0.55rem;
+    border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.2));
+    border-radius: 999px;
+}
+
+.pmu-image-row {
+    display: flex;
+    gap: 0.9rem;
+    align-items: flex-start;
+}
+
+.pmu-form-image-preview.is-hidden {
+    display: none;
 }
