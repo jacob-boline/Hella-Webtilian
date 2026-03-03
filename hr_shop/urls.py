@@ -12,8 +12,14 @@ urlpatterns = [
     path("merchModule/<slug:product_slug>/modal/", products.get_product_modal_partial, name="product_modal_partial"),
     path("product/<slug:product_slug>/variant-preview", products.update_details_modal, name="update_details_modal"),
     path("product/<slug:product_slug>/image-for-selection/", products.product_image_for_selection, name="product_image_for_selection"),
-    # Admin: main product manager shell
-    path("manage/", manage_unified.product_manager, name="product_manager"),
+    # Admin: product manager (shell + panels partial + per-form POST endpoints)
+    path("manage/", manage_unified.product_manager_shell, name="product_manager"),
+    path("manage/panels/", manage_unified.product_manager_panels, name="product_manager_panels"),
+    path("manage/product/save/", manage_unified.save_product, name="pmu_save_product"),
+    path("manage/variant/save/", manage_unified.save_variant, name="pmu_save_variant"),
+    path("manage/option-type/save/", manage_unified.save_option_type, name="pmu_save_option_type"),
+    path("manage/option-value/save/", manage_unified.save_option_value, name="pmu_save_option_value"),
+    path("manage/delete/", manage_unified.delete_confirmed, name="pmu_delete_confirmed"),
     # Cart
     path("cart/add/<slug:variant_slug>/", cart.add_variant_to_cart, name="add_to_cart"),
     path("cart/add/by-options/<slug:product_slug>/", cart.add_to_cart_by_options, name="add_to_cart_by_options"),

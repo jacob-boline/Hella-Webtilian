@@ -1,0 +1,43 @@
+{# hr_shop/templates/hr_shop/manage/_form_product.html #}
+
+<article class="pmu-card">
+    <h2 class="modal-title">{% if selected_product %}Edit Product{% else %}New Product{% endif %}</h2>
+
+    <form class="pmu-form-grid"
+          enctype="multipart/form-data"
+          hx-post="{% url 'hr_shop:pmu_save_product' %}"
+          hx-target="#pmu-panels"
+          hx-swap="innerHTML transition:true"
+          hx-encoding="multipart/form-data">
+
+        {% csrf_token %}
+        <input type="hidden" name="product_id" value="{{ selected_product.id|default:'' }}">
+        <input type="hidden" name="include_disabled" value="{{ include_disabled|yesno:'1,0' }}">
+        {% for fv in selected_filter_value_ids %}
+            <input type="hidden" name="fv" value="{{ fv }}">
+        {% endfor %}
+
+        {% if selected_product %}
+            <div class="pmu-field">
+                <label>ID
+                    <input type="text" value="{{ selected_product.id }}" disabled>
+                </label>
+            </div>
+        {% endif %}
+
+        {{ product_form.as_p }}
+
+        <div class="pmu-action-row pmu-grid-actions">
+            <button type="submit" class="card-btn btn-neon btn-green pmu-action-btn">
+                Save
+            </button>
+            <a class="card-btn btn-neon btn-blue pmu-action-btn"
+               hx-get="{{ clear_all_filter_url }}"
+               hx-target="#pmu-panels"
+               hx-swap="innerHTML transition:true"
+               href="{{ clear_all_filter_url }}">
+                Cancel
+            </a>
+        </div>
+    </form>
+</article>

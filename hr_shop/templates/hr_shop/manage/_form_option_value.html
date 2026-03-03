@@ -1,0 +1,45 @@
+{# hr_shop/templates/hr_shop/manage/_form_option_value.html #}
+
+<article class="pmu-card">
+    <h2 class="modal-title">{% if selected_option_value %}Edit Option Value{% else %}New Option Value{% endif %}</h2>
+    {% if selected_option_type %}
+        <p class="pmu-note-neutral">Option Type: <strong>{{ selected_option_type.name }}</strong></p>
+    {% endif %}
+
+    <form class="pmu-form-grid"
+          hx-post="{% url 'hr_shop:pmu_save_option_value' %}"
+          hx-target="#pmu-panels"
+          hx-swap="innerHTML transition:true">
+
+        {% csrf_token %}
+        <input type="hidden" name="option_type_id" value="{{ selected_option_type.id|default:'' }}">
+        <input type="hidden" name="option_value_id" value="{{ selected_option_value.id|default:'' }}">
+        <input type="hidden" name="include_disabled" value="{{ include_disabled|yesno:'1,0' }}">
+        {% for fv in selected_filter_value_ids %}
+            <input type="hidden" name="fv" value="{{ fv }}">
+        {% endfor %}
+
+        {% if selected_option_value %}
+            <div class="pmu-field">
+                <label>ID
+                    <input type="text" value="{{ selected_option_value.id }}" disabled>
+                </label>
+            </div>
+        {% endif %}
+
+        {{ option_value_form.as_p }}
+
+        <div class="pmu-action-row pmu-grid-actions">
+            <button type="submit" class="card-btn btn-neon btn-green pmu-action-btn">
+                Save
+            </button>
+            <a class="card-btn btn-neon btn-blue pmu-action-btn"
+               hx-get="{{ clear_all_filter_url }}"
+               hx-target="#pmu-panels"
+               hx-swap="innerHTML transition:true"
+               href="{{ clear_all_filter_url }}">
+                Cancel
+            </a>
+        </div>
+    </form>
+</article>

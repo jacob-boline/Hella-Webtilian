@@ -142,7 +142,7 @@ class ProductOptionType(models.Model):
 
 
 class ProductOptionValue(models.Model):
-    """ Per-product value for a given option type: e.g. Black, Purple, XL, Vinyl. z"""
+    """ The associated values to a ProductOptionType -- e.g. type:size, values:s,m,lg """
 
     option_type = models.ForeignKey(ProductOptionType, on_delete=models.CASCADE, related_name="values")
     name = models.CharField(max_length=50)  # e.g. 'Black', 'XL'
@@ -325,11 +325,7 @@ class ProductVariantOption(models.Model):
 
 
 class InventoryItem(models.Model):
-    variant = models.OneToOneField(
-        ProductVariant,
-        on_delete=models.CASCADE,
-        related_name="inventory",
-    )
+    variant = models.OneToOneField(ProductVariant, on_delete=models.CASCADE, related_name="inventory")
     on_hand = models.PositiveIntegerField(default=0)
     reserved = models.PositiveIntegerField(default=0)
 
@@ -362,7 +358,7 @@ class Customer(models.Model):
     phone = PhoneNumberField(blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
-    stripe_customer_id = models.CharField(max_length=255, blank=True, null=True, db_index=True)
+    stripe_customer_id = models.CharField(max_length=255, blank=True, null=True, db_index=True)  #NOSONAR
     wants_saved_info = models.BooleanField(default=False)
 
     class Meta:
@@ -426,8 +422,8 @@ class Order(models.Model):
 
     email: str
     email = NormalizedEmailField(db_index=True)
-    stripe_checkout_session_id = models.CharField(max_length=255, blank=True, null=True, db_index=True)
-    stripe_payment_intent_id = models.CharField(max_length=255, blank=True, null=True, db_index=True)
+    stripe_checkout_session_id = models.CharField(max_length=255, blank=True, null=True, db_index=True)  # NOSONAR
+    stripe_payment_intent_id = models.CharField(max_length=255, blank=True, null=True, db_index=True)  # NOSONAR
     payment_status = models.CharField(max_length=20, choices=PaymentStatus.choices, default=PaymentStatus.UNPAID)
     order_status = models.CharField(max_length=20, choices=OrderStatus.choices, default=OrderStatus.RECEIVED)
     shipping_address = models.ForeignKey(Address, on_delete=models.PROTECT, null=True, blank=True)

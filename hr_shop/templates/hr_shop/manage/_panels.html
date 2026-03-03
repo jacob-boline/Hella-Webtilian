@@ -1,0 +1,9 @@
+{# hr_shop/templates/hr_shop/manage/_panels.html #}
+
+{#  This template is the innerHTML of #pmu-panels.                      #}
+{#  Every HTMX swap replaces these two siblings together so both panels #}
+{#  always reflect consistent state from a single server round-trip.    #}
+
+
+{% include "hr_shop/manage/_left.html" %}
+{% include "hr_shop/manage/_right.html" %}

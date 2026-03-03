@@ -1,0 +1,41 @@
+{# hr_shop/templates/hr_shop/manage/_panel_browser.html #}
+
+<article class="pmu-card">
+    <h2 class="modal-title">Variant Browser</h2>
+    <p class="pmu-note-neutral">
+        {% if selected_filter_value_ids %}
+            Showing {{ variant_tiles|length }} variant{{ variant_tiles|length|pluralize }} matching your selected option values.
+        {% else %}
+            Showing all {{ variant_tiles|length }} variant{{ variant_tiles|length|pluralize }} for this product.
+        {% endif %}
+    </p>
+
+    {% for group_label, group_tiles in grouped_variant_tiles.items %}
+        <h3 class="pmu-group-title">{{ group_label }}</h3>
+        <div class="pmu-variant-grid">
+            {% for tile in group_tiles %}
+                <a href="{{ tile.url }}"
+                   hx-get="{{ tile.url }}"
+                   hx-target="#pmu-panels"
+                   hx-swap="innerHTML transition:true"
+                   class="pmu-variant-tile {% if tile.is_selected %}is-selected{% endif %}">
+                    <div class="pmu-variant-thumb-wrap">
+                        {% if tile.variant.resolve_image and tile.variant.resolve_image.image %}
+                            <img src="{{ tile.variant.resolve_image.image.url }}"
+                                 alt="{{ tile.variant.name }}"
+                                 class="pmu-variant-thumb">
+                        {% else %}
+                            <div class="pmu-variant-thumb pmu-variant-thumb-empty">No image</div>
+                        {% endif %}
+                    </div>
+                    <div class="pmu-variant-title">{{ tile.variant.name }}</div>
+                    {% if tile.label %}
+                        <div class="pmu-variant-meta">{{ tile.label }}</div>
+                    {% endif %}
+                </a>
+            {% endfor %}
+        </div>
+    {% empty %}
+        <p class="pmu-note">No variants match the selected option values.</p>
+    {% endfor %}
+</article>
