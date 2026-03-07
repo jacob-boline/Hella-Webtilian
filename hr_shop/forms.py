@@ -1,6 +1,7 @@
 # hr_shop/forms.py
 
 import re
+from typing import cast
 
 from django import forms
 from phonenumber_field.formfields import PhoneNumberField
@@ -18,7 +19,7 @@ class ProductAdminForm(forms.ModelForm):
         queryset=OptionTypeTemplate.objects.filter(active=True),
         required=False,
         label="Apply option templates",
-        help_text="[Select reusable option types to clone onto this product.]",
+        help_text="[Select reusable option types to clone onto this product.]"
     )
 
     class Meta:
@@ -28,14 +29,15 @@ class ProductAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        def label_from_instance(obj: ProductOptionType):
+        def label_from_instance(obj: OptionTypeTemplate):
             values = obj.values.order_by("position", "id").values_list("name", flat=True)
             values_list = ", ".join(values)
             if values_list:
                 return f"{obj.name} ({values_list})"
             return obj.name
 
-        self.fields["option_type_templates"].label_from_instance = label_from_instance
+        field = cast(forms.ModelMultipleChoiceField, self.fields["option_type_templates"])
+        field.label_from_instance = label_from_instance
 
     def save(self, commit=True):
         is_new = self.instance.pk is None
@@ -52,7 +54,7 @@ class ProductAdminForm(forms.ModelForm):
 class ProductManagerProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ["name", "slug", "description", "image", "active"]
+        fields = ["name", "slug", "description", "default_image", "active"]
         widgets = {
             "description": forms.Textarea(attrs={"rows": 4}),
         }

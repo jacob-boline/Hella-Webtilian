@@ -6,6 +6,7 @@
 
 
 <section class="pmu-right m-shell" id="pmu-right">
+
     {% if panel_state == 'delete' and delete_plan %}
         {% include "hr_shop/manage/_confirm_delete.html" %}
 
@@ -26,5 +27,6 @@
 
     {% else %}
         {% include "hr_shop/manage/_panel_empty.html" %}
+
     {% endif %}
 </section>

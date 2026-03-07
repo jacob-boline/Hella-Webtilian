@@ -11,7 +11,7 @@
 }
 
 .pmu-subtitle {
-    color: var(--muted-text, rgba(255, 255, 255, 0.75));
+    color: var(--muted-text);
 }
 
 .pmu-layout {
@@ -22,36 +22,23 @@
 }
 
 .pmu-left,
-.pmu-right {
-    border:          1px solid var(--glass-border, rgba(255, 255, 255, 0.2));
-    border-radius:   14px;
-    padding:         1rem;
-    background:      rgba(6, 10, 20, 0.72);
-    /*backdrop-filter: blur(8px);*/
+.pmu-right,
+.pmu-card {
+    border:        1px solid var(--glass-border);
+    border-radius: 0.75rem;
+    padding:       1rem;
+    background:    var(--black-alpha-75);
 }
 
 .pmu-select-block {
     margin-bottom: 1rem;
 }
 
-.pmu-select-block label {
-    display:        block;
-    margin-bottom:  0.3rem;
-    font-size:      0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color:          var(--neon-blue);
-}
-
 .pmu-select-row {
     display:               grid;
     grid-template-columns: minmax(0, 1fr) auto auto;
-    gap:                   0.35rem;
+    gap:                   0.25rem;
     align-items:           center;
-}
-
-.pmu-select-row select {
-    width: 100%;
 }
 
 .pmu-product-select-action-btn-row {
@@ -60,43 +47,27 @@
     gap:                   0.5rem;
 }
 
-.pmu-card {
-    border:        1px solid var(--glass-border, rgba(255, 255, 255, 0.2));
-    border-radius: 12px;
-    padding:       1rem;
-    background:    rgba(5, 8, 18, 0.65);
-}
-
-.pmu-card p label {
+.pmu-card p label,
+.pmu-field label,
+.pmu-select-block label {
     display:        block;
-    font-size:      0.7rem;
+    font-size:      0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color:          var(--neon-blue);
     margin-bottom:  0.25rem;
 }
 
-.pmu-card p {
+.pmu-card p,
+.pmu-field {
     margin: 0.5rem 0;
 }
 
 .pmu-card p input,
 .pmu-card p textarea,
-.pmu-card p select {
+.pmu-card p select,
+.pmu-select-row select {
     width: 100%;
-}
-
-.pmu-field {
-    margin: 0.5rem 0;
-}
-
-.pmu-field label {
-    display:        block;
-    font-size:      0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color:          var(--neon-blue);
-    margin-bottom:  0.25rem;
 }
 
 .pmu-field input[disabled] {
@@ -105,14 +76,14 @@
 
 .pmu-action-row {
     display:         flex;
-    gap:             0.65rem;
+    gap:             0.75rem;
     margin-top:      1rem;
     justify-content: flex-end;
 }
 
 .pmu-note {
-    font-size: 0.9rem;
-    color:     #FACC15;
+    font-size: 1rem;
+    color: var(--glow);
 }
 
 .pmu-inline-title {
@@ -129,51 +100,61 @@
     opacity:        0.45;
 }
 
-.pmu-option-head {
-    display:         flex;
+.pmu-option-head,
+.pmu-option-row-head,
+.pmu-option-group-head {
+    display: flex;
+    align-items: center;
     justify-content: space-between;
-    align-items:     center;
-    margin-bottom:   0.5rem;
+}
+
+.pmu-option-head {
+    margin-bottom: 0.5rem;
+}
+
+.pmu-option-row-head {
+    margin-bottom: 0.25rem;
+    gap: 0.5rem;
+}
+
+.pmu-option-group-head {
+    gap: 0.5rem;
 }
 
 .pmu-option-row {
     margin-bottom: 0.75rem;
 }
 
-.pmu-option-row-head {
-    display:         flex;
-    justify-content: space-between;
-    align-items:     center;
-    margin-bottom:   0.35rem;
-    gap:             0.5rem;
-}
-
 .pmu-option-name {
     font-weight: 600;
+    font-size: 1rem;
+    color:     var(--text);
 }
 
 .pmu-option-row-actions {
     display: flex;
-    gap:     0.35rem;
+    gap:     0.25rem;
 }
 
-.pmu-pill-list {
+.pmu-pill-list,
+.pmu-option-group-values {
     display:   flex;
     flex-wrap: wrap;
-    gap:       0.35rem;
+    gap:       0.25rem;
 }
 
 .pmu-pill {
-    border:          1px solid var(--glass-border, rgba(255, 255, 255, 0.2));
+    border:          1px solid var(--glass-border);
     border-radius:   999px;
-    padding:         0.2rem 0.6rem;
+    padding:         0.25rem 0.5rem;
     text-decoration: none;
-    font-size:       0.85rem;
+    font-size:       0.75rem;
     color:           var(--text);
     background:      rgba(17, 24, 39, 0.65);
 }
 
-.pmu-pill.is-active {
+.pmu-pill.is-active,
+.pmu-variant-tile.is-selected{
     border-color: var(--neon-blue);
     box-shadow:   0 0 0 1px var(--neon-blue);
 }
@@ -183,34 +164,31 @@
 }
 
 .pmu-note-neutral {
-    font-size: 0.9rem;
-    color:     var(--muted-text, rgba(255, 255, 255, 0.75));
+    font-size: 1rem;
+    color:     var(--muted-text);
 }
 
 .pmu-variant-grid {
-    display:               grid;
-    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
-    gap:                   0.75rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, 145px);
+    gap: 0.75rem;
+    justify-content: center;
+    justify-items: center;
 }
 
 .pmu-variant-tile {
     text-decoration: none;
-    border:          1px solid var(--glass-border, rgba(255, 255, 255, 0.2));
-    border-radius:   10px;
+    border:          1px solid var(--glass-border);
+    border-radius:   0.75rem;
     padding:         0.5rem;
     background:      rgba(8, 12, 24, 0.8);
 }
 
-.pmu-variant-tile.is-selected {
-    border-color: var(--neon-blue);
-    box-shadow:   0 0 0 1px var(--neon-blue);
-}
-
 .pmu-variant-thumb-wrap {
     aspect-ratio:  1 / 1;
-    border-radius: 8px;
+    border-radius: 0.5rem;
     overflow:      hidden;
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.5rem;
     background:    rgba(0, 0, 0, 0.35);
 }
 
@@ -225,34 +203,34 @@
     display:         flex;
     align-items:     center;
     justify-content: center;
-    font-size:       0.8rem;
-    color:           var(--muted-text, rgba(255, 255, 255, 0.6));
+    font-size:       0.75rem;
+    color:           var(--muted-text);
 }
 
 .pmu-variant-title {
     font-weight:   600;
-    font-size:     0.9rem;
-    margin-bottom: 0.2rem;
+    font-size:     1rem;
+    margin-bottom: 0.25rem;
     color:         var(--neon-cyan-alpha-90);
 }
 
 .pmu-variant-meta {
     font-size: 0.75rem;
-    color:     var(--muted-text, rgba(255, 255, 255, 0.7));
+    color:     var(--muted-text);
 }
 
 .pmu-image-meta {
-    margin-top:  0.9rem;
-    padding-top: 0.7rem;
-    border-top:  1px solid var(--glass-border, rgba(255, 255, 255, 0.2));
+    margin-top:  1rem;
+    padding-top: 0.75rem;
+    border-top:  1px solid var(--glass-border);
 }
 
 .pmu-form-image-preview {
     width:         120px;
     height:        120px;
     object-fit:    cover;
-    border-radius: 8px;
-    border:        1px solid var(--glass-border, rgba(255, 255, 255, 0.2));
+    border-radius: 0.5rem;
+    border:        1px solid var(--glass-border);
     display:       block;
     margin-bottom: 0.5rem;
 }
@@ -260,17 +238,12 @@
 .pmu-left-header {
     font-size:   1rem !important;
     font-weight: 700;
-    color:       #22D3EE !important;
-}
-
-.pmu-option-name {
-    font-size: 0.96rem;
-    color:     #D1D5DB;
+    color: var(--neon-blue) !important;
 }
 
 .pmu-left-actions {
     display:    grid;
-    gap:        0.55rem;
+    gap:        0.5rem;
     margin-top: 1rem;
 }
 
@@ -288,7 +261,7 @@
 .pmu-form-grid {
     display:               grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap:                   0.75rem 0.9rem;
+    gap:                   0.75rem 1rem;
 }
 
 .pmu-form-grid > p {
@@ -305,49 +278,36 @@
 }
 
 .pmu-group-title {
-    margin: 0.7rem 0 0.35rem;
-    color:  #FACC15;
+    margin: 0.75rem 0 0.25rem;
+    color:  var(--neon-cyan-alpha-45);
 }
 
 .is-disabled-value {
     opacity: 0.55;
 }
 
-.pmu-option-group-head {
-    display:         flex;
-    align-items:     center;
-    justify-content: space-between;
-    gap:             0.5rem;
-}
-
 .pmu-option-group-row {
-    margin-top: 0.65rem;
+    margin-top: 0.75rem;
 }
 
 .pmu-option-group-title {
     font-weight:   600;
-    margin-bottom: 0.35rem;
+    margin-bottom: 0.25rem;
     color:         #93C5FD;
-}
-
-.pmu-option-group-values {
-    display:   flex;
-    flex-wrap: wrap;
-    gap:       0.45rem;
 }
 
 .pmu-option-check {
     display:       inline-flex;
     align-items:   center;
-    gap:           0.35rem;
-    padding:       0.22rem 0.55rem;
-    border:        1px solid var(--glass-border, rgba(255, 255, 255, 0.2));
+    gap:           0.25rem;
+    padding:       0.25rem 0.5rem;
+    border:        1px solid var(--glass-border);
     border-radius: 999px;
 }
 
 .pmu-image-row {
     display:     flex;
-    gap:         0.9rem;
+    gap:         1rem;
     align-items: flex-start;
 }
 

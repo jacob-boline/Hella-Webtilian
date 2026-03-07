@@ -1,4 +1,5 @@
 # hr_shop/views/manage_unified.py
+
 """
 Product Manager views.
 
@@ -15,6 +16,7 @@ All POST views return fresh panels HTML targeting #pmu-panels, plus
 HX-Trigger-After-Settle for user-facing messages. Validation failures
 return the same panels with the bound form and a 422 status.
 """
+
 from __future__ import annotations
 
 from django.contrib.admin.views.decorators import staff_member_required
@@ -37,9 +39,8 @@ from hr_shop.views.manage_helpers import (
     _related_exists_for_soft_delete,
     _resolve_selection,
     _resolve_selection_from_get,
-    _set_inactive,
     _to_int,
-    build_panels_context,
+    build_panels_context, SelectionIds
 )
 
 _PANELS_TEMPLATE = "hr_shop/manage/_panels.html"
@@ -50,11 +51,11 @@ _SHELL_TEMPLATE = "hr_shop/manage/_shell.html"
 # Internal helpers
 # ---------------------------------------------------------------------------
 
-
 def _render_panels(request: HttpRequest, ctx: dict, status: int = 200) -> HttpResponse:
     return render(request, _PANELS_TEMPLATE, ctx, status=status)
 
 
+# noinspection PyTypeChecker
 def _ctx_from_get(request: HttpRequest) -> dict:
     selection = _resolve_selection_from_get(request)
     filter_value_ids = _parse_filter_value_ids(request.GET, selection["product"])
@@ -70,7 +71,6 @@ def _ctx_from_get(request: HttpRequest) -> dict:
 # GET views
 # ---------------------------------------------------------------------------
 
-
 @staff_member_required
 @require_GET
 def product_manager_shell(request: HttpRequest) -> HttpResponse:
@@ -82,15 +82,14 @@ def product_manager_shell(request: HttpRequest) -> HttpResponse:
 @staff_member_required
 @require_GET
 def product_manager_panels(request: HttpRequest) -> HttpResponse:
-    """Both panels partial — the HTMX swap target for all navigation interactions."""
+    """ Returns left and right panels of the unified product manager. """
     ctx = _ctx_from_get(request)
     return _render_panels(request, ctx)
 
 
 # ---------------------------------------------------------------------------
-# POST views — one per form type
+# POST views
 # ---------------------------------------------------------------------------
-
 
 @staff_member_required
 @require_POST
@@ -103,22 +102,18 @@ def save_product(request: HttpRequest) -> HttpResponse:
 
     if form.is_valid():
         product = form.save()
-        selection = _resolve_selection(product.id, None, None, None)
+        selection = _resolve_selection(SelectionIds(product_id=product.id)).to_dict()
         ctx = build_panels_context(selection, [], include_disabled, "product", "")
         ctx["is_superuser"] = request.user.is_superuser
         resp = _render_panels(request, ctx)
-        return merge_hx_trigger_after_settle(
-            resp, {"showMessage": show_message(f"Saved product '{product.name}'.")}
-        )
+        return merge_hx_trigger_after_settle(resp, {"showMessage": show_message(f"Saved product '{product.name}'.")})
 
-    selection = _resolve_selection(product_id, None, None, None)
+    selection = _resolve_selection(SelectionIds(product_id=product_id)).to_dict()
     filter_value_ids = _parse_filter_value_ids(request.POST, selection["product"])
     ctx = build_panels_context(selection, filter_value_ids, include_disabled, "product", "", form)
     ctx["is_superuser"] = request.user.is_superuser
     resp = _render_panels(request, ctx, status=422)
-    return merge_hx_trigger_after_settle(
-        resp, {"showMessage": show_message("Please correct the product form errors.")}
-    )
+    return merge_hx_trigger_after_settle(resp, {"showMessage": show_message("Please correct the product form errors.")})
 
 
 @staff_member_required
@@ -127,9 +122,7 @@ def save_variant(request: HttpRequest) -> HttpResponse:
     product = get_object_or_404(Product, pk=_to_int(request.POST.get("product_id")))
     variant_id = _to_int(request.POST.get("variant_id"))
     instance = product.variants.filter(pk=variant_id).first() if variant_id else None
-    form = ProductManagerVariantForm(
-        request.POST, request.FILES, instance=instance, product=product
-    )
+    form = ProductManagerVariantForm(request.POST, request.FILES, instance=instance, product=product)
 
     include_disabled = request.POST.get("include_disabled") == "1"
     filter_value_ids = _parse_filter_value_ids(request.POST, product)
@@ -139,26 +132,20 @@ def save_variant(request: HttpRequest) -> HttpResponse:
         variant.product = product
         new_image_file = form.cleaned_data.get("new_image_file")
         if new_image_file:
-            variant.image = ProductImage.objects.create(
-                image=new_image_file, alt_text=variant.name or product.name
-            )
+            variant.image = ProductImage.objects.create(image=new_image_file, alt_text=variant.name or product.name)
         variant.save()
         form.save_m2m()
-        selection = _resolve_selection(product.id, variant.id, None, None)
+        selection = _resolve_selection(SelectionIds(product_id=product.id, variant_id=variant.id)).to_dict()
         ctx = build_panels_context(selection, filter_value_ids, include_disabled, "variant", "")
         ctx["is_superuser"] = request.user.is_superuser
         resp = _render_panels(request, ctx)
-        return merge_hx_trigger_after_settle(
-            resp, {"showMessage": show_message(f"Saved variant '{variant.name}'.")}
-        )
+        return merge_hx_trigger_after_settle(resp, {"showMessage": show_message(f"Saved variant '{variant.name}'.")})
 
-    selection = _resolve_selection(product.id, variant_id, None, None)
+    selection = _resolve_selection(SelectionIds(product_id=product.id, variant_id=variant_id)).to_dict()
     ctx = build_panels_context(selection, filter_value_ids, include_disabled, "variant", "", form)
     ctx["is_superuser"] = request.user.is_superuser
     resp = _render_panels(request, ctx, status=422)
-    return merge_hx_trigger_after_settle(
-        resp, {"showMessage": show_message("Please correct the variant form errors.")}
-    )
+    return merge_hx_trigger_after_settle(resp, {"showMessage": show_message("Please correct the variant form errors.")})
 
 
 @staff_member_required
@@ -179,33 +166,23 @@ def save_option_type(request: HttpRequest) -> HttpResponse:
         option_type = form.save(commit=False)
         option_type.product = product
         option_type.save()
-        selection = _resolve_selection(product.id, None, option_type.id, None)
-        ctx = build_panels_context(
-            selection, filter_value_ids, include_disabled, "option_type", ""
-        )
+        selection = _resolve_selection(SelectionIds(product_id=product.id, option_type_id=option_type.id)).to_dict()
+        ctx = build_panels_context(selection, filter_value_ids, include_disabled, "option_type", "")
         ctx["is_superuser"] = request.user.is_superuser
         resp = _render_panels(request, ctx)
-        return merge_hx_trigger_after_settle(
-            resp, {"showMessage": show_message(f"Saved option type '{option_type.name}'.")}
-        )
+        return merge_hx_trigger_after_settle(resp, {"showMessage": show_message(f"Saved option type '{option_type.name}'.")})
 
-    selection = _resolve_selection(product.id, None, option_type_id, None)
-    ctx = build_panels_context(
-        selection, filter_value_ids, include_disabled, "option_type", "", form
-    )
+    selection = _resolve_selection(SelectionIds(product_id=product.id, option_type_id=option_type_id)).to_dict()
+    ctx = build_panels_context(selection, filter_value_ids, include_disabled, "option_type", "", form)
     ctx["is_superuser"] = request.user.is_superuser
     resp = _render_panels(request, ctx, status=422)
-    return merge_hx_trigger_after_settle(
-        resp, {"showMessage": show_message("Please correct the option type form errors.")}
-    )
+    return merge_hx_trigger_after_settle(resp, {"showMessage": show_message("Please correct the option type form errors.")})
 
 
 @staff_member_required
 @require_POST
 def save_option_value(request: HttpRequest) -> HttpResponse:
-    option_type = get_object_or_404(
-        ProductOptionType, pk=_to_int(request.POST.get("option_type_id"))
-    )
+    option_type = get_object_or_404(ProductOptionType, pk=_to_int(request.POST.get("option_type_id")))
     value_id = _to_int(request.POST.get("option_value_id"))
     instance = (
         ProductOptionValue.objects.filter(pk=value_id, option_type=option_type).first()
@@ -220,42 +197,33 @@ def save_option_value(request: HttpRequest) -> HttpResponse:
         option_value = form.save(commit=False)
         option_value.option_type = option_type
         option_value.save()
-        selection = _resolve_selection(
-            option_type.product_id, None, option_type.id, option_value.id
-        )
-        ctx = build_panels_context(
-            selection, filter_value_ids, include_disabled, "option_value", ""
-        )
+        selection = _resolve_selection(SelectionIds(product_id=int(option_type.product_id), option_type_id=option_type.id, option_value_id=option_value.id)).to_dict()
+        ctx = build_panels_context(selection, filter_value_ids, include_disabled, "option_value", "")
         ctx["is_superuser"] = request.user.is_superuser
         resp = _render_panels(request, ctx)
-        return merge_hx_trigger_after_settle(
-            resp, {"showMessage": show_message(f"Saved option value '{option_value.name}'.")}
-        )
+        return merge_hx_trigger_after_settle(resp, {"showMessage": show_message(f"Saved option value '{option_value.name}'.")})
 
-    selection = _resolve_selection(option_type.product_id, None, option_type.id, value_id)
-    ctx = build_panels_context(
-        selection, filter_value_ids, include_disabled, "option_value", "", form
-    )
+    selection = _resolve_selection(SelectionIds(product_id=int(option_type.product_id), option_type_id=option_type.id, option_value_id=value_id)).to_dict()
+    ctx = build_panels_context(selection, filter_value_ids, include_disabled, "option_value", "", form)
     ctx["is_superuser"] = request.user.is_superuser
     resp = _render_panels(request, ctx, status=422)
-    return merge_hx_trigger_after_settle(
-        resp, {"showMessage": show_message("Please correct the option value form errors.")}
-    )
+    return merge_hx_trigger_after_settle(resp, {"showMessage": show_message("Please correct the option value form errors.")})
 
 
+# noinspection PyTypeChecker
 @staff_member_required
 @require_POST
 def delete_confirmed(request: HttpRequest) -> HttpResponse:
     product_id = _to_int(request.POST.get("product_id"))
     include_disabled = request.POST.get("include_disabled") == "1"
 
-    def _panels_with_msg(msg: str, pid=product_id, status: int = 200) -> HttpResponse:
-        selection = _resolve_selection(pid, None, None, None)
+    def _panels_with_msg(message: str, pid=product_id, status: int = 200) -> HttpResponse:
+        selection = _resolve_selection(SelectionIds(product_id=pid)).to_dict()
         fv_ids = _parse_filter_value_ids(request.POST, selection["product"])
         ctx = build_panels_context(selection, fv_ids, include_disabled, "browser", "")
         ctx["is_superuser"] = request.user.is_superuser
         resp = _render_panels(request, ctx, status=status)
-        return merge_hx_trigger_after_settle(resp, {"showMessage": show_message(msg)})
+        return merge_hx_trigger_after_settle(resp, {"showMessage": show_message(message)})
 
     if not request.user.is_superuser:
         return _panels_with_msg("Only superusers can delete records.", status=403)
@@ -269,7 +237,7 @@ def delete_confirmed(request: HttpRequest) -> HttpResponse:
 
     soft = _related_exists_for_soft_delete(obj)
     if soft:
-        _set_inactive(obj)
+        obj.deactivate()
         msg = f"{kind.replace('_', ' ').title()} had related records and was set inactive."
     else:
         obj.delete()

@@ -19,7 +19,8 @@
 {#              hx-include pulls in the include_disabled hidden input so that preference #}
 {#              is preserved across the product switch.                                  #}
 
-            <label class="pmu-left-header" for="pmu-product-select">PRODUCT
+            <label class="pmu-left-header" for="pmu-product-select">
+                PRODUCT
                 <select id="pmu-product-select"
                         name="product"
                         hx-get="{% url 'hr_shop:product_manager_panels' %}"
@@ -66,8 +67,9 @@
 
         {# --- Option filter rows --- #}
         <div class="pmu-select-block">
-            <div class="pmu-option-head">
-                <label class="pmu-left-header">OPTION FILTERS
+            <div class="pmu-select-row">
+                <label class="pmu-left-header">
+                    OPTION FILTERS
                     <a class="card-btn btn-neon btn-yellow btn-sm"
                        hx-get="{{ clear_all_filter_url }}"
                        hx-target="#pmu-panels"
@@ -77,6 +79,8 @@
                     </a>
                 </label>
             </div>
+
+            <br />
 
             {% for row in option_filter_rows %}
                 <div class="pmu-option-row">
@@ -89,13 +93,6 @@
                                hx-swap="innerHTML transition:true"
                                href="{{ row.manage_url }}">
                                 Edit
-                            </a>
-                            <a class="card-btn btn-neon btn-yellow btn-sm"
-                               hx-get="{{ row.clear_url }}"
-                               hx-target="#pmu-panels"
-                               hx-swap="innerHTML transition:true"
-                               href="{{ row.clear_url }}">
-                                Clear
                             </a>
                         </div>
                     </div>

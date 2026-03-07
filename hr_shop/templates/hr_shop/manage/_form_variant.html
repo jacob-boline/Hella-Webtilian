@@ -93,29 +93,31 @@
         {% endfor %}
 
         {# --- Variant image preview --- #}
-        <div class="pmu-image-meta pmu-field-full">
-            <h3 class="pmu-inline-title">Variant Image</h3>
-            <div class="pmu-image-row">
-                <img id="pmu-image-preview"
-                     src="{% if selected_variant and selected_variant.resolve_image and selected_variant.resolve_image.image %}
-                            {{ selected_variant.resolve_image.image.url }}
-                          {% elif selected_product and selected_product.image and selected_product.image.image %}
-                            {{ selected_product.image.image.url }}
-                          {% else %}#{% endif %}"
-                     alt="Variant image preview"
-                     class="pmu-form-image-preview {% if not selected_variant or not selected_variant.resolve_image %}is-hidden{% endif %}">
-                <div>
-                    {% if selected_variant and selected_variant.resolve_image and selected_variant.resolve_image.image %}
-                        <p><strong>Filepath:</strong> {{ selected_variant.resolve_image.image.name }}</p>
-                    {% elif selected_product and selected_product.image and selected_product.image.image %}
-                        <p><strong>Using product image fallback:</strong> {{ selected_product.image.image.name }}</p>
-                    {% else %}
-                        <p class="pmu-note-neutral">No image assigned to this variant yet.</p>
-                    {% endif %}
-                    <p class="pmu-note-neutral">Variant image takes precedence over product image when both exist.</p>
+        {% with variant_img=selected_variant.resolve_image product_img=selected_product.default_image %}
+            <div class="pmu-image-meta pmu-field-full">
+                <h3 class="pmu-inline-title">Variant Image</h3>
+                <div class="pmu-image-row">
+                    <img id="pmu-image-preview"
+                         src="{% if variant_img and variant_img.image %}
+                                {{ variant_img.image.url }}
+                              {% elif product_img and product_img.image %}
+                                {{ product_img.image.url }}
+                              {% else %}#{% endif %}"
+                         alt="Variant image preview"
+                         class="pmu-form-image-preview {% if not variant_img and not product_img %}is-hidden{% endif %}">
+                    <div>
+                        {% if variant_img and variant_img.image %}
+                            <p><strong>Filepath:</strong> {{ variant_img.image.name }}</p>
+                        {% elif product_img and product_img.image %}
+                            <p><strong>Using product image fallback:</strong> {{ product_img.image.name }}</p>
+                        {% else %}
+                            <p class="pmu-note-neutral">No image assigned to this variant yet.</p>
+                        {% endif %}
+                        <p class="pmu-note-neutral">Variant image takes precedence over product image when both exist.</p>
+                    </div>
                 </div>
             </div>
-        </div>
+            {% endwith %}
 
         <div class="pmu-action-row pmu-grid-actions pmu-field-full">
             <button type="submit" class="card-btn btn-neon btn-green pmu-action-btn">

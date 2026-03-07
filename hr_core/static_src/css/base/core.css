@@ -138,6 +138,8 @@
     --muted-text:             #AAA;
     --faint-text:             #888;
 
+    --glass-border: rgba(255, 255, 255, 0.10);
+
     --neon-duration:          6.5s;
 
 
