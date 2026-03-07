@@ -2,7 +2,7 @@
 
 from django.urls import path
 
-from hr_shop.views import cart, checkout, manage, products
+from hr_shop.views import cart, checkout, manage_unified, products
 
 app_name = "hr_shop"
 
@@ -12,27 +12,14 @@ urlpatterns = [
     path("merchModule/<slug:product_slug>/modal/", products.get_product_modal_partial, name="product_modal_partial"),
     path("product/<slug:product_slug>/variant-preview", products.update_details_modal, name="update_details_modal"),
     path("product/<slug:product_slug>/image-for-selection/", products.product_image_for_selection, name="product_image_for_selection"),
-    # Admin: main product manager shell
-    path("manage/", manage.product_manager, name="product_manager"),
-    # Admin: product management partials
-    path("manage/products/", manage.get_manage_product_list_partial, name="get_product_list_partial"),
-    path("manage/product/<int:pk>/", manage.get_manage_product_panel_partial, name="get_product_panel_partial"),
-    path("manage/option-type/<int:pk>/", manage.get_manage_option_type_panel_partial, name="get_manage_option_type_panel_partial"),
-    path("manage/product/<int:pk>/update/", manage.update_product, name="update_product"),
-    # Admin: OptionType CRUD
-    path("manage/product/<int:product_pk>/option-type/create/", manage.create_option_type, name="create_option_type"),
-    path("manage/option-type/<int:pk>/update/", manage.update_option_type, name="update_option_type"),
-    path("manage/option-type/<int:pk>/delete/", manage.delete_option_type, name="delete_option_type"),
-    # Admin: OptionValue CRUD
-    path("manage/option-type/<int:option_type_pk>/value/create/", manage.create_option_value, name="create_option_value"),
-    path("manage/option-value/<int:pk>/update/", manage.update_option_value, name="update_option_value"),
-    path("manage/option-value/<int:pk>/delete/", manage.delete_option_value, name="delete_option_value"),
-    # Admin: Product CRUD
-    path("manage/product/<int:product_pk>/variant/create/", manage.create_variant, name="create_variant"),
-    path("manage/product/create/", manage.create_product, name="create_product"),
-    # Admin: Variant CRUD
-    path("manage/variant/<int:pk>/update/", manage.update_variant, name="update_variant"),
-    path("manage/variant/<int:pk>/delete/", manage.delete_variant, name="delete_variant"),
+    # Admin: product manager (shell + panels partial + per-form POST endpoints)
+    path("manage/", manage_unified.product_manager_shell, name="product_manager"),
+    path("manage/panels/", manage_unified.product_manager_panels, name="product_manager_panels"),
+    path("manage/product/save/", manage_unified.save_product, name="pmu_save_product"),
+    path("manage/variant/save/", manage_unified.save_variant, name="pmu_save_variant"),
+    path("manage/option-type/save/", manage_unified.save_option_type, name="pmu_save_option_type"),
+    path("manage/option-value/save/", manage_unified.save_option_value, name="pmu_save_option_value"),
+    path("manage/delete/", manage_unified.delete_confirmed, name="pmu_delete_confirmed"),
     # Cart
     path("cart/add/<slug:variant_slug>/", cart.add_variant_to_cart, name="add_to_cart"),
     path("cart/add/by-options/<slug:product_slug>/", cart.add_to_cart_by_options, name="add_to_cart_by_options"),

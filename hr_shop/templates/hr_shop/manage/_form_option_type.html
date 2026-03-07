@@ -1,0 +1,56 @@
+{# hr_shop/templates/hr_shop/manage/_form_option_type.html #}
+
+<article class="pmu-card">
+    <h2 class="modal-title">{% if selected_option_type %}Edit Option Type{% else %}New Option Type{% endif %}</h2>
+
+    <form class="pmu-form-grid"
+          hx-post="{% url 'hr_shop:pmu_save_option_type' %}"
+          hx-target="#pmu-panels"
+          hx-swap="innerHTML transition:true">
+
+        {% csrf_token %}
+        <input type="hidden" name="product_id" value="{{ selected_product.id|default:'' }}">
+        <input type="hidden" name="option_type_id" value="{{ selected_option_type.id|default:'' }}">
+        <input type="hidden" name="include_disabled" value="{{ include_disabled|yesno:'1,0' }}">
+        {% for fv in selected_filter_value_ids %}
+            <input type="hidden" name="fv" value="{{ fv }}">
+        {% endfor %}
+
+        {% if selected_option_type %}
+            <div class="pmu-field">
+                <label>ID
+                    <input type="text" value="{{ selected_option_type.id }}" disabled>
+                </label>
+            </div>
+        {% endif %}
+
+        {{ option_type_form.as_p }}
+
+        <div class="pmu-action-row pmu-grid-actions">
+            <button type="submit" class="card-btn btn-neon btn-green pmu-action-btn">Save</button>
+            <a class="card-btn btn-neon btn-blue pmu-action-btn"
+               hx-get="{{ clear_all_filter_url }}"
+               hx-target="#pmu-panels"
+               hx-swap="innerHTML transition:true"
+               href="{{ clear_all_filter_url }}">
+                Cancel
+            </a>
+            {% if selected_option_type %}
+                <a class="card-btn btn-neon btn-green pmu-action-btn"
+                   hx-get="{{ new_option_value_url }}"
+                   hx-target="#pmu-panels"
+                   hx-swap="innerHTML transition:true"
+                   href="{{ new_option_value_url }}">
+                    + Value
+                </a>
+                <a class="card-btn btn-neon btn-red pmu-action-btn {% if not is_superuser %}is-disabled{% endif %}"
+                   hx-get="{{ delete_option_type_url }}"
+                   hx-target="#pmu-panels"
+                   hx-swap="innerHTML transition:true"
+                   href="{{ delete_option_type_url }}">
+                    Delete
+                </a>
+            {% endif %}
+        </div>
+    </form>
+</article>

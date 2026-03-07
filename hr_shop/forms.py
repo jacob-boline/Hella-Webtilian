@@ -1,6 +1,7 @@
 # hr_shop/forms.py
 
 import re
+from typing import cast
 
 from django import forms
 from phonenumber_field.formfields import PhoneNumberField
@@ -18,7 +19,7 @@ class ProductAdminForm(forms.ModelForm):
         queryset=OptionTypeTemplate.objects.filter(active=True),
         required=False,
         label="Apply option templates",
-        help_text="[Select reusable option types to clone onto this product.]",
+        help_text="[Select reusable option types to clone onto this product.]"
     )
 
     class Meta:
@@ -28,14 +29,15 @@ class ProductAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        def label_from_instance(obj: ProductOptionType):
+        def label_from_instance(obj: OptionTypeTemplate):
             values = obj.values.order_by("position", "id").values_list("name", flat=True)
             values_list = ", ".join(values)
             if values_list:
                 return f"{obj.name} ({values_list})"
             return obj.name
 
-        self.fields["option_type_templates"].label_from_instance = label_from_instance
+        field = cast(forms.ModelMultipleChoiceField, self.fields["option_type_templates"])
+        field.label_from_instance = label_from_instance
 
     def save(self, commit=True):
         is_new = self.instance.pk is None
@@ -49,37 +51,52 @@ class ProductAdminForm(forms.ModelForm):
         return product
 
 
-class ProductQuickForm(forms.ModelForm):
+class ProductManagerProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ["name"]
-
-
-class ProductEditForm(forms.ModelForm):
-    class Meta:
-        model = Product
-        fields = ["name", "slug", "description"]
+        fields = ["name", "slug", "description", "default_image", "active"]
         widgets = {
-            "description": forms.Textarea(attrs={"rows": 3}),
+            "description": forms.Textarea(attrs={"rows": 4}),
         }
 
 
-class ProductOptionTypeForm(forms.ModelForm):
-    class Meta:
-        model = ProductOptionType
-        fields = ["name", "code", "position"]
+class ProductManagerVariantForm(forms.ModelForm):
+    new_image_file = forms.ImageField(required=False, label="Upload new image")
 
-
-class ProductOptionValueForm(forms.ModelForm):
-    class Meta:
-        model = ProductOptionValue
-        fields = ["name", "code", "position"]
-
-
-class ProductVariantForm(forms.ModelForm):
     class Meta:
         model = ProductVariant
-        fields = ["sku", "name", "price", "is_display_variant"]
+        fields = ["sku", "slug", "name", "price", "is_display_variant", "active", "image", "option_values"]
+        widgets = {
+            "option_values": forms.CheckboxSelectMultiple(),
+        }
+
+    def __init__(self, *args, product=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        qs = ProductOptionValue.objects.none()
+        if product is not None:
+            qs = ProductOptionValue.objects.filter(option_type__product=product).select_related("option_type").order_by("option_type__position", "position", "id")
+        self.fields["option_values"].queryset = qs
+
+
+class ProductManagerOptionTypeForm(forms.ModelForm):
+    class Meta:
+        model = ProductOptionType
+        fields = ["name", "code", "position", "drives_image", "default_value", "active"]
+
+    def __init__(self, *args, product=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        qs = ProductOptionValue.objects.none()
+        if self.instance and self.instance.pk:
+            qs = ProductOptionValue.objects.filter(option_type=self.instance).order_by("position", "id")
+        elif product is not None:
+            qs = ProductOptionValue.objects.filter(option_type__product=product).order_by("option_type__position", "position", "id")
+        self.fields["default_value"].queryset = qs
+
+
+class ProductManagerOptionValueForm(forms.ModelForm):
+    class Meta:
+        model = ProductOptionValue
+        fields = ["name", "code", "position", "active"]
 
 
 class CheckoutDetailsForm(forms.Form):

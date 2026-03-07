@@ -1,0 +1,148 @@
+{# hr_shop/templates/hr_shop/manage/_left.html #}
+
+
+{#  Left sidebar: product selector dropdown and option filter pills.                     #}
+{#                                                                                       #}
+{#  Filter pill CSS classes:                                                             #}
+{#    is-active         — this value is set as an active fv filter                       #}
+{#    is-variant-value  — selected variant has this value (shown even without fv filter) #}
+{#    is-disabled-value — the option value record itself is inactive                     #}
+
+
+<aside class="pmu-left m-shell" id="pmu-left">
+
+    {# --- Product selector ---#}
+    <div class="pmu-select-block">
+        <div class="pmu-select-row">
+
+{#              The select uses hx-get to reload both panels when the product changes.   #}
+{#              hx-include pulls in the include_disabled hidden input so that preference #}
+{#              is preserved across the product switch.                                  #}
+
+            <label class="pmu-left-header" for="pmu-product-select">
+                PRODUCT
+                <select id="pmu-product-select"
+                        name="product"
+                        hx-get="{% url 'hr_shop:product_manager_panels' %}"
+                        hx-target="#pmu-panels"
+                        hx-swap="innerHTML transition:true"
+                        hx-trigger="change"
+                        hx-include="#pmu-include-disabled">
+                    <option value="">Select a product</option>
+                    {% for product in products %}
+                        <option value="{{ product.id }}"
+                                {% if selected_product and selected_product.id == product.id %}selected{% endif %}>
+                            {{ product.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </label>
+        </div>
+        <div class="pmu-product-select-action-btn-row">
+            {# Carries include_disabled state for the product select hx-include above #}
+            <input type="hidden"
+                   id="pmu-include-disabled"
+                   name="include_disabled"
+                   value="{{ include_disabled|yesno:'1,0' }}">
+
+            <a class="card-btn btn-neon btn-green btn-sm"
+               hx-get="{% url 'hr_shop:product_manager_panels' %}?panel=product&mode=new_product"
+               hx-target="#pmu-panels"
+               hx-swap="innerHTML transition:true"
+               href="{% url 'hr_shop:product_manager_panels' %}?panel=product&mode=new_product">
+                + Add
+            </a>
+
+            <a class="card-btn btn-neon btn-red btn-sm {% if not selected_product or not is_superuser %}is-disabled{% endif %}"
+               hx-get="{{ delete_product_url }}"
+               hx-target="#pmu-panels"
+               hx-swap="innerHTML transition:true"
+               href="{{ delete_product_url }}">
+                🗑 Delete
+            </a>
+        </div>
+    </div>
+
+    {% if selected_product %}
+
+        {# --- Option filter rows --- #}
+        <div class="pmu-select-block">
+            <div class="pmu-select-row">
+                <label class="pmu-left-header">
+                    OPTION FILTERS
+                    <a class="card-btn btn-neon btn-yellow btn-sm"
+                       hx-get="{{ clear_all_filter_url }}"
+                       hx-target="#pmu-panels"
+                       hx-swap="innerHTML transition:true"
+                       href="{{ clear_all_filter_url }}">
+                        Clear all
+                    </a>
+                </label>
+            </div>
+
+            <br />
+
+            {% for row in option_filter_rows %}
+                <div class="pmu-option-row">
+                    <div class="pmu-option-row-head">
+                        <span class="pmu-option-name">{{ row.option_type.name }}</span>
+                        <div class="pmu-option-row-actions">
+                            <a class="card-btn btn-neon btn-blue btn-sm"
+                               hx-get="{{ row.manage_url }}"
+                               hx-target="#pmu-panels"
+                               hx-swap="innerHTML transition:true"
+                               href="{{ row.manage_url }}">
+                                Edit
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="pmu-pill-list">
+                        {% for value in row.values %}
+                            <a href="{{ value.url }}"
+                               hx-get="{{ value.url }}"
+                               hx-target="#pmu-panels"
+                               hx-swap="innerHTML transition:true"
+                               class="pmu-pill
+                                      {% if value.is_active_filter %}is-active{% endif %}
+                                      {% if value.is_variant_value and not value.is_active_filter %}is-variant-value{% endif %}
+                                      {% if value.disabled %}is-disabled-value{% endif %}">
+                                {{ value.name }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% empty %}
+                <p class="pmu-note">No option types yet for this product.</p>
+            {% endfor %}
+        </div>
+
+        {# --- Quick-action buttons --- #}
+        <div class="pmu-left-actions">
+            <a class="card-btn btn-neon btn-green pmu-action-btn"
+               hx-get="{{ new_variant_url }}"
+               hx-target="#pmu-panels"
+               hx-swap="innerHTML transition:true"
+               href="{{ new_variant_url }}">
+                + Variant
+            </a>
+
+            <a class="card-btn btn-neon btn-green pmu-action-btn"
+               hx-get="{{ new_option_type_url }}"
+               hx-target="#pmu-panels"
+               hx-swap="innerHTML transition:true"
+               href="{{ new_option_type_url }}">
+                + Option Type
+            </a>
+
+            <a class="card-btn btn-neon btn-blue pmu-action-btn"
+               hx-get="{{ edit_product_url }}"
+               hx-target="#pmu-panels"
+               hx-swap="innerHTML transition:true"
+               href="{{ edit_product_url }}">
+                Edit Product
+            </a>
+        </div>
+
+    {% endif %}
+</aside>

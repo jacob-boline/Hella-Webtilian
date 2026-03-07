@@ -1,0 +1,22 @@
+{# hr_shop/templates/hr_shop/manage/_shell.html #}
+
+{% extends "hr_common/base.html" %}
+
+{% block title %}Product Manager · Hella Reptilian{% endblock %}
+
+{% block content %}
+<div class="pmu-page">
+    <header class="pmu-page-head">
+        <h1 class="sub-header">Product Management</h1>
+        <p class="pmu-subtitle">Option-first variant management with filtered variant resolution.</p>
+    </header>
+
+{#      #pmu-panels is the single HTMX swap target for the entire product manager.          #}
+{#      Every navigation link and form submission within targets this element.              #}
+{#      The shell renders it inline on first load; subsequent interactions swap innerHTML.  #}
+
+    <div class="pmu-layout" id="pmu-panels">
+        {% include "hr_shop/manage/_panels.html" %}
+    </div>
+</div>
+{% endblock %}

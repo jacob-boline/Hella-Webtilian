@@ -1,0 +1,44 @@
+{# hr_shop/templates/hr_shop/manage/_confirm_delete.html #}
+
+<article class="pmu-card">
+    <h2 class="modal-title">Confirm delete: {{ delete_plan.label }}</h2>
+
+    {% if delete_plan.soft_delete %}
+        <p class="pmu-note">This item has related records and will be set to <strong>inactive</strong> instead of hard-deleted.</p>
+    {% else %}
+        <p class="pmu-note">No protected related records were found. A <strong>hard delete</strong> will occur.</p>
+    {% endif %}
+
+    {% if delete_plan.cascades %}
+        <p><strong>Also affected:</strong></p>
+        <ul>
+            {% for item in delete_plan.cascades %}
+                <li>{{ item }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <form class="pmu-action-row pmu-grid-actions"
+          hx-post="{% url 'hr_shop:pmu_delete_confirmed' %}"
+          hx-target="#pmu-panels"
+          hx-swap="innerHTML transition:true">
+
+        {% csrf_token %}
+        <input type="hidden" name="delete_kind" value="{{ delete_plan.kind }}">
+        <input type="hidden" name="delete_id" value="{{ delete_plan.id }}">
+        <input type="hidden" name="product_id" value="{{ selected_product.id|default:'' }}">
+        <input type="hidden" name="include_disabled" value="{{ include_disabled|yesno:'1,0' }}">
+        {% for fv in selected_filter_value_ids %}
+            <input type="hidden" name="fv" value="{{ fv }}">
+        {% endfor %}
+
+        <button type="submit" class="card-btn btn-neon btn-red pmu-action-btn">Confirm delete</button>
+        <a class="card-btn btn-neon btn-blue pmu-action-btn"
+           hx-get="{{ clear_all_filter_url }}"
+           hx-target="#pmu-panels"
+           hx-swap="innerHTML transition:true"
+           href="{{ clear_all_filter_url }}">
+            Cancel
+        </a>
+    </form>
+</article>

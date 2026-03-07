@@ -8,7 +8,7 @@ from hr_shop.models import ConfirmedEmail, Customer, Order, OrderItem, Product, 
 
 # NOTE -- implement next time working in admin
 #
-# Admin uses forms, so if you also normalize in the field’s to_python() (optional),
+# Admin uses forms, so if you also normalize in the field’s to_python()
 # the admin will display the normalized email back to the user immediately on save.
 # If you only normalize in pre_save(), it still saves normalized, just might look
 # “un-normalized” until refresh depending on how the form bound value is shown.
@@ -34,7 +34,7 @@ class ProductVariantAdmin(admin.ModelAdmin):
 
 
 @admin.register(ProductOptionType)
-class ProductOptionT9ypeAdmin(admin.ModelAdmin):
+class ProductOptionTypeAdmin(admin.ModelAdmin):
     list_display = ("product", "name", "code", "position", "active")
     list_editable = ("name", "code", "position", "active")
     list_display_links = ("product",)

@@ -1,0 +1,158 @@
+{# hr_shop/templates/hr_shop/manage/_form_variant.html #}
+
+<article class="pmu-card">
+    <h2 class="modal-title">{% if selected_variant %}Edit Variant{% else %}New Variant{% endif %}</h2>
+
+    <form class="pmu-form-grid"
+          id="pmu-variant-form"
+          enctype="multipart/form-data"
+          hx-post="{% url 'hr_shop:pmu_save_variant' %}"
+          hx-target="#pmu-panels"
+          hx-swap="innerHTML transition:true"
+          hx-encoding="multipart/form-data">
+
+        {% csrf_token %}
+        <input type="hidden" name="product_id" value="{{ selected_product.id|default:'' }}">
+        <input type="hidden" name="variant_id" value="{{ selected_variant.id|default:'' }}">
+        <input type="hidden" name="include_disabled" value="{{ include_disabled|yesno:'1,0' }}">
+        {% for fv in selected_filter_value_ids %}
+            <input type="hidden" name="fv" value="{{ fv }}">
+        {% endfor %}
+
+        {% if selected_variant %}
+            <div class="pmu-field">
+                <label>ID
+                    <input type="text" value="{{ selected_variant.id }}" disabled>
+                </label>
+            </div>
+        {% endif %}
+
+{#          Render all fields EXCEPT option_values, image, and new_image_file.  #}
+{#          Those three are placed manually below the option value checkboxes.  #}
+
+        {% for field in variant_form %}
+            {% if field.name != 'option_values' and field.name != 'image' and field.name != 'new_image_file' %}
+                <div class="pmu-field">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}
+                        {{ field }}
+                    </label>
+                    {% if field.errors %}
+                        <div class="pmu-error">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        {# --- Option value checkboxes, grouped by option type --- #}
+        <div class="pmu-field pmu-field-full">
+            <div class="pmu-option-group-head">
+                <label>Option values
+                    <a class="card-btn btn-neon btn-blue btn-sm"
+                       hx-get="{{ toggle_disabled_url }}"
+                       hx-target="#pmu-panels"
+                       hx-swap="innerHTML transition:true"
+                       href="{{ toggle_disabled_url }}">
+                        {% if include_disabled %}Hide disabled{% else %}Show disabled{% endif %}
+                    </a>
+                </label>
+            </div>
+
+            {% for group in variant_option_groups %}
+                <div class="pmu-option-group-row">
+                    <div class="pmu-option-group-title">{{ group.type.name }}</div>
+                    <div class="pmu-option-group-values">
+                        {% for value in group.values %}
+                            <label class="pmu-option-check {% if not value.active %}is-disabled-value{% endif %}">
+                                <input type="checkbox"
+                                       name="option_values"
+                                       value="{{ value.id }}"
+                                       {% if value.checked %}checked{% endif %}
+                                       {% if not value.active %}disabled{% endif %}>
+                                <span>{{ value.name }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% empty %}
+                <p class="pmu-note-neutral">No option values are available for this product.</p>
+            {% endfor %}
+        </div>
+
+        {# --- Image fields --- #}
+        {% for field in variant_form %}
+            {% if field.name == 'image' or field.name == 'new_image_file' %}
+                <div class="pmu-field">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}
+                        {{ field }}
+                    </label>
+                    {% if field.errors %}
+                        <div class="pmu-error">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        {# --- Variant image preview --- #}
+        {% with variant_img=selected_variant.resolve_image product_img=selected_product.default_image %}
+            <div class="pmu-image-meta pmu-field-full">
+                <h3 class="pmu-inline-title">Variant Image</h3>
+                <div class="pmu-image-row">
+                    <img id="pmu-image-preview"
+                         src="{% if variant_img and variant_img.image %}
+                                {{ variant_img.image.url }}
+                              {% elif product_img and product_img.image %}
+                                {{ product_img.image.url }}
+                              {% else %}#{% endif %}"
+                         alt="Variant image preview"
+                         class="pmu-form-image-preview {% if not variant_img and not product_img %}is-hidden{% endif %}">
+                    <div>
+                        {% if variant_img and variant_img.image %}
+                            <p><strong>Filepath:</strong> {{ variant_img.image.name }}</p>
+                        {% elif product_img and product_img.image %}
+                            <p><strong>Using product image fallback:</strong> {{ product_img.image.name }}</p>
+                        {% else %}
+                            <p class="pmu-note-neutral">No image assigned to this variant yet.</p>
+                        {% endif %}
+                        <p class="pmu-note-neutral">Variant image takes precedence over product image when both exist.</p>
+                    </div>
+                </div>
+            </div>
+            {% endwith %}
+
+        <div class="pmu-action-row pmu-grid-actions pmu-field-full">
+            <button type="submit" class="card-btn btn-neon btn-green pmu-action-btn">
+                Save
+            </button>
+            <a class="card-btn btn-neon btn-blue pmu-action-btn"
+               hx-get="{{ clear_all_filter_url }}"
+               hx-target="#pmu-panels"
+               hx-swap="innerHTML transition:true"
+               href="{{ clear_all_filter_url }}">
+                Cancel
+            </a>
+            {% if selected_variant %}
+                <a class="card-btn btn-neon btn-red pmu-action-btn {% if not is_superuser %}is-disabled{% endif %}"
+                   hx-get="{{ delete_variant_url }}"
+                   hx-target="#pmu-panels"
+                   hx-swap="innerHTML transition:true"
+                   href="{{ delete_variant_url }}">
+                    Delete
+                </a>
+            {% endif %}
+        </div>
+    </form>
+</article>
+
+<script>
+    (function () {
+        const fileInput = document.getElementById('id_new_image_file');
+        const preview = document.getElementById('pmu-image-preview');
+        if (!fileInput || !preview) return;
+        fileInput.addEventListener('change', function (e) {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+            preview.src = URL.createObjectURL(file);
+            preview.classList.remove('is-hidden');
+        });
+    })();
+</script>

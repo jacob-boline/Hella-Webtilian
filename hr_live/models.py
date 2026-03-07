@@ -4,17 +4,14 @@ import datetime
 from zoneinfo import ZoneInfo
 
 from django.conf import settings
-from django.core.exceptions import ValidationError
-from django.core.validators import EmailValidator, URLValidator
 from django.db import models
-from django.db.models import Prefetch, QuerySet
-from django.utils import timezone
+from django.db.models import Q, QuerySet
 from phonenumber_field.modelfields import PhoneNumberField
 from phonenumber_field.phonenumber import PhoneNumber
 
 from hr_common.db.slug import sync_slug_from_source
 from hr_common.models import Address
-from hr_live.managers import ActManager, BookerManager, MusicianManager, ShowManager, VenueManager
+from hr_live.managers import BookerManager, MusicianManager, ShowManager
 
 
 def fmt(obj):
@@ -26,14 +23,18 @@ def fmt(obj):
 
 
 class Individual(models.Model):
-    first_name = models.CharField(max_length=50, blank=False, null=False, verbose_name="First Name")
-    last_name = models.CharField(max_length=50, blank=False, null=True, verbose_name="Last Name")
-    note = models.TextField(max_length=255, blank=True, null=True, verbose_name="Note")
-    email = models.EmailField(blank=True, null=True, verbose_name="Email", unique=True)
-    phone_number = PhoneNumberField(blank=True, null=True, verbose_name="Phone", unique=True)
+    first_name = models.CharField(max_length=50, verbose_name="First Name")
+    last_name = models.CharField(max_length=50, blank=True, verbose_name="Last Name")
+    note = models.TextField(max_length=255, blank=True, verbose_name="Note")
+    email = models.EmailField(blank=True, verbose_name="Email")
+    phone_number = PhoneNumberField(blank=True, verbose_name="Phone")
 
     class Meta:
         abstract = True
+        constraints = [
+            models.UniqueConstraint(fields=["email"], condition=~Q(email=""), name="uniq_nonblank_individual_email"),
+            models.UniqueConstraint(fields=["phone_number"], condition=~Q(phone_number=""), name="uniq_nonblank_individual_phone_number")
+        ]
 
     def __str__(self):
         return self.full_name
@@ -48,27 +49,25 @@ class Individual(models.Model):
         return phone.as_national if phone else "N/A"
 
 
-class Day(models.Model):
-    DAY_CHOICES = (("MON", "Monday"), ("TUE", "Tuesday"), ("WED", "Wednesday"), ("THU", "Thursday"), ("FRI", "Friday"), ("SAT", "Saturday"), ("SUN", "Sunday"))
-    name = models.CharField(choices=DAY_CHOICES, max_length=10, blank=True, null=True, verbose_name="Day of the Week")
-
-
 class Venue(models.Model):
-    address = models.ForeignKey(Address, related_name="venue", null=True, verbose_name="Address", on_delete=models.PROTECT)
+    address = models.ForeignKey(Address, related_name="venues", null=True, verbose_name="Address", on_delete=models.PROTECT)  # not a one-to-one field for the case of a venue being renamed/sold
     bookers = models.ManyToManyField("Booker", related_name="venues", verbose_name="Bookers")
-    note = models.TextField(max_length=5000, blank=True, null=True, verbose_name="Note")
-    name = models.CharField(max_length=100, blank=False, unique=True, null=False, verbose_name="Name")
+    note = models.TextField(max_length=5000, blank=True, verbose_name="Note")
+    name = models.CharField(max_length=100, unique=True, verbose_name="Name")
     slug = models.SlugField(max_length=140, blank=True, unique=True)
-    website = models.URLField(max_length=250, blank=False, unique=True, null=True, validators=[URLValidator()])
-    email = models.EmailField(blank=True, unique=True, null=True, verbose_name="Email", validators=[EmailValidator()])
-    phone_number = PhoneNumberField(blank=True, unique=True, null=True, verbose_name="Phone")
-
-    objects = VenueManager()
+    website = models.URLField(max_length=250, blank=True)
+    email = models.EmailField(blank=True, max_length=254, verbose_name="Email")
+    phone_number = PhoneNumberField(blank=True, verbose_name="Phone")
 
     class Meta:
         verbose_name_plural = "venues"
         ordering = ["name"]
         indexes = [models.Index(fields=["name"])]
+        constraints = [
+            models.UniqueConstraint(fields=["website"], condition=~Q(website=""), name="uniq_nonblank_venue_website"),
+            models.UniqueConstraint(fields=["email"], condition=~Q(email=""), name="uniq_nonblank_venue_email"),
+            models.UniqueConstraint(fields=["phone_number"], condition=~Q(phone_number=""), name="uniq_nonblank_venue_phone_number")
+        ]
 
     def __str__(self):
         return self.name
@@ -90,7 +89,7 @@ class Venue(models.Model):
             "Phone Number": self.formatted_phone,
             "Email": fmt(self.email),
             "Bookers": fmt(", ".join(booker.full_name for booker in self.bookers.all())),
-            "IS_VENUE": "IS_VENUE",
+            "IS_VENUE": "IS_VENUE"
         }
 
     @staticmethod
@@ -103,39 +102,26 @@ class Venue(models.Model):
 
     @property
     def upcoming_shows(self) -> QuerySet:
-        today = timezone.now().date()
-        return self.shows.filter(date__gte=today).prefetch_related("lineup")
-
-    @staticmethod
-    def validate_url(url: str) -> bool:
-        url_validator = URLValidator()
-        try:
-            url_validator(url)
-            return True
-        except ValidationError:
-            return False
+        return Show.objects.upcoming().with_lineup_names()
 
     def add_booker(self, booker: "Booker") -> bool:
         if not isinstance(booker, Booker):
             return False
-
         added = not self.bookers.filter(pk=booker.pk).exists()
         if added:
             self.bookers.add(booker)
-            self.save()
-
         return added
 
     def remove_booker(self, booker: "Booker") -> bool:
         if not isinstance(booker, Booker):
             return False
-
         removed = self.bookers.filter(pk=booker.pk).exists()
         if removed:
             self.bookers.remove(booker)
-            self.save()
-
         return removed
+
+    def get_booker_names(self):
+        return ", ".join(booker.full_name for booker in self.bookers.all())
 
 
 class Booker(Individual):
@@ -159,29 +145,22 @@ class Booker(Individual):
     def add_venue(self, venue: Venue) -> bool:
         if not isinstance(venue, Venue):
             return False
-
         added = not self.venues.filter(pk=venue.pk).exists()
         if added:
             self.venues.add(venue)
-            self.save()
-
         return added
 
     def remove_venue(self, venue: Venue) -> bool:
         if not isinstance(venue, Venue):
             return False
-
         removed = self.venues.filter(pk=venue.pk).exists()
         if removed:
             self.venues.remove(venue)
-            self.save()
-
         return removed
 
     @property
     def upcoming_shows(self) -> QuerySet:
-        today = timezone.now().date()
-        return self.shows.filter(date__gte=today)
+        return Show.objects.upcoming()
 
 
 class Musician(Individual):
@@ -200,16 +179,17 @@ class Musician(Individual):
 
 
 class Act(models.Model):
-    members = models.ManyToManyField(Musician, related_name="projects", verbose_name="Members")
-    contacts = models.ManyToManyField(Musician, related_name="contacts", verbose_name="Contacts")
-    name = models.CharField(max_length=255, blank=False, null=False, unique=True)
-    website = models.URLField(max_length=255, blank=False, null=True, unique=True, validators=[URLValidator()])
-    note = models.TextField(max_length=5000, blank=True, null=True, verbose_name="Note")
-
-    objects = ActManager()
+    members  = models.ManyToManyField(Musician,  related_name="projects", verbose_name="Members")
+    contacts = models.ManyToManyField(Musician,  related_name="contacts", verbose_name="Contacts")
+    name     = models.CharField(max_length=255, unique=True)
+    website  = models.URLField( max_length=255,  blank=True)
+    note     = models.TextField(max_length=5000, blank=True, verbose_name="Note", default="")
 
     class Meta:
         verbose_name_plural = "acts"
+        constraints = [
+            models.UniqueConstraint(fields=["website"], condition=~Q(website=""), name="uniq_nonblank_act_website")
+        ]
 
     def __str__(self):
         return self.name
@@ -236,13 +216,7 @@ class Act(models.Model):
 
     @property
     def upcoming_shows(self) -> QuerySet:
-        today = timezone.now().date()
-        return (
-            self.shows.filter(date__gte=today)
-            .select_related("venue")
-            .prefetch_related(Prefetch("lineup", queryset=Act.objects.only("id", "name")))
-            .only("id", "date", "time", "venue")
-        )
+        return Show.objects.upcoming().card_ready()
 
     @property
     def all_shows(self) -> QuerySet:
@@ -250,8 +224,7 @@ class Act(models.Model):
 
     @property
     def past_shows(self) -> QuerySet:
-        today = timezone.now().date()
-        return self.shows.filter(date__lt=today)
+        return Show.objects.past()
 
 
 def show_image_storage(instance, filename):
@@ -267,8 +240,8 @@ class Show(models.Model):
     venue = models.ForeignKey(Venue, related_name="shows", verbose_name="Venue", on_delete=models.PROTECT)
     booker = models.ForeignKey(Booker, related_name="shows", verbose_name="Booker", on_delete=models.PROTECT, null=True)
     lineup = models.ManyToManyField(Act, related_name="shows", verbose_name="Lineup")
-    date = models.DateField(null=True, blank=False, default=None, verbose_name="Date")
-    time = models.TimeField(null=True, blank=False, default=None, verbose_name="Time")
+    date = models.DateField(null=True, blank=True, default=None, verbose_name="Date")
+    time = models.TimeField(null=True, blank=True, default=None, verbose_name="Time")
     image = models.ImageField(upload_to=show_image_storage, max_length=100, null=True)
     slug = models.SlugField(max_length=140, unique=True, blank=True, help_text="URL identifier auto-generated from date and venue.")
     status = models.CharField(max_length=10, default="draft", choices=STATUS_CHOICES)
@@ -285,7 +258,6 @@ class Show(models.Model):
         date_str = self._formatted_date_short()
         time_str = self._formatted_time_short()
         venue_str = self.venue.name if self.venue_id else "Venue TBD"
-
         return f"{date_str} -- {venue_str} -- {time_str}"
 
     def save(self, *args, **kwargs):
@@ -324,7 +296,7 @@ class Show(models.Model):
             "Venue": fmt(self.venue),
             "Booker": fmt(self.booker),
             "Lineup": fmt(", ".join(act.name for act in self.lineup.all())),
-            "IS_SHOW": "IS_SHOW",
+            "IS_SHOW": "IS_SHOW"
         }
 
     @property
@@ -365,9 +337,12 @@ class Show(models.Model):
 
 
 class VenueBookerDay(models.Model):
-    venue = models.ForeignKey(Venue, on_delete=models.CASCADE, unique=False, blank=False, null=False)
-    booker = models.ForeignKey(Booker, on_delete=models.CASCADE, unique=False, blank=False, null=True)
-    day = models.ForeignKey(Day, on_delete=models.PROTECT, unique=False, blank=False, null=True)
+    DAY_CHOICES = [("MON", "Monday"),("TUE", "Tuesday"),("WED", "Wednesday"),("THU", "Thursday"),("FRI", "Friday"),("SAT", "Saturday"),("SUN", "Sunday")]
+    venue = models.ForeignKey(Venue, on_delete=models.CASCADE)
+    booker = models.ForeignKey(Booker, on_delete=models.CASCADE, null=True)
+    day = models.CharField(max_length=3, choices=DAY_CHOICES, null=True)
 
     class Meta:
-        unique_together = ("venue", "day")
+        constraints = [
+            models.UniqueConstraint(fields=["venue", "day"], name="uniq_venue_booker_day")
+        ]
