@@ -30,7 +30,7 @@ RUN uv sync --frozen --no-dev \
 #########################
 # PY DEV BUILDER        #
 #########################
-FROM:3.11-slim-bookworm AS py-dev-builder
+FROM python:3.11-slim-bookworm AS py-dev-builder
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
