@@ -17,41 +17,43 @@ echo "========================================="
 
 wait_for_db() {
   echo "Waiting for PostgreSQL..."
-
   DB_HOST="${DB_HOST:-db}"
   DB_PORT="${DB_PORT:-5432}"
-
   while ! nc -z "$DB_HOST" "$DB_PORT"; do
     sleep 0.1
   done
-
   echo "PostgreSQL is available!"
 }
 
 wait_for_redis() {
   echo "Waiting for Redis..."
-
   REDIS_HOST="${REDIS_HOST:-redis}"
   REDIS_PORT="${REDIS_PORT:-6379}"
-
   while ! nc -z "$REDIS_HOST" "$REDIS_PORT"; do
     sleep 0.1
   done
-
   echo "Redis is available!"
 }
 
 wait_for_db
 wait_for_redis
 
-# Build Vite assets (prod-like: compile JS/CSS bundles + manifest.json)
-echo "Building Vite assets..."
-npm run build
+VITE_MANIFEST="hr_core/static/hr_core/dist/.vite/manifest.json"
+if [[ "${VITE_FORCE_BUILD:-0}" == "1" || ! -f "$VITE_MANIFEST" ]]; then
+  echo "Building Vite assets..."
+  npm run build
+else
+  echo "Vite dist found -- skipping build. Set VITE_FORCE_BUILD=1 to force."
+fi
 
-# Collect static files into staticfiles/ so nginx can serve them
-echo "Collecting static files..."
-python manage.py collectstatic --noinput --clear
-
+STATIC_MARKER="staticfiles/.collectstatic_done"
+if [[ "${COLLECTSTATIC:-false}" == "true" || ! -f "$STATIC_MARKER" ]]; then
+  echo "Collecting static files..."
+  python manage.py collectstatic --noinput --clear
+  touch "$STATIC_MARKER"
+else
+  echo "Static files already collected -- skipping. Set COLLECTSTATIC=true to force."
+fi
 
 echo "========================================="
 echo "Container dependencies ready; starting main process..."

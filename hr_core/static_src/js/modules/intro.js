@@ -4,6 +4,7 @@
     'use strict';
 
     const INTRO_BOOT_FLAG = '__hrIntroInitialized';
+    const SKIP_MIN_ELAPSED_MS = 1600;
 
     // ===========================
     // Configuration & Timing
@@ -188,6 +189,9 @@
 
     function skipIntro () {
         if (STATE.phase !== 'active') return;
+
+        const elapsed = STATE.startTime ? performance.now() - STATE.startTime: 0;
+        if (elapsed < SKIP_MIN_ELAPSED_MS) return;
 
         STATE.skipRequested = true;
         clearAllTimeouts();

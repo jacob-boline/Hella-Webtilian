@@ -5,9 +5,15 @@ backups/
 .venv
 node_modules/
 __pycache__/
+*.py[cod]
 .ruff_cache/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
 
-logs
+logs/
+*.log
 db.sqlite3
 
 .git
@@ -16,7 +22,7 @@ db.sqlite3
 .pre-commit-config.yaml
 *.md
 Dockerfile.dev
-docker-compose.dev.yml
+docker-compose*.yml
 !/docker/.md/
 /staticfiles/
 /static/
@@ -24,3 +30,11 @@ docker-compose.dev.yml
 /media/
 /hr_core/static/hr_core/dist/
 /docs/
+
+secrets/
+*.pem
+*.key
+
+*.swp
+*.swo
+

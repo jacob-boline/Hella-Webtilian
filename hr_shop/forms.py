@@ -28,26 +28,22 @@ class ProductAdminForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         def label_from_instance(obj: OptionTypeTemplate):
             values = obj.values.order_by("position", "id").values_list("name", flat=True)
             values_list = ", ".join(values)
             if values_list:
                 return f"{obj.name} ({values_list})"
             return obj.name
-
         field = cast(forms.ModelMultipleChoiceField, self.fields["option_type_templates"])
         field.label_from_instance = label_from_instance
 
     def save(self, commit=True):
         is_new = self.instance.pk is None
         product = super().save(commit=commit)
-
         templates = self.cleaned_data.get("option_type_templates")
         if commit and templates and is_new:
             for tmpl in templates:
                 tmpl.clone_to_product(product, include_values=True)
-
         return product
 
 
@@ -56,7 +52,7 @@ class ProductManagerProductForm(forms.ModelForm):
         model = Product
         fields = ["name", "slug", "description", "default_image", "active"]
         widgets = {
-            "description": forms.Textarea(attrs={"rows": 4}),
+            "description": forms.Textarea(attrs={"rows": 4})
         }
 
 
@@ -67,7 +63,7 @@ class ProductManagerVariantForm(forms.ModelForm):
         model = ProductVariant
         fields = ["sku", "slug", "name", "price", "is_display_variant", "active", "image", "option_values"]
         widgets = {
-            "option_values": forms.CheckboxSelectMultiple(),
+            "option_values": forms.CheckboxSelectMultiple()
         }
 
     def __init__(self, *args, product=None, **kwargs):
@@ -120,9 +116,7 @@ class CheckoutDetailsForm(forms.Form):
         cleaned = super().clean()
         bt = cleaned.get("building_type")
         unit = (cleaned.get("unit") or "").strip()
-
         needs_unit = bt in ("apartment",)
-
         if needs_unit and not unit:
             self.add_error("unit", "Unit is required for this building type.")
         return cleaned

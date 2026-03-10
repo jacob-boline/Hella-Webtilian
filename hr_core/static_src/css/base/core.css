@@ -264,7 +264,7 @@ nav.navbar {
     opacity:          0;
     background-color: #14532D;
     transition:       transform .2s ease-out,
-                      opacity .2s ease-out;
+                      opacity   .2s ease-out;
     font-family:      Quantico, sans-serif;
 }
 
@@ -441,25 +441,13 @@ nav.navbar {
 }
 
 @keyframes modal-content-out {
-    from {
-        opacity:   1;
-        transform: translateY(0);
-    }
-    to {
-        opacity:   0;
-        transform: translateY(6px);
-    }
+    from { opacity:   1; transform: translateY(0);   }
+    to   { opacity:   0; transform: translateY(6px); }
 }
 
 @keyframes modal-content-in {
-    from {
-        opacity:   0;
-        transform: translateY(-6px);
-    }
-    to {
-        opacity:   1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0);    }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -519,8 +507,8 @@ nav.navbar {
     color:           var(--text);
     cursor:          pointer;
     box-shadow:      0 0 18px var(--neon-cyan-alpha-15);
-    transition:      transform .2s ease,
-                     opacity 1s ease,
+    transition:      transform  .2s ease,
+                     opacity     1s ease,
                      background .2s ease;
 }
 

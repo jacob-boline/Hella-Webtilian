@@ -18,16 +18,16 @@ class PaymentAttemptStatus(models.TextChoices):
 
 class PaymentAttempt(models.Model):
     order = models.ForeignKey("hr_shop.Order", on_delete=models.PROTECT, related_name="payment_attempts")
-    provider_session_id = models.CharField(max_length=255, null=True, blank=True)
-    client_secret = models.TextField(null=True, blank=True)
-    provider_payment_intent_id = models.CharField(max_length=255, null=True, blank=True)
-    failure_code = models.CharField(max_length=100, null=True, blank=True)
+    provider_session_id = models.CharField(max_length=255, blank=True)
+    client_secret = models.TextField(blank=True)
+    provider_payment_intent_id = models.CharField(max_length=255, blank=True)
+    failure_code = models.CharField(max_length=100, blank=True)
     status = models.CharField(max_length=20, choices=PaymentAttemptStatus.choices, default=PaymentAttemptStatus.CREATED, db_index=True)
     provider = models.CharField(max_length=32, default="stripe")
     currency = models.CharField(max_length=10, default="usd")
     amount_cents = models.PositiveIntegerField(default=0)
-    failure_message = models.TextField(null=True, blank=True)
-    raw = models.JSONField(null=True, blank=True)
+    failure_message = models.TextField(blank=True)
+    raw = models.JSONField(blank=True)
     created_at = models.DateTimeField(default=timezone.now, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
     finalized_at = models.DateTimeField(null=True, blank=True)
@@ -36,19 +36,19 @@ class PaymentAttempt(models.Model):
         indexes = [
             models.Index(fields=["order", "created_at"]),
             models.Index(fields=["provider_session_id"]),
-            models.Index(fields=["provider_payment_intent_id"]),
+            models.Index(fields=["provider_payment_intent_id"])
         ]
         constraints = [
             models.UniqueConstraint(
                 fields=["provider_session_id"],
-                condition=Q(provider_session_id__isnull=False),
-                name="uq_paymentattempt_provider_session_id_not_null",
+                condition=~Q(provider_session_id=""),
+                name="uq_paymentattempt_provider_session_id_not_blank"
             ),
             models.UniqueConstraint(
                 fields=["provider_payment_intent_id"],
-                condition=Q(provider_payment_intent_id__isnull=False),
-                name="uq_paymentattempt_payment_intent_id_not_null",
-            ),
+                condition=~Q(provider_payment_intent_id=""),
+                name="uq_paymentattempt_payment_intent_id_not_blank"
+            )
         ]
 
     def mark_final(self, new_status: str, *, code: str | None = None, msg: str | None = None):
@@ -70,4 +70,4 @@ class WebhookEvent(models.Model):
     received_at = models.DateTimeField(default=timezone.now)
     processed_at = models.DateTimeField(null=True, blank=True)
     ok = models.BooleanField(default=False)
-    error = models.TextField(null=True, blank=True)
+    error = models.TextField(blank=True)

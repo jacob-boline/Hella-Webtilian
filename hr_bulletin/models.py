@@ -12,7 +12,7 @@ from hr_common.db.slug import sync_slug_from_source
 
 
 class Tag(models.Model):
-    name = models.CharField(max_length=50, unique=True, blank=False, null=False)
+    name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField(max_length=60, unique=True)
 
     class Meta:

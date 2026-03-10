@@ -119,6 +119,12 @@ document.addEventListener('DOMContentLoaded', () => {
     feather.replace();
 });
 
-removePrepaintAfterFirstFrame();
 deferUntilAfterFirstPaint(initVhFix);
-fireAndForget(() => bootstrapApp(), 'bootstrapApp');
+fireAndForget(async () => {
+    try {
+        await bootstrapApp();
+    } catch (err) {
+        removePrepaintAfterFirstFrame();
+        throw err;
+    }
+}, 'bootstrapApp');
