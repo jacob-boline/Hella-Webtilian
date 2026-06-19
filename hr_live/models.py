@@ -229,7 +229,7 @@ class Act(models.Model):
 
 def show_image_storage(instance, filename):
     user_part = f"user_{instance.created_by.pk}" if instance.created_by_id else "user_unknown"
-    return f"{user_part}/{filename}"
+    return f"media/shows/{user_part}/{filename}"
 
 
 class Show(models.Model):
